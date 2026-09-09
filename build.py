@@ -162,7 +162,7 @@ def source_dir() -> Path:
 
 def freeze(py: Path, src: Path) -> Path:
     # The spec must sit in the folder being frozen, because SPECPATH is how it
-    # finds km_template.npy and tones/. In a distribution checkout it is
+    # finds km_template.npy. In a distribution checkout it is
     # already there; in the dev tree it is copied across.
     spec = src / "sc-watch.spec"
     if spec.resolve() != (HERE / "sc-watch.spec").resolve():

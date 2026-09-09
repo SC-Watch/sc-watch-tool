@@ -26,9 +26,13 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      # Action majors are current on purpose. The v4/v5 generation runs on
+      # Node 20, which GitHub has deprecated on its runners; every step
+      # using one emits a warning now and stops working later.
 
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
         with:
           # The version every measurement in the engineering log was taken on.
           python-version: "3.13"
@@ -70,7 +74,7 @@ jobs:
           & ".\dist\sc-watch\sc-watch.exe" --where
           if ($LASTEXITCODE -ne 0) { throw "the built exe did not run" }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sc-watch-windows
           path: |
@@ -80,7 +84,7 @@ jobs:
 
       - name: Publish the release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: true          # you press publish, after checking the assets
           generate_release_notes: true

@@ -44,8 +44,22 @@ HERE = Path(SPECPATH)
 # executable, which is where a one-folder build puts datas.
 datas = [
     (str(HERE / "km_template.npy"), "."),
-    (str(HERE / "tones"), "tones"),
 ]
+
+# THE TONES ARE NOT BUNDLED, deliberately.
+#
+# They used to be, and it broke the first CI release: the WAVs are generated
+# output rather than source, so they are gitignored, so a clean checkout has no
+# tones/ directory, so PyInstaller aborted with "Unable to find ... tones".
+#
+# Adding them back would not have helped either, because audio.py reads them
+# from the DATA root, not from the bundle - it calls paths.data_dir("tones"),
+# writes them there on first run if the directory is empty, and plays them from
+# there. A copy inside _internal would never be opened.
+#
+# Leaving them out is also the friendlier arrangement: the tones land in the
+# user's own data folder, where anyone who wants different sounds can simply
+# replace the files.
 
 # The OCR engine's models and configs.
 datas += collect_data_files("rapidocr_onnxruntime", include_py_files=False)
