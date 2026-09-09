@@ -1,0 +1,16 @@
+# sc-watch dependencies.
+#
+# These exact versions are the ones every threshold in sc_detector.py was
+# measured against. OCR output is not stable across recogniser versions: a
+# different rapidocr can change which characters come back from a blurry
+# label, which moves the thresholds without anyone touching them. Pin first,
+# upgrade deliberately, and re-measure against your own corpus afterwards.
+
+opencv-python==5.0.0.93
+numpy==2.5.2
+rapidocr-onnxruntime==1.2.3   # pulls onnxruntime and the PP-OCRv3 models
+dxcam==0.3.0                  # DXGI Desktop Duplication capture (Windows only)
+
+# Optional. Absent, the tool still runs:
+#   pyttsx3   spoken alerts. Without it, tones only.
+pyttsx3==2.99

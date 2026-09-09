@@ -1,0 +1,60 @@
+# --------------------------------------------------------------------------
+# Secrets
+# --------------------------------------------------------------------------
+sc_api_key.txt
+
+# --------------------------------------------------------------------------
+# Other people's data
+#
+# sc-watch.db holds reputation judgements about named real players, and
+# rsi_cache.db holds their profiles. sightings.csv is the same data as a log.
+# audit/ is screenshots of other players' HUD labels. None of it belongs in a
+# repository, in a release, or in a copy handed to anyone.
+# --------------------------------------------------------------------------
+sc-watch.db
+sc-watch.db.bak-*
+rsi_cache.db
+sightings.csv
+audit/
+
+# --------------------------------------------------------------------------
+# Local configuration: keybinds, monitor index, API mode, audio voice.
+# Machine-specific, and settings.json is the file the UI writes.
+# --------------------------------------------------------------------------
+settings.json
+housekeeping.json
+audio.json
+
+# --------------------------------------------------------------------------
+# Capture output. Frames are ~11 MB each and these directories reached 1.1 GB
+# during development.
+# --------------------------------------------------------------------------
+frames/
+live_frames/
+debug_bursts/
+probe_frames/
+detections/
+
+# --------------------------------------------------------------------------
+# Generated at first run
+#
+# The tones are deterministic WAVs that audio.py writes if tones/ is empty, so
+# they are not committed - but they ARE kept in the working folder, because a
+# packaged build should ship them rather than write into its install directory
+# the first time it speaks.
+# --------------------------------------------------------------------------
+restart.flag
+tones/*.wav
+*.log
+__pycache__/
+*.pyc
+
+# --------------------------------------------------------------------------
+# Build output
+#
+# sc-watch.spec is NOT ignored - it is how the release is built. The wildcard
+# that used to cover it would have left every clone unable to produce a build.
+# --------------------------------------------------------------------------
+build/
+dist/
+.venv-build/

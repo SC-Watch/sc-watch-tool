@@ -1,0 +1,19 @@
+# Deterministic line endings.
+#
+# Without this, Windows checkouts convert text files to CRLF and every clone on
+# another platform shows the whole file as changed. LICENSE matters most: it is
+# byte-identical to the FSF original as committed, and it should stay that way
+# for anyone who checks.
+* text=auto eol=lf
+
+# Byte-exact, never touched.
+LICENSE            -text
+km_template.npy    binary
+*.wav              binary
+*.npy              binary
+*.png              binary
+*.ico              binary
+
+# Windows needs real CRLF in these or they misbehave when double-clicked.
+*.bat              text eol=crlf
+*.iss              text eol=crlf

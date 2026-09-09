@@ -1,0 +1,113 @@
+# Build the Windows installer and publish it as a GitHub Release.
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# That is the whole release procedure. The runner builds it, so nobody needs
+# PyInstaller or Inno Setup on their own machine, and the artefact people
+# download is built from a tagged commit rather than from whatever was on
+# somebody's disk that afternoon.
+#
+# windows-latest ships with Inno Setup 6 already, which is why the installer is
+# built here rather than locally.
+
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  # Buildable by hand from the Actions tab, producing artefacts but no
+  # release. Useful for checking a build before committing to a tag.
+  workflow_dispatch:
+
+permissions:
+  contents: write        # needed to create the release and upload assets
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # The version every measurement in the engineering log was taken on.
+          python-version: "3.13"
+          cache: pip
+
+      - name: Check the tag matches VERSION
+        # A release labelled v0.2.0 that installs as 0.1.0 is the kind of thing
+        # nobody notices until someone reports a bug against the wrong build.
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          file="$(tr -d '[:space:]' < VERSION)"
+          echo "tag=$tag  VERSION=$file"
+          if [ "$tag" != "$file" ]; then
+            echo "::error::tag v$tag does not match VERSION ($file)"
+            exit 1
+          fi
+
+      - name: Build the folder and the zip
+        shell: bash
+        run: python build.py
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $v = (Get-Content VERSION -Raw).Trim()
+          $url = "${{ github.server_url }}/${{ github.repository }}"
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" `
+              "/DMyAppVersion=$v" "/DMyAppURL=$url" installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+      - name: Smoke-test the build
+        # Proves the frozen binary starts and can find its own resources.
+        # Cheap, and it catches the failure mode PyInstaller is prone to: an
+        # exe that builds fine and cannot load its models.
+        shell: pwsh
+        run: |
+          & ".\dist\sc-watch\sc-watch.exe" --where
+          if ($LASTEXITCODE -ne 0) { throw "the built exe did not run" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sc-watch-windows
+          path: |
+            dist/*.zip
+            dist/*setup.exe
+          if-no-files-found: error
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true          # you press publish, after checking the assets
+          generate_release_notes: true
+          files: |
+            dist/*.zip
+            dist/*setup.exe
+          body: |
+            ## Install
+
+            Download **sc-watch-*-setup.exe** below and run it. No Python
+            needed, and no administrator prompt: it installs for your user
+            only.
+
+            Windows SmartScreen will warn about an unrecognised publisher,
+            because this build is not code-signed. Choose *More info* then
+            *Run anyway*, or use the .zip instead.
+
+            Prefer no installer? Take the **.zip**, unpack it anywhere, and
+            run `sc-watch.bat`. Adding an empty file named `portable.txt`
+            beside the executables keeps your data in the same folder instead
+            of your user profile.
+
+            ## Before it will read anything
+
+            Turn **chromatic aberration off** in Star Citizen's graphics
+            options. With it on, the coloured fringing on HUD text defeats
+            the recogniser.
+
+            `sc-watch.exe --where` prints where your database and settings
+            live.
