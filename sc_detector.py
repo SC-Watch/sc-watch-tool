@@ -156,6 +156,27 @@ SHIP_SERIAL_RE = re.compile(r"^[A-Z]{2}-\d{4}-[A-Z0-9]{2}$")
 PARTIAL_SERIAL_RE = re.compile(r"^[A-Z]{2}-\d")
 
 
+def _is_unknown_label(s: str) -> bool:
+    """Is this the game's UNKNOWN label, however badly it was read?
+
+    Imported lazily so sc_detector keeps no import-time dependency on
+    consensus. They are peers - consensus votes on what this module reads - and
+    a top-level import here would make the direction of that relationship
+    ambiguous for no benefit.
+    """
+    from consensus import same_contact
+    # LENGTH-BOUNDED, because same_contact deliberately treats a prefix as a
+    # match - that is what lets a truncated 'UNKNO' resolve. Unbounded it also
+    # swallows any handle STARTING with the word, and 'UNKNOWNSOLDIER' is a
+    # perfectly ordinary name for someone to choose. Discarding a real player
+    # silently is much worse than announcing one asteroid.
+    #
+    # The label is seven characters. Every damaged reading seen has been nine
+    # or fewer ('UNKNOWN00', 'UNKNOWIN', '-UNKNOWN'), so ten leaves margin
+    # without reaching handle-length words.
+    return len(s) <= 10 and same_contact(s, "UNKNOWN")
+
+
 def classify_name(raw: str) -> tuple[str, str | None]:
     """Sort a raw OCR reading into what it actually is.
 
@@ -192,6 +213,26 @@ def classify_name(raw: str) -> tuple[str, str | None]:
         return "ship_serial", s
     if not HANDLE_RE.match(s):
         return "unreadable", None
+
+    # The game's own UNKNOWN label, thrown out HERE rather than downstream.
+    #
+    # It used to classify as a player and be filtered three separate times
+    # further along, after clustering and voting had already run on it. That
+    # was wasted work on the most common label on a busy screen, and one of
+    # those places kept a reference to the whole frame as evidence, so a scene
+    # full of asteroids pinned several megapickels per burst for something that
+    # was going to be discarded anyway.
+    #
+    # There is no useful version of reporting these. An UNKNOWN is an asteroid,
+    # a cow, a crate or anything else the game has not identified, and a pilot
+    # reading their own instruments already knows which. Announcing them is
+    # noise that trains you to ignore the tool.
+    #
+    # Matched fuzzily, because the label is read by the same recogniser as
+    # everything else: 'UNKNO', 'UNKNOWIN', 'JNKNOWN' and 'UNKNOWN00' are all
+    # the same word with the same meaning.
+    if _is_unknown_label(s):
+        return "unknown_contact", s
     return "player", s
 
 
@@ -229,6 +270,49 @@ class Contact:
     # Set only by the focused direct-OCR path: which recogniser line this came
     # from, so the range-retry pass knows which names already paired.
     source_line: "OcrLine | None" = None
+
+
+def merge_contacts(wide: list["Contact"], centre: list["Contact"],
+                   frame_h: int = REFERENCE_HEIGHT) -> list["Contact"]:
+    """Combine a full-screen read with a centre-only read of the same frame.
+
+    The two passes see the same screen differently on purpose. The full read
+    covers everything but spreads a fixed OCR budget across every label on
+    screen, so a small or awkward one loses. The centre read crops to the
+    middle and lifts that cap, so the contact you are actually pointing at gets
+    the whole budget. Running both and merging gets the periphery AND a good
+    read of your target. Measured at about 1.4x a wide read, not 2x: the
+    centre crop is smaller and usually holds fewer labels.
+
+    CENTRE WINS on any contact both passes found. It is the higher-quality read
+    by construction - more budget per label, no competition - so when the two
+    disagree about a name, the uncapped one is the better evidence.
+
+    Matching is by POSITION, not by name. Two passes over one frame see the same
+    pixels in the same place, so a name box within a few pixels of another is
+    the same label. Matching by name would be circular here: the whole reason
+    for the second pass is that the first may have read the name wrong, and a
+    misread would then look like a different contact and be reported twice.
+    """
+    if not centre:
+        return list(wide)
+    if not wide:
+        return list(centre)
+
+    # Generous, because the two passes crop and scale differently and a box
+    # edge can land a pixel or two apart. Still far tighter than the gap
+    # between two real labels, which the pairing rules already keep apart.
+    near = _scaled(24, frame_h)
+
+    def same_label(a: "Contact", b: "Contact") -> bool:
+        return (abs(a.name_box.x - b.name_box.x) <= near
+                and abs(a.name_box.y - b.name_box.y) <= near)
+
+    out = list(centre)
+    for c in wide:
+        if not any(same_label(c, k) for k in centre):
+            out.append(c)
+    return out
 
 
 def _scaled(value: int, frame_h: int) -> int:

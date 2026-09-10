@@ -65,6 +65,10 @@ datas = [
 datas += collect_data_files("rapidocr_onnxruntime", include_py_files=False)
 
 hiddenimports = [
+    # Imported lazily by watch.py --check-resolution, so nothing in the import
+    # graph reaches it. Without this the diagnostic exists in the help text and
+    # fails the moment anyone uses it.
+    "check_resolution",
     "onnxruntime",
     "onnxruntime.capi",
     "onnxruntime.capi._pybind_state",

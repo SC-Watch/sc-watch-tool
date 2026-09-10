@@ -77,12 +77,13 @@ _SETTING_TO_ARG = {
     "focus_mask": "focus_mask", "burst": "burst",
     "burst_spacing": "burst_spacing", "ping_delay": "ping_delay",
     "monitor": "monitor", "hz": "hz", "queue_max": "queue_max",
-    "min_votes": "min_votes", "show_unknown": "show_unknown",
+    "min_votes": "min_votes",
     "gate": "gate", "haze": "haze", "cooldown": "cooldown",
     "radius": "radius", "expire": "expire", "audio_mode": "audio",
     "rsi_min_votes": "rsi_min_votes", "audit_enabled": "audit",
     "debug_frames": "debug", "chat_key": "chat_key",
-    "chat_region": "chat_region",
+    "chat_region": "chat_region", "dual_key": "dual_key",
+    "dual_on_read": "dual_on_read",
 }
 
 
@@ -454,6 +455,13 @@ def main() -> int:
                          "the default: measured on the corpus it matched 42 of "
                          "43 in-window contacts with no player misses, and it "
                          "has no OCR cap to compete a contact away")
+    ap.add_argument("--dual-key", default="off",
+                    help="key or button that reads the WHOLE screen and the "
+                         "centre on one press, merging both. Costs about "
+                         "double a normal read. 'off' disables it.")
+    ap.add_argument("--dual-on-read", action="store_true",
+                    help="make the normal read key do a wide + centre read, "
+                         "instead of needing a separate binding")
     ap.add_argument("--focus-always", action="store_true",
                     help="read focused on EVERY trigger, not just the focus "
                          "key. Works under --replay, which the focus key "
@@ -469,14 +477,23 @@ def main() -> int:
                          "queue rather than being dropped - but bounded, or "
                          "the tool ends up reading minutes-old screens "
                          "(default 3)")
-    ap.add_argument("--show-unknown", action="store_true",
-                    help="include UNKNOWN contacts; they're filtered by "
-                         "default since they could be anything")
     ap.add_argument("--no-rsi", action="store_true",
                     help="skip RSI profile lookups")
     ap.add_argument("--where", action="store_true",
                     help="print where the program and your data live, and "
                          "exit. An installed build keeps them apart.")
+    # The two diagnostics people actually need, reachable from the packaged
+    # build. They used to live only in check_resolution.py and inputs.py, which
+    # a source tree has and an installed copy does not - so every troubleshooting
+    # instruction written for them was useless to exactly the users most likely
+    # to need it.
+    ap.add_argument("--list-inputs", action="store_true",
+                    help="list the joysticks this machine exposes, with their "
+                         "button and axis counts, and exit")
+    ap.add_argument("--check-resolution", metavar="IMAGE", nargs="+",
+                    help="run a screenshot of your HUD through the reader and "
+                         "report what it found and why, then exit. The useful "
+                         "thing to attach to a bug report.")
     ap.add_argument("--no-db", action="store_true",
                     help="don't record sightings or check the reputation database")
     ap.add_argument("--audio", choices=("off", "tones", "speech", "both"),
@@ -535,8 +552,8 @@ def main() -> int:
     for flag, dest in (("--no-debug", "debug"), ("--no-haze", "haze"),
                        ("--no-gate", "gate"),
                        ("--no-focus-always", "focus_always"),
-                       ("--no-focus-mask", "focus_mask"),
-                       ("--no-show-unknown", "show_unknown")):
+                       ("--no-dual-on-read", "dual_on_read"),
+                       ("--no-focus-mask", "focus_mask")):
         ap.add_argument(flag, dest=dest, action="store_false",
                         help=argparse.SUPPRESS)
     ap.add_argument("--rsi", dest="no_rsi", action="store_false",
@@ -551,6 +568,22 @@ def main() -> int:
     # the reason you are asking is that something else will not start.
     if args.where:
         print(paths.describe())
+        return 0
+
+    if args.list_inputs:
+        devs = inputs.devices()
+        print(f"{len(devs)} joystick(s):")
+        for d in devs:
+            print(f"  {d.describe()}")
+        if not devs:
+            print("  none. Only keyboard bindings are available.")
+        return 0
+
+    if args.check_resolution:
+        import check_resolution
+        ocr = sd.make_ocr()
+        for p in args.check_resolution:
+            check_resolution.report(p, ocr)
         return 0
 
     # Frame source: live capture, or saved frames for testing without the game
@@ -678,6 +711,7 @@ def main() -> int:
     binds: dict[str, inputs.Binding] = {}
     for mode, spec, flag in (("full", args.key, "--key"),
                              ("focus", args.focus_key, "--focus-key"),
+                             ("dual", args.dual_key, "--dual-key"),
                              ("chat", args.chat_key, "--chat-key")):
         try:
             b = inputs.Binding(spec)
@@ -747,8 +781,7 @@ def main() -> int:
             print(f"  chat:    {binds['chat'].label()} lists who is talking")
     else:
         print(f"  trigger: continuous, {args.hz:.0f} Hz")
-    print(f"  {args.burst}-frame bursts, {args.cooldown:.0f}s repeat cooldown"
-          + ("" if args.show_unknown else ", UNKNOWN filtered"))
+    print(f"  {args.burst}-frame bursts, {args.cooldown:.0f}s repeat cooldown")
     print(f"  logging to {log.resolve()}")
     if paths.FROZEN:
         # Only when installed. From source the answer is "here", and a
@@ -911,7 +944,7 @@ def main() -> int:
         if alerts is not None:
             alerts.event("contact")
 
-    def read_burst(first, now, label, on_wait=None, focused=False):
+    def read_burst(first, now, label, on_wait=None, mode="full"):
         """Read a burst progressively: announce after each frame, don't wait
         for the whole thing.
 
@@ -927,7 +960,14 @@ def main() -> int:
         new or corrected ones speak up.
         """
         nonlocal announced
-        focused = focused or args.focus_always
+        # Two promotions of a plain read, in priority order. Asking for both
+        # is contradictory - one says "centre only", the other says "wide AND
+        # centre" - and dual is the strictly more informative of the two, so
+        # it wins rather than silently discarding the periphery.
+        if args.dual_on_read and mode == "full":
+            mode = "dual"
+        elif args.focus_always and mode == "full":
+            mode = "focus"
         accumulated, unreadable, per_frame = [], 0, []
         evidence: list = []
         discarded: dict[str, int] = {}
@@ -993,9 +1033,21 @@ def main() -> int:
             # A focused read crops to the centre of the screen and lifts the
             # OCR cap. Boxes come back in full-frame coordinates either way, so
             # dedup and position tracking are unaffected.
-            found = (sd.detect_focused(frame, ocr, focus_w, focus_h,
-                                       direct=not args.focus_mask)
-                     if focused else sd.detect(frame, ocr))
+            def _centre():
+                return sd.detect_focused(frame, ocr, focus_w, focus_h,
+                                         direct=not args.focus_mask)
+
+            if mode == "dual":
+                # Both passes over the SAME frame, then merged. Costs roughly
+                # twice the OCR of either alone, which is why it is a separate
+                # binding rather than the default: you spend it when you want
+                # the periphery and a good read of your target at once.
+                found = sd.merge_contacts(sd.detect(frame, ocr), _centre(),
+                                          frame.shape[0])
+            elif mode == "focus":
+                found = _centre()
+            else:
+                found = sd.detect(frame, ocr)
             n_named = 0
             for c in found:
                 if c.range_km is None:
@@ -1025,11 +1077,6 @@ def main() -> int:
 
             # Announce what we know so far. Anything already said stays quiet.
             for r in consensus.resolve(accumulated, min_votes=args.min_votes):
-                # Match fuzzily: a truncated read of the game's own UNKNOWN
-                # label ('UNKNO') is still an unidentified contact, and an
-                # exact-string test let it through as if it were a handle.
-                if not args.show_unknown and consensus.same_contact(r.name, "UNKNOWN"):
-                    continue
                 if _ignored(r.name):
                     continue
                 ok, corrected_from = announcer.should(r.name, now)
@@ -1060,11 +1107,6 @@ def main() -> int:
         # the partial ones each announcement was made on.
         final = consensus.resolve(accumulated, min_votes=args.min_votes)
         for r in final:
-            # Fuzzy, like the console filter. An exact-string test here let
-            # UNKNO, UNKNOW, UNKNOWIN, UNKNOWN00 and -UNKNOWN into the
-            # database as if they were five different players.
-            if not args.show_unknown and consensus.same_contact(r.name, "UNKNOWN"):
-                continue
             rule = _ignored(r.name)
             if rule:
                 if args.verbose:
@@ -1112,8 +1154,6 @@ def main() -> int:
         if alerts is not None:
             payload = []
             for r in final:
-                if not args.show_unknown and consensus.same_contact(r.name, "UNKNOWN"):
-                    continue
                 reason = ""
                 if db is not None:
                     try:
@@ -1233,10 +1273,11 @@ def main() -> int:
                     con.status(f"  reading chat...{queued}")
                     read_chat_now(grab())
                 else:
-                    label = ("reading centre" if mode == "focus"
-                             else "reading") + queued
+                    label = {"focus": "reading centre",
+                             "dual": "reading wide + centre"}.get(
+                                 mode, "reading") + queued
                     read_burst(grab(), time.time(), label,
-                               on_wait=poll_keys, focused=(mode == "focus"))
+                               on_wait=poll_keys, mode=mode)
         else:
             while deadline is None or time.time() < deadline:
                 cycle = time.perf_counter()

@@ -2251,7 +2251,15 @@ const JOBS=[
 function setVal(k){ return (data.stats.settings||{})[k]; }
 
 // Settings that take an input binding rather than a plain string.
-const BINDING_FIELDS=new Set(['key','focus_key','chat_key']);
+// Which settings get a "detect" button, DERIVED from the key name rather than
+// listed. The list version was ['key','focus_key','chat_key'], and adding
+// dual_key to the schema silently produced a binding field with no way to
+// detect a binding - the one control that genuinely needs one, because four
+// identical joysticks cannot be told apart any other way.
+//
+// Every binding setting is named `key` or `something_key`, and nothing else
+// is, so the convention is the rule.
+const isBinding=k=>k==='key'||k.endsWith('_key');
 
 function fieldHTML(f,v){
   const id='set_'+f.key;
@@ -2266,7 +2274,7 @@ function fieldHTML(f,v){
     const step=f.type==='int'?'1':'any';
     ctl=`<input type="number" id="${id}" data-key="${f.key}" value="${esc(v)}"`+
         ` step="${step}"${f.lo!=null?` min="${f.lo}"`:''}${f.hi!=null?` max="${f.hi}"`:''}>`;
-  }else if(BINDING_FIELDS.has(f.key)){
+  }else if(isBinding(f.key)){
     // Four joysticks here all report "HID-compliant game controller", so a
     // dropdown of device names would be four identical rows. Pressing the
     // thing you want is the only way to tell them apart.

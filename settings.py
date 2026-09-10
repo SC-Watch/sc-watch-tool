@@ -155,12 +155,40 @@ SCHEMA = (
                   "of the screen. Chat grows upward as messages arrive, so a "
                   "region covering only the newest line reads one name instead "
                   "of five.", restart="watcher", advanced=True),
+            # Wide and centre on one press. The two passes see the same screen
+            # differently: the wide one covers everything but splits a fixed
+            # OCR budget across every label on it, the centre one crops and
+            # lifts that cap. Doing both is the only way to get the periphery
+            # AND a good read of your target. Measured at ~1.4x a wide read.
+            Field("dual_key", "Wide + centre key", "str", "off",
+                  "Reads the whole screen AND the centre on one press, then "
+                  "merges them. The centre reading wins where they overlap, "
+                  "because it had the whole budget to itself. Measured at "
+                  "about 1.4x the time of a normal read, and on displays "
+                  "where the normal read struggles it found several times as "
+                  "many contacts. Worth trying if you are missing people. "
+                  "'off' disables it.", restart="watcher"),
+            Field("dual_on_read", "Make the normal read key do both", "bool",
+                  False,
+                  "Turns every normal read into a wide + centre read, without "
+                  "needing a second binding. Simpler than a separate key, and "
+                  "you pay the doubled cost on every ping.", restart="watcher"),
             Field("focus_size", "Focused box size", "str", "1200x600",
                   "Pixels, width x height, centred on the crosshair.",
                   restart="watcher"),
-            Field("focus_always", "Always use focused mode", "bool", False,
-                  "Treat the normal read key as a focused read too.",
-                  restart="watcher"),
+            # Renamed because the old label, "Always use focused mode", read
+            # as though it ADDED a focused pass to the normal one. It does not.
+            # It swaps the whole read for a centre-only read, so every contact
+            # outside the focus box stops being seen at all - the opposite of
+            # what someone turning on an "always" switch expects.
+            Field("focus_always", "Read ONLY the centre, every time", "bool",
+                  False,
+                  "Replaces the normal full-screen read with a centre-only "
+                  "one. It does not do both. Contacts outside the focus box "
+                  "are not seen at all, so leave this off unless you only "
+                  "care about whatever you are pointing at. The focus key "
+                  "already gives you a centre-only read on demand.",
+                  restart="watcher", advanced=True),
             Field("focus_mask", "Mask focused reads", "bool", False,
                   "Run the brightness mask on focused reads instead of "
                   "sending the crop straight to OCR. Slower, and only "
@@ -169,9 +197,18 @@ SCHEMA = (
                   "More frames means more chances to agree on a name, and a "
                   "longer wait for the last word.",
                   lo=1, hi=10, restart="watcher"),
-            Field("burst_spacing", "Gap between frames", "float", 0.5,
-                  "Wider gives more independent samples to vote with; too "
-                  "wide and contacts drift or fade between frames.",
+            # 0.1 rather than the original 0.5, on measurement: a tighter burst
+            # had a noticeably higher hit rate in live testing. The theory that
+            # argued for 0.5 - wider gaps give more INDEPENDENT reads to vote
+            # with - is real but loses to a simpler effect, which is that a
+            # contact drifts, fades or gets occluded while you wait, and a
+            # frame of the wrong thing votes on nothing.
+            Field("burst_spacing", "Gap between frames", "float", 0.1,
+                  "How long to wait between the frames of one read. Tight is "
+                  "better: contacts drift and labels fade, and a late frame "
+                  "often catches neither. Try 0.1 first. Above about 0.5 the "
+                  "hit rate drops off, so treat that as the practical "
+                  "ceiling rather than the range end.",
                   lo=0.0, hi=5.0, unit="s", restart="watcher"),
             Field("ping_delay", "Delay before first frame", "float", 0.0,
                   "Waits after the key press before grabbing, to let a scan "
@@ -198,9 +235,16 @@ SCHEMA = (
                   "How many frames of a burst must agree before a name is "
                   "said out loud. 1 announces fast and is sometimes wrong.",
                   lo=1, hi=10, restart="watcher"),
-            Field("show_unknown", "Show unreadable contacts", "bool", False,
-                  "An UNKNOWN could be an asteroid or a hostile.",
-                  restart="watcher"),
+            # 'Show unreadable contacts' was here. Removed rather than
+            # defaulted off, because there was no setting of it worth having.
+            # An UNKNOWN is whatever the game has not identified - an asteroid,
+            # a cow, a crate - and on a busy screen it is the most common label
+            # there is. Announcing them is noise that teaches you to ignore the
+            # tool, and a pilot watching their own instruments already knows
+            # what the contact is.
+            #
+            # They are now discarded in classify_name, before clustering,
+            # voting, or keeping a frame as evidence. See sc_detector.
             Field("gate", "Range gate", "bool", False,
                   "Require a range line to look like a range before trusting "
                   "the pair.", restart="watcher", advanced=True),
