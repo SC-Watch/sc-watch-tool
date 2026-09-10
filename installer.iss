@@ -112,14 +112,24 @@ begin
     DataDir := ExpandConstant('{localappdata}\sc-watch');
     if DirExists(DataDir) then
     begin
-      // Default No. This folder is the reputation database, the profile cache
-      // and the audit screenshots - work the user did, not files we installed.
-      if MsgBox('Also delete your sc-watch data?' + #13#10#13#10 +
+      // SuppressibleMsgBox, not MsgBox, and this is not a style preference.
+      //
+      // Plain MsgBox under /SUPPRESSMSGBOXES returns the AFFIRMATIVE and
+      // ignores MB_DEFBUTTON2 entirely. Verified by installing 0.1.1 and
+      // running a silent uninstall: it deleted the whole data directory
+      // without asking anything. That is somebody's reputation database,
+      // built up over months and impossible to reconstruct.
+      //
+      // SuppressibleMsgBox takes the suppressed answer as its last argument.
+      // IDNO means an unattended uninstall NEVER deletes your data, which is
+      // the only safe way round: keeping files nobody wanted costs disk, and
+      // deleting files somebody wanted costs the whole point of the tool.
+      if SuppressibleMsgBox('Also delete your sc-watch data?' + #13#10#13#10 +
                 DataDir + #13#10#13#10 +
                 'This is your contact database, your settings and your saved ' +
                 'audit screenshots. Keep it if you are reinstalling or ' +
                 'upgrading.',
-                mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+                mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES then
         DelTree(DataDir, True, True, True);
     end;
   end;
