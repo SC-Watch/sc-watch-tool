@@ -1,0 +1,770 @@
+/*
+ sc-watch - reads player handles off the Star Citizen HUD.
+ Copyright (C) 2026 SC-Watch
+
+ This program is free software: you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the Free
+ Software Foundation, either version 3 of the License, or (at your option)
+ any later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ more details. You should have received a copy of the GNU General Public
+ License along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+:root{
+  --bg:#03080e; --panel:#071722; --line:#0e3d55;
+  --cyan:#4fd8ff; --cyan-dim:#2a7f9e; --ink:#cfeeff; --muted:#6f9cb3;
+  --amber:#ffb347; --red:#ff5964; --green:#57e2a5;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:13px/1.45 "Segoe UI",system-ui,sans-serif;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(79,216,255,.028) 0 1px,transparent 1px 3px);
+}
+header{
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  padding:12px 18px; border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#08202e,#04121b);
+}
+h1{margin:0; font-size:15px; letter-spacing:.22em; color:var(--cyan);
+   text-transform:uppercase; font-weight:600}
+h1 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);margin-right:9px;box-shadow:0 0 9px var(--cyan)}
+.stat{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.stat b{color:var(--ink);font-weight:600;margin-left:5px}
+.spacer{flex:1}
+.controls{display:flex;gap:8px;align-items:center}
+input[type=search]{
+  background:#04141d;border:1px solid var(--line);color:var(--ink);
+  padding:6px 10px;font:12px/1 inherit;min-width:190px;outline:none}
+input[type=search]:focus{border-color:var(--cyan-dim)}
+button.filter{
+  background:#04141d;border:1px solid var(--line);color:var(--muted);
+  padding:6px 11px;font:11px/1 inherit;letter-spacing:.1em;cursor:pointer;
+  text-transform:uppercase}
+button.filter[aria-pressed=true]{border-color:var(--cyan);color:var(--cyan)}
+
+/* Tile width is a SETTING, not a column count. Asking for "six across" means
+   different things on a 2560 monitor and a 5120 one - the same rule gave 410px
+   tiles on the first and 836px on the second. Sizing by width instead makes it
+   mean the same thing everywhere: the grid fits as many as will go, and the
+   number is what the user actually cares about.
+   Capped and centred so an ultrawide gets more tiles rather than wider ones. */
+#grid{display:grid;gap:14px;padding:16px;max-width:2600px;margin:0 auto;
+  grid-template-columns:repeat(auto-fill,minmax(var(--tile,380px),1fr))}
+/* An explicit display beats the browser's own [hidden]{display:none}, so
+   grid.hidden=true did nothing until this existed. */
+#grid[hidden]{display:none}
+
+.tile{
+  position:relative; background:linear-gradient(160deg,#08202d,#050f17);
+  border:1px solid var(--line); padding:12px 13px 11px;
+  /* Column layout so the action row can be pushed to the bottom. Tiles in a
+     grid row already stretch to the tallest, so this puts flag and forget in
+     the same place on every tile instead of wherever the content above them
+     happened to end. Muscle memory beats hunting for a button. */
+  display:flex; flex-direction:column;
+  clip-path:polygon(0 0,calc(100% - 13px) 0,100% 13px,100% 100%,13px 100%,0 calc(100% - 13px));
+  transition:border-color .15s, transform .15s;
+}
+/* Square by default, growing taller when the content needs it - a grid item's
+   min-height is auto, so aspect-ratio sets the floor rather than clipping. A
+   card of roughly fixed shape is much easier to scan across a row. Turned off
+   by the 'square tiles' setting, which lets every tile shrink to its content. */
+.tile{aspect-ratio:1/1}
+body.no-square .tile{aspect-ratio:auto}
+/* Type scales with the box. Clamped at both ends so a 700px tile does not turn
+   into a poster and a 260px one stays legible. */
+.tile{font-size:clamp(11px,calc(var(--tile,380px) * .032),15px)}
+.handle{font-size:clamp(14px,calc(var(--tile,380px) * .046),21px) !important}
+.range{font-size:clamp(12px,calc(var(--tile,380px) * .037),18px) !important}
+.meta,.reasons,.rpt-note{font-size:clamp(10.5px,calc(var(--tile,380px) * .031),14px)}
+.org-name{font-size:clamp(12px,calc(var(--tile,380px) * .036),17px) !important}
+.tile:hover{border-color:var(--cyan-dim); transform:translateY(-1px)}
+.tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--cyan-dim)}
+.tile.known::before{background:var(--red);box-shadow:0 0 10px var(--red)}
+.tile.flagged::before{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.tile.clean::before{background:var(--green)}
+.tile.unchecked::before{background:#2c4b5c}
+
+.row1{display:flex;align-items:baseline;gap:9px}
+/* Handles are monospace, and digits are tinted, because SLIVER and 5LIVER are
+   two different real people and in a proportional sans they look identical.
+   Acting on the wrong player is the failure this whole tool exists to avoid,
+   so the distinction has to survive a glance from a second monitor. */
+.handle{font-size:15px;font-weight:600;letter-spacing:.04em;color:#eaf9ff;
+  word-break:break-all;
+  font-family:ui-monospace,"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace}
+/* Violet, not amber. The tint is a DISAMBIGUATION - it says "this glyph is a
+   digit", so 5LIVER cannot be read as SLIVER - but amber means "warning"
+   everywhere else in this UI (org flags, the flag button, an unanswered
+   prompt), so a confirmed contact like FROST1545 looked permanently suspect
+   because its handle happens to contain numbers. Violet is used for nothing
+   else here, so it carries no verdict: it distinguishes without accusing. */
+.handle .d{color:#b9a6ff}
+.range{margin-left:auto;font-size:13px;color:var(--cyan);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.meta{margin-top:5px;font-size:11px;color:var(--muted);letter-spacing:.05em;
+  display:flex;gap:12px;flex-wrap:wrap}
+
+.badges{margin-top:9px;display:flex;flex-wrap:wrap;gap:5px}
+.badge{font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  padding:3px 7px;border:1px solid currentColor;color:var(--cyan-dim)}
+.badge.warn{color:var(--amber)}
+.badge.bad{color:var(--red)}
+.badge.ok{color:var(--green)}
+
+.orgs{margin-top:9px;border-top:1px solid #0b2f42;padding-top:8px;
+  display:flex;flex-direction:column;gap:5px}
+.org{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;
+     margin-bottom:5px}
+.org a{color:var(--cyan);text-decoration:none;border-bottom:1px dotted #245e78}
+.org a:hover{border-bottom-style:solid}
+/* The org NAME is what you recognise mid-flight - 'Ghost Squadron' reads at a
+   glance where 'GHSTSQ' has to be decoded. The tag still matters (it is what
+   flag-org takes, and what the RSI URL uses) so it stays, just demoted. */
+.org-name{font-size:13px;font-weight:600;line-height:1.25;display:block}
+.org-tag{display:block;color:var(--muted);font-size:10.5px;margin-top:1px;
+     font-family:ui-monospace,Consolas,monospace;letter-spacing:.03em}
+.org .focus{color:var(--muted);margin-left:auto;text-align:right;
+     padding-top:2px;flex:0 0 auto}
+/* Affiliates hang under the main org: indented on a thin rule, under a small
+   label, the name a step quieter than the main org's. */
+.affils{display:flex;flex-direction:column;gap:5px;
+  margin-left:3px;padding-left:10px;border-left:1px solid var(--line)}
+.affil-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);line-height:1}
+.org.affil{margin-bottom:0}
+.org.affil .org-name{font-size:clamp(11px,calc(var(--tile,380px) * .032),15px) !important;
+  font-weight:500}
+.affil-more{font-size:10.5px;color:var(--muted);font-style:italic}
+/* "No org" is a FACT about someone, and a different one from "we have not
+   looked" or "they hid it" - three states that used to render as the same
+   blank space. Deliberately not the cyan an org name uses: this is an absence,
+   and it should not read as a link you failed to click. */
+.noorg{margin-top:9px;border-top:1px solid #0b2f42;padding-top:8px;
+     font-size:11.5px;color:#7d6f57;letter-spacing:.06em;font-style:italic}
+/* Slate, not amber. Hiding your orgs is a privacy setting a lot of people
+   turn on; amber reads as an accusation, and the README already records that
+   treating org-less players as "hiding something" was the wrong claim. */
+.noorg.hidden-org{color:#9a8fb8;font-style:normal}
+.noorg.unknown-org{color:#4a6a7a}
+/* A handle the API positively denies is the strongest hint the read was wrong,
+   so this one does get the alarm colour - unlike "no org", which is a fact
+   about a real person. */
+.noorg.no-account{color:var(--red);font-style:normal}
+/* Amber, not red: nothing is known to be wrong with the READ. The service did
+   not answer, which says nothing about the player. */
+.noorg.lookup-failed{color:var(--amber);font-style:normal}
+.noorg.partial-profile{color:var(--amber);font-style:normal}
+.org .focus.unknown{color:var(--amber)}
+/* Muted amber: the profile is real information, just old - a caution about
+   its age, not a warning about the player. */
+.noorg.stale-profile{color:#b8915a;font-style:normal}
+/* Same weight as the report "edit" button: a small secondary action, not a
+   call to arms. It sits inside the italic state line, so it resets that. */
+.lookupbtn{margin-left:6px;background:none;border:1px solid var(--line);
+     color:var(--muted);font:inherit;font-style:normal;font-size:10px;
+     letter-spacing:.04em;padding:2px 8px;border-radius:3px;cursor:pointer;
+     vertical-align:1px}
+.lookupbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+/* A background lookup's status, in place of / beside its button. */
+.lk-status{font-size:10px;font-style:normal;letter-spacing:.04em;margin-left:6px}
+.lk-status.busy{color:var(--cyan);animation:lkpulse 1.2s ease-in-out infinite}
+.lk-status.ok{color:var(--green)}
+.lk-status.warn{color:var(--amber)}
+.lk-status.bad{color:var(--red)}
+@keyframes lkpulse{50%{opacity:.45}}
+
+/* A saved report is permanent record, so it gets a box rather than the amber
+   "tell me later" prompt, and it lists every occurrence instead of collapsing
+   to a count - two reports for camping months apart is a pattern, and a
+   pattern is the thing worth seeing on a tile. */
+.rpts{margin-top:9px;border:1px solid #234a5e;background:#061a25;
+     padding:7px 9px}
+.rpts h4{margin:0 0 6px;font-size:9.5px;letter-spacing:.16em;font-weight:600;
+     text-transform:uppercase;color:var(--cyan-dim)}
+.rpt{border-top:1px solid #0e3242;padding:5px 0 4px}
+.rpt:first-of-type{border-top:none;padding-top:0}
+.rpt-head{display:flex;align-items:baseline;gap:7px}
+/* The category is the headline of a report - what they did - so it reads a step
+   larger than the note under it. Scales with the tile like the rest of the card;
+   at 11px fixed it shrank into the surrounding text as tiles grew. */
+.rpt-cat{font-size:clamp(12px,calc(var(--tile,380px) * .037),17px);
+     font-weight:600;letter-spacing:.05em;color:#ff8b8b}
+/* Colour comes from the flag definition as an inline style now, not from a
+   class per built-in category - a user-made flag has no class to match. */
+.rpt-cat .retired{font-style:normal;opacity:.6;font-size:.85em}
+.rpt-when{font-size:10px;color:var(--muted)}
+.rpt-edit{margin-left:auto;background:none;border:1px solid var(--line);
+     color:var(--muted);font:inherit;font-size:10px;padding:2px 8px;
+     border-radius:3px;cursor:pointer}
+.rpt-edit:hover{border-color:var(--cyan);color:var(--cyan)}
+.rpt-note{font-size:11.5px;color:var(--ink);line-height:1.45;margin-top:2px;
+     word-break:break-word}
+.rpt-note.empty{color:var(--muted);font-style:italic}
+.rpt-edit-row{display:flex;gap:5px;align-items:center;margin-top:5px;
+     flex-wrap:wrap}
+.rpt-edit-row select,.rpt-edit-row input{background:#0a1b26;color:var(--ink);
+     border:1px solid var(--line);border-radius:3px;font:inherit;
+     font-size:11px;padding:3px 6px}
+.rpt-edit-row input{flex:1;min-width:90px}
+.rpt-edit-row button{background:none;border:1px solid var(--cyan-dim);
+     color:var(--cyan);font:inherit;font-size:10.5px;padding:3px 9px;
+     border-radius:3px;cursor:pointer}
+.rpt-edit-row button.cancel{border-color:var(--line);color:var(--muted)}
+
+.tile-actions{display:flex;justify-content:space-between;gap:8px;
+     align-items:center;margin-top:auto;padding-top:12px}
+/* Flagging has to be one click and hard to miss - it gets pressed while
+   something is shooting at you. Deleting is the opposite: two clicks, small,
+   and off to the side. */
+.flagbtn{background:#2a1a06;border:1px solid var(--amber);color:var(--amber);
+     font:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+     padding:5px 14px;border-radius:3px;cursor:pointer;font-weight:600}
+.flagbtn:hover{background:var(--amber);color:#160d00}
+.flagbtn.done{background:#3a2408;border-color:#7a5410;color:#c9922f}
+.pending-note{margin-top:9px;border-top:1px solid #4a3410;padding-top:8px}
+.pending-note .why{color:var(--amber);font-size:11px;letter-spacing:.05em;
+     margin-bottom:6px}
+.pending-note select,.pending-note input{background:#0a1b26;color:var(--ink);
+     border:1px solid var(--line);border-radius:3px;font:inherit;font-size:11px;
+     padding:4px 6px}
+.pending-note input{flex:1;min-width:0}
+.pending-row{display:flex;gap:6px;align-items:center}
+.pending-note button{background:none;border:1px solid var(--cyan-dim);
+     color:var(--cyan);font:inherit;font-size:11px;padding:4px 10px;
+     border-radius:3px;cursor:pointer}
+.pending-note button:hover{border-color:var(--cyan)}
+.forget{background:none;border:1px solid #3a1f27;color:#8d5761;
+     font:inherit;font-size:10.5px;letter-spacing:.04em;padding:3px 9px;
+     border-radius:3px;cursor:pointer}
+.forget:hover{border-color:var(--red);color:var(--red);background:#1a0c10}
+.forget[disabled]{opacity:.5;cursor:default}
+.forget.armed{border-color:var(--red);color:#fff;background:#5c1f28}
+.reasons{margin-top:8px;font-size:11.5px;color:#ffd9a0}
+
+/* ---- folder list ------------------------------------------------------ */
+.folders{margin-top:8px}
+.folderrow{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  padding:5px 0;border-top:1px solid var(--line)}
+.folderrow:first-child{border-top:0}
+.openfolder{background:#06222e;border:1px solid var(--cyan-dim);
+  color:var(--cyan);padding:3px 10px;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;cursor:pointer}
+.openfolder:hover{border-color:var(--cyan);background:#0a3547}
+.foldername{color:var(--fg);font-size:12px}
+.foldernote{color:var(--muted);font-size:10.5px}
+/* Selectable and allowed to wrap: when the button cannot work - a browser on
+   another machine - this line is the entire answer, so it must be copyable. */
+.folderpath{flex:1 1 100%;color:#7e93a8;font-size:10.5px;user-select:text;
+  word-break:break-all}
+
+/* Same shell as the org and watchlist lists: one bordered block, rows
+   divided by the dim rule, inputs on the dark field the rest of the settings
+   panel uses. A row of bare browser-default boxes read as a form bolted on
+   rather than part of the page. */
+.wlimport{margin-top:12px;border-top:1px solid #0b2f42;padding-top:11px}
+.wlimport h4{margin:0 0 4px;font-size:12px;color:var(--ink);font-weight:600}
+.wlimport textarea{width:100%;margin-top:7px;background:#04161f;
+  border:1px solid var(--line);color:var(--ink);border-radius:3px;
+  font:inherit;font-size:11.5px;padding:6px 8px;resize:vertical;
+  font-family:ui-monospace,Consolas,monospace}
+.wlimport textarea:focus{outline:none;border-color:var(--cyan-dim)}
+.wlimport .orgadd{margin-top:7px}
+.wlimport #wl-name,.wlimport #wl-url{flex:1 1 200px}
+.wl-unsure{display:flex;gap:5px;align-items:center;color:var(--muted);
+  font-size:11.5px}
+#wl-out{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;
+  font-size:10.5px;color:var(--muted);margin-top:8px;max-height:260px;
+  overflow:auto}
+
+.flags{margin-top:8px;border:1px solid var(--line)}
+.flagrow{display:flex;gap:8px;align-items:center;
+  padding:7px 10px;border-top:1px solid #0b2f42}
+.flagrow:first-child{border-top:none}
+.flagrow input[type=text],.flagrow input:not([type]),.flagrow select{
+  background:#04161f;border:1px solid var(--line);color:var(--ink);
+  font:inherit;font-size:11.5px;padding:5px 8px;border-radius:3px;min-width:0}
+.flagrow input::placeholder{color:#456b7d}
+.flagrow input:focus,.flagrow select:focus{outline:none;border-color:var(--cyan-dim)}
+/* The swatch is a control, so it gets the same frame as the boxes beside it
+   rather than the browser's default chrome. */
+.flagrow input[type=color]{flex:0 0 auto;width:26px;height:26px;padding:2px;
+  border:1px solid var(--line);border-radius:3px;background:#04161f;cursor:pointer}
+.flagrow input[type=color]::-webkit-color-swatch{border:none;border-radius:2px}
+.flagrow input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.fl-label{flex:1 1 170px}
+.fl-say{flex:1 1 140px}
+.fl-pol{flex:0 0 auto;color:var(--muted)}
+/* A retired reason is still listed so it can be revived, but it is not in
+   play - dimmed, the way an unpulled org flag is called out. */
+.flag-dead{opacity:.5}
+.flag-dead .fl-label{font-style:italic}
+.bundlerow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+/* Monospace and preserved newlines: this box shows the MANIFEST verbatim,
+   and a manifest reflowed into a paragraph stops being a checklist. */
+#bundle-out{white-space:pre-wrap;font-family:inherit;font-size:10.5px;
+  color:var(--muted);margin-top:8px;line-height:1.45}
+
+/* ---- watchlist flags ------------------------------------------------- */
+/* Violet, and nothing else on the page is violet. Amber already means "your
+   own reports" and red means "you flagged this" - a third source of claims
+   needed a third colour rather than a shade of an existing one, or the eye
+   reads it as more of the same. The left rule and the indent say "quoted
+   from elsewhere" the way a blockquote does. */
+.wlflags{margin-top:8px}
+.wlflag{border-left:3px solid var(--wl,#a68bff);background:#17132b;
+  padding:6px 9px;margin-top:5px;font-size:11.5px}
+.wlhead{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.wlsrc{color:#c9b6ff;letter-spacing:.06em;text-transform:uppercase;
+  font-size:10px}
+.wltag{color:#0b0a14;background:#a68bff;padding:0 5px;font-size:9px;
+  letter-spacing:.08em;text-transform:uppercase}
+.wlwhy{color:#ded5ff;margin-top:3px}
+.wlmeta{color:#8d84ad;margin-top:3px;font-size:10px}
+.wlmeta a{color:#a68bff}
+/* A lookalike is not a hit. Drained of colour so it does not read as one. */
+.wlflag.wlvar{border-left-color:#5d5478;background:#141320;opacity:.82}
+.wlflag.wlvar .wltag{background:#5d5478;color:#d7d2e8}
+.wlflag.wlvar .wlsrc{color:#9b93b5}
+/* A silenced source in the settings list, same idea. */
+.wl-off{opacity:.55}
+
+/* ---- detail window ---------------------------------------------------- */
+.tile{cursor:pointer}
+.tile button,.tile a,.tile select,.tile input{cursor:auto}
+#veil{position:fixed;inset:0;background:rgba(2,7,12,.82);z-index:50;
+  display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;
+  overflow:auto}
+#veil[hidden]{display:none}
+/* Wide, because of what these windows hold: an audit shows OCR crops at native
+   size and a full-frame link, and the edit view stacks a report list with
+   editable notes. At 640px the crops wrapped and the notes were a two-inch
+   slot. min() keeps it from overflowing a small window. */
+#modal{background:linear-gradient(160deg,#08202d,#050f17);
+  border:1px solid var(--cyan-dim);width:min(1100px,96vw);
+  padding:20px 24px 18px;position:relative;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+#modal.wide{width:min(1320px,97vw)}
+#modal h2{margin:0 0 2px;font-size:19px;letter-spacing:.06em;
+  font-family:ui-monospace,Consolas,monospace}
+#modal .sub{color:var(--muted);font-size:11.5px;margin-bottom:12px}
+#modal .close{position:absolute;top:10px;right:14px;background:none;border:none;
+  color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+#modal .close:hover{color:var(--ink)}
+#modal section{border-top:1px solid #0b2f42;padding-top:10px;margin-top:12px}
+#modal h3{margin:0 0 8px;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--cyan-dim);font-weight:600}
+.rep{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.rep select,.rep input{background:#0a1b26;color:var(--ink);
+  border:1px solid var(--line);border-radius:3px;font:inherit;font-size:11.5px;
+  padding:4px 6px}
+.rep input{flex:1;min-width:120px}
+.rep .when{color:var(--muted);font-size:10.5px;min-width:62px}
+.rep button{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:10.5px;padding:4px 9px;border-radius:3px;cursor:pointer}
+.rep .save:hover{border-color:var(--cyan);color:var(--cyan)}
+.rep .del:hover{border-color:var(--red);color:var(--red)}
+.rep .del.armed{border-color:var(--red);background:#5c1f28;color:#fff}
+.rep.ispending select{border-color:var(--amber);color:var(--amber)}
+#modal .empty{color:var(--muted);font-size:11.5px}
+/* Explanatory text in the detail window. There was no rule for it, so the
+   watchlist section's note rendered at full size in full white. */
+#modal .blurb{color:var(--muted);font-size:11.5px;line-height:1.5;margin:4px 0 0}
+.notperson p{margin:0 0 9px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.np-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.np-note{flex:1;min-width:160px;background:#0a1b26;color:var(--ink);
+  border:1px solid var(--line);border-radius:3px;font:inherit;font-size:11.5px;
+  padding:5px 7px}
+.np-note:focus{outline:none;border-color:var(--cyan)}
+.np-go{white-space:nowrap}
+
+/* ---- audit ------------------------------------------------------------ */
+.auditbtn{background:#06222e;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 10px;border-radius:3px;cursor:pointer}
+.auditbtn:hover{border-color:var(--cyan);background:#0a3547}
+.aud{border:1px solid #0b2f42;padding:9px;margin-bottom:9px;background:#04121b}
+.aud .meta{color:var(--muted);font-size:10.5px;margin-bottom:7px}
+/* Crops are 11-14px tall natively, so they are useless at 1:1 - scaled up with
+   crisp-edges rather than smoothed, because the question being asked is
+   "which glyph is that", and interpolation invents strokes. */
+.aud img.crop{image-rendering:pixelated;display:block;background:#000;
+  border:1px solid #123; max-width:100%; margin-bottom:5px}
+.aud .cands{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0}
+.aud .cands button{background:#2a1a06;border:1px solid var(--amber);
+  color:var(--amber);font:inherit;font-size:11.5px;padding:4px 10px;
+  border-radius:3px;cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+.aud .cands button:hover{background:var(--amber);color:#160d00}
+.aud .manual{display:flex;gap:6px;align-items:center;margin-top:6px}
+.aud .manual input{flex:1;min-width:0;background:#0a1b26;color:var(--ink);
+  border:1px solid var(--line);border-radius:3px;font:inherit;font-size:11.5px;
+  padding:4px 6px;font-family:ui-monospace,Consolas,monospace}
+.aud .warn{color:var(--amber);font-size:11px;margin-top:7px;line-height:1.4}
+.reasons div{margin-top:2px}
+.links{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
+/* Inside the detail window the same links sit in a row that already has its
+   own spacing, so they need the box styling without the top margin. */
+#modal .links{margin-top:0;display:inline-flex}
+.links a{font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 9px;border:1px solid var(--line);color:var(--muted);
+  text-decoration:none}
+.links a:hover{border-color:var(--cyan);color:var(--cyan)}
+#empty{padding:60px 20px;text-align:center;color:var(--muted);
+  letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+/* ---- manual lookup ---------------------------------------------------- */
+.lk-row{display:flex;gap:8px;margin-bottom:14px}
+#lk-in{flex:1;background:#0a1b26;color:var(--ink);border:1px solid var(--line);
+  border-radius:3px;font:inherit;font-size:14px;padding:8px 10px;
+  font-family:ui-monospace,Consolas,monospace;letter-spacing:.04em}
+#lk-in:focus{outline:none;border-color:var(--cyan)}
+.lk-row button{background:none;border:1px solid var(--cyan-dim);
+  color:var(--cyan);font:inherit;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;padding:8px 18px;border-radius:3px;cursor:pointer}
+.lk-row button:hover:not(:disabled){background:rgba(79,216,255,.08)}
+.lk-row button:disabled{opacity:.5;cursor:default}
+.lk-card{border:1px solid var(--line);padding:13px 15px;background:#061a25}
+.lk-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.lk-mon{color:var(--muted);font-size:12.5px}
+.lk-en{margin-left:auto;color:var(--cyan);font-size:12px}
+.lk-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}
+.lk-note.bad{color:var(--red)}
+.lk-actions{display:flex;align-items:center;gap:10px;margin-top:12px;
+  padding-top:11px;border-top:1px solid #0b2f42}
+.lk-actions button{background:none;border:1px solid var(--cyan-dim);
+  color:var(--cyan);font:inherit;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;padding:5px 13px;border-radius:3px;cursor:pointer}
+.lk-actions button:hover{background:rgba(79,216,255,.08)}
+.lk-actions .lk-note{margin-top:0}
+
+/* ---- settings -------------------------------------------------------
+   Two columns because the ask was to find a setting fast: a category list
+   you can scan down the side beats one long scrolling page where Audio and
+   Storage look identical. The panel is rendered from the schema in
+   settings.py, so a new Field shows up here with no CSS or JS changes. */
+#settings{display:grid;grid-template-columns:210px minmax(0,1fr);
+  gap:0;padding:0;align-items:start}
+#settings[hidden]{display:none}
+#setnav{border-right:1px solid var(--line);padding:14px 0 30px;
+  position:sticky;top:0}
+#setnav button{display:block;width:100%;text-align:left;background:none;
+  border:none;border-left:2px solid transparent;color:var(--muted);
+  font:inherit;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+  padding:9px 16px;cursor:pointer}
+#setnav button:hover{color:var(--ink)}
+#setnav button[aria-pressed=true]{color:var(--cyan);
+  border-left-color:var(--cyan);background:rgba(79,216,255,.05)}
+#setpanel{padding:16px 20px 40px;max-width:860px}
+#setpanel h2{margin:0 0 3px;font-size:16px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cyan)}
+#setpanel .blurb{color:var(--muted);font-size:12px;margin-bottom:16px}
+
+/* The Orgs view shares the Settings layout: a list on the left, the chosen
+   one on the right. */
+#orgs{display:grid;grid-template-columns:250px minmax(0,1fr);gap:0;padding:0;
+  align-items:start}
+#orgs[hidden]{display:none}
+#orgnav{border-right:1px solid var(--line);padding:14px 0 30px;position:sticky;top:0}
+#orgnavlist button{display:block;width:100%;text-align:left;background:none;
+  border:none;border-left:2px solid transparent;color:var(--muted);font:inherit;
+  padding:8px 16px;cursor:pointer}
+#orgnavlist button:hover{color:var(--ink)}
+#orgnavlist button[aria-pressed=true]{color:var(--cyan);border-left-color:var(--cyan);
+  background:rgba(79,216,255,.05)}
+#orgnavlist .on-name{display:block;font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase}
+#orgnavlist .on-meta{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;
+  font-family:ui-monospace,Consolas,monospace}
+#orgnavadd .orgadd{flex-direction:column;align-items:stretch;padding:12px 16px 0;
+  border-top:1px solid #0b2f42;margin-top:10px}
+#orgnavadd .orgadd button{background:none;border:1px solid var(--cyan-dim);
+  color:var(--cyan);font:inherit;font-size:11.5px;padding:5px 10px;border-radius:3px;
+  cursor:pointer}
+#orgnavadd .orgadd button:hover{border-color:var(--cyan);background:rgba(79,216,255,.08)}
+#orgnavadd .blurb{color:var(--muted);font-size:11px;line-height:1.45}
+#orgpanel{padding:16px 20px 40px;max-width:1080px}
+#orgpanel h2{margin:0 0 3px;font-size:16px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cyan)}
+#orgpanel .blurb{color:var(--muted);font-size:12px;margin:0 0 12px;line-height:1.5}
+#orgpanel .org-name{color:var(--cyan-dim);text-decoration:none}
+#orgpanel .org-name:hover{color:var(--cyan);text-decoration:underline}
+.orgfacts{font-size:12px;color:var(--muted);margin:4px 0 10px}
+.orgfacts b{color:var(--ink);font-weight:600}
+.orgactions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.orgactions button{background:none;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:11.5px;padding:5px 11px;border-radius:3px;cursor:pointer}
+.orgactions button:hover:not(:disabled){border-color:var(--cyan);background:rgba(79,216,255,.08)}
+.orgactions button:disabled{border-color:var(--line);color:var(--muted);cursor:default}
+.orgactions button.del{border-color:#3a1f27;color:#8d5761;margin-left:auto}
+.orgactions button.del:hover{border-color:var(--red);color:var(--red);background:none}
+.orgbar{display:inline-block;width:140px;height:5px;background:#0b2f42;
+  border-radius:3px;vertical-align:middle;margin-left:8px;overflow:hidden}
+.orgbar i{display:block;height:100%;background:var(--cyan)}
+.mhead{margin:18px 0 6px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink)}
+.mhead span{color:var(--muted);margin-left:6px}
+.mtable{border-top:1px solid #0b2f42}
+.mrow{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(90px,.8fr)
+  minmax(0,2.4fr) auto;gap:10px;align-items:center;padding:6px 2px;
+  border-bottom:1px solid #0b2f42;font-size:12px}
+.mrow .mh{font-family:ui-monospace,Consolas,monospace;color:var(--ink);
+  letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis}
+.mrow .mh.met{color:var(--cyan);cursor:pointer}
+.mrow .mh.met:hover{text-decoration:underline}
+.mrow .msub{color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.mrow .mchips{display:flex;gap:5px;flex-wrap:wrap}
+.mrow .mact{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.mrow .mact a{color:var(--muted);font-size:10.5px;text-decoration:none}
+.mrow .mact a:hover{color:var(--cyan)}
+.mrow .mact .lookupbtn{margin-left:0}
+.mrow.former .mh{color:#b8915a}
+.chip{font-size:10.5px;padding:1px 7px;border:1px solid var(--line);border-radius:10px;
+  color:var(--muted);white-space:nowrap}
+.chip.ok{color:var(--green);border-color:#1d4a3a}
+.chip.warn{color:var(--amber);border-color:#4a3a1d}
+.chip.bad{color:var(--red);border-color:#4a1d25}
+header .stat:has(#s-orgs),header .stat:has(#s-audits){cursor:pointer}
+/* The audit view is a filter on the grid, so the count says it is on. */
+header .stat.on{border-bottom:1px solid var(--cyan);padding-bottom:2px}
+#auditbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
+  /* lined up with the tiles: the grid is 2600 wide including its 16px pad */
+  width:calc(100% - 32px);max-width:2568px;margin:16px auto 0;padding:10px 14px;
+  border:1px solid var(--cyan-dim);background:var(--panel);color:var(--muted)}
+#auditbar[hidden]{display:none}
+/* The missing-key notice: amber, because it is a gap in what the tool can
+   tell you, not an error. Same frame as the audit bar. */
+#keybar,#oldbar{width:calc(100% - 32px);max-width:2568px;margin:16px auto 0;
+  padding:10px 14px;border:1px solid #4a3a1d;background:#140f06;
+  color:var(--muted);font-size:12px;line-height:1.5}
+#keybar[hidden],#oldbar[hidden]{display:none}
+#keybar b,#oldbar b{color:var(--amber)}
+#keybar a,.job a{color:var(--cyan)}
+#oldbar code{color:var(--ink);overflow-wrap:anywhere}
+#oldbar button{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:11px;padding:5px 12px;border-radius:3px;cursor:pointer}
+.keyrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.keyform{display:flex;gap:8px;align-items:center;flex:1;min-width:260px}
+.keyform input{flex:1;min-width:180px;background:#04161f;border:1px solid var(--line);
+  color:var(--ink);font:inherit;font-size:12px;padding:5px 8px;border-radius:3px}
+#keybar button{background:none;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:11px;padding:5px 12px;border-radius:3px;cursor:pointer}
+#keybar button.quiet{border-color:var(--line);color:var(--muted)}
+#auditbar b{color:var(--cyan);text-transform:uppercase;letter-spacing:.12em;
+  font-weight:600;font-size:11px}
+#auditbar .warn{color:var(--amber)}
+#auditbar button{margin-left:auto}
+@media (max-width:760px){
+  #orgs{grid-template-columns:1fr}
+  #orgnav{position:static;border-right:none;border-bottom:1px solid var(--line)}
+  .mrow{grid-template-columns:1fr auto}
+  .mrow .msub,.mrow .mchips{grid-column:1/-1}
+}
+.setrow{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:14px;
+  align-items:start;padding:11px 0;border-top:1px solid #0b2f42}
+.setrow:first-of-type{border-top:none}
+.setrow .lab{font-size:13px;color:var(--ink);letter-spacing:.02em}
+.setrow .hint{color:var(--muted);font-size:11.5px;line-height:1.45;
+  margin-top:3px}
+.setrow .ctl{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.setrow input[type=number],.setrow input[type=text],.setrow select{
+  background:#0a1b26;color:var(--ink);border:1px solid var(--line);
+  border-radius:3px;font:inherit;font-size:12.5px;padding:5px 7px;
+  width:120px}
+.setrow select{width:140px}
+.setrow input:focus,.setrow select:focus{outline:none;border-color:var(--cyan)}
+.setrow .unit{color:var(--muted);font-size:11px;min-width:30px}
+.setrow .detect{background:none;border:1px solid var(--cyan-dim);
+  color:var(--cyan);font:inherit;font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;padding:4px 9px;border-radius:3px;cursor:pointer;
+  white-space:nowrap}
+.setrow .detect:hover{background:rgba(79,216,255,.08)}
+.setrow .detect.listening{border-color:var(--amber);color:var(--amber);
+  background:#2a1a06}
+.setrow input[type=checkbox]{width:17px;height:17px;accent-color:var(--cyan);
+  cursor:pointer}
+/* A changed setting that needs a restart is the one thing this form can get
+   silently wrong, so it says so on the row rather than in a banner. */
+.setrow .needs{color:var(--amber);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;margin-top:4px}
+.setrow.changed .lab{color:var(--cyan)}
+
+/* Advanced rows are the ones that are easy to get wrong, so they are marked
+   rather than merely mixed in: a tinted panel, a warning-coloured edge and a
+   label on the row itself. Revealing them is opt-in; once revealed they should
+   still not look like the settings it is safe to fiddle with. */
+.setrow.adv{background:linear-gradient(90deg,rgba(255,179,71,.055),transparent 70%);
+  border-left:2px solid #7a5410;padding-left:11px;margin-left:-13px}
+.setrow.adv .lab::after{content:"ADVANCED";margin-left:8px;font-size:8.5px;
+  letter-spacing:.14em;color:#c9922f;border:1px solid #7a5410;padding:1px 5px;
+  border-radius:2px;vertical-align:middle;font-weight:600}
+.setrow.adv .hint{color:#9c8464}
+
+/* Reset appears only on a row that has been changed - a button that does
+   nothing on most rows is noise, and its presence is itself the signal that
+   this value is not the default. */
+.setrow .reset{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 7px;border-radius:3px;cursor:pointer;margin-top:5px}
+.setrow .reset:hover{border-color:var(--cyan);color:var(--cyan)}
+.setrow .default-was{color:var(--muted);font-size:10px;margin-top:5px}
+.adv-toggle{margin:18px 0 0;color:var(--muted);font-size:11.5px}
+.adv-toggle button{background:none;border:1px solid var(--line);
+  color:var(--muted);font:inherit;font-size:11px;padding:4px 10px;
+  border-radius:3px;cursor:pointer}
+.adv-toggle button:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ---- maintenance ---------------------------------------------------- */
+.job{border-top:1px solid #0b2f42;padding:13px 0}
+.job:first-of-type{border-top:none}
+.job h3{margin:0 0 4px;font-size:12.5px;letter-spacing:.05em;color:var(--ink);
+  text-transform:none;font-weight:600}
+.job p{margin:0 0 9px;color:var(--muted);font-size:11.5px;line-height:1.5}
+.job button{background:none;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 13px;border-radius:3px;cursor:pointer}
+.job button:hover{border-color:var(--cyan);background:rgba(79,216,255,.08)}
+.job button.go{border-color:var(--red);color:var(--red)}
+/* ---- sharing ------------------------------------------------------------ */
+.rpt-from{font-style:italic;color:#8fb9cc;margin-left:4px}
+#share-name{flex:1;min-width:220px}
+.share-note{margin:8px 0 0 !important;font-size:11px !important}
+#share-file{color:var(--muted);font:inherit;font-size:11.5px}
+.share-pv{margin-top:10px;padding:10px 12px;border:1px solid var(--cyan-dim);
+  background:#06141d;display:flex;flex-direction:column;gap:6px;font-size:12px}
+.share-pv label{color:var(--ink);display:flex;gap:7px;align-items:baseline}
+.share-pv-head{color:var(--muted)}
+.share-pv-head b{color:var(--ink)}
+.share-act{display:flex;gap:8px;margin-top:4px}
+.share-src{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 0;
+  border-top:1px solid #0b2f42;font-size:12px;color:var(--muted)}
+.share-src:first-of-type{border-top:none}
+.share-src b{color:var(--ink)}
+.share-src button{margin-left:auto}
+/* ---- spoken alerts ----------------------------------------------------- */
+.sprow{padding:9px 0 10px;border-top:1px solid #0b2f42}
+.sprow:first-of-type{border-top:none}
+.sp-head{font-size:12px;color:var(--ink);margin-bottom:6px;line-height:1.45}
+.sp-when{color:var(--muted);font-size:11px;margin-left:6px}
+.sp-edit{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sp-in{flex:1 1 260px;min-width:0;background:#04161f;border:1px solid var(--line);
+  color:var(--ink);font:inherit;font-size:12px;padding:5px 8px;border-radius:3px}
+.sp-in::placeholder{color:#456b7d;font-style:italic}
+.sp-in:focus{outline:none;border-color:var(--cyan-dim)}
+.job .sp-edit button{font-size:10px;padding:4px 10px}
+.job .sp-edit button:disabled{border-color:var(--line);color:var(--muted);
+  background:none;cursor:default}
+.sp-ph{font-size:10.5px;color:var(--muted);margin-top:4px}
+.sp-ph code{color:var(--cyan-dim);font-family:ui-monospace,Consolas,monospace}
+.sp-err{color:var(--red);font-size:11px;margin-top:4px}
+.sp-on{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--muted);
+  cursor:pointer;user-select:none}
+.sp-on input{accent-color:var(--cyan);margin:0}
+.sp-off{color:var(--amber)}
+.sprow.bad .sp-in{border-color:var(--red)}
+.sp-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0 6px}
+.sp-actions .blurb{margin:0 !important}
+#sp-save{background:none;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 14px;border-radius:3px;cursor:pointer}
+#sp-save:hover{border-color:var(--cyan);background:rgba(79,216,255,.08)}
+.job button.go:hover{background:#5c1f28;color:#fff}
+.job .out{margin-top:9px;font-size:11.5px;color:var(--muted);
+  line-height:1.55;white-space:pre-wrap}
+.job .out b{color:var(--ink);font-weight:600}
+.job .list{margin-top:6px;max-height:230px;overflow:auto;border:1px solid
+  var(--line);padding:7px 9px;font-family:ui-monospace,Consolas,monospace;
+  font-size:11px;color:var(--muted);line-height:1.6}
+.job .list div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iglist{margin-top:8px;border:1px solid var(--line);max-height:260px;
+  overflow:auto}
+.igrow{display:flex;gap:10px;align-items:center;padding:6px 9px;
+  border-top:1px solid #0b2f42;font-size:11.5px}
+.igrow:first-child{border-top:none}
+.iglabel{font-family:ui-monospace,Consolas,monospace;font-weight:600;
+  color:var(--ink);min-width:170px}
+.ignote{color:var(--muted);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.ighits{color:var(--cyan-dim);font-size:10.5px;white-space:nowrap}
+.igdel{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:3px;cursor:pointer}
+.igdel:hover{border-color:var(--cyan);color:var(--cyan)}
+/* ---- flagged orgs ----------------------------------------------------- */
+.orglist{margin-top:8px;border:1px solid var(--line)}
+.orgrow{padding:9px 10px;border-top:1px solid #0b2f42}
+.orgrow:first-child{border-top:none}
+.orghead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.orghead .org-name{font-weight:600;color:var(--ink);text-decoration:none}
+.orghead .org-name:hover{color:var(--cyan);text-decoration:underline}
+.orghead .org-tag{font-family:ui-monospace,Consolas,monospace;font-size:10.5px;
+  color:var(--cyan-dim);letter-spacing:.06em}
+/* The list that shipped with the tool. Purple, like a watchlist hit on a
+   tile, because it is the same kind of thing: somebody else's claim, and
+   where it came from is the part that must not be guessed at. */
+.orghead .wlship{color:#c9a6ff;border:1px solid #4b2f6e;border-radius:4px;
+  padding:1px 6px}
+.orghead button{margin-left:auto}
+.orghead .del{margin-left:0}
+.orgmeta{margin-top:4px;font-size:11.5px;color:var(--muted)}
+/* An unpulled flag is inert, so it is the one state that gets a colour. */
+.noroster{color:var(--amber);font-weight:600}
+.orgnote{margin-top:3px;font-size:11.5px;color:var(--muted);font-style:italic}
+.orgmsg{margin-top:5px;font-size:11px;color:var(--cyan)}
+.orgadd{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px}
+.orgadd input{background:#04161f;border:1px solid var(--line);color:var(--ink);
+  font:inherit;font-size:11.5px;padding:5px 8px;border-radius:3px}
+#org-sid{width:150px;font-family:ui-monospace,Consolas,monospace;
+  text-transform:uppercase}
+#org-note{flex:1;min-width:160px}
+.orgadd .blurb{flex-basis:100%;margin:0}
+
+/* ---- your own entries ---------------------------------------------------
+   Anything you typed in reads as yours wherever it shows: italic, and said. */
+.yours{font-style:italic}
+.focus.yours{color:#8fb9cc}
+.org-name.yours{font-style:italic}
+button.mini{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-style:normal;font-size:10px;letter-spacing:.04em;
+  padding:1px 7px;border-radius:3px;cursor:pointer;vertical-align:1px}
+button.mini:hover{border-color:var(--cyan);color:var(--cyan)}
+button.mini.unknown{border-color:#4a3a1d;color:var(--amber)}
+button.mini.unknown:hover{border-color:var(--amber)}
+.org button.mini.unknown{margin-left:auto;flex:0 0 auto}
+.medit{display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  margin:2px 0 10px;padding:8px;border:1px solid var(--line);background:#06141d}
+.medit select,.medit input{background:#0a1b26;color:var(--ink);
+  border:1px solid var(--line);border-radius:3px;font:inherit;font-size:11.5px;
+  padding:4px 6px}
+.medit input:not([type=date]){flex:1;min-width:140px}
+.medit label{color:var(--muted);font-size:11.5px}
+.medit button{background:none;border:1px solid var(--line);color:var(--muted);
+  font:inherit;font-size:10.5px;padding:4px 9px;border-radius:3px;cursor:pointer}
+.medit .save:hover{border-color:var(--cyan);color:var(--cyan)}
+.medit .me-clear:hover{border-color:var(--red);color:var(--red)}
+.medit .blurb{flex-basis:100%;margin:2px 0 0;color:var(--muted);font-size:11px}
+.chip.you{color:var(--cyan);border-color:var(--cyan-dim)}
+#orgmemadd .memadd{margin-top:4px}
+#orgmemadd .blurb{margin:6px 0 4px}
+#mem-handle{width:210px;font-family:ui-monospace,Consolas,monospace;
+  text-transform:uppercase}
+#mem-note{flex:1;min-width:160px}
+#mem-add{background:none;border:1px solid var(--cyan-dim);color:var(--cyan);
+  font:inherit;font-size:11px;padding:5px 11px;border-radius:3px;cursor:pointer}
+#mem-add:hover{border-color:var(--cyan);background:rgba(79,216,255,.08)}
+.mrow .mact .del{background:none;border:1px solid #3a1f27;color:#8d5761;
+  font:inherit;font-size:10px;padding:2px 8px;border-radius:3px;cursor:pointer}
+.mrow .mact .del:hover{border-color:var(--red);color:var(--red)}
+.mrow .mact .del.armed{border-color:var(--red);background:#5c1f28;color:#fff}
+.disk{display:flex;gap:16px;flex-wrap:wrap;margin:2px 0 14px;
+  font-size:11.5px;color:var(--muted)}
+.disk b{color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+
+footer{padding:8px 18px;border-top:1px solid var(--line);font-size:10.5px;
+  letter-spacing:.1em;color:#456f83}

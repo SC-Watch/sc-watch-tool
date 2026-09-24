@@ -47,6 +47,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+import imgio
 import km_gate
 import paths
 
@@ -62,7 +63,7 @@ def _km_template():
         _KM_TEMPLATE = km_gate.load_template()
         _KM_LOADED = True
         if _KM_TEMPLATE is None:
-            print("! no km_template.npy - gate disabled, run build_km_template.py",
+            print("! no km_template.npy - gate disabled, run tools/build_km_template.py",
                   file=sys.stderr)
     return _KM_TEMPLATE
 
@@ -142,7 +143,14 @@ RANGE_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*(km|m)\s*(?:[\[({|].*)?$",
 
 # SC handles are Latin alphanumerics plus underscore. Anything the OCR returns
 # outside this is a misread, not a name.
-HANDLE_RE = re.compile(r"^[A-Za-z0-9_-]{3,24}$")
+#
+# Up to 40, the same ceiling the UI and the watchlist enforce. It was 24, which
+# nothing else agreed with and nothing measured: the shipped watchlist names a
+# real account 25 characters long, and a clean read of that handle off the HUD
+# was classified `unreadable` and thrown away - on the one list whose whole
+# point is to catch that person. Length was never what kept junk out anyway;
+# a name only becomes a contact with a range line sitting under it.
+HANDLE_RE = re.compile(r"^[A-Za-z0-9_-]{3,40}$")
 
 # Abandoned-ship serial numbers, e.g. SP-9695-PW, JD-2266-FC, LL-8589-8W.
 # Always two letters, four digits, two alphanumerics.
@@ -890,10 +898,36 @@ def _pair_ocr_lines(lines: list["OcrLine"], frame_h: int,
     return out
 
 
-def detect_focused(frame: np.ndarray, ocr, w: int = FOCUS_W, h: int = FOCUS_H,
+def focus_size_for(frame_h: int) -> tuple[int, int]:
+    """The focused crop size for a frame this tall.
+
+    FOCUS_W/H were measured on a 1440-tall screen, and the HUD scales with
+    vertical resolution - so a fixed 1200x600 covers a different amount of HUD
+    on a 1080p or 4K display than the one it was tuned on. Scaled by height
+    against REFERENCE_HEIGHT, the same rule _scaled() uses everywhere else.
+
+    NOT validated by the corpus, and that is worth being explicit about: all
+    48 reference frames and every sample from other people are ~1440 tall
+    (5120x1440, 3440x1440, 2559x1439), so they cannot tell height-scaled from
+    fixed-pixel apart - at 1440 the two are the same number. This follows the
+    established convention; a 1080p or 4K capture would be the measurement.
+    """
+    s = frame_h / REFERENCE_HEIGHT
+    return max(320, int(round(FOCUS_W * s))), max(200, int(round(FOCUS_H * s)))
+
+
+def detect_focused(frame: np.ndarray, ocr, w: int | None = None,
+                   h: int | None = None,
                    max_pairs: int = FOCUS_MAX_PAIRS,
                    direct: bool | None = None) -> list["Contact"]:
-    """Read the centre of the screen. Returns full-frame coordinates."""
+    """Read the centre of the screen. Returns full-frame coordinates.
+
+    w/h None means size the crop from the frame - see focus_size_for().
+    """
+    if w is None or h is None:
+        aw, ah = focus_size_for(frame.shape[0])
+        w = aw if w is None else w
+        h = ah if h is None else h
     sub, x0, y0 = focus_crop(frame, w, h)
     use_direct = FOCUS_DIRECT_OCR if direct is None else direct
 
@@ -1257,7 +1291,7 @@ def main(argv: list[str]) -> int:
     outdir.mkdir(exist_ok=True)
 
     for path in argv[1:]:
-        frame = cv2.imread(path, cv2.IMREAD_COLOR)
+        frame = imgio.imread(path)
         if frame is None:
             print(f"{path}: could not read")
             continue
@@ -1275,8 +1309,8 @@ def main(argv: list[str]) -> int:
             # doubles as the training corpus for a custom glyph model later.
             stem = Path(path).stem
             safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in label)
-            cv2.imwrite(str(outdir / f"{stem}_{i:02d}_{safe}.png"),
-                        prep_for_ocr(c.name_box.crop(frame, CROP_PAD)))
+            imgio.imwrite(outdir / f"{stem}_{i:02d}_{safe}.png",
+                          prep_for_ocr(c.name_box.crop(frame, CROP_PAD)))
 
     return 0
 

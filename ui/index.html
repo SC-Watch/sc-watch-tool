@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+sc-watch - reads player handles off the Star Citizen HUD.
+Copyright (C) 2026 SC-Watch
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details. You should have received a copy of the GNU General Public
+License along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sc-watch</title>
+<link rel="stylesheet" href="/app.css"></head><body>
+
+<header>
+  <h1><span class="dot"></span>sc-watch</h1>
+  <span class="stat">contacts<b id="s-players">–</b></span>
+  <span class="stat">sightings<b id="s-sightings">–</b></span>
+  <span class="stat">reports<b id="s-reports">–</b></span>
+  <span class="stat">awaiting reason<b id="s-pending">–</b></span>
+  <span class="stat">to audit<b id="s-audits">–</b></span>
+  <span class="stat">flagged orgs<b id="s-orgs">–</b></span>
+  <span class="spacer"></span>
+  <div class="controls">
+    <input type="search" id="q" placeholder="filter handle / org">
+    <button class="filter" id="f-alerts" aria-pressed="false">alerts only</button>
+    <button class="filter" id="f-lookup">look up</button>
+    <button class="filter" id="f-orgs" aria-pressed="false">orgs</button>
+    <button class="filter" id="f-settings" aria-pressed="false">settings</button>
+  </div>
+</header>
+
+<div id="oldbar" hidden></div>
+<div id="keybar" hidden></div>
+<div id="auditbar" hidden></div>
+<div id="grid"></div>
+<div id="settings" hidden>
+  <div id="setnav"></div>
+  <div id="setpanel"></div>
+</div>
+<div id="orgs" hidden>
+  <div id="orgnav"><div id="orgnavlist"></div><div id="orgnavadd"></div></div>
+  <!-- Three parts, so the add-a-member form is NOT rebuilt with the rest on
+       every live update: rebuilt, it would lose what you were typing. -->
+  <div id="orgpanel"><div id="orghead"></div><div id="orgmemadd"></div><div id="orgmembers"></div></div>
+</div>
+<div id="veil" hidden><div id="modal"></div></div>
+<!-- Names no file: an installed build has no watch.py to run, and the first
+     thing a new user reads should not point at something that is not there. -->
+<div id="empty" hidden>no contacts yet — start the watcher and ping something</div>
+<footer><span id="updated">connecting…</span></footer>
+
+<script src="/app.js"></script></body></html>

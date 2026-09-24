@@ -44,6 +44,10 @@ HERE = Path(SPECPATH)
 # executable, which is where a one-folder build puts datas.
 datas = [
     (str(HERE / "km_template.npy"), "."),
+    # The UI page: index.html, app.css, app.js. ui_server.py serves them via
+    # paths.resource("ui"); without this entry the frozen UI is a 500.
+    (str(HERE / "ui"), "ui"),
+    (str(HERE / "starter_list.json"), "."),
 ]
 
 # THE TONES ARE NOT BUNDLED, deliberately.
@@ -69,17 +73,20 @@ hiddenimports = [
     # graph reaches it. Without this the diagnostic exists in the help text and
     # fails the moment anyone uses it.
     "check_resolution",
+    # Both are imported by the UI server inside functions (the Spoken alerts
+    # and Sharing panels), and belt-and-braces beats a panel that 500s in the
+    # built app only.
+    "audio",
+    "share",
     "onnxruntime",
     "onnxruntime.capi",
     "onnxruntime.capi._pybind_state",
     # dxcam builds its COM interfaces through comtypes at import time.
     "comtypes",
     "comtypes.stream",
-    # Optional at runtime, but if it is installed at build time we want the
-    # speech path to work in the built app rather than silently degrade.
-    "pyttsx3",
-    "pyttsx3.drivers",
-    "pyttsx3.drivers.sapi5",
+    # The speech voice: audio.py creates SAPI.SpVoice through comtypes.client,
+    # imported on the voice's own thread, so nothing at module level shows it.
+    "comtypes.client",
 ]
 hiddenimports += collect_submodules("rapidocr_onnxruntime")
 

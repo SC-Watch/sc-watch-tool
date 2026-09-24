@@ -43,6 +43,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import consensus
+import dbopen
+import flags as flags_mod
 import paths
 
 DB_PATH = paths.data("sc-watch.db")
@@ -126,7 +128,12 @@ CREATE TABLE IF NOT EXISTS audits (
     variants   TEXT,               -- JSON [[name, count], ...] seen this burst
     frame_path TEXT,               -- full frame, JPEG; may be missing
     crop_name  TEXT,               -- lossless crop of the name box
-    crop_range TEXT                -- lossless crop of the range box
+    crop_range TEXT,               -- lossless crop of the range box
+    -- WHY this audit exists, which decides what can clear it. 'weak_read' is
+    -- answered by corroboration; 'no_rsi_account' is not, because the case it
+    -- catches is a read that was corroborated AND wrong - VONCARSTEINO came
+    -- back 18/18 and the real handle was VONCARSTEIN.
+    reason     TEXT DEFAULT 'weak_read'
 );
 CREATE INDEX IF NOT EXISTS idx_audits_handle ON audits(handle);
 
@@ -169,7 +176,89 @@ CREATE TABLE IF NOT EXISTS player_orgs (
     source    TEXT DEFAULT 'profile',
     PRIMARY KEY (handle, sid)
 );
+-- Everyone a flagged org's public roster has EVER listed, and when.
+--
+-- player_orgs holds CURRENT membership only, and that is what carries an org
+-- flag to a person - someone who left is not handed the flag as though they
+-- were still in. This table is the history beside it: when each person was
+-- first and last listed, and since when they have NOT been.
+--
+-- `gone_since` is worded carefully in everything that shows it. The API
+-- leaves hidden members off the roster entirely, so vanishing from it means
+-- "left, OR hid their membership" - never simply "left".
+CREATE TABLE IF NOT EXISTS org_membership (
+    sid        TEXT NOT NULL,
+    handle     TEXT NOT NULL,
+    display    TEXT,
+    rank       TEXT,
+    stars      INTEGER,
+    first_seen REAL,             -- first roster pull that listed them
+    last_seen  REAL,             -- most recent one that did
+    gone_since REAL,             -- first pull that did NOT; NULL while listed
+    PRIMARY KEY (sid, handle)
+);
+CREATE INDEX IF NOT EXISTS idx_org_membership_handle ON org_membership(handle);
+-- What YOU filled in where a lookup could not: an org's name and declared
+-- focus, and a player's enlistment date, typed from their RSI page on a day
+-- the lookup services could not supply them. Never passed off as RSI's -
+-- everything that shows one says it is yours - and never used where RSI has
+-- an answer: the moment a lookup brings the real value, that is what shows.
+-- Kept here rather than in rsi_cache.db, which is a cache and may be thrown
+-- away; this is the user's own record.
+CREATE TABLE IF NOT EXISTS org_manual (
+    sid             TEXT PRIMARY KEY,
+    name            TEXT,
+    primary_focus   TEXT,
+    secondary_focus TEXT,
+    ts              REAL
+);
+-- Small facts about this install. `install` is a random id made on the first
+-- export, so an org mate's copy of your reports can be matched up again when
+-- you send a newer export - and so your own export is recognised as yours.
+CREATE TABLE IF NOT EXISTS meta (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+);
+-- Everyone whose export you imported. Their reports carry `source` (the name
+-- they gave) and `origin` ("<install>:<their report id>"); their hand-added
+-- roster members carry `manual_src` (the install). See share.py.
+CREATE TABLE IF NOT EXISTS shares (
+    install     TEXT PRIMARY KEY,
+    name        TEXT,
+    exported_at REAL,
+    imported_at REAL
+);
+CREATE TABLE IF NOT EXISTS player_manual (
+    handle   TEXT PRIMARY KEY,
+    enlisted TEXT,               -- ISO date, YYYY-MM-DD
+    ts       REAL
+);
 """
+
+
+def former_line(sid: str, since: float | None) -> str:
+    """How former membership is said, everywhere it is said.
+
+    "Off the public roster", never "left": the roster omits hidden members,
+    so dropping off it is equally what hiding your membership looks like.
+    """
+    when = time.strftime("%d %b", time.localtime(since)) if since else "a while"
+    return (f"formerly on flagged org {sid}'s roster - off it since {when} "
+            f"(left, or hid it)")
+
+
+def manual_line(sid: str, manual_orgs: dict, manual_by: dict | None = None) -> str:
+    """The tail on a flagged-org line when the membership was added by hand.
+
+    Said every time, on the tile and the console alike: a membership no roster
+    shows is somebody's intel, and has to read as whose - yours, or the org
+    mate whose export brought it.
+    """
+    if sid not in manual_orgs:
+        return ""
+    note = manual_orgs[sid]
+    who = (manual_by or {}).get(sid) or "you"
+    return f" (added by {who}{': ' + note if note else ''})"
 
 
 @dataclass
@@ -200,20 +289,99 @@ class Assessment:
     last_seen: float | None = None
     reports: list[Report] = field(default_factory=list)
     flagged_orgs: list[tuple[str, str]] = field(default_factory=list)
+    # (sid, gone_since) for flagged orgs whose roster USED to list this person
+    # and no longer does. Alerts just as current membership does - see alert.
+    former_orgs: list[tuple[str, float]] = field(default_factory=list)
+    # sid -> your note, for flagged orgs whose membership of this person YOU
+    # recorded rather than a roster. Said wherever the membership is said.
+    manual_orgs: dict[str, str] = field(default_factory=dict)
+    # sid -> the name of the org mate whose export added them; absent = you.
+    manual_by: dict[str, str] = field(default_factory=dict)
+    # sid -> the flagged org's display name, where one is stored. Speech says
+    # "Member of Example Org"; an SID read aloud is noise.
+    org_names: dict[str, str] = field(default_factory=dict)
+    # Third-party watchlist hits - see watchlist.py. Populated only when a
+    # watchlist was handed to Database(); duck-typed so reputation.py never
+    # imports watchlist.py, which imports sketch() from here.
+    watchlist: list = field(default_factory=list)
 
     @property
     def score(self) -> float:
-        """Decayed sum of negative reports. Positive reports subtract."""
+        """Decayed sum of negative reports. Positive reports subtract.
+
+        Watchlists are deliberately absent. This number is what YOU recorded,
+        and it stays answerable to you alone - a stranger's post can put a
+        line on the tile, but it cannot move your score.
+        """
         total = 0.0
         for r in self.reports:
-            if r.category == "note":
-                continue
-            total += -r.weight if r.category == "friendly" else r.weight
+            # Polarity comes from the flag definition, not from two hard-coded
+            # strings. See flags.py: a custom "Good trader" used to count
+            # AGAINST the player, and clearing the friendly box would have
+            # flipped every positive report ever filed.
+            total += r.weight * flags_mod.sign(r.category)
         return total
 
     @property
     def alert(self) -> bool:
-        return self.score > 0 or bool(self.flagged_orgs)
+        # An EXACT watchlist match raises the flag even when you have never
+        # met this person - that is the entire value of a shared list. A
+        # VARIANT match does not: it only means a name that could OCR to this
+        # one is listed, and firing a griefer alert on that would eventually
+        # accuse the wrong player. It still shows up in lines() to look at.
+        #
+        # FORMER membership of a flagged org alerts too. The user's call, and
+        # the reasoning is theirs: people leave these orgs precisely to act
+        # with fewer eyes on them, so dropping off the roster is not evidence
+        # of reform. The wording still says what the roster can actually
+        # show - "off it since ... (left, or hid it)" - so the alert is loud
+        # without claiming more than is known.
+        return (self.score > 0 or bool(self.flagged_orgs)
+                or bool(self.former_orgs)
+                or any(h.match == "exact" for h in self.watchlist))
+
+    def spoken(self) -> dict | None:
+        """The ONE reason a spoken alert gives - the strongest that applies."""
+        every = self.spoken_all()
+        return every[0] if every else None
+
+    def spoken_all(self) -> list[dict]:
+        """Every reason a spoken alert could give, as data, strongest first -
+        audio.py says the first one whose phrase is switched on, through
+        phrases you can edit. Empty if nothing applies.
+
+        Order: your own negative reports, reports someone shared with you, a
+        flagged org, a former one, an exact watch-list match. The console and
+        the tile still get lines(); speech is rationed to a single reason.
+        """
+        out = []
+        for mine in (True, False):
+            by_cat: dict[str, list[Report]] = {}
+            for r in self.reports:
+                if (r.source in ("self", "", None)) != mine:
+                    continue
+                # Pending counts: a flag pressed mid-fight is the freshest
+                # warning there is, and it is spoken as "Flagged".
+                if r.category != PENDING and flags_mod.sign(r.category) <= 0:
+                    continue
+                by_cat.setdefault(r.category, []).append(r)
+            if by_cat:
+                cat, rs = max(by_cat.items(),
+                              key=lambda kv: (len(kv[1]), max(r.ts for r in kv[1])))
+                r = {"kind": "report" if mine else "shared",
+                     "label": ("Flagged" if cat == PENDING
+                               else flags_mod.speakable(cat)),
+                     "count": sum(len(v) for v in by_cat.values())}
+                if not mine:
+                    r["source"] = rs[0].source
+                out.append(r)
+        for sid, _ in self.flagged_orgs[:1]:
+            out.append({"kind": "org", "org": self.org_names.get(sid) or sid})
+        for sid, _ in self.former_orgs[:1]:
+            out.append({"kind": "former", "org": self.org_names.get(sid) or sid})
+        if any(h.match == "exact" for h in self.watchlist):
+            out.append({"kind": "watchlist"})
+        return out
 
     def lines(self) -> list[str]:
         """Why this fired, in plain language. Never just a verdict."""
@@ -226,9 +394,27 @@ class Assessment:
             when = ("today" if newest < 1 else
                     f"{int(newest)}d ago" if newest < 365 else
                     f"{newest / 365:.1f}y ago")
-            out.append(f"{len(rs)}x {cat}, most recent {when}")
+            # The LABEL, not the key. 'ransom_broken' is a database value;
+            # "Broke a ransom" is what a person wrote and what a person should
+            # read. Retired flags still resolve, so an old report keeps its
+            # proper name forever.
+            #
+            # When speech is wired to flags this should become
+            # flags_mod.speakable(cat), which falls back to the label but lets
+            # a flag carry a pronunciation - a label like "KOS!!!" reads fine
+            # and speaks badly.
+            out.append(f"{len(rs)}x {flags_mod.by_key(cat).label}, "
+                       f"most recent {when}")
         for sid, note in self.flagged_orgs:
-            out.append(f"member of flagged org {sid}" + (f" - {note}" if note else ""))
+            out.append(f"member of flagged org {sid}" + (f" - {note}" if note else "")
+                       + manual_line(sid, self.manual_orgs, self.manual_by))
+        for sid, since in self.former_orgs:
+            out.append(former_line(sid, since))
+        # describe() lives on the Hit so the tile, the console and the spoken
+        # alert all say the same thing about how sure a source was. Called
+        # duck-typed: this module must not import watchlist, which imports
+        # sketch() from here.
+        out.extend(h.describe() for h in self.watchlist)
         if self.sightings > 1:
             span = (self.last_seen - self.first_seen) / 86400.0
             out.append(f"seen {self.sightings}x over {span:.0f}d"
@@ -237,7 +423,7 @@ class Assessment:
 
 
 class Database:
-    def __init__(self, path: Path | None = None, verify=None):
+    def __init__(self, path: Path | None = None, verify=None, watchlist=None):
         # Resolved at CALL time, not bound as a default argument. As a default
         # it was captured when the class was defined, so `reputation.DB_PATH =
         # copy` before `Database()` silently kept using the real database - a
@@ -247,12 +433,33 @@ class Database:
         # `verify(handle) -> bool` decides whether a handle is a real account.
         # Merging is only permitted when it says a candidate is NOT real.
         self.verify = verify
+        # Optional watchlist.Watchlist. INJECTED rather than imported, for two
+        # reasons: watchlist.py imports sketch() from here, so importing it
+        # back would be a cycle; and a Database with no watchlist has to keep
+        # working exactly as before, because most callers (tests, migrations,
+        # the corpus tools) have no business loading third-party accusations.
+        self.watchlist = watchlist
         # Audit images are stored as paths relative to the DATABASE, not to
         # this module, so a database opened from somewhere else cannot reach
         # back and delete the real installation's files.
         self.root = path.parent
-        self.db = sqlite3.connect(str(path), check_same_thread=False)
-        self.db.row_factory = sqlite3.Row
+        self.db = dbopen.connect(path)
+        # Schema and column migrations run ONCE per file per process, not on
+        # every construction. The UI builds a Database per HTTP request, so
+        # this was ~1 ms of repeated DDL per request - and two requests
+        # arriving together raced the same ALTER TABLE.
+        if not dbopen.migrated_once(path):
+            return
+        try:
+            self._migrate()
+        except Exception:
+            # Un-mark the path so the NEXT connection retries. Marking it done
+            # and then failing would leave every later Database in this
+            # process talking to a half-built schema.
+            dbopen.forget(path)
+            raise
+
+    def _migrate(self):
         self.db.executescript(SCHEMA)
         # Older databases predate the sketch column. The column has to exist
         # before the index that uses it, so neither can live in SCHEMA.
@@ -275,12 +482,62 @@ class Database:
             self.db.execute("ALTER TABLE audits ADD COLUMN read_as TEXT")
             self.db.execute(
                 "UPDATE audits SET read_as=handle WHERE read_as IS NULL")
+        if "reason" not in au:
+            # Existing rows were all raised by the vote rule, so that is what
+            # they are backfilled as. Getting this wrong in the other direction
+            # would make corroboration unable to clear them and leave everyone
+            # with a permanent pile of audits they cannot dismiss.
+            self.db.execute(
+                "ALTER TABLE audits ADD COLUMN reason TEXT DEFAULT 'weak_read'")
+            self.db.execute(
+                "UPDATE audits SET reason='weak_read' WHERE reason IS NULL")
         of = {r[1] for r in self.db.execute("PRAGMA table_info(org_flags)")}
         if "roster_ts" not in of:
             self.db.execute("ALTER TABLE org_flags ADD COLUMN roster_ts REAL")
         if "roster_n" not in of:
             self.db.execute(
                 "ALTER TABLE org_flags ADD COLUMN roster_n INTEGER DEFAULT 0")
+        # Which service produced the stored roster. NULL on everything pulled
+        # before there were two, and every one of those came from
+        # starcitizen-api.com - record_roster() reads NULL that way. Added by
+        # name, and every write to this table names its columns, so the code
+        # from before this column existed still runs against it.
+        if "roster_src" not in of:
+            self.db.execute("ALTER TABLE org_flags ADD COLUMN roster_src TEXT")
+        # ...and per member, which is the one that decides anything - see
+        # record_roster(). NULL means starcitizen-api.com, like above.
+        om = {r[1] for r in self.db.execute("PRAGMA table_info(org_membership)")}
+        if "src" not in om:
+            self.db.execute("ALTER TABLE org_membership ADD COLUMN src TEXT")
+        # Members YOU put on a roster, and what you know about them. Some orgs
+        # keep most of their people OFF the public roster, so for them this is
+        # the roster; see add_member_manually(). By name, like src above.
+        if "manual_ts" not in om:
+            self.db.execute("ALTER TABLE org_membership ADD COLUMN manual_ts REAL")
+        if "note" not in om:
+            self.db.execute("ALTER TABLE org_membership ADD COLUMN note TEXT")
+        # Who put a hand-added member there: NULL is you, otherwise the install
+        # of the org mate whose export brought them. See share.py.
+        if "manual_src" not in om:
+            self.db.execute("ALTER TABLE org_membership ADD COLUMN manual_src TEXT")
+        # A report imported from somebody else remembers which of THEIR reports
+        # it was, so their next export updates it instead of duplicating it.
+        rp = {r[1] for r in self.db.execute("PRAGMA table_info(reports)")}
+        if "origin" not in rp:
+            self.db.execute("ALTER TABLE reports ADD COLUMN origin TEXT")
+        self.db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_reports_origin ON reports(origin)")
+        # Rosters pulled before the history existed become its first entries,
+        # dated to when they were pulled - otherwise the first refresh would
+        # report every existing member as having just joined.
+        if not self.db.execute("SELECT 1 FROM org_membership LIMIT 1").fetchone():
+            self.db.execute(
+                """INSERT OR IGNORE INTO org_membership
+                   (sid, handle, first_seen, last_seen)
+                   SELECT p.sid, p.handle, COALESCE(f.roster_ts, f.ts),
+                          COALESCE(f.roster_ts, f.ts)
+                   FROM player_orgs p JOIN org_flags f ON f.sid = p.sid
+                   WHERE p.source = 'roster'""")
         self.db.execute(
             "CREATE INDEX IF NOT EXISTS idx_players_sketch ON players(sketch)")
         for row in self.db.execute(
@@ -392,13 +649,30 @@ class Database:
         except Exception:
             return False, False
 
-    def _rename(self, old: str, new: str):
-        """Fold `old`'s history into `new`.
+    def close(self):
+        """Release the connection.
+
+        Existed nowhere before, so every caller relied on refcounting. That
+        works in CPython right up until something holds a reference - a
+        retained traceback pinned 51 connections in a test - so the UI now
+        closes explicitly and the guarantee stops being incidental.
+        """
+        try:
+            self.db.close()
+        except Exception:
+            pass
+
+    def _rename(self, old: str, new: str) -> bool:
+        """Fold `old`'s history into `new`. True if anything actually moved.
 
         Two cases, and an early version only handled the first: resolving a
         new reading (where `new` does not exist yet, so a rename suffices), and
         consolidating two records that both exist, where renaming collides with
         the primary key. The second needs a merge.
+
+        Returns a bool because the "nothing to move" case used to be silent.
+        confirm_audit() called this, ignored it, and reported renamed=True to a
+        user whose correction had gone nowhere.
         """
         target = self.db.execute(
             "SELECT sightings, first_seen FROM players WHERE handle=?",
@@ -407,7 +681,7 @@ class Database:
             "SELECT sightings, first_seen FROM players WHERE handle=?",
             (old,)).fetchone()
         if src is None:
-            return
+            return False
 
         if target is None:
             self.db.execute(
@@ -423,12 +697,13 @@ class Database:
                  src["first_seen"] or target["first_seen"], new))
             self.db.execute("DELETE FROM players WHERE handle=?", (old,))
 
-        for table in ("sightings", "reports", "player_orgs"):
+        for table in ("sightings", "reports", "player_orgs", "player_manual"):
             self.db.execute(
                 f"UPDATE OR IGNORE {table} SET handle=? WHERE handle=?",
                 (new, old))
             self.db.execute(f"DELETE FROM {table} WHERE handle=?", (old,))
         self.db.commit()
+        return True
 
     def consolidate(self) -> list[tuple[str, str]]:
         """Merge variant spellings already in the database.
@@ -598,9 +873,9 @@ class Database:
         report is evidence about when the thing happened, not about when you
         got round to describing it, and the 180-day decay reads that column.
         """
-        if category not in CATEGORIES or category == PENDING:
+        if category not in flags_mod.keys() or category == PENDING:
             raise ValueError(f"category must be one of "
-                             f"{[c for c in CATEGORIES if c != PENDING]}")
+                             f"{[c for c in flags_mod.keys() if c != PENDING]}")
         h, _ = self.canonical(handle)
         cur = self.db.execute(
             "UPDATE reports SET category=?, note=?, evidence=?"
@@ -623,8 +898,12 @@ class Database:
         """
         sets, vals = [], []
         if category is not None:
-            if category not in CATEGORIES:
-                raise ValueError(f"category must be one of {list(CATEGORIES)}")
+            # Retired keys are accepted on purpose: editing an old report
+            # must not fail just because its reason has since left the
+            # dropdown. flags.keys() is every key ever defined.
+            if category not in flags_mod.keys():
+                raise ValueError(
+                    f"category must be one of {flags_mod.keys()}")
             sets.append("category=?"); vals.append(category)
         if note is not None:
             sets.append("note=?"); vals.append(note)
@@ -664,7 +943,7 @@ class Database:
 
     def add_audit(self, handle: str, range_km, votes: int, total: int,
                   variants, frame_path: str = "", crop_name: str = "",
-                  crop_range: str = "") -> int:
+                  crop_range: str = "", reason: str = "weak_read") -> int:
         """Record a read worth checking by eye. Returns the row id.
 
         Canonicalised the same way record_sighting() is, so the audit lands on
@@ -677,12 +956,29 @@ class Database:
         """
         raw = (handle or "").upper()
         h, _ = self.canonical(raw, mutate=False)
+        # One open audit per handle for the NON-vote reasons. "RSI has never
+        # heard of this name" is the same fact however many times it is
+        # restated, so restating it across sessions would leave you forty rows
+        # asking one question.
+        #
+        # Deliberately NOT applied to weak_read. Two poor reads in two separate
+        # bursts are two independent looks at the label, each with its own
+        # crop, and the second may be the legible one. Collapsing them would
+        # throw away evidence to tidy a count.
+        if reason != "weak_read":
+            dup = self.db.execute(
+                "SELECT id FROM audits WHERE handle=? AND reason=?",
+                (h, reason)).fetchone()
+            if dup is not None:
+                return int(dup["id"])
         cur = self.db.execute(
             """INSERT INTO audits (ts, handle, read_as, range_km, votes, total,
-                                   variants, frame_path, crop_name, crop_range)
-               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                                   variants, frame_path, crop_name, crop_range,
+                                   reason)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
             (time.time(), h, raw, range_km, votes, total,
-             json.dumps(list(variants or [])), frame_path, crop_name, crop_range))
+             json.dumps(list(variants or [])), frame_path, crop_name, crop_range,
+             reason))
         self.db.commit()
         return int(cur.lastrowid)
 
@@ -697,16 +993,25 @@ class Database:
 
         Only touches audits for THIS handle. A different spelling is a different
         claim and still needs looking at.
+
+        And only audits raised BY the vote rule. An audit raised because the
+        handle has no RSI account is asking a question corroboration cannot
+        answer: VONCARSTEINO was read 18/18 and was still wrong. Clearing it on
+        vote count would delete the row every time the misread repeated, which
+        is exactly when it repeats.
         """
         if votes < 2:
             return 0
         h, _ = self.canonical(handle, mutate=False)
         rows = self.db.execute(
-            "SELECT * FROM audits WHERE handle=?", (h,)).fetchall()
+            "SELECT * FROM audits WHERE handle=? AND"
+            " COALESCE(reason,'weak_read')='weak_read'", (h,)).fetchall()
         for row in rows:
             self._drop_audit_files(row)
         if rows:
-            self.db.execute("DELETE FROM audits WHERE handle=?", (h,))
+            self.db.execute(
+                "DELETE FROM audits WHERE handle=? AND"
+                " COALESCE(reason,'weak_read')='weak_read'", (h,))
             self.db.commit()
         return len(rows)
 
@@ -736,13 +1041,24 @@ class Database:
         return rows
 
     def _drop_audit_files(self, row):
-        base = self.root
+        """Delete the pictures behind one audit row.
+
+        The paths come out of the database, and this deletes files, so it
+        checks rather than trusts: only inside audit/, only a file. Nothing
+        can currently put a path here except _save_audit_images(), which
+        builds them itself - the check is so that stays true if anything else
+        ever writes the row, because the failure mode is deleting somebody's
+        file outside the data directory.
+        """
+        allowed = (self.root / "audit").resolve()
         for key in ("frame_path", "crop_name", "crop_range"):
             rel = (row[key] if isinstance(row, dict) else row[key]) or ""
             if not rel:
                 continue
             try:
-                (base / rel).unlink(missing_ok=True)
+                f = (self.root / rel).resolve()
+                if f.parent == allowed and f.is_file():
+                    f.unlink(missing_ok=True)
             except OSError:
                 pass
 
@@ -781,6 +1097,7 @@ class Database:
             return {"ok": False, "error": "no name given"}
 
         renamed = False
+        adopted = False          # no record to rename, so one was created
         checked = False          # was the identity question actually asked?
         if new != old:
             # NOT _both_real(): that returns True when there is no verifier,
@@ -797,8 +1114,27 @@ class Database:
                         "error": (f"{old} and {new} both resolve to real "
                                   f"accounts - merging them would give one "
                                   f"person the other's history")}
-            self._rename(old, new)
-            renamed = True
+            renamed = self._rename(old, new)
+            if not renamed:
+                # Nothing to move: the record this audit pointed at is gone.
+                # It can be ignored as "not a person", forgotten by a retention
+                # sweep, or already folded away by an earlier confirm. This
+                # used to fall through reporting renamed=True, deleting the
+                # audit, and discarding the correction without a word.
+                #
+                # The read still happened, and a human has just said what it
+                # actually said, so the correction is kept as a record of its
+                # own - UNLESS you had explicitly marked that label "not a
+                # person", in which case recreating it would undo a decision
+                # you made on purpose.
+                if self.is_ignored(new):
+                    return {"ok": False, "old": old, "new": new,
+                            "error": (f"{new} is on your ignore list as "
+                                      f"'not a person' - remove it there first "
+                                      f"if that was wrong")}
+                self.record_sighting(new, row["range_km"],
+                                     row["votes"] or 0, row["total"] or 0)
+                adopted = True
 
         self._drop_audit_files(row)
         self.db.execute("DELETE FROM audits WHERE id=?", (int(audit_id),))
@@ -811,7 +1147,7 @@ class Database:
         # "folded 5LIVER into SLIVER, nobody confirmed they are the same
         # person" is worth saying out loud.
         return {"ok": True, "old": old, "new": new, "renamed": renamed,
-                "checked": checked}
+                "adopted": adopted, "checked": checked}
 
     def orphan_audits(self, apply: bool = False) -> list[dict]:
         """Audits pointing at a player row that no longer exists.
@@ -907,6 +1243,10 @@ class Database:
         sid = sid.upper()
         self.db.execute(
             "DELETE FROM player_orgs WHERE sid=? AND source='roster'", (sid,))
+        # The membership history goes with it, for the same reason: it exists
+        # to say something about people in an org YOU flagged. Unflagged, it
+        # is a list of strangers' past memberships nobody asked to keep.
+        self.db.execute("DELETE FROM org_membership WHERE sid=?", (sid,))
         self.db.execute("DELETE FROM org_flags WHERE sid=?", (sid,))
         self.db.commit()
 
@@ -1017,7 +1357,17 @@ class Database:
         # a tile, making them unreachable until the weekly prune.
         for r in self.db.execute("SELECT * FROM audits WHERE handle=?", (h,)):
             self._drop_audit_files(r)
-        for table in ("sightings", "reports", "player_orgs", "audits", "players"):
+        # player_orgs is not in this list. A 'roster' row there says an org
+        # YOU flagged lists this handle, which is the org's published fact and
+        # not part of your record of a person - and deleting it silently
+        # disarmed the flag: forget someone on a flagged roster and the next
+        # time you met them the tool called them clean, until the next roster
+        # pull put the row back. The 'profile' rows, which came from their RSI
+        # profile, go with the rest.
+        self.db.execute(
+            "DELETE FROM player_orgs WHERE handle=? AND source!='roster'", (h,))
+        for table in ("sightings", "reports", "audits", "players",
+                      "player_manual"):
             self.db.execute(f"DELETE FROM {table} WHERE handle=?", (h,))
         self.db.commit()
         return removed
@@ -1041,7 +1391,8 @@ class Database:
                 (h, o.sid.upper(), 1 if getattr(o, "is_main", False) else 0))
         self.db.commit()
 
-    def add_org_members(self, sid: str, handles: list[str]) -> int:
+    def add_org_members(self, sid: str, handles: list[str],
+                        replace: bool = True) -> int:
         """Record a flagged org's roster so its members match locally.
 
         This is the affiliate workaround the README describes, and it is what
@@ -1062,8 +1413,13 @@ class Database:
         # 'profile' row is what the API says about that player directly and is
         # not ours to delete here, which is the same split set_orgs() honours
         # from the other side.
-        self.db.execute(
-            "DELETE FROM player_orgs WHERE sid=? AND source='roster'", (sid,))
+        #
+        # replace=False for a roster that came back TRUNCATED. Replacing from
+        # half a list drops the flag from everyone on the half we did not get,
+        # which is the same silent unflagging in the other direction.
+        if replace:
+            self.db.execute(
+                "DELETE FROM player_orgs WHERE sid=? AND source='roster'", (sid,))
         n = 0
         for handle in handles:
             h = (handle or "").strip().upper()
@@ -1077,14 +1433,159 @@ class Database:
             n += 1
         # Record the fetch even for an org that came back empty. "Asked, got
         # nothing" and "never asked" look identical otherwise, and they call
-        # for opposite actions.
-        self.db.execute(
-            "UPDATE org_flags SET roster_ts=?, roster_n=? WHERE sid=?",
-            (time.time(), n, sid))
+        # for opposite actions. A truncated pull updates the timestamp but not
+        # the count: a partial number presented as the roster size would read
+        # as an org that had shrunk.
+        if replace:
+            self.db.execute(
+                "UPDATE org_flags SET roster_ts=?, roster_n=? WHERE sid=?",
+                (time.time(), n, sid))
+        else:
+            self.db.execute(
+                "UPDATE org_flags SET roster_ts=? WHERE sid=?",
+                (time.time(), sid))
         self.db.commit()
         return n
 
-    def fetch_roster(self, sid: str, client=None, max_pages: int = 20) -> dict:
+    def record_roster(self, sid: str, members: list[dict],
+                      complete: bool = True, source: str | None = None) -> dict:
+        """Store a freshly pulled roster: current membership AND its history.
+
+        `members` are the API's records - handle, display, rank, stars.
+        Current membership still goes through add_org_members(), so an org
+        flag reaches exactly the people the roster lists NOW. The history
+        records everyone it has ever listed: who is new, who has dropped off
+        since the last pull, and who has come back.
+
+        `complete` says whether the list is the WHOLE roster - see
+        rsi.members_detail(), which is the only thing that can know. On a
+        truncated pull the people we did see are recorded and NOBODY is
+        retired, because "missing from this list" only means "left the org"
+        when the list was finished. It is not a rare distinction: a 40-member
+        org whose page 2 came back empty retired 24 people in a test, and
+        former membership raises an alert - so the bug would have fabricated
+        two dozen alerts about real people leaving an org they never left.
+
+        `source` is which service pulled it, and A SOURCE CAN ONLY RETIRE THE
+        PEOPLE IT LISTED. The two services see different subsets of a roster -
+        measured on one org the same afternoon, SENTRY listed 511 and
+        starcitizen-api.com 463 - so one service's silence about somebody the
+        OTHER service listed is not evidence of anything. Comparing across
+        them would "retire" everyone the second happens not to see: dozens of
+        alerts about people leaving an org they are still in, caused by
+        nothing but which service answered.
+
+        An org-level "did the source change" flag was tried first and was not
+        enough: it spared the pull that switched sources, then the NEXT pull
+        from the new source retired everybody the old one had listed and the
+        new one never had. test_sentry.py case O is that. So each member now
+        carries the source that last listed them (`src`), and is retired only
+        when that same source, on a complete pull, no longer does. Somebody
+        only one service can see stays current until that service says
+        otherwise - leavers going unnoticed is the cost, and it is the right
+        way round.
+
+        Current membership - the player_orgs rows that carry an org flag to a
+        person - is rewritten from this history every time, so the two cannot
+        disagree: someone is flagged as a current member exactly when their
+        history says they have not left. None as `source` means
+        starcitizen-api.com, which is what every roster was before there were
+        two.
+        """
+        sid = sid.upper()
+        now = time.time()
+        row = self.db.execute(
+            "SELECT roster_src FROM org_flags WHERE sid=?", (sid,)).fetchone()
+        # Rosters pulled before sources were recorded all came from
+        # starcitizen-api.com, so that is what NULL means.
+        this_src = source or "sci"
+        switched = this_src != ((row["roster_src"] if row else None) or "sci")
+        listed = {}
+        for m in members or []:
+            h = (m.get("handle") or "").strip().upper()
+            # Hidden members arrive without a handle, or not at all. Either
+            # way there is nobody to record.
+            if not h or h == "REDACTED":
+                continue
+            listed[h] = m
+        before = {r["handle"]: r for r in self.db.execute(
+            "SELECT handle, gone_since, src, manual_ts FROM org_membership "
+            "WHERE sid=?", (sid,))}
+        joined = [h for h in listed if h not in before]
+        back = [h for h in listed if h in before and before[h]["gone_since"]]
+        # Only people THIS source listed last time, and only on a list that
+        # was finished. See above for why both conditions.
+        # And never somebody YOU put on it: a roster's silence about a person
+        # is exactly what an org that keeps its people off the public list
+        # looks like. Only you take them off - remove_manual_member().
+        left = [h for h, r in before.items()
+                if complete and h not in listed and not r["gone_since"]
+                and not r["manual_ts"] and (r["src"] or "sci") == this_src]
+        for h, m in listed.items():
+            self.db.execute(
+                """INSERT INTO org_membership
+                     (sid, handle, display, rank, stars, first_seen, last_seen,
+                      gone_since, src)
+                   VALUES (?,?,?,?,?,?,?,NULL,?)
+                   ON CONFLICT(sid, handle) DO UPDATE SET
+                     display=excluded.display, rank=excluded.rank,
+                     stars=excluded.stars, last_seen=excluded.last_seen,
+                     gone_since=NULL, src=excluded.src""",
+                (sid, h, m.get("display") or "", m.get("rank") or "",
+                 int(m.get("stars") or 0), now, now, this_src))
+        for h in left:
+            self.db.execute(
+                "UPDATE org_membership SET gone_since=? WHERE sid=? AND handle=?",
+                (now, sid, h))
+        self.db.execute("UPDATE org_flags SET roster_src=? WHERE sid=?",
+                        (this_src, sid))
+        self.db.commit()
+        # Current membership is whoever the history says has not left - this
+        # pull's list, plus anybody it could not speak for.
+        current = [r[0] for r in self.db.execute(
+            "SELECT handle FROM org_membership WHERE sid=? AND gone_since IS NULL",
+            (sid,))]
+        self.add_org_members(sid, current, replace=True)
+        # roster_n is what the PUBLIC roster holds; members only you have
+        # listed are counted apart (flagged_orgs()["manual"]).
+        self.db.execute(
+            """UPDATE org_flags SET roster_n=(
+                 SELECT COUNT(*) FROM org_membership WHERE sid=?
+                 AND gone_since IS NULL AND COALESCE(src,'sci')!='manual')
+               WHERE sid=?""", (sid, sid))
+        self.db.commit()
+        return {"members": len(listed), "joined": joined, "left": left,
+                "back": back, "partial": not complete, "switched": switched}
+
+    def members_of(self, sid: str) -> list[dict]:
+        """Everyone this org's roster has listed, current members first."""
+        sid = sid.upper()
+        out = []
+        for r in self.db.execute(
+                """SELECT m.*, p.sightings, p.last_seen AS met_last,
+                          s.name AS manual_by
+                   FROM org_membership m LEFT JOIN players p ON p.handle = m.handle
+                   LEFT JOIN shares s ON s.install = m.manual_src
+                   WHERE m.sid=?
+                   ORDER BY (m.gone_since IS NOT NULL), m.handle""", (sid,)):
+            out.append({
+                "handle": r["handle"], "display": r["display"] or "",
+                "rank": r["rank"] or "", "stars": r["stars"] or 0,
+                "first_seen": r["first_seen"], "last_seen": r["last_seen"],
+                "gone_since": r["gone_since"],
+                # Yours, and whether the public roster lists them as well.
+                "manual_ts": r["manual_ts"], "note": r["note"] or "",
+                "manual_by": r["manual_by"] if r["manual_src"] else None,
+                "on_roster": (r["src"] or "sci") != "manual",
+                "met": r["sightings"] or 0, "met_last": r["met_last"],
+                "reports": self.db.execute(
+                    "SELECT COUNT(*) FROM reports WHERE handle=?",
+                    (r["handle"],)).fetchone()[0],
+            })
+        return out
+
+    def fetch_roster(self, sid: str, client=None, max_pages: int | None = None,
+                     on_page=None) -> dict:
         """Pull a flagged org's member list and record it.
 
         This is the step that makes flagging an org mean anything. The API's
@@ -1093,9 +1594,11 @@ class Database:
         exists - looks unaffiliated from their profile alone. The roster is the
         only route to them.
 
-        Only flagged orgs. Pulling a roster is up to `max_pages` requests at
-        one per second, and doing it for an org nobody has flagged spends that
-        on a question nobody asked.
+        Only flagged orgs. Pulling a roster is one request per PAGE at one
+        request a second - a 600-member org is around thirty of them - and
+        doing that for an org nobody has flagged spends it on a question
+        nobody asked. `on_page(page, so_far)` is passed straight through, for
+        a caller that wants to say how it is going.
 
         Refuses rather than guesses when it cannot check: without an API key
         there is no roster, and recording an EMPTY one would look exactly like
@@ -1113,18 +1616,174 @@ class Database:
         client = client or rsi_mod.Client()
         if not client.enriches:
             return {"ok": False, "sid": sid,
-                    "error": "no API key, so no roster can be fetched"}
+                    "error": "no lookup source is available, so no roster "
+                             "can be fetched"}
         try:
-            handles = client.members(sid, max_pages=max_pages)
+            r = client.roster(sid, max_pages=max_pages or rsi_mod.MEMBER_PAGE_CAP,
+                              on_page=on_page)
+            members, complete = r.members, r.complete
         except Exception as exc:
             return {"ok": False, "sid": sid,
-                    "error": f"roster fetch failed ({type(exc).__name__}: {exc})"}
+                    "error": f"roster fetch failed - {rsi_mod.describe_failure(exc)}"}
 
-        n = self.add_org_members(sid, handles)
+        # The docstring above promised this and the code did not do it: an
+        # empty answer was recorded as an empty roster, which retired every
+        # member and unflagged every one of them.
+        if not members:
+            return {"ok": False, "sid": sid,
+                    "error": "the member list came back empty - keeping the "
+                             "one already stored"}
+
+        changes = self.record_roster(sid, members, complete=complete,
+                                     source=r.source)
         reaches = next((o["reaches"] for o in self.flagged_orgs()
                         if o["sid"] == sid), 0)
-        return {"ok": True, "sid": sid, "members": n, "reaches": reaches,
-                "capped": len(handles) >= max_pages * 32}
+        # What the ORG RECORD says it has, for a sanity check the pager itself
+        # cannot do. The two numbers differ legitimately - RSI counts hidden
+        # members and the roster omits them - but an order-of-magnitude gap is
+        # how a truncated pull looks, and a truncated pull went unnoticed for
+        # weeks. Cached, so this costs nothing most of the time, and a failure
+        # to get it is not a failure to pull the roster.
+        listed = r.total
+        if not listed:
+            try:
+                listed = client.org(sid).members or None
+            except Exception:
+                pass
+        return {"ok": True, "sid": sid, "members": changes["members"],
+                "joined": changes["joined"], "left": changes["left"],
+                "back": changes["back"], "reaches": reaches,
+                "partial": not complete, "org_members": listed,
+                "source": r.source, "switched": changes["switched"],
+                "hidden": r.hidden, "redacted": r.redacted}
+
+    # -- your own intel --------------------------------------------------
+
+    def add_member_manually(self, sid: str, handle: str, note: str = "") -> dict:
+        """Put somebody on a flagged org's roster by hand.
+
+        For what the public roster does not show - and for some orgs that is
+        most of the membership: people stay off it on purpose, so a pull finds
+        a fraction of them. The org flag then reaches them exactly as it
+        reaches a listed member, alerts included.
+
+        EXACT handle, as typed. Nothing here matches it against similar
+        spellings: resemblance is not evidence, and attaching an org to the
+        wrong person is the worst thing this tool can do. Someone you have
+        never met is recorded all the same, and recognised when you do.
+
+        Sticky: `manual_ts` keeps them on the roster whatever a pull later says
+        (record_roster() never retires them). Only remove_manual_member()
+        takes them off.
+        """
+        sid, h = sid.strip().upper(), handle.strip().upper()
+        if not self.db.execute("SELECT 1 FROM org_flags WHERE sid=?",
+                               (sid,)).fetchone():
+            return {"ok": False, "error": f"{sid} is not flagged"}
+        note = (note or "").strip()[:200]
+        now = time.time()
+        row = self.db.execute(
+            "SELECT gone_since, manual_ts, src FROM org_membership "
+            "WHERE sid=? AND handle=?", (sid, h)).fetchone()
+        if row is None:
+            state = "added"
+            self.db.execute(
+                """INSERT INTO org_membership
+                     (sid, handle, display, rank, stars, first_seen, last_seen,
+                      gone_since, src, manual_ts, note)
+                   VALUES (?,?,'','',0,?,?,NULL,'manual',?,?)""",
+                (sid, h, now, now, now, note))
+        else:
+            state = ("updated" if row["manual_ts"] else
+                     "back" if row["gone_since"] else "listed")
+            # Adding someone yourself makes the entry yours, even if an org
+            # mate's export put them there first - your note, your call.
+            self.db.execute(
+                """UPDATE org_membership SET gone_since=NULL,
+                     manual_ts=COALESCE(manual_ts, ?), note=?, manual_src=NULL
+                   WHERE sid=? AND handle=?""", (now, note, sid, h))
+        # OR IGNORE: a profile row naming this org already carries the flag.
+        self.db.execute(
+            "INSERT OR IGNORE INTO player_orgs (handle, sid, is_main, source)"
+            " VALUES (?,?,0,'roster')", (h, sid))
+        self.db.commit()
+        known = bool(self.db.execute(
+            "SELECT 1 FROM players WHERE handle=?", (h,)).fetchone())
+        return {"ok": True, "sid": sid, "handle": h, "state": state,
+                "known": known}
+
+    def remove_manual_member(self, sid: str, handle: str) -> dict:
+        """Take back a membership you recorded. Only yours: a member the public
+        roster lists stays a member, and just loses your note."""
+        sid, h = sid.strip().upper(), handle.strip().upper()
+        row = self.db.execute(
+            "SELECT src, manual_ts FROM org_membership WHERE sid=? AND handle=?",
+            (sid, h)).fetchone()
+        if row is None or not row["manual_ts"]:
+            return {"ok": False, "error": f"{h} was not added to {sid} by you"}
+        if (row["src"] or "sci") == "manual":
+            self.db.execute(
+                "DELETE FROM org_membership WHERE sid=? AND handle=?", (sid, h))
+            self.db.execute(
+                "DELETE FROM player_orgs WHERE sid=? AND handle=? AND source='roster'",
+                (sid, h))
+            state = "removed"
+        else:
+            self.db.execute(
+                "UPDATE org_membership SET manual_ts=NULL, note=NULL, "
+                "manual_src=NULL WHERE sid=? AND handle=?", (sid, h))
+            state = "still_listed"
+        self.db.commit()
+        return {"ok": True, "sid": sid, "handle": h, "state": state}
+
+    def set_org_manual(self, sid: str, name: str = "", primary: str = "",
+                       secondary: str = "") -> dict | None:
+        """Your entry for an org a lookup could not describe. All blank
+        clears it. Returns what is now stored, or None."""
+        sid = sid.strip().upper()
+        name, primary, secondary = ((v or "").strip() for v in (name, primary, secondary))
+        if not (name or primary or secondary):
+            self.db.execute("DELETE FROM org_manual WHERE sid=?", (sid,))
+            self.db.commit()
+            return None
+        self.db.execute(
+            """INSERT OR REPLACE INTO org_manual
+                 (sid, name, primary_focus, secondary_focus, ts)
+               VALUES (?,?,?,?,?)""", (sid, name, primary, secondary, time.time()))
+        self.db.commit()
+        return {"sid": sid, "name": name, "primary_focus": primary,
+                "secondary_focus": secondary}
+
+    def org_manual(self) -> dict[str, dict]:
+        """Every org entry you have made, by SID. Small: one row per org you
+        ever had to fill in, so the page reads the lot once per build."""
+        return {r["sid"]: dict(r) for r in self.db.execute(
+            "SELECT sid, name, primary_focus, secondary_focus, ts FROM org_manual")}
+
+    def set_manual_enlisted(self, handle: str, iso: str = "") -> None:
+        """Your entry for when an account was made; blank clears it."""
+        h = handle.strip().upper()
+        if iso:
+            self.db.execute(
+                "INSERT OR REPLACE INTO player_manual (handle, enlisted, ts)"
+                " VALUES (?,?,?)", (h, iso, time.time()))
+        else:
+            self.db.execute("DELETE FROM player_manual WHERE handle=?", (h,))
+        self.db.commit()
+
+    def manual_enlisted(self, handles: list[str]) -> dict[str, str]:
+        """handle -> your ISO enlistment date, for the handles asked about."""
+        out = {}
+        hs = [h.upper() for h in handles]
+        for i in range(0, len(hs), 400):
+            chunk = hs[i:i + 400]
+            qs = ",".join("?" * len(chunk))
+            for r in self.db.execute(
+                    f"SELECT handle, enlisted FROM player_manual WHERE handle IN ({qs})",
+                    chunk):
+                if r["enlisted"]:
+                    out[r["handle"]] = r["enlisted"]
+        return out
 
     def flagged_orgs(self) -> list[dict]:
         """Every flagged org, with how far its flag actually reaches.
@@ -1138,10 +1797,27 @@ class Database:
                 "SELECT sid, name, note, ts, roster_ts, roster_n"
                 " FROM org_flags ORDER BY sid"):
             sid = r["sid"]
+            # Current members by either route, plus FORMER members - they are
+            # flagged too, so they count towards how far the flag reaches.
             reaches = self.db.execute(
-                """SELECT COUNT(DISTINCT p.handle) FROM player_orgs p
-                   JOIN players pl ON pl.handle = p.handle
-                   WHERE p.sid=?""", (sid,)).fetchone()[0]
+                """SELECT COUNT(DISTINCT h) FROM (
+                     SELECT p.handle AS h FROM player_orgs p WHERE p.sid=?
+                     UNION
+                     SELECT m.handle FROM org_membership m
+                     WHERE m.sid=? AND m.gone_since IS NOT NULL)
+                   WHERE h IN (SELECT handle FROM players)""",
+                (sid, sid)).fetchone()[0]
+            former = self.db.execute(
+                "SELECT COUNT(*) FROM org_membership WHERE sid=? AND gone_since IS NOT NULL",
+                (sid,)).fetchone()[0]
+            # Hand-added members: yours, and those an org mate's export added
+            # (manual_src). Counted apart - the page said "added by you" for
+            # both.
+            manual, shared = self.db.execute(
+                "SELECT COALESCE(SUM(manual_src IS NULL), 0),"
+                " COALESCE(SUM(manual_src IS NOT NULL), 0) FROM org_membership"
+                " WHERE sid=? AND gone_since IS NULL AND manual_ts IS NOT NULL",
+                (sid,)).fetchone()
             out.append({
                 "sid": sid,
                 "name": r["name"] or "",
@@ -1150,6 +1826,9 @@ class Database:
                 "roster_ts": r["roster_ts"],
                 "roster_n": r["roster_n"] or 0,
                 "reaches": reaches,
+                "former": former,
+                "manual": manual,
+                "manual_shared": shared,
             })
         return out
 
@@ -1164,7 +1843,16 @@ class Database:
 
     # -- reads -----------------------------------------------------------
 
-    def assess(self, handle: str) -> Assessment:
+    def assess(self, handle: str, variants: bool | None = None) -> Assessment:
+        # `variants` is only the watchlist's variant-matching switch, passed
+        # through. None means "ask the settings file", which is right for one
+        # assessment at a time - the watcher's, a handful per burst - and wrong
+        # for a page of tiles: watchlist.variants_enabled() reads settings.json
+        # every call, and a 120-tile page build was spending 46-80 ms of its
+        # 115 ms re-reading the same file 120 times for an answer that cannot
+        # change halfway down the page. A caller that has already loaded the
+        # settings passes the answer it read.
+        #
         # Read through the same resolution as writes, or a variant spelling
         # would report "not in database" for someone already recorded. But
         # mutate=False: this is a read, and the UI calls it for every tile on
@@ -1184,10 +1872,44 @@ class Database:
                                     id=r["id"],
                                     note=r["note"] or "", evidence=r["evidence"] or "",
                                     source=r["source"] or "self"))
+        # The membership row rides along on the same query - one more per tile
+        # on every page build would be the kind of growth test_perf counts.
         for r in self.db.execute(
-                """SELECT f.sid, f.note FROM org_flags f
-                   JOIN player_orgs p ON p.sid = f.sid WHERE p.handle=?""", (h,)):
+                """SELECT f.sid, f.note, f.name, m.manual_ts, m.note AS mnote,
+                          s.name AS mby
+                   FROM org_flags f
+                   JOIN player_orgs p ON p.sid = f.sid
+                   LEFT JOIN org_membership m
+                     ON m.sid = f.sid AND m.handle = p.handle
+                   LEFT JOIN shares s ON s.install = m.manual_src
+                   WHERE p.handle=?""", (h,)):
             a.flagged_orgs.append((r["sid"], r["note"] or ""))
+            if r["name"]:
+                a.org_names[r["sid"]] = r["name"]
+            if r["manual_ts"]:
+                a.manual_orgs[r["sid"]] = r["mnote"] or ""
+                if r["mby"]:
+                    a.manual_by[r["sid"]] = r["mby"]
+        current = {sid for sid, _ in a.flagged_orgs}
+        for r in self.db.execute(
+                """SELECT m.sid, m.gone_since, f.name FROM org_membership m
+                   JOIN org_flags f ON f.sid = m.sid
+                   WHERE m.handle=? AND m.gone_since IS NOT NULL""", (h,)):
+            if r["sid"] not in current:
+                a.former_orgs.append((r["sid"], r["gone_since"]))
+                if r["name"]:
+                    a.org_names[r["sid"]] = r["name"]
+        if self.watchlist is not None:
+            # Looked up on the handle AS READ, not the canonical spelling. A
+            # watchlist is an outside source that never saw your merges, so
+            # asking it about your internal name for someone would miss the
+            # spelling it actually recorded.
+            try:
+                a.watchlist = self.watchlist.lookup(handle, variants)
+            except Exception:
+                # A corrupt or missing watchlist must never take down an
+                # assessment. Your own records are the thing that matters.
+                a.watchlist = []
         return a
 
     def stats(self) -> dict:
@@ -1271,7 +1993,7 @@ def main() -> int:
         import rsi
         client = rsi.Client()
         if client.enriches:
-            verify = lambda h: client.citizen(h).exists
+            verify = client.exists
     except Exception:
         pass
     db = Database(verify=verify)
@@ -1296,9 +2018,12 @@ def main() -> int:
             r = db.fetch_roster(args.sid)
             if r.get("ok"):
                 print(f"  {r['members']} member(s) recorded; the flag now "
-                      f"reaches {r['reaches']} player(s) you have seen")
-                if r.get("capped"):
-                    print("  ! the roster hit the page cap and may be partial")
+                      f"reaches {r['reaches']} player(s) you have seen"
+                      + (f" (RSI lists {r['org_members']})"
+                         if r.get("org_members") else ""))
+                if r.get("partial"):
+                    print("  ! the list stopped early, so nobody was marked "
+                          "as having left")
             else:
                 print(f"  {r.get('error')}")
     elif args.cmd == "rosters":

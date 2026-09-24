@@ -25,7 +25,7 @@ rotation invariance is needed - just normalise the glyph pair to a canonical
 box and compare bitmaps. That's microseconds, and it runs before any OCR.
 
 The template is bootstrapped from boxes that OCR already confirmed, so it
-learns the real font rather than one we guessed at. See build_km_template.py.
+learns the real font rather than one we guessed at. See tools/build_km_template.py.
 """
 
 from __future__ import annotations
@@ -136,6 +136,13 @@ def score(crop: np.ndarray, template: np.ndarray) -> float:
 
 
 def build_template(patches: list[np.ndarray]) -> np.ndarray:
-    """Average several confirmed examples into one template."""
+    """Average several confirmed examples into one template.
+
+    Nothing at runtime calls this, and an audit correctly flagged it as the
+    only unreferenced function in the shipped set. It stays because it is how
+    km_template.npy is REGENERATED - tools/build_km_template.py is the caller, and
+    that script is a development tool rather than something users run. Delete
+    this and the shipped template becomes a binary nobody can rebuild.
+    """
     stack = np.stack([p.astype(np.float32) for p in patches])
     return stack.mean(axis=0).astype(np.uint8)

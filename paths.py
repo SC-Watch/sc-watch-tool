@@ -62,6 +62,7 @@ stick or in a folder they sync themselves, and it costs one check.
 
 from __future__ import annotations
 
+import functools
 import os
 import sys
 from pathlib import Path
@@ -118,6 +119,52 @@ def data_dir(*parts: str) -> Path:
     return p
 
 
+@functools.lru_cache(maxsize=1)
+def unused_old_data() -> Path | None:
+    """An older install's data that THIS copy is not using, or None.
+
+    Every 0.1.x build kept its data in %LOCALAPPDATA%\\sc-watch; from 0.2.0
+    the zip is portable and keeps it in data\\ beside the executables. So the
+    first run after an upgrade opens an empty database while the old one sits
+    untouched - it looks lost, and a new one starts growing beside it. This is
+    only ever REPORTED: moving somebody's database for them is not a thing
+    to do silently.
+
+    Quiet once the data here holds at least as many players as the old
+    database - which is what a copy looks like - and for an old install
+    that never recorded anybody. Answered once per process: the page asks on
+    every update, and after copying you restart anyway.
+    """
+    if not PORTABLE:
+        return None
+    base = os.environ.get("LOCALAPPDATA")
+    if not base:
+        return None
+    old = Path(base) / "sc-watch"
+    try:
+        if old.resolve() == DATA_ROOT.resolve() or not (old / "sc-watch.db").is_file():
+            return None
+    except OSError:
+        return None
+    try:
+        import sqlite3
+
+        def players(db: Path) -> int:
+            if not db.is_file():
+                return 0
+            con = sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True)
+            try:
+                return con.execute("SELECT COUNT(*) FROM players").fetchone()[0]
+            finally:
+                con.close()
+
+        if players(DATA_ROOT / "sc-watch.db") >= players(old / "sc-watch.db"):
+            return None
+    except Exception:
+        pass                # cannot tell: say so rather than stay quiet
+    return old
+
+
 def describe() -> str:
     """One block of text saying where everything is, for the banner and --where.
 
@@ -127,9 +174,13 @@ def describe() -> str:
     """
     mode = ("installed" if FROZEN and not PORTABLE else
             "portable" if PORTABLE else "source")
-    return (f"  mode      {mode}\n"
-            f"  program   {RESOURCE_ROOT}\n"
-            f"  your data {DATA_ROOT}")
+    out = (f"  mode      {mode}\n"
+           f"  program   {RESOURCE_ROOT}\n"
+           f"  your data {DATA_ROOT}")
+    old = unused_old_data()
+    if old:
+        out += f"\n  NOT USED  {old} (an older install's data - see Upgrading in the README)"
+    return out
 
 
 if __name__ == "__main__":

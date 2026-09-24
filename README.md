@@ -10,13 +10,61 @@ Windows only.
 
 ---
 
+## New in 0.2.0
+
+**Coming from 0.1.x? Read [Upgrading](#upgrading) first.** Your data is not
+where this version keeps it, and sc-watch will look empty until you bring it
+over. Nothing of yours has been deleted.
+
+Fixed - worth knowing if 0.1.x seemed broken:
+
+- **Spoken alerts only ever said the first line of a session.** Every alert
+  after it was silent, which looked like a sound problem on your end. They are
+  all spoken now.
+- **Restart the watcher** closed it in the downloaded build instead of
+  restarting it.
+- **Audit pictures never showed** in the downloaded build, and the audit
+  **dismiss** button did nothing.
+- **Flagged orgs held about a quarter of their members**: member lists stopped
+  after the first page.
+- Two requests arriving at once could show a stranger as watch-listed.
+- Two chat-reading bugs: where the chat box was looked for, and how a line's
+  channel tag was split from the name.
+
+New:
+
+- **One zip, no installer.** Everything, your data included, lives in the
+  folder you unpack. See [Install](#install).
+- **[Shared watchlists](#shared-watchlists-1)**, kept apart from your own
+  records - and one list comes with the tool.
+- **An Orgs tab** for flagged orgs: the member list, the members who have left
+  (still flagged), and members you add by hand because the public roster
+  hides them. See [Flagging an org](#flagging-an-org).
+- **An API key is now optional.** Lookups go through SENTRY first, which also
+  shows the other orgs a player belongs to. See
+  [The API key](#the-api-key-and-what-you-get-without-one).
+- **[Sharing with your org](#sharing-with-your-org)**: swap reports, flagged
+  orgs and hand-added members with an org mate, and remove everything of
+  theirs in one click.
+- **Spoken alerts you can reword or switch off**, line by line. See
+  [Audio](#audio).
+- Your own report reasons; filling in an org's focus or an account's age when
+  a lookup could not get it; a **to audit** view; lookups that run on the tile
+  instead of in a window; one-click support bundles.
+
+Removed: the *Read ONLY the centre, every time* setting. Bind the centre-read
+key instead - it does the same thing when you want it.
+
+---
+
 ## Quick start
 
-1. Download **sc-watch-x.y.z-setup.exe** from the releases page and run it.
+1. Download **sc-watch-x.y.z.zip** from the releases page and unpack it
+   anywhere you can write to.
 2. In Star Citizen's graphics options, **turn chromatic aberration off**. This
    is not optional. With it on the reader gets roughly one label in ten.
-3. Launch sc-watch from the Start Menu. Two windows open and a browser tab
-   appears. In game, ping, then press **`0`**.
+3. Run **sc-watch.bat**. Two windows open and a browser tab appears. In game,
+   ping, then press **`0`**.
 
 Contacts appear as tiles within a second or two and are read out loud.
 
@@ -47,61 +95,39 @@ Not affiliated with or endorsed by Cloud Imperium Games.
 
 ## Install
 
-### The installer
+One download, no installer. The zip is the whole program: Python, every
+dependency and the OCR models are already inside it. Nothing is written
+outside the folder you unpack it into.
 
-Download **sc-watch-x.y.z-setup.exe** and run it. No Python, no dependencies,
-no administrator prompt.
-
-Windows SmartScreen will warn about an unrecognised publisher. That is because
-the build is not code-signed, which costs money and a registered organisation.
-Click **More info**, then **Run anyway**. If you would rather not, use the zip.
-
-**Where it puts things.** Two separate places, on purpose:
-
-| what | where |
-|---|---|
-| the program | `%LOCALAPPDATA%\Programs\sc-watch` |
-| your data | `%LOCALAPPDATA%\sc-watch` |
-| Start Menu | `sc-watch`, with a UI-only shortcut and a "Where is my data" shortcut |
-
-Paste `%LOCALAPPDATA%` into an Explorer address bar to get there.
-
-They are separate so that upgrading or uninstalling cannot take your database
-with it. Uninstalling removes the program and then asks, separately, whether to
-delete your data. It defaults to **no**.
-
-If you tick the option to install for all users, the program goes to
-`C:\Program Files\sc-watch` instead. Your data does not move.
-
-### The portable zip
-
-Use this if you dislike installers, want it on a USB stick, or want it in a
-folder you back up yourself.
+### Unpack and run
 
 1. Download **sc-watch-x.y.z.zip**.
-2. **Right-click the zip, choose Properties, and tick Unblock**, then Apply.
+2. **Right-click the zip, choose Properties, tick Unblock**, then Apply.
    Windows marks downloaded files and will otherwise complain when you run the
    executables.
 3. Extract it somewhere you can write to. `D:\Games\sc-watch` is fine.
    **Do not extract into `C:\Program Files`**, which is read-only for normal
    accounts.
-4. Run **`sc-watch.bat`** in the extracted folder. Two console windows open.
+4. Run **`sc-watch.bat`**. Two console windows open and a browser tab appears.
 
-By default the portable copy still keeps your data in `%LOCALAPPDATA%\sc-watch`
-like the installed one. To keep everything together in the folder instead,
-create an empty file called **`portable.txt`** next to `sc-watch.exe`. Data
-then lives in a `data` sub-folder beside the program, and the whole thing moves
-as one directory.
+Windows may warn about an unrecognised publisher. That is because the build is
+not code-signed, which costs money and a registered organisation. Choose
+**More info**, then **Run anyway**.
 
-To make one: open the folder, right-click, New, Text Document, and name it
-`portable.txt`. Make sure Windows has not called it `portable.txt.txt`. Turn on
-File name extensions in Explorer's View menu if you are unsure.
+**Everything lives in that one folder.** Your database, settings and
+screenshots go in `data\` beside the executables, so the whole installation is
+one directory you can move, back up, or zip and send to someone. That is what
+the file named **`portable.txt`** in the folder does.
 
-Confirm which mode you are in at any time:
+Delete `portable.txt` and your data goes to `%LOCALAPPDATA%\sc-watch` instead,
+which is worth doing if you would rather unpack a new version over the old
+folder without thinking about it. Either way:
 
 ```
 sc-watch.exe --where
 ```
+
+prints exactly where the program and your data are.
 
 ### From source
 
@@ -121,11 +147,33 @@ would expect. The pinned versions matter, see
 
 ### Upgrading
 
-Run the new installer over the top. It closes any running copy first. Your
-database, settings and audit screenshots are untouched because they live
-somewhere else.
+**From 0.1.x.** Every 0.1.x build kept your data in `%LOCALAPPDATA%\sc-watch`;
+this version keeps it in the `data` folder beside the program. Until you bring
+it over, sc-watch opens an empty database - and says so at the top of the page
+and in the watcher window. The old data is untouched.
 
-For the zip, extract the new one over the old folder.
+1. Close both sc-watch windows.
+2. If you installed 0.1.x with its setup program, uninstall it (Windows
+   Settings, Apps). **When it asks whether to delete your data, answer No.**
+3. Unpack the new zip. In the new folder, make a folder called **`data`** if
+   there is not one already.
+4. Paste `%LOCALAPPDATA%\sc-watch` into Explorer's address bar, and **copy**
+   everything in it into that `data` folder. Copy rather than move: the old
+   folder is your backup until you are happy.
+5. Run **`sc-watch.bat`**. Your contacts are back, and the note goes away.
+
+Or skip the copy: delete `portable.txt` from the new folder and it goes on
+using `%LOCALAPPDATA%\sc-watch`, as 0.1.x did.
+
+**From 0.2.0 on.** Close both windows, unpack the new zip somewhere, and copy
+your **`data`** folder into it. Nothing else in the folder is yours.
+
+Your database is upgraded in place the first time the new version opens it.
+Older databases keep working; nothing is dropped, and anything new is added
+around what is already there.
+
+If you deleted `portable.txt` and your data lives in `%LOCALAPPDATA%\sc-watch`
+instead, there is nothing to copy - unpack the new zip and run it.
 
 ---
 
@@ -230,32 +278,46 @@ If it misses one, ping again from a slightly different angle.
 
 ## The API key, and what you get without one
 
-sc-watch works with no key. You lose two things.
+sc-watch looks players up through two services. **SENTRY** is asked first: it
+needs no key, answers in a fraction of a second for most players, and lists
+every org someone is in - including the side-orgs that never show on a
+profile. **starcitizen-api.com** is asked for anything SENTRY cannot answer,
+and it needs a free key.
 
-**Without a key** you get handle reading, sightings, your own reports, audio
-alerts and the web UI. You do not get org membership, account age, or the
-check that stops two similar-looking handles being merged into one person.
+**Without a key** you still get which orgs someone is in (all of them),
+whether any is one you have flagged, how old the account is, and the check
+that refuses to merge `SLIVER` and `5LIVER` because both are real accounts -
+all from SENTRY.
 
-**With a key** you also get: which org someone flies for, whether that org is
-one you have flagged, how long the account has existed, and a verification step
-that refuses to merge `SLIVER` and `5LIVER` because both are real accounts.
+**A key adds two things**, and they are worth having:
+
+- **Knowing a misread is a misread.** Only starcitizen-api.com is ever trusted
+  to say an account does *not* exist. SENTRY not having someone is a
+  database's silence, not proof - so without a key, a handle nobody has heard
+  of is shown as unchecked rather than flagged for you to correct.
+- **The piracy flag on orgs it has not seen before.** An org's declared focus -
+  Piracy, Smuggling - comes from starcitizen-api.com. Without a key it is
+  only known for orgs already in your cache.
+
+The choice between the two is **Settings → RSI lookups → Lookup source**:
+`sentry` (the default) or `sci` for starcitizen-api.com only.
 
 ### Getting one
 
 1. Go to **starcitizen-api.com** and register. The free tier is enough.
 2. Copy your key.
-3. Find your data folder. The easy way is the **Where is my data** shortcut in
-   the Start Menu, or run `sc-watch.exe --where`. It is normally
-   `%LOCALAPPDATA%\sc-watch`.
-4. Create a file there called **`sc_api_key.txt`** containing just the key, on
-   one line, with nothing else. No quotes, no `KEY=` prefix.
-5. Restart the watcher.
+3. Paste it into **Settings → RSI lookups** in the web UI and press **save
+   key**. Without a key, the UI shows the same box in a notice at the top.
+4. Restart the watcher - the button appears once the key is saved.
 
-Check File name extensions in Explorer so you do not end up with
-`sc_api_key.txt.txt`, which will not be found.
+The UI saves it for you as `sc_api_key.txt` in your data folder. To do that by
+hand instead: `sc-watch.exe --where` prints the folder, and the file holds just
+the key on one line - no quotes, no `KEY=` prefix, and watch that Explorer does
+not make it `sc_api_key.txt.txt`. An environment variable named `SC_API_KEY`
+also works, and wins over the file.
 
-As an alternative, set an environment variable named `SC_API_KEY` instead. The
-file is easier.
+Without a key, the watcher's console says so at startup, lists what you are
+missing, and prints the exact path of the file for your install.
 
 **Confirm it worked:** open a contact tile in the UI. With a working key you
 see org information or an explicit "no org". Without one, tiles say the profile
@@ -317,7 +379,6 @@ There is a **Restart watcher** button in Maintenance.
 | **Wide + centre key** | `off` | Reads the **whole screen and the centre on one press** and merges both. See [Wide + centre](#wide-and-centre-the-one-to-try-if-reads-are-poor) below. Set it to a key or button, or leave `off`. |
 | **Make the normal read key do both** | off | Turns every normal read into a wide + centre read, with no second binding to remember. Simpler, and you pay the extra cost on every ping. |
 | **Focused box size** | `1200x600` | The centre region the focus key reads, in pixels. Bigger tolerates your target drifting off centre; smaller is faster. Try `1600x800` if you keep just missing, `900x500` if you want speed. |
-| **Read ONLY the centre, every time** *(adv)* | off | Replaces the normal full-screen read with a centre-only one. **It does not do both.** Contacts outside the box stop being seen at all. Leave it off; the focus key already gives you centre reads on demand. |
 | **Mask focused reads** *(adv)* | off | Changes how centre reads are prepared for the recogniser. Slower, and only occasionally better. Leave off. |
 | **Frames per read** | `3` | How many frames one press captures. Frames vote against each other, so a single bad read cannot name someone. `3` is the sweet spot. `5` for difficult scenes. `1` only for testing. |
 | **Gap between frames** | `0.1 s` | How long to wait between those frames. Tight is better: contacts drift and labels fade, and a late frame often catches neither. **Start at `0.1`.** Above about `0.5` the hit rate drops off, so treat `0.5` as the practical ceiling rather than the range end. |
@@ -364,6 +425,21 @@ voting, database work or lookup happens.
 The tones are ordinary WAV files in your data folder. Replace them with your
 own if you want different sounds.
 
+**Spoken alerts** (its own page under Settings) lists every line the voice can
+say - "Warning, NAME, 2.4 kilometres, Piracy", "Known contact, NAME, ..." - and
+the pieces those are built from: one for each reason someone can be known
+(your report, a shared report, a flagged org, the watch list) and one for each
+org flag (Piracy, Syndicate, Smuggling, Infiltration, new account). Reword any
+of them, press **hear it** to listen, or untick **on** to stop it: a flag or
+reason that is off no longer announces anybody, and a contact with nothing
+else switched on just gets the ordinary tone. Changes apply from the next
+alert, without a restart.
+
+Each line takes a few seconds to say, so in a busy fight alerts can arrive
+faster than the voice can read them out. One still waiting 20 seconds after
+its read is skipped rather than said late - it is still on the tile and in
+the watcher window.
+
 ### RSI lookups
 
 *When to ask the API who a handle belongs to. Needs an API key.*
@@ -373,6 +449,16 @@ own if you want different sounds.
 | **Look handles up** | on | Look up profiles at all. Does nothing without a key. |
 | **Votes before lookup** | `2` | How confident the reader must be before spending an API call on a name. Lower means more lookups on possibly-misread names. |
 | **API mode** *(adv)* | `auto` | `auto` uses the cache and falls back to live. `cache` never touches the network. `live` always does. Leave it on `auto`. |
+
+### Shared watchlists
+
+*Lists other people keep. See [Shared watchlists](#shared-watchlists-1) for
+what they are and how to remove one.*
+
+| setting | default | what it does |
+|---|---|---|
+| **Use shared watchlists** | on | Off silences every imported list at once. Nothing is deleted, and the panel still works so you can turn it back on. |
+| **Flag lookalike spellings** *(adv)* | on | Also flag a handle that could be an OCR misreading of a listed one. These are drawn as "could match", never as a hit, and never raise an alert on their own. |
 
 ### Audit
 
@@ -384,6 +470,7 @@ own if you want different sounds.
 | **Keep audits for** | `7 days` | How long those rows and their images survive. |
 | **Keep the full frame** | on | Saves the whole frame next to the crops so you can see the context. Uses more disk. |
 | **Frame quality** *(adv)* | `90` | JPEG quality for those frames. Below about 80 the text gets hard to judge by eye, which defeats the point. |
+| **Write a session log** | on | A plain-text log of what the watcher did, in `debug_bursts/`. It is what a support bundle is mostly made of. |
 
 ### Storage & cleanup
 
@@ -624,19 +711,104 @@ problem is your HUD or the file format.
 
 ---
 
+## Shared watchlists
+
+Other people keep lists of players they say have done something. This reads
+them, and keeps them at arm's length.
+
+A list lives in its own database, `watchlist.db`, and **never touches your own
+records**. A claim from a list cannot move your score, cannot merge two
+identities, and is drawn on a tile in its own colour with the list named on it:
+*listed on <the list>*. It is information about what somebody else said, for
+you to do what you like with - not a verdict this tool has reached.
+
+**One list ships with the tool**, marked *came with sc-watch* in the panel so
+you can tell it from anything you import. It is other players' claims about
+other players, collected from a source that checks them, with the reasons
+they gave. If you would rather not have it: **Settings → Shared watchlists →
+forget**, and it is gone for good - deleting a list is permanent and it does
+not come back on the next launch.
+
+**Importing one.** Paste what you were given - RSI links, bare handles, or
+`handle - what they did`, one per line. Press **preview** first: it shows you
+exactly what it read and what it could not, before anything is stored. A token
+that is not a legal handle is never guessed at, because a mangled handle in a
+griefer list is an accusation against whoever really owns that name.
+
+**Silence** keeps a list but stops it flagging. **Forget** deletes it and
+every claim it ever made, leaving nothing behind in your own records.
+
+Some lists hedge - "some of these are still vague" - and an entry under a
+caveat like that is stored as **unconfirmed** and drawn differently. A
+lookalike spelling is drawn differently again, and says *could match* rather
+than *listed on*: `SLIVER` and `5LIVER` are two different people.
+
+---
+
+## When a lookup fails
+
+Profile lookups go through a third-party API, and some days it is slow, rate
+limited, or down. None of that should look like "this player is fine".
+
+- A tile that could not be looked up says **RSI lookup failed**, with the
+  reason, and offers a **try now** button. It never says "no flags".
+- A failed lookup is retried automatically, twice, before it gives up.
+- After three failures in a row the tool stops asking for a minute, then two,
+  up to five - so a dead service does not become a five-second wait on every
+  contact. The first request after a pause is a probe; the console says when
+  lookups are paused and when they resume.
+- If the service cannot be reached and there is an **old stored profile**, it
+  is shown rather than nothing, with its age on the tile and a refresh button.
+  Orgs and account ages change slowly; a six-week-old profile is most of the
+  answer, and on a bad day it is the only one.
+- A tile's **look up**, **try now** or **refresh** button asks again straight
+  away, skipping your cache, while you carry on: the tile says *looking up…*,
+  then changes - or says *failed* beside the reason. The full answer is in the
+  line at the bottom of the page. SENTRY's copy is only used for it if SENTRY
+  read RSI within the last day; otherwise the other service is asked, and the
+  other orgs SENTRY saw are kept. **Look up** in the header shows an answer in
+  full, including which service gave it.
+- **Two services, failing separately.** If SENTRY is slow or down, lookups go
+  to starcitizen-api.com without waiting; if starcitizen-api.com is down,
+  SENTRY still answers for anyone it has. Each pauses on its own.
+
+---
+
+## Sending a support bundle
+
+If something goes wrong, **Settings → Storage & cleanup → support bundle**
+builds a zip you can send. It is deliberately small in what it takes:
+
+**In it:** the session logs (what the watcher did and what it read), your
+settings with secrets removed, your report reasons, and - unless you choose
+*text only* - the screenshots behind recent reads.
+
+**Not in it:** your reputation database, your imported watchlists, the profile
+cache, your sightings log, and your API key. The manifest inside the zip says
+all of this, so you can check before you send it.
+
+**Read the warning about screenshots.** A full frame is your whole screen at
+that moment. If a QR code, an account page, a second monitor or a chat overlay
+was visible, it is in the picture. Open a few before sending, or use *text
+only, no screenshots*, which sends the logs alone.
+
+---
+
 ## Where your data lives
 
 Everything is local. No account, no telemetry, no server.
 
-Run `sc-watch.exe --where`, or use the Start Menu shortcut, to see the exact
-paths. Normally `%LOCALAPPDATA%\sc-watch`, containing:
+Run `sc-watch.exe --where` to see the exact paths. Normally `data\` beside
+the program, containing:
 
 | file | what it holds |
 |---|---|
 | `sc-watch.db` | sightings, reports, orgs. The important one. |
+| `watchlist.db` | lists other people keep, including the one that ships with the tool |
 | `rsi_cache.db` | cached profile lookups, so the same handle is not fetched twice |
 | `sc_api_key.txt` | your API key, if you added one |
 | `settings.json` | everything from the Settings tab |
+| `flags.json` | your report reasons, if you changed them |
 | `audit/` | cropped screenshots of labels you asked to check by eye |
 | `tones/` | the alert sounds, replaceable |
 | `sightings.csv` | a plain-text log of everything seen |
@@ -663,23 +835,86 @@ one of them the other's history is the worst mistake this tool could make. That
 check needs an API key. Without one, a merge you confirm by hand goes through
 unverified and the UI tells you so.
 
+### The reasons you can report under
+
+The reasons on the flag menu are yours to change: **Settings → Report
+reasons**. Each has a label, a colour, and whether it counts against someone,
+for them, or neither - so "fair fight" or "helped me out" is as easy to add as
+another kind of griefing. A reason you retire stays readable on the reports
+already filed under it, rather than turning them into a raw key.
+
+Flagging in the moment costs one click and no reason: press **flag** while
+something is shooting at you and give it a reason later, from the tile or the
+header count.
+
 ### Flagging an org
 
-Settings has a **Flagged orgs** panel. Flag an org by its SID and every member
-is marked the first time you meet them, with no report written against anyone.
+The **orgs** button in the header opens a tab of its own. Flag an org by its
+SID and every member is marked the first time you meet them, with no report
+written against anyone.
 
-A flag alone reaches almost nobody, so the panel pulls the org's member list
-when you flag it. The profile lookup returns only a player's main org, and a
-piracy side-org is nearly always an affiliate, which never shows up there. The
-member list is the only route to those people.
+A flag alone reaches almost nobody, so flagging pulls the org's member list.
+A profile lookup does not always show every org a player is in - the older
+lookup service shows only the main one - and a piracy side-org is nearly always
+an affiliate. The member list is the sure route to those people.
 
-Each row tells you how many members it has, when the list was last pulled, and
-how many of your own contacts it actually reaches. Pulling a list is one
-request per second and up to twenty pages, so a large org takes a while. It
-runs in the background and nothing pulls one on a timer.
+Pick an org and you get its roster: each member's rank, how old their account
+is, which other orgs they are in - other flagged ones in red - whether you have
+met them, and any reports you have filed. Click someone you have met to open
+your record of them.
 
-This records membership, not blame. Unflagging removes the membership rows it
-added.
+**Look up members** fills in the profiles the roster does not carry, one
+request a second in the background, with a progress line and a stop button. It
+skips anyone who already has a current profile. Nobody from a roster becomes a
+contact on your grid: you have to actually meet them.
+
+**Former members.** A refresh records who is new, who has dropped off the
+roster since the last pull, and who has come back. Someone who drops off stays
+flagged, because leaving is also what hiding your membership looks like - the
+API leaves hidden members off the roster entirely - so the tile says
+*off it since 21 Sep (left, or hid it)* rather than claiming they left.
+
+Pulling a list is one request per second and up to twenty pages, so a large
+org takes a while. It runs in the background and nothing pulls one on a timer.
+If the list comes back empty or stops part way, nothing is recorded as having
+left: a failed request must not turn into a claim about a person.
+
+**Adding members by hand.** Some orgs keep most of their people off the public
+roster. Put someone on a flagged org's roster yourself - from the org's page
+(**add a member by hand**) or from a contact's detail window - with a note of
+what you know. They carry the flag like any listed member, whether or not you
+have met them yet, and **a refresh never drops someone you added**: only you
+take them off. Everywhere the membership shows, it says *added by you* - or
+*added by NAME*, for someone an org mate's file added. Handles must be exact;
+nothing is matched to a similar-looking name.
+
+**Filling gaps.** When a lookup could not get something - an org's focus, its
+name, when an account was made - the contact's detail window lets you enter it
+from their RSI page. It shows as *yours*, and RSI's own answer replaces it the
+moment a lookup gets one.
+
+This records membership, not blame. Unflagging removes the membership rows and
+the history with it, after a second click that says so.
+
+## Sharing with your org
+
+**Settings → Sharing** swaps records with an org mate you trust.
+
+**Export** makes a small .zip of your own records: your reports (who, which
+reason, your note, when), the reasons they use, the orgs you flagged, and the
+members you added to rosters by hand. You give the name to be shown with them -
+your in-game name is best. It leaves out where and when you played,
+screenshots, settings, your API key, watchlists, and anything you imported from
+someone else - their reports, and the orgs their files flagged. Send the file
+however your org shares files.
+
+**Import** shows what a file holds before anything is added. Their reports
+appear on tiles in the usual colours with a small *from NAME* note, and count
+like your own - you chose to trust them. Importing a newer file from the same
+person updates what you have from them rather than doubling it, and drops what
+they have since deleted. Your own records are never touched. **Remove
+everything from NAME** takes it all back out in one click; orgs their import
+flagged stay flagged until you unflag them.
 
 ---
 

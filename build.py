@@ -16,7 +16,6 @@
 Build the distributable. Fetches everything it needs.
 
     python build.py                # sterile copy, venv, PyInstaller, zip
-    python build.py --installer    # also run Inno Setup, if it is installed
     python build.py --skip-deps    # reuse the build venv, skip pip
     python build.py --clean        # delete build/ and dist/ first
 
@@ -24,7 +23,6 @@ WHAT IT PRODUCES
 
     dist/sc-watch/                 one folder, two executables, no Python
     dist/sc-watch-<version>.zip    that folder, zipped
-    dist/sc-watch-<version>-setup.exe   with --installer and Inno Setup present
 
 IT BUILDS ITS OWN TOOLCHAIN
 
@@ -79,15 +77,12 @@ BUILD, DIST = HERE / "build", HERE / "dist"
 # dev tree, because a distribution has nothing to sterilise.
 IN_DEV_TREE = (HERE / "make_sterile.py").exists()
 
-# Inno Setup, if someone has it. Its absence is not an error: GitHub Actions
-# builds the installer on a runner that ships with it, which is where the
-# published one comes from anyway.
-ISCC_CANDIDATES = (
-    Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"))
-    / "Inno Setup 6" / "ISCC.exe",
-    Path(os.environ.get("ProgramFiles", r"C:\Program Files"))
-    / "Inno Setup 6" / "ISCC.exe",
-)
+# No Inno Setup here any more. Distribution went standalone-only on
+# 2026-09-20: the installer and the zip were the same PyInstaller folder, and
+# the installer only copied it under %LOCALAPPDATA%\Programs and made
+# shortcuts. What testers wanted was the folder itself. The script, the search
+# for it and the workflow step that ran it are gone rather than left lying
+# around to be rebuilt by accident; git history has them if it is reversed.
 
 
 def run(cmd: list[str], **kw) -> None:
@@ -98,7 +93,7 @@ def run(cmd: list[str], **kw) -> None:
 def version() -> str:
     """The version string, from VERSION if present, else a dev marker.
 
-    A single file so the installer, the zip name and the About line cannot
+    A single file so the zip name, the tag check and the About line cannot
     disagree, which is the usual way a release ends up mislabelled.
     """
     f = HERE / "VERSION"
@@ -187,11 +182,8 @@ def legal(py: Path, src: Path, folder: Path) -> None:
     shutil.copy2(src / "LICENSE", folder / "LICENSE")
     run([py, str(src / "third_party.py"),
          str(folder / "THIRD-PARTY-NOTICES.txt")])
-    # Docs travel with the build too, so the installer can take everything
-    # from one directory. It used to reach back into the distribution folder
-    # by name, which does not exist on a CI runner where the checkout IS that
-    # folder - the installer step would have failed on a missing source the
-    # first time a tag was pushed.
+    # The user guide travels with the build, so the folder somebody unzips is
+    # self-contained: the tool, its notices and the instructions in one place.
     shutil.copy2(src / "README.md", folder / "README.md")
     # No docs/ here. The engineering log is deliberately unpublished; see the
     # note in make_sterile.py. Copying whatever happens to be in a docs folder
@@ -212,7 +204,35 @@ def launcher(folder: Path) -> None:
         'start "sc-watch UI" "%~dp0sc-watch-ui.exe"\r\n'
         "timeout /t 2 /nobreak >nul\r\n"
         'start "sc-watch watcher" "%~dp0sc-watch.exe" --verbose %*\r\n',
-        encoding="ascii")
+        # newline="" or the CRLFs above are written as \r\r\n: write_text
+        # translates \n on Windows too. Every shipped copy of this launcher
+        # has had doubled carriage returns - cmd has tolerated it, and the
+        # file people double-click should still be a well-formed batch file.
+        encoding="ascii", newline="")
+
+
+def portable(folder: Path) -> None:
+    """Make the built folder keep its own data, with nothing to switch on.
+
+    `paths.py` puts DATA beside the executable when a file named
+    portable.txt sits next to it, and otherwise in %LOCALAPPDATA%. Since
+    distribution went standalone-only that default is the wrong way round:
+    the thing people asked for was one folder they can find, zip and send
+    back, and it arrived needing them to create a file first - which Windows,
+    with extensions hidden, is apt to save as portable.txt.txt.
+
+    So the build writes it. Deleting the file is how you opt OUT, and the
+    file says so in case somebody opens it wondering what it is.
+    """
+    (folder / "portable.txt").write_text(
+        "Keep sc-watch's data in this folder, in a subfolder called data.\r\n"
+        "\r\n"
+        "Delete this file to store it in %LOCALAPPDATA%\\sc-watch instead,\r\n"
+        "where it survives replacing this folder with a newer one.\r\n",
+        # newline="": write_text translates \n to \r\n on Windows as well,
+        # so the explicit CRLFs above would have been written as \r\r\n and
+        # opened in Notepad with a blank line between every line.
+        encoding="ascii", newline="")
 
 
 def zip_up(folder: Path, ver: str) -> Path:
@@ -225,24 +245,10 @@ def zip_up(folder: Path, ver: str) -> Path:
     return out
 
 
-def installer(ver: str) -> Path | None:
-    iscc = next((p for p in ISCC_CANDIDATES if p.exists()), None)
-    if iscc is None:
-        print("\nInno Setup not found, so no setup.exe was built.")
-        print("  Install it with:  winget install JRSoftware.InnoSetup")
-        print("  Or let the GitHub Actions release workflow build it.")
-        return None
-    print("\nbuilding the installer")
-    run([iscc, f"/DMyAppVersion={ver}", str(HERE / "installer.iss")])
-    out = DIST / f"sc-watch-{ver}-setup.exe"
-    return out if out.exists() else None
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--installer", action="store_true")
     ap.add_argument("--skip-deps", action="store_true",
                     help="reuse the build venv without "
                          "reinstalling into it")
@@ -261,6 +267,7 @@ def main() -> int:
     folder = freeze(py, src)
     legal(py, src, folder)
     launcher(folder)
+    portable(folder)
 
     size = sum(f.stat().st_size for f in folder.rglob("*") if f.is_file())
     print(f"\n{folder}  {size/1e6:.0f} MB, "
@@ -268,10 +275,6 @@ def main() -> int:
 
     z = zip_up(folder, ver)
     print(f"  {z.name}  {z.stat().st_size/1e6:.0f} MB")
-    if a.installer:
-        s = installer(ver)
-        if s:
-            print(f"  {s.name}  {s.stat().st_size/1e6:.0f} MB")
     print("\nSmoke-test before publishing:")
     print(f'  "{folder}\\sc-watch.exe" --where')
     return 0

@@ -29,11 +29,10 @@ binary. MIT and BSD say so in one sentence; Apache-2.0 spells it out in section
 4. Shipping an installer with none of them is the one licence obligation this
 project could actually breach, and it costs one text file not to.
 
-pyttsx3 is the only one with more than attribution attached. MPL-2.0 is
-file-level copyleft, so its own source has to be obtainable by anyone who gets
-a binary containing it. We do not modify it, so naming it and pointing at
-upstream satisfies that - but if its files are ever patched, those patches have
-to be published.
+pyttsx3, the one component that asked for more than attribution (MPL-2.0,
+file-level copyleft), was dropped on 2026-09-23 - speech now drives Windows'
+SAPI directly through comtypes. If an MPL component ever comes back, its own
+source has to be obtainable by anyone holding a binary containing it.
 
 WHAT IS NOT LISTED
 

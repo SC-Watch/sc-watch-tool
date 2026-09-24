@@ -54,13 +54,77 @@ from dataclasses import dataclass
 # 5120x1440 frame, where the text sat at x 0.26-0.35, y 0.54-0.62 - widened
 # generously because chat grows UPWARD as messages arrive, and a region that
 # only covers the newest line reads one name instead of five.
-DEFAULT_REGION = (0.15, 0.30, 0.35, 0.45)      # x, y, w, h
+DEFAULT_REGION = (0.15, 0.30, 0.35, 0.45)      # x, y, w, h - legacy, see below
 
-# Tag, then handle, then colon. The tag is matched loosely because it is the
-# part OCR mangles: letters, then an optional bracket-ish character, then
-# optional space. A-Z only in the tag - a lower-case run belongs to the handle.
+# THE CHAT WINDOW IS ANCHORED TO SCREEN CENTRE, NOT TO THE LEFT EDGE
+# ------------------------------------------------------------------
+# DEFAULT_REGION above is a fraction of the frame WIDTH, and that is the bug
+# it caused: it works on a wide screen and silently misses on a narrow one.
+# Measured on eight frames at three resolutions, the chat window's left edge
+# sits a constant number of pixels left of screen centre:
+#
+#   2559x1439   x0 =   96    centre - x0 = 1183.5
+#   3440x1440   x0 =  537    centre - x0 = 1183.0
+#   5120x1440   x0 = 1377    centre - x0 = 1183.0
+#
+# 1181-1185 across every sample. As a fraction of WIDTH that same edge is
+# 0.038, 0.156 and 0.269 - which is why 0.15 framed the chat on the 3440 and
+# 5120 screens and framed a poster on the 2559 one, reading zero handles.
+#
+# Offsets are scaled by HEIGHT against REFERENCE_HEIGHT, the same convention
+# _scaled() uses in sc_detector, because the HUD scales with vertical
+# resolution. Every sample here is ~1440 tall, so the corpus CANNOT distinguish
+# height-scaled from fixed-pixel: this follows the existing convention rather
+# than a measurement, and a 1080p or 4K frame would settle it.
+REFERENCE_HEIGHT = 1440
+_ANCHOR_LEFT = 1190.0     # px left of centre at 1440p (measured 1183 + margin)
+_WIDTH = 1120.0           # longest message measured ran 1032 px from the anchor
+_HEIGHT = 520.0           # rows measured 179-211 px; room for a fuller window
+_BOTTOM = 0.590           # of frame height; measured 0.555-0.581
+
+
+def default_region(frame_w: int, frame_h: int) -> tuple:
+    """The chat rectangle for THIS frame, as x, y, w, h fractions.
+
+    Returned as fractions because that is what the rest of the pipeline and
+    the settings file already speak, even though the underlying measurement
+    is in pixels from the centre.
+    """
+    s = frame_h / REFERENCE_HEIGHT
+    x0 = frame_w / 2.0 - _ANCHOR_LEFT * s
+    y1 = _BOTTOM * frame_h
+    y0 = y1 - _HEIGHT * s
+    return (max(0.0, x0) / frame_w, max(0.0, y0) / frame_h,
+            min(_WIDTH * s, frame_w - x0) / frame_w,
+            min(_HEIGHT * s, y1) / frame_h)
+
+# The channel tags, spelled to absorb the substitutions OCR makes inside them
+# (O/0, I/1/L, S/5). Chat is a closed set of channels, so this can be a list.
+_TAG = (r"(?:GL[O0]B[A4]L|L[O0]C[A4]L|P[A4]RTY|[O0]RG|SYSTEM|TE[A4]M|"
+        r"GUILD|SQU[A4]D|[A4]DMIN|SERVER)")
+
+# Tag, then handle, then colon.
+#
+# The tag is an ALTERNATION of known channel names, not the [A-Z]{3,12} it
+# used to be, and that is a correctness fix rather than a tidy-up. [A-Z]{3,12}
+# is greedy, so when OCR read the closing bracket as an I - which it does
+# constantly, the glyphs are nearly identical - the tag match ran straight on
+# into the handle and ate its capital:
+#
+#   [GLOBALIChrisbykills:     ->  tag 'GLOBALIC',  handle 'hrisbykills'
+#   [GLOBALIBustyWolf:        ->  tag 'GLOBALIB',  handle 'ustyWolf'
+#   [GLOBALINightDragon850:   ->  tag 'GLOBALIN',  handle 'ightDragon850'
+#
+# Three of five handles in one real screenshot, each silently one character
+# short. A truncated handle is not a failed read, it is a DIFFERENT PERSON -
+# 'HORNE' is somebody's actual account - so this was manufacturing exactly the
+# misattribution the rest of the tool refuses to make.
+#
+# A tag this does not know now fails to match at all, and that is the right
+# way round: no handle is recoverable from a line we cannot parse, while a
+# wrong handle looks exactly like a right one.
 LINE_RE = re.compile(
-    r"[\[\(]?\s*[A-Z]{3,12}\s*[\]\)\}IJ|1l]?\s*"     # [GLOBAL] / [GLOBALI / (LOCAL
+    r"[\[\(]?\s*" + _TAG + r"\s*[\]\)\}IJ|1l]?\s*"   # [GLOBAL] / [GLOBALI / (LOCAL
     r"([A-Za-z0-9_\-]{2,40})"                        # the handle
     r"\s*:",                                         # the colon that ends it
 )
@@ -86,9 +150,16 @@ class ChatLine:
 
 
 def crop_region(frame, region=None):
-    """The chat rectangle of a frame, as (crop, (x0, y0))."""
-    x, y, w, h = region or DEFAULT_REGION
+    """The chat rectangle of a frame, as (crop, (x0, y0)).
+
+    `region` None or "auto" means work it out from the frame - see
+    default_region(). An explicit 4-tuple always wins, because chat can be
+    dragged anywhere and no measurement beats someone who has looked.
+    """
     fh, fw = frame.shape[:2]
+    if region is None or region == "auto":
+        region = default_region(fw, fh)
+    x, y, w, h = region
     x0, y0 = int(fw * x), int(fh * y)
     x1, y1 = min(fw, int(fw * (x + w))), min(fh, int(fh * (y + h)))
     return frame[y0:y1, x0:x1], (x0, y0)
@@ -132,13 +203,13 @@ def read(frame, ocr, region=None) -> list[ChatLine]:
 
 def main() -> int:
     import sys
-    import cv2
+    import imgio
     import sc_detector as sd
 
     paths = sys.argv[1:] or ["corpus/clean_194744_120_p24.png"]
     ocr = sd.make_ocr()
     for p in paths:
-        frame = cv2.imread(p, cv2.IMREAD_COLOR)
+        frame = imgio.imread(p)
         if frame is None:
             print(f"{p}: could not read")
             continue

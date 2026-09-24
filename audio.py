@@ -43,14 +43,17 @@ generated tones are plain WAV files you can replace with your own.
 
 from __future__ import annotations
 
-import json
 import math
 import queue
+import re
+import string
 import struct
 import threading
+import time
 import wave
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
+import jsonstore
 import paths
 
 CONFIG_PATH = paths.data("audio.json")
@@ -73,16 +76,99 @@ DEFAULT_TONES = {
     "error":   [(240, 180), (200, 220)],
 }
 
-DEFAULT_SPEECH = {
-    # {handle} {range} {flags} {count} {reason}
-    "flagged": "Warning. {handle}. {range} kilometres. {flags}",
-    "known":   "Known contact. {handle}. {range} kilometres. {reason}",
-    "contact": "",           # silent by default - tones cover routine contacts
-    "nothing": "",
+# EVERYTHING THAT CAN BE SAID. Each entry: key, group, title, when it is
+# said, the placeholders it may use, and its default. The settings page is
+# drawn from this list, the saved phrases are checked against it, and nothing
+# else in the program decides what is spoken - so a phrase added here is a
+# phrase you can change.
+#
+#   line     a whole utterance, for one kind of event
+#   reason   what fills {reason} in "known": the FIRST of these that applies,
+#            in this order, because speech is rationed to one reason
+#   flag     what fills {flags} in "flagged", one per flag, joined by commas
+#
+# {distance} is "2.4 kilometres", or NOTHING when there is no range - a
+# contact read from chat has none. It replaced "{range} kilometres", which
+# said "kilometres" with no number in front of it whenever the range was
+# missing. {range} is still there, the bare number, for anyone who wants it.
+PHRASES = (
+    ("flagged", "line", "Lookup warning",
+     "A lookup found an org flag on someone: a piracy, smuggling or "
+     "infiltration focus, a syndicate org, or a new account. It arrives a few "
+     "seconds after the read, once the lookup answers.",
+     ("handle", "distance", "range", "flags"),
+     "Warning. {handle}. {distance}. {flags}"),
+    ("known", "line", "Known contact",
+     "Someone your own records flag - your reports, a flagged org, the watch "
+     "list, or reports someone shared with you. Said as soon as the read "
+     "settles.",
+     ("handle", "distance", "range", "reason"),
+     "Known contact. {handle}. {distance}. {reason}"),
+    ("summary", "line", "Crowd summary",
+     "Too many contacts to name one by one, or more flagged ones than you "
+     "allow per read (Audio settings).",
+     ("count", "flagged"),
+     "{count} contacts, {flagged} flagged"),
+    ("nothing", "line", "Nothing found",
+     "A read that found nobody. Blank plays the tone alone.",
+     (), ""),
+    ("reason_report", "reason", "Your report",
+     "You have filed one report on them. {label} is the reason's spoken name "
+     "- set it per reason under Report reasons, 'spoken as'.",
+     ("label",), "{label}"),
+    ("reason_reports", "reason", "Your reports",
+     "You have filed several; {label} is the reason you used most.",
+     ("label", "count"), "{count} reports. {label}"),
+    ("reason_shared", "reason", "A shared report",
+     "Reports someone else shared with you, and none of your own. {source} is "
+     "the name they gave when they exported.",
+     ("label", "source"), "Reported by {source}. {label}"),
+    ("reason_org", "reason", "Flagged org member",
+     "They are on the roster of an org you flagged, or you put them on it.",
+     ("org",), "Member of {org}"),
+    ("reason_former", "reason", "Former flagged org member",
+     "An org you flagged used to list them and no longer does.",
+     ("org",), "Formerly {org}"),
+    ("reason_watchlist", "reason", "On the watch list",
+     "An exact match on a watch list - including the one that came with "
+     "sc-watch.",
+     (), "On the watch list"),
+    ("flag_piracy", "flag", "Piracy org",
+     "One of their orgs declares a Piracy focus.",
+     ("org",), "Piracy"),
+    ("flag_syndicate", "flag", "Syndicate org",
+     "One of their orgs is a Syndicate.",
+     ("org",), "Syndicate"),
+    ("flag_smuggling", "flag", "Smuggling org",
+     "One of their orgs declares a Smuggling focus.",
+     ("org",), "Smuggling"),
+    ("flag_infiltration", "flag", "Infiltration org",
+     "One of their orgs declares an Infiltration focus.",
+     ("org",), "Infiltration"),
+    ("flag_new_account", "flag", "New account",
+     "The account is under 90 days old.",
+     ("days",), "New account"),
+)
+PHRASE_KEYS = tuple(k for k, *_ in PHRASES)
+ALLOWED = {k: set(ph) for k, _g, _t, _w, ph, _d in PHRASES}
+
+DEFAULT_SPEECH = {k: d for k, _g, _t, _w, _ph, d in PHRASES}
+DEFAULT_SPEECH.update({
+    # Events with no entry above: never spoken by default, and not offered
+    # for editing. A routine contact is a tone - bursts raise it tone-only -
+    # and nothing raises "error" any more.
+    "contact": "",
     "trigger": "",
-    "error":   "Alert system error",
-    "summary": "{count} contacts, {flagged} flagged",
+    "error": "Alert system error",
+})
+
+# What earlier versions saved as their defaults. A copy of one of these in
+# audio.json is the old default, not a choice, so it is upgraded on load.
+LEGACY_DEFAULTS = {
+    "flagged": ("Warning. {handle}. {range} kilometres. {flags}",),
+    "known": ("Known contact. {handle}. {range} kilometres. {reason}",),
 }
+MAX_PHRASE = 200
 
 
 @dataclass
@@ -97,25 +183,186 @@ class AudioConfig:
     tones: dict = field(default_factory=lambda: {k: list(v) for k, v in
                                                  DEFAULT_TONES.items()})
     speech: dict = field(default_factory=lambda: dict(DEFAULT_SPEECH))
+    # Phrases switched OFF. An org flag or a reason that is off stops that
+    # thing announcing a contact at all - a syndicate org you do not care
+    # about is then an ordinary contact. A whole line that is off keeps its
+    # tone and loses its words.
+    muted: list = field(default_factory=list)
 
     @classmethod
     def load(cls, path: Path | None = None) -> "AudioConfig":
-        path = Path(path) if path else CONFIG_PATH
-        if path.exists():
-            try:
-                data = json.loads(path.read_text(encoding="utf-8-sig"))
-                base = cls()
-                for k, v in data.items():
-                    if hasattr(base, k):
-                        setattr(base, k, v)
-                return base
-            except Exception:
-                pass
-        return cls()
+        """audio.json over the defaults, one field at a time.
+
+        Each value must have its default's type or it is ignored. This used
+        to setattr() whatever the file said: `"volume": "lots"` became the
+        string 'lots' and `Infinity` became inf, both handed straight to the
+        speech engine. And it checked names with hasattr(), which is true of
+        METHODS - `"save": 1` would have replaced save() on the instance.
+        """
+        base = cls()
+        data = jsonstore.read(Path(path) if path else CONFIG_PATH) or {}
+        for f in fields(cls):
+            if f.name in data:
+                setattr(base, f.name,
+                        jsonstore.coerce(getattr(base, f.name), data[f.name]))
+        base.speech = merge_speech(base.speech)
+        base.muted = [k for k in base.muted if isinstance(k, str) and k in ALLOWED]
+        return base
 
     def save(self, path: Path | None = None):
-        path = Path(path) if path else CONFIG_PATH
-        path.write_text(json.dumps(asdict(self), indent=2))
+        jsonstore.write(Path(path) if path else CONFIG_PATH, asdict(self))
+
+
+def merge_speech(saved: dict) -> dict:
+    """The saved phrases over the defaults. A key the file lacks - every
+    phrase added since it was written - gets its default; a saved copy of an
+    OLD default becomes the new one; anything else you wrote is kept."""
+    out = dict(DEFAULT_SPEECH)
+    for k, v in (saved or {}).items():
+        if not isinstance(v, str):
+            continue
+        out[k] = DEFAULT_SPEECH.get(k, v) if v in LEGACY_DEFAULTS.get(k, ()) else v
+    return out
+
+
+def check_phrase(key: str, text: str) -> str | None:
+    """Why a phrase cannot be saved, or None. Only the placeholders that
+    phrase can fill: an unknown one used to make the whole line fail to
+    format, and the alert went out as silence."""
+    if key not in ALLOWED:
+        return f"{key} is not a phrase"
+    if len(text) > MAX_PHRASE:
+        return f"keep it under {MAX_PHRASE} characters"
+    try:
+        parts = list(string.Formatter().parse(text))
+    except ValueError as exc:
+        return f"unbalanced braces ({exc})"
+    for _lit, name, spec, conv in parts:
+        if name is None:
+            continue
+        if name not in ALLOWED[key]:
+            if not ALLOWED[key]:
+                return f"{{{name}}} is not available here - this one takes no placeholders"
+            ok = ", ".join("{" + p + "}" for p in sorted(ALLOWED[key]))
+            return f"{{{name}}} is not available here - this one can use {ok}"
+        if spec or conv:
+            return f"{{{name}}} takes no formatting"
+    return None
+
+
+class _Blank(dict):
+    def __missing__(self, key):
+        return ""
+
+
+# "{range} kilometres" in a phrase written before {distance} existed: with no
+# range, the unit has nothing to measure and goes too.
+_UNIT_AFTER_RANGE = re.compile(
+    r"\{range\}\s*(kilomet(?:re|er)s?|km|klicks?)\b", re.I)
+
+
+def render(template: str, vals: dict) -> str:
+    """Fill a phrase and tidy what an empty placeholder leaves behind."""
+    if not template:
+        return ""
+    if not vals.get("range"):
+        template = _UNIT_AFTER_RANGE.sub("{range}", template)
+    try:
+        text = string.Formatter().vformat(template, (), _Blank(vals))
+    except (ValueError, IndexError):
+        return ""
+    # "Warning. Jimmy. . Piracy" -> "Warning. Jimmy. Piracy"
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s+([.,;:])", r"\1", text)
+    text = re.sub(r"([.,;:])(?:\s*[.,;:])+", r"\1", text)
+    return text.strip(" .,;:")
+
+
+def distance_words(rng) -> tuple[str, str]:
+    """({range}, {distance}) for a range in km, or ("", "") without one."""
+    if rng is None:
+        return "", ""
+    try:
+        num = f"{float(rng):.1f}".rstrip("0").rstrip(".")
+    except (TypeError, ValueError):
+        return "", ""
+    return num, f"{num} kilometre" + ("" if num == "1" else "s")
+
+
+_FLAG_RE = re.compile(r"^\s*([A-Za-z][A-Za-z ]*?)\s*:\s*([A-Za-z0-9_-]+)")
+_DAYS_RE = re.compile(r"(\d+)\s*d\b")
+
+
+def _flag_parts(f) -> tuple[str | None, dict, str]:
+    """One rsi.Citizen.flags string -> (its phrase key, or None for a kind
+    with no phrase; the values its phrase can use; words to say without one)."""
+    f = str(f)
+    if f.lower().startswith("new account"):
+        m = _DAYS_RE.search(f)
+        return "flag_new_account", {"days": m.group(1) if m else ""}, "New account"
+    m = _FLAG_RE.match(f)
+    kind = (m.group(1) if m else f.split(":")[0]).strip()
+    key = "flag_" + kind.lower().replace(" ", "_")
+    return (key if key in ALLOWED else None,
+            {"org": _speakable(m.group(2)) if m else ""}, kind.title())
+
+
+def live_flags(flags, muted=()) -> list:
+    """The flags whose phrase is switched on."""
+    return [f for f in flags or [] if _flag_parts(f)[0] not in muted]
+
+
+def flag_words(flags, speech: dict, muted=()) -> str:
+    """The {flags} of a lookup warning, from rsi.Citizen.flags strings -
+    "PIRACY: SID (40 members)", "Syndicate: SID", "new account (12d)" - each
+    through its phrase. The same phrase twice (two piracy orgs) is said once;
+    a flag whose phrase is off is not said at all."""
+    out = []
+    for f in live_flags(flags, muted):
+        key, vals, plain = _flag_parts(f)
+        said = render(speech.get(key, ""), vals) if key else plain
+        if said and said not in out:
+            out.append(said)
+    return ", ".join(out)
+
+
+def reason_key(said: dict) -> str | None:
+    """Which phrase speaks one reason from Assessment.spoken_all()."""
+    kind = said.get("kind", "")
+    if kind == "report":
+        return "reason_reports" if (said.get("count") or 1) > 1 else "reason_report"
+    return {"shared": "reason_shared", "org": "reason_org",
+            "former": "reason_former", "watchlist": "reason_watchlist"}.get(kind)
+
+
+def pick_reason(said, muted=()) -> dict | None:
+    """The first reason whose phrase is on. `said` is the list from
+    Assessment.spoken_all(), strongest first - or one reason on its own."""
+    for r in (said if isinstance(said, list) else [said]):
+        if isinstance(r, dict) and reason_key(r) and reason_key(r) not in muted:
+            return r
+    return None
+
+
+def reason_words(said, speech: dict, muted=()) -> str:
+    """The {reason} of a known-contact line. A plain string is an older
+    caller's console line, said as it is."""
+    if isinstance(said, str):
+        return said
+    r = pick_reason(said, muted)
+    if r is None:
+        return ""
+    vals = {"label": r.get("label", ""), "count": r.get("count", ""),
+            "source": _speakable_name(r.get("source", "")),
+            "org": _speakable_name(r.get("org", ""))}
+    return render(speech.get(reason_key(r), ""), vals)
+
+
+def _speakable_name(name: str) -> str:
+    """An org or person's name as given - spaced words are left alone, a
+    run-together SID gets the same treatment a handle does."""
+    name = (name or "").strip()
+    return name if " " in name else _speakable(name)
 
 
 # --------------------------------------------------------------------------
@@ -155,6 +402,27 @@ def make_tones(cfg: AudioConfig | None = None) -> list[Path]:
 # Player
 # --------------------------------------------------------------------------
 
+# SpeechVoiceSpeakFlags: 0 is synchronous (SVSFDefault), 16 is SVSFIsNotXML.
+_SVSF_SYNC_PLAIN = 16
+
+# An alert still waiting this long is history, and is dropped - tone and all.
+# Once speech really spoke every line (it takes 6-7 s each), a fight could
+# queue faster than the voice could talk: measured with a fake voice, sixteen
+# flagged contacts read over forty seconds of pings left the last warning
+# starting 63 s after its contact was read. "Warning, <name>, 3 kilometres"
+# a minute late is about someone who has moved on. The queue's own cap (32)
+# never came into it. Never applied to the settings page's "hear it".
+MAX_ALERT_AGE = 20.0
+
+
+def _sapi_rate(wpm) -> int:
+    """Words per minute -> SAPI's -10..10, on the curve pyttsx3 used, so the
+    Speech rate setting sounds as it did before (175 -> 1)."""
+    try:
+        return max(-10, min(10, int(math.log(float(wpm) / 156.63, 1.11))))
+    except (TypeError, ValueError, ZeroDivisionError):
+        return 0
+
 
 class Alerts:
     """Non-blocking audio. Never call this from the read loop and wait."""
@@ -165,6 +433,15 @@ class Alerts:
         self._q: queue.Queue = queue.Queue(maxsize=32)
         self._engine = None
         self._winsound = None
+        # Health counters. Speech failing silently was the whole problem, so
+        # the numbers are kept and reported rather than discarded.
+        self.failures = 0
+        self.repairs = 0
+        self.expired = 0            # alerts dropped for waiting too long
+        self.last_error = ""
+        # Phrases are re-read when audio.json changes, so an edit on the
+        # settings page is heard on the next alert without restarting.
+        self._phrases_mtime = self._mtime()
 
         if self.cfg.mode in ("tones", "both"):
             try:
@@ -176,17 +453,11 @@ class Alerts:
             except Exception:
                 pass
 
+        # NOTE the voice is NOT built here. It is built on the worker thread,
+        # in _run(). See _make_engine() for why that is load-bearing.
         if self.cfg.mode in ("speech", "both"):
             try:
-                import pyttsx3
-                self._engine = pyttsx3.init()
-                self._engine.setProperty("rate", self.cfg.rate)
-                self._engine.setProperty("volume", self.cfg.volume)
-                if self.cfg.voice:
-                    for v in self._engine.getProperty("voices"):
-                        if self.cfg.voice.lower() in (v.name or "").lower():
-                            self._engine.setProperty("voice", v.id)
-                            break
+                import comtypes.client                            # noqa: F401
                 self.available["speech"] = True
             except Exception:
                 pass
@@ -194,14 +465,58 @@ class Alerts:
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
 
+    def _make_engine(self):
+        """Build the Windows voice (SAPI 5). MUST be called on the worker thread.
+
+        SAPI is COM: a voice belongs to the apartment of the thread that made
+        it, so COM is initialised, and the voice made, on the one thread that
+        then speaks with it.
+
+        DIRECTLY, not through pyttsx3. Measured 2026-09-23 at volume 0, three
+        lines in a row on one engine, built and driven on one thread exactly as
+        this class used it:
+
+            pyttsx3 say() + runAndWait()    5.63 s   0.10 s   0.09 s
+            SAPI SpVoice.Speak()            7.08 s   7.48 s   6.88 s
+
+        A three-second line does not finish in a tenth of a second. Through
+        pyttsx3 only the FIRST line of a session was ever spoken; every one
+        after it returned at once, silently, and raised nothing - so nothing
+        counted a failure either. The fix before this one (building the engine
+        on this thread) was measured by the run-loop flag coming clear, which
+        it did; nobody measured whether sound came out. Speak() here is
+        synchronous and returns when the line has actually been said.
+        """
+        import comtypes
+        import comtypes.client
+        comtypes.CoInitialize()
+        voice = comtypes.client.CreateObject("SAPI.SpVoice")
+        voice.Volume = int(round(max(0.0, min(1.0, float(self.cfg.volume))) * 100))
+        voice.Rate = _sapi_rate(self.cfg.rate)
+        if self.cfg.voice:
+            want = self.cfg.voice.lower()
+            tokens = voice.GetVoices()
+            for i in range(tokens.Count):
+                tok = tokens.Item(i)
+                if want in (tok.GetDescription() or "").lower():
+                    voice.Voice = tok
+                    break
+        return voice
+
     # -- public ---------------------------------------------------------
 
     def event(self, name: str, **fields):
         """Raise an event. Returns immediately; audio happens on the worker."""
         if self.cfg.mode == "off":
             return
+        self._refresh_phrases()
+        # A lookup warning whose every flag is switched off is no warning:
+        # nothing is played, tone included.
+        if name == "flagged" and fields.get("flags") and not live_flags(
+                fields["flags"], self.cfg.muted):
+            return
         try:
-            self._q.put_nowait((name, fields))
+            self._q.put_nowait((name, fields, time.monotonic()))
         except queue.Full:
             # Dropping is correct: stale alerts are worse than missing ones,
             # and a backed-up queue would talk over the next encounter.
@@ -217,8 +532,8 @@ class Alerts:
         if not contacts:
             self.event("nothing")
             return
-
-        flagged = [c for c in contacts if c.get("flags") or c.get("reason")]
+        self._refresh_phrases()
+        flagged = [c for c in contacts if self._alerting(c)]
 
         # Too many to read out: say how many, not who. A list of six handles
         # takes half a minute and by then it is history.
@@ -235,23 +550,98 @@ class Alerts:
             if c not in flagged:
                 self.event("contact", tone_only=True, **c)
 
+    def _alerting(self, c: dict) -> bool:
+        """Does this contact still warrant a warning, with the phrases that
+        are switched off taken away? `said` (structured) decides when present;
+        otherwise the older `reason` string does."""
+        muted = self.cfg.muted
+        if c.get("flags") and live_flags(c["flags"], muted):
+            return True
+        if c.get("said"):
+            return pick_reason(c["said"], muted) is not None
+        return bool(c.get("reason"))
+
+    def say(self, text: str):
+        """Speak a line as it is - the settings page's "hear it" button."""
+        self.event("_text", text=text)
+
     def close(self):
-        self._q.put((None, None))
+        self._q.put((None, None, 0.0))
+
+    @staticmethod
+    def _mtime() -> float:
+        try:
+            return CONFIG_PATH.stat().st_mtime
+        except OSError:
+            return 0.0
+
+    def _refresh_phrases(self):
+        m = self._mtime()
+        if m != self._phrases_mtime:
+            self._phrases_mtime = m
+            try:
+                fresh = AudioConfig.load()
+                self.cfg.speech, self.cfg.muted = fresh.speech, fresh.muted
+            except Exception:
+                pass            # a half-written file: keep what we had
 
     # -- worker ---------------------------------------------------------
 
     def _run(self):
+        if self.available["speech"]:
+            try:
+                self._engine = self._make_engine()
+            except Exception as exc:
+                self.available["speech"] = False
+                self.last_error = f"engine init: {type(exc).__name__}: {exc}"
         while True:
-            name, fields = self._q.get()
+            name, fields, queued = self._q.get()
             if name is None:
                 return
+            if name != "_text" and time.monotonic() - queued > MAX_ALERT_AGE:
+                self.expired += 1
+                continue
             try:
                 self._play(name, fields or {})
+            except Exception as exc:
+                # Recorded rather than swallowed. This except used to be a
+                # bare `pass`, which is how speech could die completely and
+                # the only symptom anyone had was "audio broke".
+                self.failures += 1
+                self.last_error = f"{name}: {type(exc).__name__}: {exc}"
+
+    def _speak(self, text: str):
+        """Say one line and return when it has been said. A failure is
+        counted and the voice rebuilt once, so one bad utterance cannot end
+        speech for the session.
+
+        As PLAIN TEXT (SVSFIsNotXML). By default SAPI reads a line that starts
+        with "<" as markup, and some of what is spoken comes from outside - a
+        shared report's author names themselves in a file somebody sent you.
+        `<silence msec="999999"/>` as a name would otherwise mute the voice.
+        """
+        voice = self._engine
+        if voice is None:
+            return
+        try:
+            voice.Speak(text, _SVSF_SYNC_PLAIN)
+        except Exception as exc:
+            self.failures += 1
+            self.last_error = f"speak: {type(exc).__name__}: {exc}"
+            try:
+                self._engine = self._make_engine()
+                self.repairs += 1
             except Exception:
-                pass
+                self._engine = None
+                self.available["speech"] = False
 
     def _play(self, name: str, fields: dict):
         tone_only = fields.pop("tone_only", False)
+        if name == "_text":
+            if self.available["speech"] and fields.get("text"):
+                self._speak(str(fields["text"]))
+            return
+        self._refresh_phrases()
 
         if (self.available["tones"] and name in EVENTS
                 and self.cfg.mode in ("tones", "both")):
@@ -266,32 +656,72 @@ class Alerts:
         if self.cfg.mode not in ("speech", "both"):
             return
 
+        if name in self.cfg.muted:
+            return                      # the line is off: its tone, no words
         template = self.cfg.speech.get(name, "")
         if not template:
             return
         text = self._render(template, fields)
         if text:
-            self._engine.say(text)
-            self._engine.runAndWait()
+            self._speak(text)
 
     def _render(self, template: str, fields: dict) -> str:
-        handle = fields.get("handle", "")
-        if not self.cfg.speak_handles:
-            handle = "contact"
-        rng = fields.get("range_km")
-        flags = fields.get("flags") or []
-        vals = {
-            "handle": _speakable(handle),
-            "range": f"{rng:.1f}".rstrip("0").rstrip(".") if rng is not None else "",
-            "flags": ", ".join(f.split(":")[0] for f in flags),
-            "reason": (fields.get("reason") or ""),
-            "count": fields.get("count", ""),
-            "flagged": fields.get("flagged", ""),
-        }
-        try:
-            return " ".join(template.format(**vals).split())
-        except Exception:
-            return ""
+        return render_line(template, fields, self.cfg.speech,
+                           self.cfg.speak_handles, self.cfg.muted)
+
+
+def render_line(template: str, fields: dict, speech: dict,
+                speak_handles: bool = True, muted=()) -> str:
+    """One event's utterance. `said` (a structured reason) is preferred over
+    `reason` (a console line, kept for callers that send nothing better)."""
+    handle = fields.get("handle", "")
+    if not speak_handles:
+        handle = "contact"
+    rng, dist = distance_words(fields.get("range_km"))
+    vals = {
+        "handle": _speakable(handle),
+        "range": rng, "distance": dist,
+        "flags": flag_words(fields.get("flags") or [], speech, muted),
+        "reason": reason_words(fields.get("said") or fields.get("reason") or "",
+                               speech, muted),
+        "count": fields.get("count", ""),
+        "flagged": fields.get("flagged", ""),
+    }
+    return render(template, vals)
+
+
+# What the "hear it" button plays for each phrase: the whole line it would be
+# part of, with made-up names, so a reason or flag is heard in context. MADE
+# UP: every one of these lines is an accusation, and it used to be spoken
+# about a real player's handle.
+_SAMPLE = {"handle": "SAMPLE_PILOT", "range_km": 2.4}
+SAMPLES = {
+    "flagged": dict(_SAMPLE, flags=["PIRACY: EXMPLORG (40 members)", "new account (12d)"]),
+    "known": dict(_SAMPLE, said={"kind": "report", "label": "Unprovoked attack", "count": 1}),
+    "summary": {"count": 6, "flagged": 2},
+    "nothing": {},
+    "reason_report": dict(_SAMPLE, said={"kind": "report", "label": "Unprovoked attack", "count": 1}),
+    "reason_reports": dict(_SAMPLE, said={"kind": "report", "label": "Unprovoked attack", "count": 3}),
+    "reason_shared": dict(_SAMPLE, said={"kind": "shared", "label": "Camping a location", "source": "Orgmate"}),
+    "reason_org": dict(_SAMPLE, said={"kind": "org", "org": "Example Org"}),
+    "reason_former": dict(_SAMPLE, said={"kind": "former", "org": "Example Org"}),
+    "reason_watchlist": dict(_SAMPLE, said={"kind": "watchlist"}),
+    "flag_piracy": dict(_SAMPLE, flags=["PIRACY: EXMPLORG (40 members)"]),
+    "flag_syndicate": dict(_SAMPLE, flags=["Syndicate: EXMPLORG"]),
+    "flag_smuggling": dict(_SAMPLE, flags=["Smuggling: EXMPLORG"]),
+    "flag_infiltration": dict(_SAMPLE, flags=["Infiltration: EXMPLORG"]),
+    "flag_new_account": dict(_SAMPLE, flags=["new account (12d)"]),
+}
+
+
+def sample(key: str, text: str, speech: dict, speak_handles: bool = True) -> str:
+    """How `text` would sound as phrase `key`, in the line it belongs to."""
+    trial = dict(speech)
+    trial[key] = text
+    group = next((g for k, g, *_ in PHRASES if k == key), "line")
+    line = {"reason": "known", "flag": "flagged"}.get(group, key)
+    return render_line(trial.get(line, ""), dict(SAMPLES.get(key, {})), trial,
+                       speak_handles)
 
 
 def _speakable(handle: str) -> str:
@@ -343,10 +773,11 @@ def main():
 
     demos = [
         ("trigger", {}),
-        ("contact", {"handle": "KELGRO", "range_km": 4.0, "tone_only": True}),
-        ("flagged", {"handle": "JIMMY_HAWKING", "range_km": 2.4,
-                     "flags": ["Infiltration: MERRILLS"]}),
-        ("known", {"handle": "WZOMBIETPANDAF", "range_km": 2.8,
+        # Invented names only: these lines accuse whoever they name.
+        ("contact", {"handle": "EXMPL_CONTACT", "range_km": 4.0, "tone_only": True}),
+        ("flagged", {"handle": "SAMPLE_PILOT", "range_km": 2.4,
+                     "flags": ["Infiltration: EXMPLORG"]}),
+        ("known", {"handle": "OTHER_PILOT", "range_km": 2.8,
                    "reason": "2 unprovoked attacks"}),
         ("nothing", {}),
         ("error", {}),

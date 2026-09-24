@@ -1,0 +1,691 @@
+{
+ "version": 1,
+ "name": "a trusted shared list",
+ "note": "Claims other players made about other players. Not this tool's judgement and never counted in your score - they show as a separate, differently-coloured line on a tile, and you can silence or delete the whole list in Settings.",
+ "entries": [
+  {
+   "handle": "8Gazer",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "AKBlackfoot",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "ANakedDude",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "AdmGeneralAladeen",
+   "confidence": "unconfirmed",
+   "claim": "Infiltrated ITC comms to attack a TSG event (reporter unsure of affiliation)",
+   "posted": "2026-06-11"
+  },
+  {
+   "handle": "Amishwarlord08",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Anikine",
+   "confidence": "asserted",
+   "claim": "Camping locations and claiming he is a noob and killing everyone leaving is his training.",
+   "posted": "2024-02-15"
+  },
+  {
+   "handle": "Artemis_1",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Ash120-A2",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "AutoMecha",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Barry-NP",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Barry-NP",
+   "confidence": "asserted",
+   "posted": "2024-01-24"
+  },
+  {
+   "handle": "Bobthegriefer",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Bossmode12",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Brash_rykkiz",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "BustinGently",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "CAREBEAR-Lucky_Ned",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "CMDRST4RF0X",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "ChuddyChudChud",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Clash07",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Compozer",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Croosty",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "D3VL_Ozymandias",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "DJM99",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "Daniel_Saint",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "DarthBoba66",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Desert",
+   "confidence": "asserted",
+   "claim": "Griefer",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "Elladan1",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "EyelessRook",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Freesbee",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "General29",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "General_paladin",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "GingerOfOz",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "GingerofOZ",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "GodbroxD",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Harbingerofmoisturization",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "Heavy_Bob",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "IDragonfyreI",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "KR-2187",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Kubi65",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "LT_Ricky_Bobby",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Lagitup",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Launch-Pad_McQuack",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "LeekiFaucets",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "LumpyMilkC137",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "MarcoHole-O",
+   "confidence": "asserted",
+   "claim": "Assault of org member and proceeded to blow up his ship and fly away.",
+   "posted": "2024-03-27"
+  },
+  {
+   "handle": "MaxSensation",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "MedievalMidget",
+   "confidence": "unconfirmed",
+   "posted": "2024-01-12"
+  },
+  {
+   "handle": "Merritt8",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "MisterDeath187",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Monarch_1812",
+   "confidence": "asserted",
+   "claim": "Griefer / homophobic comments/ affiliated with GrieferNet (org: Mosestartes MSSTS BlightVeil)",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "Mr_Skippy",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "NMOS",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Night_owl78",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "ObiTwoKanobi",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Omega-Retare",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Oniontree",
+   "confidence": "asserted",
+   "claim": "(BANNED)",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "PSyGiZmO",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Phantom3x",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "QuizzaciouslyDustin",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "RD-LINE-00",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "RUIZBROS",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Reaperunit",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Redstriker",
+   "confidence": "asserted",
+   "claim": "Griefer/ affiliated with GrieferNet",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "Serenity_Obscura",
+   "confidence": "unconfirmed",
+   "posted": "2024-01-12"
+  },
+  {
+   "handle": "Sfer",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Sfer2",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Shin_Young-Woo",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "SidTheBassist",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Sierra-257",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "SlinkyShot07",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "Soku-Shi",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Stone_raider",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Sylviei",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Texan_Riot",
+   "confidence": "asserted",
+   "posted": "2025-02-23"
+  },
+  {
+   "handle": "TommyUnhinged",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "Troegar_griefyndor",
+   "confidence": "unconfirmed",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "Trogdor_Griefinator",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "VelocitySmith",
+   "confidence": "asserted",
+   "claim": "Camping Space Station with Idris and blowing everyone up",
+   "posted": "2024-04-01"
+  },
+  {
+   "handle": "WarDawg",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "XXTOFXX",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "ZEAL",
+   "confidence": "asserted",
+   "claim": "Griefer/ affiliated with GrieferNet (org: Mosestartes MSSTS)",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "_Gorka_",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "ace-145",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "ace145",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "admgeneralaladeen",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "alphabutaurin",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "barney1431",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "billymadison",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "breadtastic",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "buccaneer_orion",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public mining event; stole a Hull-C bag-drop after incapacitating the pilot",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "damien-magic",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "dogdogdogdogdog",
+   "confidence": "asserted",
+   "claim": "(Harassing/Trolling Members)",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "dv0ta",
+   "confidence": "asserted",
+   "claim": "Attacked an org reclaimer during an event",
+   "posted": "2024-09-21"
+  },
+  {
+   "handle": "fallingp",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "fared",
+   "confidence": "asserted",
+   "claim": "Harassing other players/ threatening member of own org\\ affiliated with GrieferNet",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "gojo_satoru",
+   "confidence": "asserted",
+   "posted": "2024-09-13"
+  },
+  {
+   "handle": "haleydc",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "iAimed",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "itreachesout113",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "junoblaze",
+   "confidence": "asserted",
+   "posted": "2025-10-05"
+  },
+  {
+   "handle": "l-Darkry-l",
+   "confidence": "asserted",
+   "claim": "Piracy and infiltration of a public IMPERIUM mining event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "liiliill",
+   "confidence": "asserted",
+   "claim": "SMB attacked, stream sniped by GrieferNET",
+   "posted": "2026-09-08"
+  },
+  {
+   "handle": "lucky_ned_pepper",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "macmanonot5",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "magic-johnson",
+   "confidence": "asserted",
+   "claim": "Griefer (org: BlightVeil Legion BVL)",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "neoncey",
+   "confidence": "asserted",
+   "claim": "Griefer / affiliated with GrieferNet",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "noobvannoob",
+   "confidence": "asserted",
+   "claim": "Griefer/ affiliated with GrieferNet (org: Mosestartes MSSTS)",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "ockow1",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "ordie67",
+   "confidence": "asserted",
+   "claim": "offensive verbal attacks Griefer fellow org members",
+   "posted": "2024-01-21"
+  },
+  {
+   "handle": "smoke-exe",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "stanislav-petrov",
+   "confidence": "asserted",
+   "posted": "2024-06-17"
+  },
+  {
+   "handle": "tearin",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "the_architect",
+   "confidence": "asserted",
+   "claim": "Harassing / trolling members",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "ultraspacedad",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "uncle_shifty",
+   "confidence": "asserted",
+   "claim": "In-game accounts involved in the THEBSS attack on a CORP Trench Run event",
+   "posted": "2026-06-16"
+  },
+  {
+   "handle": "xRitual",
+   "confidence": "asserted",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "yah-yah",
+   "confidence": "asserted",
+   "claim": "Apart of HELLSTERN and Associated with GrieferNet",
+   "posted": "2024-01-13"
+  },
+  {
+   "handle": "zimboy",
+   "confidence": "asserted",
+   "claim": "Attempted (and failed) to grief with an A1",
+   "posted": "2024-03-27"
+  }
+ ],
+ "orgs": [
+  {
+   "sid": "CAREBEARS",
+   "claim": "Referenced by an earlier list, 2024-01-13"
+  },
+  {
+   "sid": "GRIEFERNET",
+   "claim": "Named repeatedly as the group behind repeated attacks"
+  },
+  {
+   "sid": "M1NUTEMEN",
+   "claim": "Referenced by the source"
+  },
+  {
+   "sid": "MDRNR",
+   "claim": "Referenced by the source"
+  },
+  {
+   "sid": "THEBSS",
+   "claim": "Org responsible for the Trench Run attack, reported 2026-06-16"
+  }
+ ]
+}

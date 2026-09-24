@@ -26,10 +26,10 @@ than hardcoded, so the UI can edit and persist it later without touching code.
 from __future__ import annotations
 
 import argparse
-import json
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
+import jsonstore
 import paths
 
 CONFIG_PATH = paths.data("housekeeping.json")
@@ -84,11 +84,16 @@ class Policy:
         """
         path = Path(path) if path else CONFIG_PATH
         pol = cls()
-        if path.exists():                       # legacy file, pre-settings tab
-            try:
-                pol = cls(**json.loads(path.read_text()))
-            except Exception:
-                pol = cls()
+        # Legacy file, pre-settings tab. Field by field, each checked against
+        # its default's type. It used to be cls(**json.loads(read_text())):
+        # no encoding, so a file Notepad had saved with a BOM was silently
+        # ignored, and one unknown key threw the whole file away.
+        legacy = jsonstore.read(path) or {}
+        for f in fields(cls):
+            if f.name in legacy:
+                setattr(pol, f.name,
+                        jsonstore.coerce(getattr(pol, f.name), legacy[f.name]))
+        pol.directories = [d for d in pol.directories if isinstance(d, str)]
         try:
             import settings as settings_mod
             cur = settings_mod.load()
@@ -106,8 +111,7 @@ class Policy:
         return pol
 
     def save(self, path: Path | None = None):
-        path = Path(path) if path else CONFIG_PATH
-        path.write_text(json.dumps(asdict(self), indent=2))
+        jsonstore.write(Path(path) if path else CONFIG_PATH, asdict(self))
 
 
 @dataclass

@@ -49,6 +49,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+import imgio
+
 import chat
 import sc_detector as sd
 
@@ -67,7 +69,7 @@ def letterbox(frame, thresh: int = 12) -> tuple[int, int, int, int]:
 
 
 def report(path: str, ocr):
-    frame = cv2.imread(path, cv2.IMREAD_COLOR)
+    frame = imgio.imread(path)
     if frame is None:
         print(f"\n{path}: could not read")
         return

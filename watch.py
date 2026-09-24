@@ -43,13 +43,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import heapq
 import os
 import queue
 import shutil
 import sys
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -57,7 +58,9 @@ import cv2
 
 import chat
 import consensus
+import debuglog
 import housekeeping
+import imgio
 import inputs
 import km_gate
 import sc_detector as sd
@@ -73,7 +76,7 @@ import paths
 # back. A flag you typed once should not silently become the new default.
 _SETTING_TO_ARG = {
     "trigger": "trigger", "key": "key", "focus_key": "focus_key",
-    "focus_size": "focus_size", "focus_always": "focus_always",
+    "focus_size": "focus_size",
     "focus_mask": "focus_mask", "burst": "burst",
     "burst_spacing": "burst_spacing", "ping_delay": "ping_delay",
     "monitor": "monitor", "hz": "hz", "queue_max": "queue_max",
@@ -81,13 +84,56 @@ _SETTING_TO_ARG = {
     "gate": "gate", "haze": "haze", "cooldown": "cooldown",
     "radius": "radius", "expire": "expire", "audio_mode": "audio",
     "rsi_min_votes": "rsi_min_votes", "audit_enabled": "audit",
-    "debug_frames": "debug", "chat_key": "chat_key",
+    "debug_frames": "debug", "debug_log": "debug_log",
+    "chat_key": "chat_key",
     "chat_region": "chat_region", "dual_key": "dual_key",
     "dual_on_read": "dual_on_read",
 }
 
 
+# Per-frame diagnostic lines kept in the log. The console still prints
+# them all; the log is the copy somebody has to read.
+DEBUG_DETAIL_MAX = 12
+
 RESTART_FLAG = paths.data("restart.flag")
+
+
+def _relaunch() -> bool:
+    """Restart this process with the same arguments. False if it failed.
+
+    argv[0] is NOT the same thing in a source run and a frozen one, and
+    getting that wrong is why "restart watcher" closed the .exe instead of
+    restarting it:
+
+        source   sys.executable = python.exe
+                 sys.argv       = ['watch.py', '--verbose']
+                 -> [python.exe, 'watch.py', '--verbose']        correct
+
+        frozen   sys.executable = sc-watch.exe
+                 sys.argv       = ['sc-watch.exe', '--verbose']
+                 -> [sc-watch.exe, 'sc-watch.exe', '--verbose']  WRONG
+
+    In the frozen case the exe path arrives as a POSITIONAL argument.
+    argparse answers "unrecognized arguments: sc-watch.exe", exits 2,
+    and the window vanishes. Reproduced against the real build.
+
+    Frozen already carries its own path in argv[0], so only the rest is
+    forwarded; from source argv[0] is the script and has to be kept.
+
+    execv does not return on success. If it raises - a locked exe, a path with
+    something odd in it - that is reported rather than left as a process that
+    quietly stopped. The caller then ends the session: see Session._restart.
+    """
+    argv = sys.argv[1:] if paths.FROZEN else sys.argv
+    try:
+        os.execv(sys.executable, [sys.executable] + argv)
+    except Exception as exc:
+        print(f"! restart failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print("  the watcher has to stop - its camera and log were already "
+              "handed back. Reopen it to pick up the new settings.",
+              file=sys.stderr)
+        return False
+    return True
 
 
 def _restart_requested() -> bool:
@@ -289,6 +335,76 @@ class Console:
             self._clear()
 
 
+def _crops_from(frame, name_box, range_box) -> dict:
+    """Cut the two label crops out of a frame. Cheap, and small to keep.
+
+    Separated from writing them because the RSI path needs the pixels NOW -
+    while the frame is still in hand - but does not know whether it will need
+    to write them until a lookup comes back seconds later. A name crop is a
+    few tens of KB; holding the 8 MB frame that long, for every handle in
+    flight, is what this avoids.
+    """
+    out = {}
+    for key, box in (("crop_name", name_box), ("crop_range", range_box)):
+        if box is None:
+            continue
+        try:
+            crop = box.crop(frame, 10)
+        except Exception:
+            continue
+        if getattr(crop, "size", 0):
+            out[key] = crop.copy()
+    return out
+
+
+def _save_audit_images(name: str, crops: dict, frame=None,
+                       quality: int = 90) -> dict:
+    """Write an audit's pictures and return the paths, keyed for add_audit().
+
+    Shared by the two things that raise audits, because they have to produce
+    the same files in the same place or the viewer can only open half of them.
+
+    Crops are lossless: they may be re-read later, and a JPEG artefact on a
+    12-pixel-tall glyph is the difference between an I and a 1. The full frame
+    is JPEG because it is only ever looked at by eye - measured at 4.11 MB PNG
+    against 0.65 MB at q90.
+
+    Written under the DATA ROOT, and the stored paths are relative to it,
+    because that is where everything that reads them looks: the UI's audit
+    viewer, orphan pruning, and the support bundle. This used to write to a
+    bare relative `audit/`, which is the working directory - the same folder
+    in a source run, so nobody noticed, and a different one in every built
+    copy. A standalone launched from Explorer wrote beside the exe while the
+    UI looked in data/audit, so every audit picture was a broken link, was
+    never pruned, and never reached a bundle.
+
+    A path is only recorded if the file was actually written. Recording it
+    regardless left rows pointing at pictures that did not exist.
+    """
+    out = paths.data_dir("audit")
+    stem = f"{datetime.now():%Y%m%d_%H%M%S}_{name[:16]}"
+    saved = {}
+    try:
+        for key in ("crop_name", "crop_range"):
+            img = crops.get(key)
+            if img is None or not getattr(img, "size", 0):
+                continue
+            fname = f"{stem}_{key}.png"
+            if imgio.imwrite(out / fname, img):
+                saved[key] = f"audit/{fname}"
+        if frame is not None:
+            fname = f"{stem}_frame.jpg"
+            if imgio.imwrite(out / fname, frame,
+                             [cv2.IMWRITE_JPEG_QUALITY, int(quality)]):
+                saved["frame_path"] = f"audit/{fname}"
+    except Exception:
+        # An audit with no pictures is still worth having - it names a read
+        # that needs checking. Losing the whole row because a disk write
+        # failed would be the worse outcome.
+        pass
+    return saved
+
+
 class RsiEnricher:
     """Look handles up on RSI without blocking the read loop.
 
@@ -301,66 +417,278 @@ class RsiEnricher:
     """
 
     def __init__(self, con, enabled: bool = True, db=None, alerts=None,
-                 client=None):
+                 client=None, audit: bool = True, dbg=None):
         self.con = con
         self.db = db
+        # --no-audit turns off BOTH ways an audit can be raised. Honouring it
+        # for the vote rule and ignoring it here would mean the flag quietly
+        # did half of what it says.
+        self.audit = audit
+        self.dbg = dbg
         self.alerts = alerts
         self.q: queue.Queue = queue.Queue()
         self.client = None
         self.thread = None
         self.seen: set[str] = set()
+        # Lookups waiting to be tried again: (due, sequence, handle). Only the
+        # worker thread touches these.
+        self._retry: list = []
+        self._retry_seq = 0
+        self.attempts: dict[str, int] = {}
+        self._announced_pause = 0.0
+        # Handles already reported from an expired copy while a refresh is
+        # pending, and every flag already alerted per handle - so a refresh
+        # that lands later neither repeats the line nor sounds the alarm twice.
+        self._stale_shown: set[str] = set()
+        self._alerted: dict[str, set] = {}
+        # handle -> the crops and vote counts behind the read, kept only until
+        # its lookup returns. See submit().
+        self.pending: dict[str, dict] = {}
         if not enabled or client is None:
             return
         if not client.enriches:
             # Fall back to link mode rather than switching lookup off. A handle
             # with a URL beside it is still useful; silently dropping it is not.
             client.provider = "link"
-            print("! no API key - profile enrichment off, handles will be "
-                  "reported with a lookup link instead.\n"
-                  "  For full org/piracy data: get a key at "
-                  "https://starcitizen-api.com and set SC_API_KEY",
+            print("! no starcitizen-api.com key, and Lookup source is set to "
+                  "starcitizen-api.com only - so nobody is looked up; handles "
+                  "come with a lookup link instead of a profile.\n"
+                  "  Set Settings > RSI lookups > Lookup source to 'sentry' to "
+                  "look players up without a key, or add one:\n" + _key_help(),
+                  file=sys.stderr)
+        elif getattr(client, "sentry", None) is not None and not client.confirms_absence:
+            # SENTRY needs no key, so lookups work - but only the other
+            # service can say a handle does NOT exist, and that is what raises
+            # a misread audit. Worth saying once rather than leaving it to be
+            # noticed as audits that never arrive.
+            print("! no starcitizen-api.com key - players are looked up "
+                  "through SENTRY only. Without a key:\n"
+                  "    - a misread handle cannot be confirmed as a misread, so "
+                  "no 'no RSI account' audits are raised\n"
+                  "    - an org's Piracy / Smuggling focus is known only if it "
+                  "is already cached; new orgs show 'focus unknown'\n"
+                  "  Orgs, account age and flagged-org alerts still work. "
+                  "To add a key:\n" + _key_help(),
                   file=sys.stderr)
         self.client = client
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
 
-    def submit(self, handle: str):
+    # How many handles' crops to hold while their lookups are in flight. The
+    # queue drains at one handle a second, so this is only ever deep during a
+    # crowded ping. Crops are tens of KB, not the 8 MB frame they came from.
+    PENDING_MAX = 64
+
+    # Seconds before the second and third attempts at a lookup that failed
+    # for a reason that might pass (rsi.is_transient). The failures seen in
+    # practice took ~10 s to come back as HTTP 500 and answered normally when
+    # asked again, so the first retry waits a little longer than that.
+    RETRY_DELAYS = (15.0, 60.0)
+
+    def submit(self, handle: str, crops: dict | None = None,
+               range_km=None, votes: int = 0, total: int = 0, variants=None):
         if self.client is None or handle in self.seen:
             return
         self.seen.add(handle)
+        if crops:
+            if len(self.pending) >= self.PENDING_MAX:
+                # Drop the oldest rather than grow without bound. Losing a
+                # crop costs an audit its picture; it does not cost the audit.
+                self.pending.pop(next(iter(self.pending)), None)
+            self.pending[handle] = {
+                "crops": crops, "range_km": range_km,
+                "votes": votes, "total": total,
+                "variants": [(n, c) for n, c in (variants or [])]}
         self.q.put(handle)
+
+    def _next(self):
+        """The next handle to look up: a retry that has come due, else the
+        next submission. Waits on the queue only until the next retry is due,
+        so a scheduled retry never holds up a new handle."""
+        while True:
+            now = time.monotonic()
+            if self._retry and self._retry[0][0] <= now:
+                return heapq.heappop(self._retry)[2]
+            wait = (self._retry[0][0] - now) if self._retry else None
+            try:
+                return self.q.get(timeout=wait)
+            except queue.Empty:
+                continue
+
+    def _failed(self, handle: str, exc: Exception):
+        """A lookup raised. Retry it later if that could help, else give up
+        FOR NOW - it leaves `seen`, so the next sighting asks again.
+
+        It used to be one attempt, ever: `seen` kept the handle for the rest
+        of the session, so a lookup that met a passing server error never ran
+        again however often the contact was read, and the tile said "not
+        looked up yet" - indistinguishable from a read too weak to look up.
+        """
+        from rsi import ServiceDown, describe_failure, is_transient
+        if isinstance(exc, ServiceDown):
+            # Nothing was sent, so this is not an attempt at THIS handle - it
+            # waits out the pause instead of using up its retries on it.
+            self._retry_seq += 1
+            heapq.heappush(self._retry, (exc.until + 0.5, self._retry_seq, handle))
+            if exc.until != self._announced_pause:
+                self._announced_pause = exc.until
+                waiting = len(self._retry) + self.q.qsize()
+                self.con.say(f"          rsi: the lookup service is not "
+                             f"responding - pausing lookups for "
+                             f"{exc.remaining:.0f}s ({waiting} waiting)")
+                if self.dbg is not None:
+                    self.dbg.event("rsi_paused", seconds=round(exc.remaining),
+                                   waiting=waiting)
+            cache = getattr(self.client, "cache", None)
+            if cache is not None:
+                try:
+                    cache.note_failure(handle, describe_failure(exc),
+                                       self.attempts.get(handle, 0),
+                                       gave_up=False)
+                except Exception:
+                    pass
+            return
+        why = describe_failure(exc)
+        attempt = self.attempts.get(handle, 0) + 1
+        self.attempts[handle] = attempt
+        retry = is_transient(exc) and attempt <= len(self.RETRY_DELAYS)
+        if retry:
+            delay = self.RETRY_DELAYS[attempt - 1]
+            self._retry_seq += 1
+            heapq.heappush(self._retry,
+                           (time.monotonic() + delay, self._retry_seq, handle))
+            self.con.say(f"          rsi: {handle} lookup failed - {why}; "
+                         f"trying again in {delay:.0f}s")
+        else:
+            # The crops go: an audit can only come from an answer, and there
+            # is none. The next sighting brings fresh ones.
+            self.pending.pop(handle, None)
+            self.seen.discard(handle)
+            self.attempts.pop(handle, None)
+            self.con.say(f"          rsi: {handle} lookup failed - {why}; "
+                         f"will try again next time it is read")
+        cache = getattr(self.client, "cache", None)
+        if cache is not None:
+            try:
+                cache.note_failure(handle, why, attempt, gave_up=not retry)
+            except Exception:
+                pass
+        if self.dbg is not None:
+            self.dbg.event("rsi_failed", handle=handle, why=why,
+                           attempt=attempt, retry=retry)
+
+    def _keep_refreshing(self, handle: str, reason: str) -> bool:
+        """An expired stored profile stood in for a lookup that failed. Keep
+        trying for a current one on the same schedule as a failed lookup.
+        Returns True the first time, so the copy is reported once."""
+        first = handle not in self._stale_shown
+        self._stale_shown.add(handle)
+        attempt = self.attempts.get(handle, 0) + 1
+        self.attempts[handle] = attempt
+        again = attempt <= len(self.RETRY_DELAYS)
+        if again:
+            delay = self.RETRY_DELAYS[attempt - 1]
+            down_for = getattr(self.client, "down_for", lambda: 0.0)()
+            self._retry_seq += 1
+            heapq.heappush(self._retry, (time.monotonic() + max(delay, down_for + 0.5),
+                                         self._retry_seq, handle))
+        else:
+            # Stop for this session's sake; the next sighting asks again.
+            self.attempts.pop(handle, None)
+            self.pending.pop(handle, None)
+            self.seen.discard(handle)
+            self._stale_shown.discard(handle)
+        cache = getattr(self.client, "cache", None)
+        if cache is not None:
+            try:
+                cache.note_failure(handle, reason, attempt, gave_up=not again)
+            except Exception:
+                pass
+        if self.dbg is not None:
+            self.dbg.event("rsi_stale", handle=handle, why=reason,
+                           attempt=attempt, retry=again)
+        return first
 
     def _run(self):
         while True:
-            handle = self.q.get()
+            handle = self._next()
             if handle is None:
                 return
             try:
                 c = self.client.citizen(handle)
             except Exception as exc:
-                self.con.say(f"          rsi: {handle} lookup failed "
-                             f"({type(exc).__name__})")
+                self._failed(handle, exc)
                 continue
+            stale = getattr(c, "stale_reason", None)
+            if stale:
+                if not self._keep_refreshing(handle, stale):
+                    continue        # already reported from this copy
+                ev = self.pending.get(handle)   # the refresh may still need them
+            else:
+                self.attempts.pop(handle, None)
+                self._stale_shown.discard(handle)
+                ev = self.pending.pop(handle, None)
             if not c.exists:
                 # A handle that doesn't resolve is usually an OCR error, not a
                 # ghost - VONCARSTEINO read 18/18 times and the real handle was
                 # VONCARSTEIN. Worth saying so rather than silently omitting.
+                #
+                # And worth AUDITING, which the vote rule cannot do for us:
+                # that read was unanimous, so _maybe_audit() correctly left it
+                # alone. "RSI has never heard of this name" is independent
+                # evidence, and it is the only evidence that catches a
+                # confident misread. Raised here rather than at read time
+                # because the answer takes a network round trip to arrive.
                 self.con.say(f"          rsi: {handle} - no profile "
                              f"(likely a misread)")
+                if self.dbg is not None:
+                    self.dbg.event("rsi", handle=handle, exists=False,
+                                   votes=(ev or {}).get("votes"),
+                                   total=(ev or {}).get("total"))
+                if self.db is not None and self.audit:
+                    if self.dbg is not None:
+                        self.dbg.event("audit", handle=handle,
+                                       reason="no_rsi_account")
+                    try:
+                        paths = (_save_audit_images(handle, ev["crops"])
+                                 if ev and ev.get("crops") else {})
+                        self.db.add_audit(
+                            handle,
+                            ev["range_km"] if ev else None,
+                            ev["votes"] if ev else 0,
+                            ev["total"] if ev else 0,
+                            ev["variants"] if ev else [],
+                            reason="no_rsi_account", **paths)
+                    except Exception:
+                        pass
                 continue
             # Lookups return out of order, so the handle has to be on the
             # line - three anonymous "rsi: enlisted 12y ago" lines in a row
             # are unattributable.
             line = f"          rsi: {handle} - {c.summary()}"
+            if getattr(c, "source", None) == "sentry":
+                line += "  [via SENTRY]"
+            if stale:
+                age = (time.time() - getattr(c, "stored_at", time.time())) / 86400
+                line += (f"  (stored profile from {age:.0f} days ago - {stale}; "
+                         f"will refresh)")
             for flag in c.flags:
                 line += f"\n          !!   {handle}: {flag}"
             self.con.say(line)
 
             # Flags arrive after the burst's own alert, so raise a second one
             # rather than staying silent about a warning that only just became
-            # known.
-            if self.alerts is not None and c.flags:
-                self.alerts.event("flagged", handle=handle, flags=c.flags)
+            # known. Only flags not already alerted: a refresh that confirms an
+            # expired copy should not sound the same alarm twice.
+            known = self._alerted.setdefault(handle, set())
+            new_flags = [f for f in c.flags if f not in known]
+            known.update(new_flags)
+            if self.alerts is not None and new_flags:
+                # With the range the read had, when it had one. This event
+                # used to carry none, so every lookup warning said
+                # "kilometres" with no number in front of it.
+                self.alerts.event("flagged", handle=handle, flags=new_flags,
+                                  range_km=(ev or {}).get("range_km"))
 
             # Remember org membership so an org flag reaches this player later,
             # even if we never look them up again.
@@ -370,9 +698,12 @@ class RsiEnricher:
                     self.db.update_profile(handle, c.moniker, c.enlisted)
                     a = self.db.assess(handle)
                     if a.flagged_orgs:
+                        from reputation import manual_line
                         for sid, note in a.flagged_orgs:
                             self.con.say(f"          ***  {handle}: FLAGGED ORG "
-                                         f"{sid}" + (f" - {note}" if note else ""))
+                                         f"{sid}" + (f" - {note}" if note else "")
+                                         + manual_line(sid, a.manual_orgs,
+                                                       a.manual_by))
                 except Exception:
                     pass
 
@@ -398,7 +729,11 @@ def cheap_pass(frame, template):
             >= sd.KM_GATE_THRESHOLD]
 
 
-def main() -> int:
+# ---------------------------------------------------------------------------
+# Command line
+# ---------------------------------------------------------------------------
+
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--trigger", choices=("key", "auto"), default="key",
@@ -439,11 +774,22 @@ def main() -> int:
                          "the same forms as --key, including joystick buttons "
                          "and combinations: 'joy0.b24', 'rctrl+joy0.b24', "
                          "'vid231d:0126.b7'. 'off' disables it")
-    ap.add_argument("--chat-region", default="",
-                    help="chat window as x,y,w,h fractions of the screen "
-                         "(default 0.15,0.30,0.35,0.45). Chat grows upward, so "
-                         "a region covering only the newest line reads one "
-                         "name instead of five")
+    ap.add_argument("--chat-region", default="auto",
+                    help="chat window as x,y,w,h fractions of the screen, or "
+                         "'auto' (default) to place it from the frame - the "
+                         "window is anchored to screen centre, so fixed "
+                         "fractions miss it on any other aspect ratio")
+    ap.add_argument("--no-debug-log", dest="debug_log", action="store_false",
+                    help="stop writing the session log to debug_bursts/. The "
+                         "log is a few KB, rotates after 12 sessions, and is "
+                         "what --support-bundle packages up")
+    ap.add_argument("--support-bundle", action="store_true",
+                    help="zip the session logs, your settings and your debug "
+                         "screenshots into one file to send for support, then "
+                         "exit. Never includes your databases or API key")
+    ap.add_argument("--no-frames", dest="bundle_frames", action="store_false",
+                    help="with --support-bundle: leave the screenshots out "
+                         "and send a text-only bundle")
     ap.add_argument("--no-audit", dest="audit", action="store_false",
                     help="stop saving crops for low-confidence reads. Audits "
                          "are on by default and cost about 0.7 MB each; they "
@@ -462,15 +808,18 @@ def main() -> int:
     ap.add_argument("--dual-on-read", action="store_true",
                     help="make the normal read key do a wide + centre read, "
                          "instead of needing a separate binding")
+    # A testing switch, not a setting any more - see settings.py. Replays
+    # cannot press the focus key, so this is how the focused path is tested.
     ap.add_argument("--focus-always", action="store_true",
-                    help="read focused on EVERY trigger, not just the focus "
-                         "key. Works under --replay, which the focus key "
-                         "cannot, so this is how the focused path gets tested "
-                         "and how it would be used for offline mining")
-    ap.add_argument("--focus-size", default=f"{sd.FOCUS_W}x{sd.FOCUS_H}",
+                    help="(testing) read focused on EVERY trigger, not just "
+                         "the focus key. Works under --replay, which the "
+                         "focus key cannot")
+    ap.add_argument("--focus-size", default="auto",
                     help="focused capture region, WxH, centred horizontally "
-                         "and biased upward. Bigger tolerates the contact "
-                         "drifting off centre; smaller is faster")
+                         "and biased upward, or 'auto' (default) to scale "
+                         f"the measured {sd.FOCUS_W}x{sd.FOCUS_H} by screen "
+                         "height. Bigger tolerates the contact drifting off "
+                         "centre; smaller is faster")
     ap.add_argument("--queue-max", type=int, default=3,
                     help="how many pings can queue up while a burst is being "
                          "read. Rapid pings reveal different contacts, so they "
@@ -551,23 +900,47 @@ def main() -> int:
     # being able to say "not this time" without opening the UI matters.
     for flag, dest in (("--no-debug", "debug"), ("--no-haze", "haze"),
                        ("--no-gate", "gate"),
-                       ("--no-focus-always", "focus_always"),
                        ("--no-dual-on-read", "dual_on_read"),
                        ("--no-focus-mask", "focus_mask")):
         ap.add_argument(flag, dest=dest, action="store_false",
                         help=argparse.SUPPRESS)
     ap.add_argument("--rsi", dest="no_rsi", action="store_false",
                     help=argparse.SUPPRESS)
+    return ap
 
+
+def parse_args(argv=None) -> argparse.Namespace:
+    ap = build_parser()
     # Saved settings become the defaults; anything typed on the command line
     # still overrides them.
     ap.set_defaults(**_defaults_from_settings())
-    args = ap.parse_args()
+    return ap.parse_args(argv)
 
-    # Answered before anything is opened or captured, so it stays useful when
-    # the reason you are asking is that something else will not start.
+
+def _run_utility(args) -> int | None:
+    """The one-shot commands. An exit code, or None to carry on and watch.
+
+    Every one of these is answered before the camera, the OCR engine or the
+    database is touched, because the reason somebody runs them is usually that
+    one of those will not start.
+    """
     if args.where:
         print(paths.describe())
+        return 0
+
+    if args.support_bundle:
+        info = debuglog.build_bundle(with_frames=args.bundle_frames)
+        print(info["manifest"])
+        print()
+        if not info.get("ok"):
+            print(f"  FAILED: {info.get('error')}")
+            return 1
+        print(f"  written: {info['file']}")
+        print(f"  size:    {info['mb']} MB")
+        if info["images"] < info["images_available"]:
+            print(f"  note:    {info['images']} of {info['images_available']} "
+                  f"screenshots included (newest first, "
+                  f"{debuglog.BUNDLE_MB:.0f} MB budget)")
         return 0
 
     if args.list_inputs:
@@ -586,65 +959,168 @@ def main() -> int:
             check_resolution.report(p, ocr)
         return 0
 
-    # Frame source: live capture, or saved frames for testing without the game
-    # running. Everything downstream is identical either way.
-    exhausted = False
-    if args.replay:
+    return None
+
+
+class ConfigError(Exception):
+    """A flag or setting the watcher cannot start with. Shown as-is, exit 1."""
+
+
+def _parse_bindings(args, key_mode: bool) -> dict[str, inputs.Binding]:
+    """Four bindings, each of which may be a key, a joystick button, or a
+    combination - `rctrl+joy0.b24` is one binding, not a chord to type.
+    `python inputs.py --listen` prints the string for whatever you press.
+    """
+    binds: dict[str, inputs.Binding] = {}
+    for mode, spec, flag in (("full", args.key, "--key"),
+                             ("focus", args.focus_key, "--focus-key"),
+                             ("dual", args.dual_key, "--dual-key"),
+                             ("chat", args.chat_key, "--chat-key")):
+        try:
+            b = inputs.Binding(spec)
+        except inputs.BindError as exc:
+            raise ConfigError(
+                f"{flag} {spec!r}: {exc}\n"
+                "  keys:      " + ", ".join(sorted(inputs.VK_CODES)[:18]) + ", ...\n"
+                "  joysticks: joy0.b24, vid231d:0126.b7, rctrl+joy0.b24\n"
+                "  run `python inputs.py --listen` to find yours") from None
+        if b:
+            binds[mode] = b
+    if key_mode and "full" not in binds:
+        raise ConfigError("--key cannot be 'off' - it is the main trigger")
+    # Two bindings on the same input would make one of them unreachable.
+    seen_specs = {}
+    for mode, b in binds.items():
+        sig = frozenset(b.tokens)
+        if sig in seen_specs:
+            raise ConfigError(
+                f"{mode} and {seen_specs[sig]} are both bound to "
+                f"{b.label()}; they have to differ")
+        seen_specs[sig] = mode
+    return binds
+
+
+def _parse_chat_region(spec: str):
+    """None means "work it out from the frame" - chat.default_region() anchors
+    the window to screen CENTRE, which is where it actually is. An explicit
+    four-fraction value still wins, because chat can be dragged anywhere.
+    """
+    if not spec.strip() or spec.strip().lower() == "auto":
+        return None
+    try:
+        parts = [float(v) for v in spec.split(",")]
+        if len(parts) != 4 or not all(0.0 <= v <= 1.0 for v in parts):
+            raise ValueError
+    except ValueError:
+        raise ConfigError(
+            f"--chat-region {spec!r} should be 'auto' or four "
+            "fractions between 0 and 1, like 0.15,0.30,0.35,0.45") from None
+    return tuple(parts)
+
+
+def _parse_focus_size(spec: str) -> tuple:
+    """(None, None) means "size it from the frame" - sd.focus_size_for() scales
+    the measured 1200x600 by height, because the HUD scales with vertical
+    resolution and the default was tuned on a 1440-tall screen.
+    """
+    if spec.strip().lower() in ("", "auto"):
+        return None, None
+    try:
+        w, h = (int(v) for v in spec.lower().split("x"))
+    except ValueError:
+        raise ConfigError(f"--focus-size {spec!r} should be 'auto' or look "
+                          "like 1200x600") from None
+    return w, h
+
+
+# ---------------------------------------------------------------------------
+# Frame sources
+# ---------------------------------------------------------------------------
+
+class ScreenSource:
+    """Live capture from the desktop compositor. Nothing touches the game."""
+
+    replay = False
+    exhausted = False               # the desktop never runs out of frames
+
+    def __init__(self, monitor: int):
+        try:
+            import dxcam
+        except ImportError:
+            raise ConfigError("need dxcam: pip install dxcam") from None
+        self._cam = dxcam.create(output_idx=monitor - 1, output_color="BGR")
+        if self._cam is None:
+            raise ConfigError("dxcam.create failed")
+
+    def grab(self):
+        return self._cam.grab()
+
+    def release(self):
+        # Idempotent: the restart path hands the device back, and shutdown
+        # would otherwise release it a second time.
+        if self._cam is not None:
+            self._cam.release()
+            self._cam = None
+
+
+class ReplaySource:
+    """Saved frames instead of live capture, for testing without the game.
+
+    Same code path as ScreenSource from here down; only grab() differs.
+    `exhausted` lets a burst that asked for more frames than remain stop
+    asking instead of spinning.
+    """
+
+    replay = True
+
+    def __init__(self, pattern: str):
         # glob.glob, not Path().glob: the latter raises NotImplementedError on
         # an ABSOLUTE pattern, so --replay "D:/frames/*.png" died with
         # "Non-relative patterns are unsupported" rather than doing the obvious
         # thing. Relative patterns behave identically either way.
         import glob as _glob
-        replay_paths = sorted(Path(p) for p in _glob.glob(args.replay))
-        if not replay_paths:
-            return int(bool(sys.stderr.write(f"no frames match {args.replay}\n")))
-        replay_iter = iter(replay_paths)
+        self.paths = sorted(Path(p) for p in _glob.glob(pattern))
+        if not self.paths:
+            raise ConfigError(f"no frames match {pattern}")
+        self._it = iter(self.paths)
+        self.exhausted = False
 
-        def grab():
-            nonlocal exhausted
-            p = next(replay_iter, None)
-            if p is None:
-                exhausted = True
-                return None
-            return cv2.imread(str(p), cv2.IMREAD_COLOR)
+    def grab(self):
+        p = next(self._it, None)
+        if p is None:
+            self.exhausted = True
+            return None
+        return imgio.imread(p)
 
-        def release():
-            pass
+    def release(self):
+        pass
 
-        print(f"replaying {len(replay_paths)} frames from {args.replay}")
-    else:
-        try:
-            import dxcam
-        except ImportError:
-            return int(bool(sys.stderr.write("need dxcam: pip install dxcam\n")))
 
-        cam = dxcam.create(output_idx=args.monitor - 1, output_color="BGR")
-        if cam is None:
-            return int(bool(sys.stderr.write("dxcam.create failed\n")))
+def open_source(args):
+    if args.replay:
+        src = ReplaySource(args.replay)
+        print(f"replaying {len(src.paths)} frames from {args.replay}")
+        return src
+    return ScreenSource(args.monitor)
 
-        def grab():
-            return cam.grab()
 
-        def release():
-            cam.release()
+# ---------------------------------------------------------------------------
+# The services a session is built from
+# ---------------------------------------------------------------------------
 
-    ocr = sd.make_ocr()
-    template = km_gate.load_template()
-    if template is None:
-        print("! no km_template.npy - monitoring will be slow "
-              "(run build_km_template.py)", file=sys.stderr)
+def _key_help() -> str:
+    """How to add a starcitizen-api.com key, with THIS install's file path -
+    the step people get wrong is finding the data folder."""
+    import rsi
+    return ("    1. register at https://starcitizen-api.com (the free tier is "
+            "enough) and copy your key\n"
+            "    2. paste it into the UI: Settings > RSI lookups - or save it, "
+            "alone on one line, as\n"
+            f"       {rsi.KEY_FILE}\n"
+            "    3. restart the watcher")
 
-    sd.KM_GATE_ENABLED = args.gate
-    sd.HAZE_LOCATOR_ENABLED = args.haze
-    sd.ORPHAN_RETRY_MAX = (sd.ORPHAN_RETRY_WHEN_ON
-                           if settings_mod.load().get("dim_range_retry")
-                           else 0)
 
-    # Loaded once, here, because three separate things below read it: the audio
-    # overlay, the audit capture and the housekeeping sweep. Re-reading the file
-    # per use would let a mid-session edit apply to one and not another.
-    _cfg = settings_mod.load()
-
+def _make_alerts(args, cfg):
     try:
         import audio
         # audio.json still owns the tone tables and speech templates - nested
@@ -658,171 +1134,218 @@ def main() -> int:
                               ("speak_handles", "speak_handles"),
                               ("max_spoken_per_burst", "max_spoken_per_burst"),
                               ("summarise_above", "summarise_above")):
-            if setting in _cfg:
-                setattr(audio_cfg, attr, _cfg[setting])
+            if setting in cfg:
+                setattr(audio_cfg, attr, cfg[setting])
         if args.audio:
             audio_cfg.mode = args.audio
-        alerts = audio.Alerts(audio_cfg)
+        return audio.Alerts(audio_cfg)
     except Exception as exc:
         print(f"! audio disabled: {type(exc).__name__}: {exc}", file=sys.stderr)
-        alerts = None
+        return None
 
-    con = Console()
 
-    # One profile client, shared. The database uses it to VERIFY identity
-    # before merging two similar-looking handles - string resemblance is not
-    # evidence, and SLIVER/5LIVER and HORNE/HORNET65 are each two real people.
-    profile_client = None
-    if not args.no_rsi:
-        try:
-            import rsi
-            profile_client = rsi.Client(mode=_cfg.get("rsi_mode", "auto"))
-        except Exception as exc:
-            print(f"! profile lookup disabled: {type(exc).__name__}: {exc}",
-                  file=sys.stderr)
-
-    db = None
-    if not args.no_db:
-        try:
-            import reputation
-            verify = None
-            if profile_client is not None and profile_client.enriches:
-                verify = lambda h: profile_client.citizen(h).exists
-            db = reputation.Database(verify=verify)
-        except Exception as exc:
-            print(f"! database disabled: {type(exc).__name__}: {exc}", file=sys.stderr)
-
-    enricher = RsiEnricher(con, enabled=not args.no_rsi, db=db, alerts=alerts,
-                           client=profile_client)
-    tracker = Tracker(args.radius, args.expire)
-    announcer = Announcer(args.cooldown)
-    log = Path(args.log)
-    new_log = not log.exists()
-    logf = log.open("a", newline="", encoding="utf-8")
-    writer = csv.writer(logf)
-    if new_log:
-        writer.writerow(["timestamp", "name", "range_km", "votes", "total", "confidence"])
-
-    key_mode = args.trigger == "key" and not args.replay
-
-    # Three bindings, each of which may be a key, a joystick button, or a
-    # combination - `rctrl+joy0.b24` is one binding, not a chord to type.
-    # `python inputs.py --listen` prints the string for whatever you press.
-    binds: dict[str, inputs.Binding] = {}
-    for mode, spec, flag in (("full", args.key, "--key"),
-                             ("focus", args.focus_key, "--focus-key"),
-                             ("dual", args.dual_key, "--dual-key"),
-                             ("chat", args.chat_key, "--chat-key")):
-        try:
-            b = inputs.Binding(spec)
-        except inputs.BindError as exc:
-            sys.stderr.write(
-                f"{flag} {spec!r}: {exc}\n"
-                "  keys:      " + ", ".join(sorted(inputs.VK_CODES)[:18]) + ", ...\n"
-                "  joysticks: joy0.b24, vid231d:0126.b7, rctrl+joy0.b24\n"
-                "  run `python inputs.py --listen` to find yours\n")
-            return 1
-        if b:
-            binds[mode] = b
-    if key_mode and "full" not in binds:
-        sys.stderr.write("--key cannot be 'off' - it is the main trigger\n")
-        return 1
-    # Two bindings on the same input would make one of them unreachable.
-    seen_specs = {}
-    for mode, b in binds.items():
-        sig = frozenset(b.tokens)
-        if sig in seen_specs:
-            sys.stderr.write(
-                f"{mode} and {seen_specs[sig]} are both bound to "
-                f"{b.label()}; they have to differ\n")
-            return 1
-        seen_specs[sig] = mode
-    if key_mode:
-        for mode, b in binds.items():
-            if b.missing:
-                sys.stderr.write(
-                    f"! {mode} binding {b.label()} needs a device that is not "
-                    f"plugged in ({', '.join(b.missing)})\n")
-    chat_region = chat.DEFAULT_REGION
-    if args.chat_region.strip():
-        try:
-            parts = [float(v) for v in args.chat_region.split(",")]
-            if len(parts) != 4 or not all(0.0 <= v <= 1.0 for v in parts):
-                raise ValueError
-            chat_region = tuple(parts)
-        except ValueError:
-            sys.stderr.write(
-                f"--chat-region {args.chat_region!r} should be four fractions "
-                "between 0 and 1, like 0.15,0.30,0.35,0.45" + chr(10))
-            return 1
-
+def _make_profile_client(args, cfg):
+    """One profile client, shared. The database uses it to VERIFY identity
+    before merging two similar-looking handles - string resemblance is not
+    evidence, and SLIVER/5LIVER and HORNE/HORNET65 are each two real people.
+    """
+    if args.no_rsi:
+        return None
     try:
-        focus_w, focus_h = (int(v) for v in args.focus_size.lower().split("x"))
-    except ValueError:
-        return int(bool(sys.stderr.write(
-            f"--focus-size {args.focus_size!r} should look like 1200x500"
-            + chr(10))))
+        import rsi
+        return rsi.Client(mode=cfg.get("rsi_mode", "auto"))
+    except Exception as exc:
+        print(f"! profile lookup disabled: {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+        return None
 
-    # Settings clamp hz to 1-30, but --hz comes straight off the command line
-    # and 0 divides. A watcher that will not start is worse than a slow one.
-    if args.hz <= 0:
-        print(f"! --hz {args.hz} is not a rate; using 5 Hz")
-        args.hz = 5.0
-    interval = 1.0 / args.hz
-    print("=" * 62)
-    print("  sc-watch")
-    if key_mode:
-        print(f"  trigger: {binds['full'].label()} pressed, then read after "
-              f"{args.ping_delay:.1f}s")
-        if "focus" in binds:
-            print(f"  focused: {binds['focus'].label()} reads the centre "
-                  f"{focus_w}x{focus_h} only")
-        if "chat" in binds:
-            print(f"  chat:    {binds['chat'].label()} lists who is talking")
-    else:
-        print(f"  trigger: continuous, {args.hz:.0f} Hz")
-    print(f"  {args.burst}-frame bursts, {args.cooldown:.0f}s repeat cooldown")
-    print(f"  logging to {log.resolve()}")
-    if paths.FROZEN:
-        # Only when installed. From source the answer is "here", and a
-        # line saying so in every dev run is noise.
-        print(f"  your data {paths.DATA_ROOT}")
-    # Which recogniser produced this session's readings. Two are possible and
-    # they do not agree, so a log without this is hard to compare against the
-    # measurements in the README.
-    print(f"  reading with {sd.ocr_backend_info()}")
-    if args.debug:
-        print("  DEBUG: saving every frame to debug_bursts/ (~4.7 MB each)")
-    print("  Ctrl+C to stop")
-    print("=" * 62)
 
-    # Retention. housekeeping.py existed for three sessions before anything
-    # called it, and debug_bursts/ reached 1.1 GB across 234 frames in the
-    # meantime - a cleanup nothing runs is not a cleanup. Startup is the right
-    # moment: the disk is about to be written to hard, and last session's
-    # frames have had their chance to be looked at.
-    _hk_last = 0.0
+def _open_database(args, profile_client):
+    if args.no_db:
+        return None
+    try:
+        import reputation
+        import watchlist
+        verify = None
+        if profile_client is not None and profile_client.enriches:
+            verify = profile_client.exists
+        return reputation.Database(verify=verify, watchlist=watchlist.shared())
+    except Exception as exc:
+        print(f"! database disabled: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return None
 
-    def _housekeep(force=False):
-        nonlocal _hk_last
-        every = float(_cfg.get("housekeeping_every_min", 30.0)) * 60.0
-        if not _cfg.get("housekeeping_enabled", True):
+
+class SightingsLog:
+    """sightings.csv: one row per settled contact, appended across sessions."""
+
+    HEADER = ["timestamp", "name", "range_km", "votes", "total", "confidence"]
+
+    def __init__(self, path):
+        self.path = Path(path)
+        new = not self.path.exists()
+        self._f = self.path.open("a", newline="", encoding="utf-8")
+        self._w = csv.writer(self._f)
+        if new:
+            self._w.writerow(self.HEADER)
+
+    def write(self, r):
+        self._w.writerow([datetime.now().isoformat(timespec="seconds"),
+                          r.name, f"{r.range_km:.1f}", r.votes, r.total,
+                          f"{r.confidence:.2f}"])
+
+    def flush(self):
+        self._f.flush()
+
+    def close(self):
+        self._f.close()
+
+
+# ---------------------------------------------------------------------------
+# The session
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Burst:
+    """One burst's working state, from the first frame to the final tally."""
+    label: str
+    mode: str
+    now: float
+    accumulated: list = field(default_factory=list)
+    # (name, frame, name_box, range_box) behind each reading. A low
+    # confidence read is only checkable if the picture it came from still
+    # exists, and --debug is not always on, so the audit cannot rely on
+    # debug_bursts/ being there.
+    evidence: list = field(default_factory=list)
+    per_frame: list = field(default_factory=list)
+    discarded: dict = field(default_factory=dict)
+    # Re-resolving after every frame would re-report the same repeats once
+    # per frame in verbose mode. Mention each contact at most once a burst.
+    mentioned: set = field(default_factory=set)
+    unreadable: int = 0
+
+    def crops_for(self, name: str) -> dict | None:
+        mine = [e for e in self.evidence if e[0] == name]
+        return _crops_from(mine[0][1], mine[0][2], mine[0][3]) if mine else None
+
+
+class Session:
+    """Everything one run of the watcher shares, and the things it does.
+
+    These were locals of a 1,072-line main(), and the functions that needed
+    them - read_burst, read_chat, the audit rule, the ignore check,
+    housekeeping - were closures nested inside it, reaching them through
+    `nonlocal`. That capture is what made main() impossible to split and why
+    it only ever grew. Held here, each step is an ordinary method that can be
+    read, and called, on its own.
+    """
+
+    def __init__(self, args, cfg, src, ocr, template, alerts, con, db, dbg,
+                 enricher, log, binds, chat_region, focus):
+        self.args, self.cfg = args, cfg
+        self.src, self.ocr, self.template = src, ocr, template
+        self.alerts, self.con, self.db, self.dbg = alerts, con, db, dbg
+        self.enricher, self.log = enricher, log
+        self.binds = binds
+        self.chat_region = chat_region
+        self.focus_w, self.focus_h = focus
+        self.key_mode = args.trigger == "key" and not args.replay
+        self.tracker = Tracker(args.radius, args.expire)
+        self.announcer = Announcer(args.cooldown)
+        self.pending: list[str] = []
+        self.frames = self.triggers = self.announced = 0
+        self.started = time.time()
+        self._hk_last = 0.0
+
+    # -- startup -----------------------------------------------------------
+
+    def banner(self):
+        args, binds = self.args, self.binds
+        print("=" * 62)
+        print("  sc-watch")
+        if self.key_mode:
+            print(f"  trigger: {binds['full'].label()} pressed, then read after "
+                  f"{args.ping_delay:.1f}s")
+            if "focus" in binds:
+                print(f"  focused: {binds['focus'].label()} reads the centre "
+                      f"{args.focus_size} only")
+            if "chat" in binds:
+                print(f"  chat:    {binds['chat'].label()} lists who is talking")
+        else:
+            print(f"  trigger: continuous, {args.hz:.0f} Hz")
+        print(f"  {args.burst}-frame bursts, {args.cooldown:.0f}s repeat cooldown")
+        print(f"  logging to {self.log.path.resolve()}")
+        if paths.FROZEN:
+            # Only when installed. From source the answer is "here", and a
+            # line saying so in every dev run is noise.
+            print(f"  your data {paths.DATA_ROOT}")
+            old = paths.unused_old_data()
+            if old:
+                print(f"  ! an older sc-watch's data is at {old}")
+                print("    and this copy is NOT using it. To bring it over: close both")
+                print(f"    windows, copy what is in that folder into {paths.DATA_ROOT},")
+                print("    and start again (README: Upgrading).")
+        # Which recogniser produced this session's readings. Two are possible
+        # and they do not agree, so a log without this is hard to compare
+        # against the measurements in the README.
+        print(f"  reading with {sd.ocr_backend_info()}")
+        if args.debug:
+            print("  DEBUG: saving every frame to debug_bursts/ (~4.7 MB each)")
+
+        # The LOG is on by default and the FRAMES are not, because they cost
+        # wildly different things: a session log is a few KB and rotates, a
+        # frame is 4.7 MB and debug_bursts/ was measured at 810 MB on a real
+        # machine. On by default matters - the log has to already exist when
+        # somebody hits a problem, or the first thing we ask is "turn it on
+        # and do it again".
+        self.dbg.header(args, extra={
+            "ocr backend": sd.ocr_backend_info(),
+            "monitor": args.monitor,
+            "capture hz": args.hz,
+            "trigger": "key" if self.key_mode else "auto",
+            "bindings": _waiting_label(binds) if self.key_mode else "n/a",
+        })
+        if self.dbg.path:
+            print(f"  log: {self.dbg.path.name} in debug_bursts/")
+        print("  Ctrl+C to stop")
+        print("=" * 62)
+
+    def housekeep(self, force=False):
+        """Retention. housekeeping.py existed for three sessions before
+        anything called it, and debug_bursts/ reached 1.1 GB across 234 frames
+        in the meantime - a cleanup nothing runs is not a cleanup.
+
+        Rate-limited here, so calling it every idle tick costs one clock read.
+        """
+        every = float(self.cfg.get("housekeeping_every_min", 30.0)) * 60.0
+        if not self.cfg.get("housekeeping_enabled", True):
             return
-        if not force and (every <= 0 or time.time() - _hk_last < every):
+        if not force and (every <= 0 or time.time() - self._hk_last < every):
             return
-        _hk_last = time.time()
+        self._hk_last = time.time()
         line = housekeeping.run_now(apply=True)
-        if args.verbose or "freed" in line:
+        if self.args.verbose or "freed" in line:
             print(f"  {line}")
 
-    if _cfg.get("housekeeping_on_start", True):
-        _housekeep(force=True)
+    # -- the database-facing rules ------------------------------------------
 
-    frames = triggers = announced = 0
-    started = time.time()
-    stats = {"frames": 0}
+    def ignored(self, name):
+        """Is this a label you have marked as not-a-person?
 
-    def _maybe_audit(db, r, evidence, seen=0):
+        Checked in the WATCHER rather than inside classify_name(), because the
+        rule lives in the database and the detector is a pure module with no
+        database handle. It also means the list can be edited from the UI and
+        take effect on the next read, without restarting anything - which is
+        the point: you see a crate reported as a contact, you press ignore, it
+        stops. Waiting for a restart would make it feel broken.
+        """
+        if self.db is None:
+            return None
+        try:
+            return self.db.is_ignored(name)
+        except Exception:
+            return None
+
+    def maybe_audit(self, r, burst: Burst, seen=0):
         """Save the picture behind a read the tool is not sure of.
 
         Triggered on VOTES, never on `confidence`: a 1/1 read reports 1.00 and
@@ -845,51 +1368,26 @@ def main() -> int:
         # quantity, in both directions.
         if seen >= 2:
             return
-        mine = [e for e in evidence if e[0] == r.name]
+        mine = [e for e in burst.evidence if e[0] == r.name]
         if not mine:
             return
         _, frame, nb, rb = mine[0]
-        out = Path("audit")
-        out.mkdir(exist_ok=True)
-        stem = f"{datetime.now():%Y%m%d_%H%M%S}_{r.name[:16]}"
-        crop_paths = {}
-        try:
-            for key, box in (("crop_name", nb), ("crop_range", rb)):
-                if box is None:
-                    continue
-                crop = box.crop(frame, 10)
-                if crop.size:
-                    rel = f"audit/{stem}_{key}.png"
-                    cv2.imwrite(rel, crop)
-                    crop_paths[key] = rel
-            if _cfg.get("audit_keep_frame", True):
-                rel = f"audit/{stem}_frame.jpg"
-                cv2.imwrite(rel, frame, [cv2.IMWRITE_JPEG_QUALITY,
-                                         int(_cfg.get("audit_frame_quality", 90))])
-                crop_paths["frame_path"] = rel
-        except Exception:
-            pass
-        db.add_audit(r.name, r.range_km, r.votes, r.total,
-                     [(n, c) for n, c in (r.variants or [])], **crop_paths)
+        # Logged, because an audit that is raised and then cleared by the next
+        # ping's corroboration otherwise leaves no trace at all - which makes
+        # "why was I not asked to audit that?" unanswerable from a session log.
+        self.dbg.event("audit", handle=r.name, reason="weak_read",
+                       votes=r.votes, total=r.total, seen=seen)
+        crop_paths = _save_audit_images(
+            r.name, _crops_from(frame, nb, rb),
+            frame if self.cfg.get("audit_keep_frame", True) else None,
+            int(self.cfg.get("audit_frame_quality", 90)))
+        self.db.add_audit(r.name, r.range_km, r.votes, r.total,
+                          [(n, c) for n, c in (r.variants or [])],
+                          reason="weak_read", **crop_paths)
 
-    def _ignored(name):
-        """Is this a label you have marked as not-a-person?
+    # -- chat --------------------------------------------------------------
 
-        Checked in the WATCHER rather than inside classify_name(), because the
-        rule lives in the database and the detector is a pure module with no
-        database handle. It also means the list can be edited from the UI and
-        take effect on the next read, without restarting anything - which is
-        the point: you see a crate reported as a contact, you press ignore, it
-        stops. Waiting for a restart would make it feel broken.
-        """
-        if db is None:
-            return None
-        try:
-            return db.is_ignored(name)
-        except Exception:
-            return None
-
-    def read_chat_now(frame):
+    def read_chat(self, frame):
         """List everyone the chat window is currently showing.
 
         A different kind of evidence from a HUD read, and a better one. Chat is
@@ -904,27 +1402,34 @@ def main() -> int:
         and inventing a distance would put a number in the database that no
         measurement stands behind.
         """
-        nonlocal announced
+        con, db = self.con, self.db
         if frame is None:
             con.say("  chat: no frame captured")
             return
         try:
-            lines = chat.read(frame, ocr, region=chat_region)
+            lines = chat.read(frame, self.ocr, region=self.chat_region)
         except Exception as exc:
             con.say(f"  chat: read failed ({type(exc).__name__}: {exc})")
             return
         if not lines:
             con.say("  chat: nothing readable in the chat region "
-                     "(check 'chat region' in Settings)")
-            if alerts is not None:
-                alerts.event("nothing")
+                    "(check 'chat region' in Settings)")
+            if self.alerts is not None:
+                self.alerts.event("nothing")
             return
 
-        lines = [c for c in lines if not _ignored(c.key)]
+        lines = [c for c in lines if not self.ignored(c.key)]
         if not lines:
             con.say("  chat: everything readable is on the ignore list")
             return
         con.say(f"  chat: {len(lines)} handle(s)")
+        self.dbg.event("chat", handles=[c.handle for c in lines],
+                       region=str(self.chat_region or "auto"))
+        # Known contacts in chat are SPOKEN, as they are from a read. They
+        # used to get the routine tone and nothing else - a handle on your
+        # own report list typing in chat made the same sound as a stranger.
+        # No range: chat has none, and the phrase leaves the distance out.
+        spoken = []
         for c in lines:
             note = ""
             if db is not None:
@@ -933,18 +1438,25 @@ def main() -> int:
                     a = db.assess(c.key)
                     if a.alert:
                         note = "   " + "; ".join(a.lines()[:2])
+                        spoken.append({"handle": c.key, "range_km": None,
+                                       "flags": [], "reason": a.lines()[0],
+                                       "said": a.spoken_all()})
                 except Exception:
                     pass
             con.say(f"    {c.handle:<24}{note}")
-            announced += 1
+            self.announced += 1
             # Always looked up: a chat handle is stronger evidence than the
-            # vote threshold exists to protect against.
-            if not args.no_rsi:
-                enricher.submit(c.key)
-        if alerts is not None:
-            alerts.event("contact")
+            # vote threshold exists to protect against. (A no-op when lookups
+            # are off - the enricher has no client then.)
+            self.enricher.submit(c.key)
+        if self.alerts is not None:
+            self.alerts.event("contact")
+            if spoken:
+                self.alerts.burst_result(spoken)
 
-    def read_burst(first, now, label, on_wait=None, mode="full"):
+    # -- bursts ------------------------------------------------------------
+
+    def read_burst(self, first, now, label, on_wait=None, mode="full"):
         """Read a burst progressively: announce after each frame, don't wait
         for the whole thing.
 
@@ -959,7 +1471,7 @@ def main() -> int:
         nothing extra: contacts already announced stay quiet, and only genuinely
         new or corrected ones speak up.
         """
-        nonlocal announced
+        args = self.args
         # Two promotions of a plain read, in priority order. Asking for both
         # is contradictory - one says "centre only", the other says "wide AND
         # centre" - and dual is the strictly more informative of the two, so
@@ -968,27 +1480,62 @@ def main() -> int:
             mode = "dual"
         elif args.focus_always and mode == "full":
             mode = "focus"
-        accumulated, unreadable, per_frame = [], 0, []
-        evidence: list = []
-        discarded: dict[str, int] = {}
-        # Re-resolving after every frame would re-report the same repeats once
-        # per frame in verbose mode. Mention each contact at most once a burst.
-        mentioned: set[str] = set()
+        b = Burst(label=label, mode=mode, now=now)
 
-        # CAPTURE THE WHOLE BURST FIRST, then read it.
-        #
-        # Interleaving grab and OCR - which is what progressive announcement
-        # originally did - means each capture waits for the previous frame's
-        # ~1.5s of OCR. Frames configured 0.5s apart actually landed ~2s apart,
-        # spanning four seconds of game time: contacts drift, ping labels fade,
-        # and later frames read something different or nothing at all. That
-        # showed up as contacts stuck at 1 vote.
-        #
-        # Capturing up front costs nothing (a grab is ~2ms) and puts the frames
-        # where they were configured to be.
-        frames_buf = [f for f in (first,) if f is not None]
+        captured = self._capture(first, on_wait)
+        self.con.status(f"  {label} - captured {len(captured)}, reading...")
+
+        for idx, frame in enumerate(captured):
+            self.con.status(f"  {label} - reading frame {idx + 1}/{len(captured)}...")
+            frame_file = self._debug_frame(frame, idx) if args.debug else ""
+            found = self._detect(frame, mode)
+            n_named = self._tally(b, frame, found)
+
+            if args.debug:
+                self.con.say(f"  [debug] frame {idx}: detect returned "
+                             f"{[(c.name, c.range_km) for c in found]}")
+            # Logged unconditionally, unlike the block above. This is the one
+            # thing every support question needs - WHAT THE WATCHER READ - and
+            # it is already computed, so it costs a line rather than a second
+            # pass over the frame. `file` ties the reading to the screenshot
+            # it came from, which is what makes a bundle's images worth
+            # having: a frame on its own is a puzzle, a frame plus the names
+            # it produced is a diagnosis.
+            self.dbg.event("read", file=frame_file, idx=idx, mode=mode,
+                           named=n_named, unreadable=b.unreadable,
+                           discarded=b.discarded or None,
+                           got=[(c.name, c.range_km) for c in found])
+            self._announce_so_far(b)
+
+        # Settled once at the end, with the burst's final vote counts rather
+        # than the partial ones each announcement was made on.
+        final = consensus.resolve(b.accumulated, min_votes=args.min_votes)
+        self.dbg.event("burst", label=label, mode=mode, frames=len(captured),
+                       per_frame=b.per_frame,
+                       result=[(r.name, r.votes, r.total, r.range_km)
+                               for r in final])
+        self._settle(final, b)
+        self.log.flush()
+        self._burst_audio(final)
+        self._burst_report(final, b)
+
+    def _capture(self, first, on_wait) -> list:
+        """CAPTURE THE WHOLE BURST FIRST, then read it.
+
+        Interleaving grab and OCR - which is what progressive announcement
+        originally did - means each capture waits for the previous frame's
+        ~1.5s of OCR. Frames configured 0.5s apart actually landed ~2s apart,
+        spanning four seconds of game time: contacts drift, ping labels fade,
+        and later frames read something different or nothing at all. That
+        showed up as contacts stuck at 1 vote.
+
+        Capturing up front costs nothing (a grab is ~2ms) and puts the frames
+        where they were configured to be.
+        """
+        args = self.args
+        captured = [f for f in (first,) if f is not None]
         tries = 0
-        while len(frames_buf) < args.burst and tries < args.burst * 8:
+        while len(captured) < args.burst and tries < args.burst * 8:
             tries += 1
             if not args.replay:
                 # Watch for further presses while waiting between captures.
@@ -999,141 +1546,168 @@ def main() -> int:
                     if on_wait:
                         on_wait()
                     time.sleep(0.02)
-            extra = grab()
+            extra = self.src.grab()
             if extra is not None:
-                frames_buf.append(extra)
-            elif exhausted:
+                captured.append(extra)
+            elif self.src.exhausted:
                 break
-        con.status(f"  {label} - captured {len(frames_buf)}, reading...")
+        return captured
 
-        for idx, frame in enumerate(frames_buf):
-            con.status(f"  {label} - reading frame {idx + 1}/{len(frames_buf)}...")
+    def _debug_frame(self, frame, idx) -> str:
+        """--debug: save the frame and report what each stage found in it.
+        Returns the saved file's name, which ties log lines to the picture."""
+        con, dbg, template = self.con, self.dbg, self.template
+        # `dbg_dir`, not `dbg`: `dbg` is the session log.
+        dbg_dir = paths.data_dir("debug_bursts")
+        path = dbg_dir / f"burst_{datetime.now():%H%M%S}_{idx}.png"
+        imgio.imwrite(path, frame)
+        frame_file = path.name
+        boxes = sd.find_boxes(sd.hud_mask(frame))
+        pairs = sd.pair_boxes(boxes, frame.shape[0])
+        gated = cheap_pass(frame, template)
+        con.say(f"  [debug] frame {idx}: boxes={len(boxes)} "
+                f"pairs={len(pairs)} passed_gate={len(gated)} "
+                f"-> {path.name}")
+        # Same numbers to the log. The console scrolls away; this is the copy
+        # somebody can send.
+        dbg.event("frame", file=frame_file, idx=idx, boxes=len(boxes),
+                  pairs=len(pairs), passed_gate=len(gated),
+                  size=f"{frame.shape[1]}x{frame.shape[0]}")
+        # Capped. An 11-frame replay produced 154 near-miss and 230
+        # gate-reject lines; a real session would bury the events somebody is
+        # actually looking for. The first few show the pattern, and the counts
+        # above say how many there were.
+        diags = list(sd.pair_diagnostics(boxes, frame.shape[0]))
+        for why in diags:
+            con.say(f"  [debug]   near-miss {why}")
+        for why in diags[:DEBUG_DETAIL_MAX]:
+            dbg.event("near_miss", file=frame_file, why=why)
+        if len(diags) > DEBUG_DETAIL_MAX:
+            dbg.event("near_miss", file=frame_file,
+                      more=len(diags) - DEBUG_DETAIL_MAX)
+        rejected = 0
+        for p in pairs:
+            s = km_gate.score(p.range_box.crop(frame, sd.CROP_PAD), template) \
+                if template is not None else 1.0
+            if s < sd.KM_GATE_THRESHOLD:
+                con.say(f"  [debug]   gate rejected {p.name_box.w}x"
+                        f"{p.name_box.h}@{p.name_box.x},{p.name_box.y} "
+                        f"range {p.range_box.w}px score={s:.3f} "
+                        f"(need {sd.KM_GATE_THRESHOLD})")
+                rejected += 1
+                if rejected <= DEBUG_DETAIL_MAX:
+                    dbg.event("gate_reject", file=frame_file,
+                              box=f"{p.name_box.w}x{p.name_box.h}"
+                                  f"@{p.name_box.x},{p.name_box.y}",
+                              score=round(s, 3),
+                              need=sd.KM_GATE_THRESHOLD)
+        if rejected > DEBUG_DETAIL_MAX:
+            dbg.event("gate_reject", file=frame_file,
+                      more=rejected - DEBUG_DETAIL_MAX)
+        return frame_file
 
-            if args.debug:
-                dbg = paths.data_dir("debug_bursts")
-                path = dbg / f"burst_{datetime.now():%H%M%S}_{idx}.png"
-                cv2.imwrite(str(path), frame)
-                boxes = sd.find_boxes(sd.hud_mask(frame))
-                pairs = sd.pair_boxes(boxes, frame.shape[0])
-                gated = cheap_pass(frame, template)
-                con.say(f"  [debug] frame {idx}: boxes={len(boxes)} "
-                        f"pairs={len(pairs)} passed_gate={len(gated)} "
-                        f"-> {path.name}")
-                for why in sd.pair_diagnostics(boxes, frame.shape[0]):
-                    con.say(f"  [debug]   near-miss {why}")
-                for p in pairs:
-                    s = km_gate.score(p.range_box.crop(frame, sd.CROP_PAD), template) \
-                        if template is not None else 1.0
-                    if s < sd.KM_GATE_THRESHOLD:
-                        con.say(f"  [debug]   gate rejected {p.name_box.w}x"
-                                f"{p.name_box.h}@{p.name_box.x},{p.name_box.y} "
-                                f"range {p.range_box.w}px score={s:.3f} "
-                                f"(need {sd.KM_GATE_THRESHOLD})")
+    def _detect(self, frame, mode):
+        """Run the detector the mode asks for.
 
-            # A focused read crops to the centre of the screen and lifts the
-            # OCR cap. Boxes come back in full-frame coordinates either way, so
-            # dedup and position tracking are unaffected.
-            def _centre():
-                return sd.detect_focused(frame, ocr, focus_w, focus_h,
-                                         direct=not args.focus_mask)
+        A focused read crops to the centre of the screen and lifts the OCR
+        cap. Boxes come back in full-frame coordinates either way, so dedup
+        and position tracking are unaffected.
+        """
+        def centre():
+            return sd.detect_focused(frame, self.ocr, self.focus_w, self.focus_h,
+                                     direct=not self.args.focus_mask)
 
-            if mode == "dual":
-                # Both passes over the SAME frame, then merged. Costs roughly
-                # twice the OCR of either alone, which is why it is a separate
-                # binding rather than the default: you spend it when you want
-                # the periphery and a good read of your target at once.
-                found = sd.merge_contacts(sd.detect(frame, ocr), _centre(),
-                                          frame.shape[0])
-            elif mode == "focus":
-                found = _centre()
+        if mode == "dual":
+            # Both passes over the SAME frame, then merged. Costs roughly
+            # twice the OCR of either alone, which is why it is a separate
+            # binding rather than the default: you spend it when you want the
+            # periphery and a good read of your target at once.
+            return sd.merge_contacts(sd.detect(frame, self.ocr), centre(),
+                                     frame.shape[0])
+        if mode == "focus":
+            return centre()
+        return sd.detect(frame, self.ocr)
+
+    @staticmethod
+    def _tally(b: Burst, frame, found) -> int:
+        """Sort one frame's contacts into the burst. Returns named reads."""
+        n_named = 0
+        for c in found:
+            if c.range_km is None:
+                continue
+            # Only real handles go forward. Abandoned-ship serials
+            # (XX-0000-XX) and crewed NPC vessels ("Firstname Lastname") are
+            # contacts, but they aren't people - no point voting on them,
+            # logging them, or looking them up.
+            if c.kind == "player":
+                b.accumulated.append(consensus.Reading(
+                    c.name, c.range_km, c.name_box.cx, c.name_box.y))
+                b.evidence.append((c.name, frame, c.name_box, c.range_box))
+                n_named += 1
+            elif c.kind == "unreadable":
+                b.unreadable += 1
             else:
-                found = sd.detect(frame, ocr)
-            n_named = 0
-            for c in found:
-                if c.range_km is None:
-                    continue
-                # Only real handles go forward. Abandoned-ship serials
-                # (XX-0000-XX) and crewed NPC vessels ("Firstname Lastname")
-                # are contacts, but they aren't people - no point voting on
-                # them, logging them, or looking them up.
-                if c.kind == "player":
-                    accumulated.append(consensus.Reading(
-                        c.name, c.range_km, c.name_box.cx, c.name_box.y))
-                    # Keep the frame and boxes behind each reading. A low
-                    # confidence read is only checkable if the picture it came
-                    # from still exists, and --debug is not always on, so the
-                    # audit cannot rely on debug_bursts/ being there.
-                    evidence.append((c.name, frame, c.name_box, c.range_box))
-                    n_named += 1
-                elif c.kind == "unreadable":
-                    unreadable += 1
-                else:
-                    discarded[c.kind] = discarded.get(c.kind, 0) + 1
-            per_frame.append(n_named)
+                b.discarded[c.kind] = b.discarded.get(c.kind, 0) + 1
+        b.per_frame.append(n_named)
+        return n_named
 
-            if args.debug:
-                con.say(f"  [debug] frame {idx}: detect returned "
-                        f"{[(c.name, c.range_km) for c in found]}")
+    def _announce_so_far(self, b: Burst):
+        """Announce what the burst knows so far. Anything already said stays
+        quiet."""
+        con, db = self.con, self.db
+        for r in consensus.resolve(b.accumulated, min_votes=self.args.min_votes):
+            if self.ignored(r.name):
+                continue
+            ok, corrected_from = self.announcer.should(r.name, b.now)
+            if ok:
+                self.announced += 1
+                note = f"  (was {corrected_from})" if corrected_from else ""
+                con.say(f"[{datetime.now():%H:%M:%S}]  {r.name:<22} "
+                        f"{r.range_km:>5.1f} km   {r.votes}/{r.total} "
+                        f"votes{note}")
+                # Anything already known fires immediately - this is the part
+                # that has to be fast, not the RSI enrichment.
+                if db is not None:
+                    try:
+                        a = db.assess(r.name)
+                        if a.alert:
+                            con.say(f"          ***  KNOWN: {r.name} "
+                                    f"(score {a.score:+.1f})")
+                        for detail in a.lines() if a.alert else []:
+                            con.say(f"          ***    {detail}")
+                    except Exception:
+                        pass
+            elif self.args.verbose and r.name not in b.mentioned:
+                con.say(f"[{datetime.now():%H:%M:%S}]  (repeat) {r.name} "
+                        f"{r.range_km:.1f} km")
+            b.mentioned.add(r.name)
 
-            # Announce what we know so far. Anything already said stays quiet.
-            for r in consensus.resolve(accumulated, min_votes=args.min_votes):
-                if _ignored(r.name):
-                    continue
-                ok, corrected_from = announcer.should(r.name, now)
-                if ok:
-                    announced += 1
-                    note = f"  (was {corrected_from})" if corrected_from else ""
-                    con.say(f"[{datetime.now():%H:%M:%S}]  {r.name:<22} "
-                            f"{r.range_km:>5.1f} km   {r.votes}/{r.total} "
-                            f"votes{note}")
-                    # Anything already known fires immediately - this is the
-                    # part that has to be fast, not the RSI enrichment.
-                    if db is not None:
-                        try:
-                            a = db.assess(r.name)
-                            if a.alert:
-                                con.say(f"          ***  KNOWN: {r.name} "
-                                        f"(score {a.score:+.1f})")
-                            for detail in a.lines() if a.alert else []:
-                                con.say(f"          ***    {detail}")
-                        except Exception:
-                            pass
-                elif args.verbose and r.name not in mentioned:
-                    con.say(f"[{datetime.now():%H:%M:%S}]  (repeat) {r.name} "
-                            f"{r.range_km:.1f} km")
-                mentioned.add(r.name)
-
-        # Log once at the end, with the burst's final vote counts rather than
-        # the partial ones each announcement was made on.
-        final = consensus.resolve(accumulated, min_votes=args.min_votes)
+    def _settle(self, final, b: Burst):
+        """Record the burst's final readings: log, database, audit, lookup."""
+        args, db = self.args, self.db
         for r in final:
-            rule = _ignored(r.name)
+            rule = self.ignored(r.name)
             if rule:
                 if args.verbose:
-                    con.say(f"  ignored {r.name} (matches '{rule}')")
+                    self.con.say(f"  ignored {r.name} (matches '{rule}')")
                 continue
-            writer.writerow([datetime.now().isoformat(timespec="seconds"),
-                             r.name, f"{r.range_km:.1f}", r.votes, r.total,
-                             f"{r.confidence:.2f}"])
-            # Look up only settled readings with corroboration. A truncation
-            # can resolve to a real DIFFERENT person - 'HORNE' is somebody's
+            self.log.write(r)
+            # Two different bars, because the two actions carry different
+            # risk. A sighting records "this string appeared on screen" and
+            # accuses nobody; the vote count is stored alongside, so weak reads
+            # stay identifiable. An RSI lookup attaches a real person's
+            # identity and org history to that string, and a truncation can
+            # resolve to a genuine different player - 'HORNE' is somebody's
             # actual handle, and a single-frame read of a contact that was
             # really HORNET65 pulled up a stranger's org history. For a tool
-            # that flags people, that is the failure that matters most, so
-            # identity attribution needs more votes than mere reporting.
-            # Two different bars, because the two actions carry different risk.
-            # A sighting records "this string appeared on screen" and accuses
-            # nobody; the vote count is stored alongside, so weak reads stay
-            # identifiable. An RSI lookup attaches a real person's identity and
-            # org history to that string, and a truncation can resolve to a
-            # genuine different player - so that needs corroboration.
+            # that flags people, that is the failure that matters most.
             seen = 0
             if db is not None:
                 try:
                     seen = db.record_sighting(r.name, r.range_km,
                                               r.votes, r.total)
                     if args.audit:
-                        _maybe_audit(db, r, evidence, seen)
+                        self.maybe_audit(r, b, seen)
                 except Exception:
                     pass
             # Corroboration across PINGS counts as well as corroboration across
@@ -1144,213 +1718,349 @@ def main() -> int:
             # identical, so OCR repeats the same mistake and the vote confirms
             # it, while a second ping is an independent look.
             if max(r.votes, seen) >= args.rsi_min_votes:
-                enricher.submit(r.name)
-        logf.flush()
+                # Hand the crops over WITH the handle. If the lookup comes
+                # back "no such account" the enricher raises an audit, and by
+                # then this frame is long gone - so the pixels travel with the
+                # request rather than being fetched when it is too late.
+                self.enricher.submit(r.name, b.crops_for(r.name), r.range_km,
+                                     r.votes, r.total, r.variants)
 
-        # Audio goes out once the burst has settled, with whatever the local
-        # database already knows. RSI flags arrive later on their own thread
-        # and raise their own alert then - the same progressive pattern as the
-        # console, so a warning is never held back waiting on the network.
-        if alerts is not None:
-            payload = []
-            for r in final:
-                reason = ""
-                if db is not None:
-                    try:
-                        a = db.assess(r.name)
-                        if a.alert:
-                            reason = (a.lines() or [""])[0]
-                    except Exception:
-                        pass
-                payload.append({"handle": r.name, "range_km": r.range_km,
-                                "flags": [], "reason": reason})
-            alerts.burst_result(payload)
+    def _burst_audio(self, final):
+        """Audio goes out once the burst has settled, with whatever the local
+        database already knows. RSI flags arrive later on their own thread and
+        raise their own alert then - the same progressive pattern as the
+        console, so a warning is never held back waiting on the network.
+        """
+        if self.alerts is None:
+            return
+        payload = []
+        for r in final:
+            reason, said = "", None
+            if self.db is not None:
+                try:
+                    a = self.db.assess(r.name)
+                    if a.alert:
+                        reason = (a.lines() or [""])[0]
+                        # What speech says: one reason, as data, worded by
+                        # the phrases in audio.json. `reason` stays the
+                        # console line for anything that reads it.
+                        said = a.spoken_all()
+                except Exception:
+                    pass
+            payload.append({"handle": r.name, "range_km": r.range_km,
+                            "flags": [], "reason": reason, "said": said})
+        self.alerts.burst_result(payload)
 
+    def _burst_report(self, final, b: Burst):
         # Progressive announcement necessarily reports the vote count at first
         # sighting, which is always 1/1 - later frames haven't been read yet.
         # Without a closing tally it looks like voting never happens at all.
-        if final and mentioned:
+        if final and b.mentioned:
             tally = ", ".join(f"{r.name} {r.votes}/{r.total}"
-                              for r in final if r.name in mentioned)
+                              for r in final if r.name in b.mentioned)
             if tally:
-                con.say(f"          final: {tally}")
+                self.con.say(f"          final: {tally}")
 
-        if args.verbose:
+        if self.args.verbose:
             # Per-frame yield answers whether later frames earn their latency,
             # and whether wave timing is right - a first frame contributing
             # nothing means the delay is too short.
-            junk = ", ".join(f"{n} {k}" for k, n in sorted(discarded.items()))
-            con.say(f"  [burst] named reads per frame: {per_frame}"
-                    f"{f', {unreadable} unreadable' if unreadable else ''}"
-                    f"{f', discarded {junk}' if junk else ''}"
-                    f" -> {len(final)} contact(s)")
+            junk = ", ".join(f"{n} {k}" for k, n in sorted(b.discarded.items()))
+            self.con.say(f"  [burst] named reads per frame: {b.per_frame}"
+                         f"{f', {b.unreadable} unreadable' if b.unreadable else ''}"
+                         f"{f', discarded {junk}' if junk else ''}"
+                         f" -> {len(final)} contact(s)")
 
-    deadline = started + args.seconds if args.seconds else None
+    # -- the loops ---------------------------------------------------------
 
-    try:
-        if key_mode:
-            # Idle until the ping key is pressed. No continuous capture at all,
-            # so no backlog can build: we grab frames only when asked to.
-            # Queue entries carry WHICH binding queued them, so a focused
-            # press still reads focused after waiting behind a full-frame one.
-            for _b in binds.values():
-                _b.drain()
-            pending: list[str] = []
+    def run(self) -> int:
+        self.started = time.time()
+        deadline = self.started + self.args.seconds if self.args.seconds else None
+        rc = 0
+        try:
+            rc = (self._run_keys if self.key_mode else self._run_auto)(deadline)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self._shutdown()
+        self._summary()
+        return rc
 
-            def poll_keys():
-                """Count presses instead of discarding them.
+    def poll_keys(self):
+        """Count presses instead of discarding them.
 
-                Rapid pings can reveal different contacts each time - the
-                scan sweeps, ships move - so a press during a burst is a
-                request for another read, not noise. Bounded, because an
-                unbounded queue would have the tool reading minutes-old
-                screens while you fly on.
-                """
-                for _mode, _b in binds.items():
-                    if _b.pressed() and len(pending) < args.queue_max:
-                        pending.append(_mode)
+        Rapid pings can reveal different contacts each time - the scan sweeps,
+        ships move - so a press during a burst is a request for another read,
+        not noise. Bounded, because an unbounded queue would have the tool
+        reading minutes-old screens while you fly on.
+        """
+        for mode, b in self.binds.items():
+            if b.pressed() and len(self.pending) < self.args.queue_max:
+                self.pending.append(mode)
 
-            while deadline is None or time.time() < deadline:
-                poll_keys()
-                if not pending:
-                    # Show a PARTIALLY held binding. A combination that never
-                    # completes does nothing and says nothing, which is
-                    # indistinguishable from the tool being broken - so if some
-                    # of a binding is down, name the parts that are not.
-                    part = ""
-                    for _m, _b in binds.items():
-                        _h, _t, _miss = _b.partial()
-                        if _h and _h < _t:
-                            part = (f"  |  {_m}: {_h}/{_t} held, waiting on "
-                                    f"{', '.join(_miss)}")
-                            break
-                    # Counts first, bindings last: the line is clamped to the
-                    # console width, so whatever sits at the end is what gets
-                    # trimmed on a narrow window. The binding list is reference
-                    # material; the counters are what you glance at.
-                    con.status(f"  idle | {triggers} pings | "
-                               f"{announced} announced{part} | "
-                               f"waiting for {_waiting_label(binds)}")
-                    # Idle is the only safe moment to delete files: a sweep
-                    # during a burst would compete with the capture for disk.
-                    # Rate-limited inside _housekeep, so calling it every tick
-                    # costs one clock read.
-                    _housekeep()
-                    if _restart_requested():
-                        con.status("")
-                        print("\n  restart requested from the UI - reloading "
-                              "settings and starting over")
-                        release()       # hand the capture device back first
-                        if alerts is not None:
-                            alerts.close()
-                        logf.close()
-                        os.execv(sys.executable, [sys.executable] + sys.argv)
+    def _run_keys(self, deadline) -> int:
+        """Idle until a binding is pressed. No continuous capture at all, so
+        no backlog can build: frames are grabbed only when asked for. Queue
+        entries carry WHICH binding queued them, so a focused press still
+        reads focused after waiting behind a full-frame one."""
+        args, con = self.args, self.con
+        for b in self.binds.values():
+            b.drain()
+        self.pending = []
+
+        while deadline is None or time.time() < deadline:
+            self.poll_keys()
+            if not self.pending:
+                con.status(self._idle_status())
+                # Idle is the only safe moment to delete files: a sweep during
+                # a burst would compete with the capture for disk.
+                self.housekeep()
+                if _restart_requested():
+                    return self._restart()
+                time.sleep(0.03)
+                continue
+
+            mode = self.pending.pop(0)
+            self.triggers += 1
+            if self.alerts is not None:
+                self.alerts.event("trigger")
+
+            if args.ping_delay > 0:
+                end = time.time() + args.ping_delay
+                while time.time() < end:
+                    self.poll_keys()
+                    con.status(f"  {mode} ping - "
+                               f"waiting {end - time.time():.1f}s for labels..."
+                               + (f"  [{len(self.pending)} queued]"
+                                  if self.pending else ""))
                     time.sleep(0.03)
-                    continue
 
-                mode = pending.pop(0)
-                triggers += 1
-                if alerts is not None:
-                    alerts.event("trigger")
+            queued = f"  [{len(self.pending)} queued]" if self.pending else ""
+            if mode == "chat":
+                # One frame, not a burst. Chat is static UI text that does not
+                # flicker or move between frames, so voting over three of them
+                # would cost three OCR passes to confirm what the first one
+                # already said.
+                con.status(f"  reading chat...{queued}")
+                self.read_chat(self.src.grab())
+            else:
+                label = {"focus": "reading centre",
+                         "dual": "reading wide + centre"}.get(
+                             mode, "reading") + queued
+                self.read_burst(self.src.grab(), time.time(), label,
+                                on_wait=self.poll_keys, mode=mode)
+        return 0
 
-                if args.ping_delay > 0:
-                    end = time.time() + args.ping_delay
-                    while time.time() < end:
-                        poll_keys()
-                        con.status(f"  {mode} ping - "
-                                   f"waiting {end - time.time():.1f}s for "
-                                   f"labels..."
-                                   + (f"  [{len(pending)} queued]"
-                                      if pending else ""))
-                        time.sleep(0.03)
+    def _idle_status(self) -> str:
+        # Show a PARTIALLY held binding. A combination that never completes
+        # does nothing and says nothing, which is indistinguishable from the
+        # tool being broken - so if some of a binding is down, name the parts
+        # that are not.
+        part = ""
+        for mode, b in self.binds.items():
+            held, total, missing = b.partial()
+            if held and held < total:
+                part = (f"  |  {mode}: {held}/{total} held, waiting on "
+                        f"{', '.join(missing)}")
+                break
+        # Counts first, bindings last: the line is clamped to the console
+        # width, so whatever sits at the end is what gets trimmed on a narrow
+        # window. The binding list is reference material; the counters are
+        # what you glance at.
+        return (f"  idle | {self.triggers} pings | {self.announced} announced"
+                f"{part} | waiting for {_waiting_label(self.binds)}")
 
-                queued = f"  [{len(pending)} queued]" if pending else ""
-                if mode == "chat":
-                    # One frame, not a burst. Chat is static UI text that does
-                    # not flicker or move between frames, so voting over three
-                    # of them would cost three OCR passes to confirm what the
-                    # first one already said.
-                    con.status(f"  reading chat...{queued}")
-                    read_chat_now(grab())
-                else:
-                    label = {"focus": "reading centre",
-                             "dual": "reading wide + centre"}.get(
-                                 mode, "reading") + queued
-                    read_burst(grab(), time.time(), label,
-                               on_wait=poll_keys, mode=mode)
-        else:
-            while deadline is None or time.time() < deadline:
-                cycle = time.perf_counter()
-                frame = grab()
-                if frame is None:
-                    if exhausted:
-                        break
-                    time.sleep(0.005)
-                    continue
-                frames += 1
+    def _run_auto(self, deadline) -> int:
+        args, con = self.args, self.con
+        interval = 1.0 / args.hz
+        while deadline is None or time.time() < deadline:
+            cycle = time.perf_counter()
+            frame = self.src.grab()
+            if frame is None:
+                if self.src.exhausted:
+                    break
+                time.sleep(0.005)
+                continue
+            self.frames += 1
 
-                pairs = cheap_pass(frame, template)
+            pairs = cheap_pass(frame, self.template)
 
-                # Replay runs frames as fast as they process, so wall-clock
-                # advances far faster relative to the sequence than it would
-                # live - which would expire tracks and lapse cooldowns that
-                # should still hold. A virtual clock keeps replay faithful.
-                now = (started + frames / args.hz) if args.replay else time.time()
-                n_new = tracker.update(
-                    [(p.name_box.cx, p.name_box.y) for p in pairs], now)
+            # Replay runs frames as fast as they process, so wall-clock
+            # advances far faster relative to the sequence than it would live
+            # - which would expire tracks and lapse cooldowns that should still
+            # hold. A virtual clock keeps replay faithful.
+            now = (self.started + self.frames / args.hz) if args.replay \
+                else time.time()
+            n_new = self.tracker.update(
+                [(p.name_box.cx, p.name_box.y) for p in pairs], now)
 
-                con.status(f"  watching | {frames} frames | {len(pairs)} "
-                           f"contact(s) on screen | {len(tracker.tracks)} tracked "
-                           f"| {announced} announced")
+            con.status(f"  watching | {self.frames} frames | {len(pairs)} "
+                       f"contact(s) on screen | {len(self.tracker.tracks)} "
+                       f"tracked | {self.announced} announced")
 
-                # Continuous mode has no idle branch, so the housekeeping and
-                # restart checks live here instead. Both are rate-limited or a
-                # single stat(), so running them per frame is free.
-                _housekeep()
-                if not args.replay and _restart_requested():
-                    con.status("")
-                    print("\n  restart requested from the UI - "
-                          "reloading settings and starting over")
-                    release()
-                    if alerts is not None:
-                        alerts.close()
-                    logf.close()
-                    os.execv(sys.executable, [sys.executable] + sys.argv)
+            # Continuous mode has no idle branch, so the housekeeping and
+            # restart checks live here instead. Both are rate-limited or a
+            # single stat(), so running them per frame is free.
+            self.housekeep()
+            if not args.replay and _restart_requested():
+                return self._restart()
 
-                if n_new:
-                    triggers += 1
-                    read_burst(frame, now, f"reading {n_new} new contact(s)")
+            if n_new:
+                self.triggers += 1
+                self.read_burst(frame, now, f"reading {n_new} new contact(s)")
 
-                if not args.replay:
-                    slack = interval - (time.perf_counter() - cycle)
-                    if slack > 0:
-                        time.sleep(slack)
+            if not args.replay:
+                slack = interval - (time.perf_counter() - cycle)
+                if slack > 0:
+                    time.sleep(slack)
+        return 0
 
-    except KeyboardInterrupt:
-        pass
-    finally:
+    def _restart(self) -> int:
+        """Hand everything back and re-exec. Returns only if that failed.
+
+        A failed relaunch used to print "the watcher is still running" and
+        carry on - with the camera already released and the sightings log
+        already closed, so the next read died on a closed file. Everything is
+        torn down before execv because it has to be: the new process needs
+        the capture device. So a failure here ends the session, honestly,
+        through the same shutdown and summary as Ctrl+C.
+        """
+        self.con.status("")
+        print("\n  restart requested from the UI - reloading "
+              "settings and starting over")
+        self.src.release()          # hand the capture device back first
+        if self.alerts is not None:
+            self.alerts.close()
+        self.log.close()
+        _relaunch()                 # does not return if it worked
+        self.dbg.event("restart_failed")
+        return 1
+
+    # -- shutdown ----------------------------------------------------------
+
+    def _shutdown(self):
+        enricher = self.enricher
         # Give in-flight lookups a moment to land before the summary.
         if enricher.client is not None and not enricher.q.empty():
-            pending = enricher.q.qsize()
-            con.status(f"  finishing {pending} RSI lookup(s)...")
-            deadline_rsi = time.time() + min(15.0, pending * 4.0)
+            waiting = enricher.q.qsize()
+            self.con.status(f"  finishing {waiting} RSI lookup(s)...")
+            deadline_rsi = time.time() + min(15.0, waiting * 4.0)
             while not enricher.q.empty() and time.time() < deadline_rsi:
                 time.sleep(0.2)
         enricher.stop()
-        con.done()
-        release()
-        logf.close()
+        self.con.done()
+        self.src.release()
+        self.log.close()
 
-    mins = (time.time() - started) / 60.0
-    print("\n" + "=" * 62)
-    print(f"  {mins:.1f} min | {frames} frames | {triggers} triggers | "
-          f"{announced} announced")
-    if announcer.counts:
-        print("\n  contacts seen:")
-        for name, n in sorted(announcer.counts.items(), key=lambda kv: -kv[1]):
-            print(f"     {name:<24} {n} burst(s)")
-    print("=" * 62)
-    return 0
+    def _summary(self):
+        alerts, counts = self.alerts, self.announcer.counts
+        mins = (time.time() - self.started) / 60.0
+        # Audio health in the summary and the log. Speech dying silently was
+        # the entire shape of the bug this reports on; a counter nobody prints
+        # is the same as no counter.
+        if alerts is not None and (alerts.failures or alerts.repairs):
+            print(f"\n  audio: {alerts.failures} failure(s), "
+                  f"{alerts.repairs} engine repair(s)"
+                  + (f" - last: {alerts.last_error}" if alerts.last_error else ""))
+        # Alerts that waited past audio.MAX_ALERT_AGE and were dropped unsaid.
+        # Only when there were some, like the line above.
+        expired = getattr(alerts, "expired", 0)
+        if expired:
+            import audio
+            print(f"\n  audio: {expired} alert(s) dropped - still queued "
+                  f"{audio.MAX_ALERT_AGE:.0f}s after the read, too late to be news")
+        # Closed in the same breath as the console summary so the log ends
+        # with the same numbers the user just read, and a support bundle made
+        # after a crash still has a complete tail.
+        self.dbg.close({"minutes": round(mins, 1), "frames": self.frames,
+                        "triggers": self.triggers, "announced": self.announced,
+                        "audio_failures": getattr(alerts, "failures", 0),
+                        "audio_repairs": getattr(alerts, "repairs", 0),
+                        "audio_last_error": getattr(alerts, "last_error", "") or "-",
+                        "audio_available": getattr(alerts, "available", {}),
+                        **({"audio_expired": expired} if expired else {}),
+                        "contacts": dict(sorted(counts.items(),
+                                                key=lambda kv: -kv[1]))})
+        print("\n" + "=" * 62)
+        print(f"  {mins:.1f} min | {self.frames} frames | {self.triggers} "
+              f"triggers | {self.announced} announced")
+        if counts:
+            print("\n  contacts seen:")
+            for name, n in sorted(counts.items(), key=lambda kv: -kv[1]):
+                print(f"     {name:<24} {n} burst(s)")
+        print("=" * 62)
+
+
+def main(argv=None) -> int:
+    args = parse_args(argv)
+    rc = _run_utility(args)
+    if rc is not None:
+        return rc
+
+    # Everything that can be wrong with the configuration is checked before
+    # anything is opened. A mistyped binding used to be discovered after the
+    # camera, the OCR models and the database were already up - slow to
+    # report, and it exited holding all three.
+    key_mode = args.trigger == "key" and not args.replay
+    try:
+        binds = _parse_bindings(args, key_mode)
+        chat_region = _parse_chat_region(args.chat_region)
+        focus = _parse_focus_size(args.focus_size)
+        src = open_source(args)
+    except ConfigError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
+
+    ocr = sd.make_ocr()
+    template = km_gate.load_template()
+    if template is None:
+        print("! no km_template.npy - monitoring will be slow "
+              "(from source: python tools/build_km_template.py)", file=sys.stderr)
+
+    # Loaded once, here, because several things below read it: the detector
+    # switches, the audio overlay, the audit capture and the housekeeping
+    # sweep. Re-reading the file per use would let a mid-session edit apply to
+    # one and not another.
+    cfg = settings_mod.load()
+    sd.KM_GATE_ENABLED = args.gate
+    sd.HAZE_LOCATOR_ENABLED = args.haze
+    sd.ORPHAN_RETRY_MAX = (sd.ORPHAN_RETRY_WHEN_ON
+                           if cfg.get("dim_range_retry") else 0)
+
+    alerts = _make_alerts(args, cfg)
+    con = Console()
+    profile_client = _make_profile_client(args, cfg)
+    # Opened before the database and the enricher, because both of them take
+    # it - and because a failure in either is exactly the kind of thing the log
+    # exists to record. header() is written by banner(), once the bindings and
+    # trigger mode are known.
+    dbg = debuglog.DebugLog(enabled=bool(getattr(args, "debug_log", True)))
+    db = _open_database(args, profile_client)
+    enricher = RsiEnricher(con, enabled=not args.no_rsi, db=db, alerts=alerts,
+                           audit=args.audit, dbg=dbg, client=profile_client)
+    log = SightingsLog(args.log)
+
+    if key_mode:
+        for mode, b in binds.items():
+            if b.missing:
+                sys.stderr.write(
+                    f"! {mode} binding {b.label()} needs a device that is not "
+                    f"plugged in ({', '.join(b.missing)})\n")
+    # Settings clamp hz to 1-30, but --hz comes straight off the command line
+    # and 0 divides. A watcher that will not start is worse than a slow one.
+    if args.hz <= 0:
+        print(f"! --hz {args.hz} is not a rate; using 5 Hz")
+        args.hz = 5.0
+
+    session = Session(args, cfg, src, ocr, template, alerts, con, db, dbg,
+                      enricher, log, binds, chat_region, focus)
+    session.banner()
+    # Startup is the right moment for retention: the disk is about to be
+    # written to hard, and last session's frames have had their chance to be
+    # looked at.
+    if cfg.get("housekeeping_on_start", True):
+        session.housekeep(force=True)
+    return session.run()
 
 
 if __name__ == "__main__":

@@ -47,10 +47,10 @@ Design notes:
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+import jsonstore
 import paths
 
 CONFIG_PATH = paths.data("settings.json")
@@ -149,12 +149,17 @@ SCHEMA = (
                   "so they are more reliable than a HUD label - measured on the "
                   "reference frame, four of four resolved to real accounts. "
                   "'off' disables it.", restart="watcher"),
-            Field("chat_region", "Chat window region", "str",
-                  "0.15,0.30,0.35,0.45",
-                  "Where the chat window sits, as x,y,width,height fractions "
-                  "of the screen. Chat grows upward as messages arrive, so a "
-                  "region covering only the newest line reads one name instead "
-                  "of five.", restart="watcher", advanced=True),
+            Field("chat_region", "Chat window region", "str", "auto",
+                  "'auto' works it out from your resolution, which is right "
+                  "unless you have dragged the chat window somewhere else. "
+                  "Chat sits a fixed distance left of screen CENTRE, so a "
+                  "fixed fraction of the width - what this used to be - "
+                  "framed the chat on a 3440 or 5120 screen and missed it "
+                  "entirely on a 2560 one. To override, give "
+                  "x,y,width,height as fractions of the screen, e.g. "
+                  "0.15,0.30,0.35,0.45. Chat grows upward as messages arrive, "
+                  "so a region covering only the newest line reads one name "
+                  "instead of five.", restart="watcher", advanced=True),
             # Wide and centre on one press. The two passes see the same screen
             # differently: the wide one covers everything but splits a fixed
             # OCR budget across every label on it, the centre one crops and
@@ -173,22 +178,19 @@ SCHEMA = (
                   "Turns every normal read into a wide + centre read, without "
                   "needing a second binding. Simpler than a separate key, and "
                   "you pay the doubled cost on every ping.", restart="watcher"),
-            Field("focus_size", "Focused box size", "str", "1200x600",
-                  "Pixels, width x height, centred on the crosshair.",
-                  restart="watcher"),
-            # Renamed because the old label, "Always use focused mode", read
-            # as though it ADDED a focused pass to the normal one. It does not.
-            # It swaps the whole read for a centre-only read, so every contact
-            # outside the focus box stops being seen at all - the opposite of
-            # what someone turning on an "always" switch expects.
-            Field("focus_always", "Read ONLY the centre, every time", "bool",
-                  False,
-                  "Replaces the normal full-screen read with a centre-only "
-                  "one. It does not do both. Contacts outside the focus box "
-                  "are not seen at all, so leave this off unless you only "
-                  "care about whatever you are pointing at. The focus key "
-                  "already gives you a centre-only read on demand.",
-                  restart="watcher", advanced=True),
+            Field("focus_size", "Focused box size", "str", "auto",
+                  "'auto' sizes the box from your resolution: the measured "
+                  "1200x600 scaled by screen height, because the HUD scales "
+                  "with vertical resolution and that figure was tuned on a "
+                  "1440-tall screen. At 1080p it becomes 900x450, at 4K "
+                  "1800x900. Override with pixels, width x height, centred "
+                  "on the crosshair - e.g. 1200x600.", restart="watcher"),
+            # "Read ONLY the centre, every time" (focus_always) was removed on
+            # 2026-09-23 at the user's request: it did exactly what binding the
+            # focus key does, on every read instead of on demand, and cost
+            # every contact outside the box. The watcher keeps --focus-always
+            # as a testing switch - replays cannot press a key - but it is no
+            # longer a setting, and an old saved value is ignored on load.
             Field("focus_mask", "Mask focused reads", "bool", False,
                   "Run the brightness mask on focused reads instead of "
                   "sending the crop straight to OCR. Slower, and only "
@@ -300,8 +302,16 @@ SCHEMA = (
         "When to ask the API who a handle belongs to.",
         (
             Field("rsi_enabled", "Look handles up", "bool", True,
-                  "Fetches org and enlistment data from starcitizen-api.com.",
+                  "Fetches org and enlistment data for handles it reads.",
                   restart="watcher"),
+            Field("rsi_source", "Lookup source", "choice", "sentry",
+                  "'sentry' asks SENTRY first - fast, no key needed, and it "
+                  "sees every org a player is in - then starcitizen-api.com "
+                  "for anything SENTRY cannot answer. 'sci' uses only "
+                  "starcitizen-api.com, the way it worked before SENTRY. Only "
+                  "starcitizen-api.com is ever trusted to say an account does "
+                  "NOT exist, so misread checks still need its key.",
+                  choices=("sentry", "sci"), restart="watcher"),
             Field("rsi_min_votes", "Votes before lookup", "int", 2,
                   "A misread handle wastes a request and pollutes the "
                   "database, so weak reads are not looked up automatically. "
@@ -315,9 +325,37 @@ SCHEMA = (
         )),
 
     Category(
+        "watchlist", "Shared watchlists",
+        "Lists other people keep. Their claims, shown as theirs - never "
+        "folded into your own records and never counted in your score.",
+        (
+            Field("watchlist_enabled", "Use shared watchlists", "bool", True,
+                  "Flags a contact when a list you have imported names them, "
+                  "showing whose list it was and what they said. Off hides "
+                  "every source at once without deleting anything - the "
+                  "import is still there when you turn it back on.",
+                  restart="watcher"),
+            Field("watchlist_variants", "Flag lookalike spellings", "bool", True,
+                  "Also flags a handle that could be an OCR misreading of a "
+                  "listed name - SLIVER against 5LIVER. Shown as 'a name like "
+                  "this is on…' and never raises an alert on its own, because "
+                  "those are two different real people. Off means exact "
+                  "matches only.", restart="watcher", advanced=True),
+        )),
+
+    Category(
         "audit", "Audit",
         "Keeping the picture behind a read, so you can check it by eye.",
         (
+            Field("debug_log", "Write a session log", "bool", True,
+                  "A text log in debug_bursts/ recording your settings and "
+                  "what the watcher read from every frame. A few KB per "
+                  "session and the last 12 are kept. Separate from 'Save "
+                  "every frame (debug)' ON PURPOSE: the frames cost 4.7 MB "
+                  "each so they are opt-in, but a log that only starts once "
+                  "you turn it on misses the thing you were about to report. "
+                  "Secrets are redacted - see 'Make a support bundle' under "
+                  "Storage & cleanup.", restart="watcher"),
             Field("audit_enabled", "Save uncertain reads", "bool", True,
                   "When a read is not corroborated, keep the crops that "
                   "produced it."),
@@ -402,22 +440,50 @@ def load(path: Path | None = None) -> dict:
     config file is worse than starting with known-good values.
     """
     path = path or CONFIG_PATH
-    raw = {}
-    if path.exists():
-        try:
-            raw = json.loads(path.read_text(encoding="utf-8")) or {}
-        except Exception as exc:
-            print(f"settings: ignoring {path.name} ({exc}); using defaults")
-            raw = {}
+    # Through jsonstore, like the other three config files. This loader once
+    # read plain utf-8 while the others read utf-8-sig, so a settings.json
+    # Notepad had saved with a BOM was reported corrupt, replaced by defaults
+    # and then OVERWRITTEN by the next save() - keybind, burst, monitor and
+    # capture rate gone from disk. jsonstore reads BOMs and ANSI, and keeps a
+    # copy of anything it cannot read before a save replaces it.
+    return _from_raw(jsonstore.read(path))
+
+
+def _from_raw(raw) -> dict:
+    """Defaults, overlaid with whatever of `raw` is usable, clamped."""
     out = dict(DEFAULTS)
-    for k, v in (raw.items() if isinstance(raw, dict) else ()):
+    for k, v in (raw or {}).items():
         if k in FIELDS:
             try:
                 out[k] = FIELDS[k].clamp(v)
             except Exception as exc:      # clamp is meant to swallow these
                 print(f"settings: {k}={v!r} unusable ({exc}); "
                       f"using {FIELDS[k].default!r}")
+    _migrate(out)
     return out
+
+
+# Old default values that were never anybody's choice. A saved file keeps the
+# default that was current when it was written, so changing a default in the
+# schema does nothing for anyone who already has the file - which is everyone
+# who has run the tool. Upgrading the exact old string is safe precisely
+# because it IS the old string: a value the user typed will differ.
+_SUPERSEDED = {
+    # Was a fraction of screen WIDTH, so it framed the chat window on a 3440
+    # or 5120 screen and missed it completely on a 2560 one - zero handles.
+    # 'auto' anchors to screen centre, where chat actually is.
+    "chat_region": {"0.15,0.30,0.35,0.45": "auto"},
+    # Measured on a 1440-tall screen. As fixed pixels it covers a different
+    # amount of HUD on 1080p or 4K; 'auto' scales it by height.
+    "focus_size": {"1200x600": "auto"},
+}
+
+
+def _migrate(out: dict) -> None:
+    for key, mapping in _SUPERSEDED.items():
+        cur = out.get(key)
+        if isinstance(cur, str) and cur.strip() in mapping:
+            out[key] = mapping[cur.strip()]
 
 
 def save(values: dict, path: Path | None = None) -> dict:
@@ -427,17 +493,18 @@ def save(values: dict, path: Path | None = None) -> dict:
     one field - cannot blank the settings it did not send.
     """
     path = path or CONFIG_PATH
-    cur = load(path)
-    for k, v in (values or {}).items():
-        if k in FIELDS:
-            cur[k] = FIELDS[k].clamp(v)
-    tmp = path.with_suffix(".json.tmp")
-    # allow_nan=False: json.dumps happily writes Infinity and NaN, which are
-    # not JSON and which nothing else should have to cope with. clamp() already
-    # rejects them, so this only fires if that ever stops being true.
-    tmp.write_text(json.dumps(cur, indent=2, allow_nan=False), encoding="utf-8")
-    tmp.replace(path)           # atomic: never leave a half-written config
-    return cur
+
+    def apply(raw):
+        cur = _from_raw(raw)
+        for k, v in (values or {}).items():
+            if k in FIELDS:
+                cur[k] = FIELDS[k].clamp(v)
+        return cur
+
+    # Read, merge and write as ONE step under the file's lock. As separate
+    # load() and write() calls, a read that hit the file mid-replace came back
+    # as defaults and the save then wrote those defaults over everything.
+    return jsonstore.update(path, apply)
 
 
 def describe() -> list[dict]:
@@ -463,7 +530,7 @@ def main() -> int:
 
     if args.reset:
         save({k: v for k, v in DEFAULTS.items()})
-        CONFIG_PATH.write_text(json.dumps(DEFAULTS, indent=2), encoding="utf-8")
+        jsonstore.write(CONFIG_PATH, DEFAULTS)
         print(f"reset {CONFIG_PATH.name}")
     if args.set:
         bad = [k for k, _ in args.set if k not in FIELDS]
