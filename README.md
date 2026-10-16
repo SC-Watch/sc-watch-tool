@@ -10,6 +10,57 @@ Windows only.
 
 ---
 
+## New in 0.2.1
+
+**The Piracy and Smuggling flags no longer need starcitizen-api.com.** SENTRY
+now gives each org's declared focus, so they work without an API key - and
+without a service that has been failing about half the time.
+
+Fixed:
+
+- **"HTTP 500" errors that stayed after retrying.** They came from
+  starcitizen-api.com, asked as a fallback while SENTRY was still reading an
+  org. Tiles now name the service that failed, and say when SENTRY is still
+  reading an org.
+- **Every lookup failing for an hour at a time.** SENTRY limits how many
+  players it fetches from RSI on the spot - anyone it does not have yet, which
+  includes every misread. Hitting that limit used to switch SENTRY off
+  entirely, so every lookup fell to starcitizen-api.com. Now only those
+  fetches wait, and players SENTRY already has are answered as normal. See
+  [When a lookup fails](#when-a-lookup-fails).
+- **A flagged org's title stayed blank** if SENTRY had not read the org's
+  focus yet when you flagged it. The name is now taken either way, and orgs
+  already flagged without one are named in the background.
+- **Without a key, correcting a misread in an audit** warned that both names
+  were real accounts. A name nobody can check is now treated as unchecked, not
+  as real.
+- **Renamed handles.** Asked about a handle somebody has since renamed away
+  from, SENTRY answers with that person's new profile; that answer is no longer
+  filed under the old handle.
+
+New:
+
+- **Tiles finish themselves.** A profile waiting on an org's focus, or a
+  contact whose lookup failed, is checked again in the background - every 10
+  minutes at first, then less often - instead of waiting until you meet that
+  player again. What it finds shows on the tile; it is not spoken.
+- **Old profiles are refreshed through SENTRY**, which reads RSI again, rather
+  than being sent to the other service.
+- **About half the requests to SENTRY.** The same question asked twice in a
+  few seconds is answered once, lookups from the page share one pace, and the
+  clean-up jobs no longer spend SENTRY's hourly allowance: *Remove handles with
+  no RSI account* never asks it to fetch the misreads it is looking for, and
+  *Look up contacts that were never checked* does 60 a run.
+- **A log of what was asked of SENTRY**, for working out lookup problems. No
+  names in it - see [Where your data lives](#where-your-data-lives).
+
+Without a key, an org you have not seen before still gets no **Syndicate**
+mark - that comes from starcitizen-api.com. See
+[The API key](#the-api-key-and-what-you-get-without-one).
+
+**Upgrading from 0.2.0:** copy your `data` folder into the new one, as in
+[Upgrading](#upgrading).
+
 ## New in 0.2.0
 
 **Coming from 0.1.x? Read [Upgrading](#upgrading) first.** Your data is not
@@ -256,8 +307,8 @@ Worst cases, in rough order:
 - Station interiors with lots of white surfaces
 
 **What to do:** put the contact against sky or space if you can, and try again.
-If you fly in daylight often, turn on **Haze mode** in Detection settings,
-which is tuned for washed-out scenes.
+If you fly in daylight often, turn on **Haze locator** in Detection
+settings, an extra pass for washed-out scenes.
 
 ### The limitation this creates, stated plainly
 
@@ -279,25 +330,30 @@ If it misses one, ping again from a slightly different angle.
 ## The API key, and what you get without one
 
 sc-watch looks players up through two services. **SENTRY** is asked first: it
-needs no key, answers in a fraction of a second for most players, and lists
-every org someone is in - including the side-orgs that never show on a
-profile. **starcitizen-api.com** is asked for anything SENTRY cannot answer,
-and it needs a free key.
+needs no key, answers in a fraction of a second for most players, lists every
+org someone is in - including the side-orgs that never show on a profile - and
+gives each org's declared focus. **starcitizen-api.com** is a fallback for
+anything SENTRY cannot answer, and it needs a free key.
 
-**Without a key** you still get which orgs someone is in (all of them),
-whether any is one you have flagged, how old the account is, and the check
-that refuses to merge `SLIVER` and `5LIVER` because both are real accounts -
-all from SENTRY.
+**Without a key** you still get which orgs someone is in (all of them), each
+org's focus - the **Piracy** and **Smuggling** flags - whether any is one you
+have flagged, how old the account is, and the check that refuses to merge
+`SLIVER` and `5LIVER` because both are real accounts - all from SENTRY.
 
-**A key adds two things**, and they are worth having:
+**A key adds three things:**
 
 - **Knowing a misread is a misread.** Only starcitizen-api.com is ever trusted
   to say an account does *not* exist. SENTRY not having someone is a
   database's silence, not proof - so without a key, a handle nobody has heard
   of is shown as unchecked rather than flagged for you to correct.
-- **The piracy flag on orgs it has not seen before.** An org's declared focus -
-  Piracy, Smuggling - comes from starcitizen-api.com. Without a key it is
-  only known for orgs already in your cache.
+- **The Syndicate mark on orgs you have not seen before.** It comes from an
+  org's type, which SENTRY does not carry. sc-watch asks starcitizen-api.com
+  for it when it can, and never waits on it.
+- **A fallback** when SENTRY is down or does not know someone.
+
+If SENTRY's copy of a player is out of date, sc-watch asks SENTRY to read RSI
+again rather than going elsewhere: **try now** on a tile waits up to half a
+minute for that, and the watcher picks up the new copy on its next try.
 
 The choice between the two is **Settings → RSI lookups → Lookup source**:
 `sentry` (the default) or `sci` for starcitizen-api.com only.
@@ -319,12 +375,12 @@ also works, and wins over the file.
 Without a key, the watcher's console says so at startup, lists what you are
 missing, and prints the exact path of the file for your install.
 
-**Confirm it worked:** open a contact tile in the UI. With a working key you
-see org information or an explicit "no org". Without one, tiles say the profile
-was never looked up.
+**Confirm it worked:** after the restart, the notice about a missing key is
+gone from the top of the page and from the watcher window. A handle that does
+not exist is then marked as having no RSI account, rather than left unchecked.
 
-The key is stored in plain text on your machine, is never sent anywhere except
-starcitizen-api.com, and never leaves your PC otherwise.
+The key is stored in plain text on your machine and is sent only to
+starcitizen-api.com.
 
 ---
 
@@ -375,10 +431,10 @@ There is a **Restart watcher** button in Maintenance.
 | **Read key** | `0` | Full-screen read. Pick something you never touch in flight. Good choices: `0`, `-`, `=`, or a spare joystick button. |
 | **Focused read key** | `9` | Centre-only read. The best key on the tool, because it spends the whole reading budget on whatever you are pointing at instead of competing with twenty other labels. |
 | **Chat read key** | `off` | Reads the chat window and lists who is talking. Costs no ping and finds people you will never get a HUD label for. Try `8` if you spend time in busy areas. |
-| **Chat window region** *(adv)* | `0.15,0.30,0.35,0.45` | Where chat sits, as fractions of the screen: x, y, width, height. Only touch this if chat reads nothing and you have moved the window. |
+| **Chat window region** *(adv)* | `auto` | Where chat sits. `auto` works it out from your resolution. Only set it - x, y, width, height as fractions of the screen, e.g. `0.15,0.30,0.35,0.45` - if chat reads nothing and you have moved the chat window. |
 | **Wide + centre key** | `off` | Reads the **whole screen and the centre on one press** and merges both. See [Wide + centre](#wide-and-centre-the-one-to-try-if-reads-are-poor) below. Set it to a key or button, or leave `off`. |
 | **Make the normal read key do both** | off | Turns every normal read into a wide + centre read, with no second binding to remember. Simpler, and you pay the extra cost on every ping. |
-| **Focused box size** | `1200x600` | The centre region the focus key reads, in pixels. Bigger tolerates your target drifting off centre; smaller is faster. Try `1600x800` if you keep just missing, `900x500` if you want speed. |
+| **Focused box size** | `auto` | The centre region the focus key reads. `auto` sizes it from your screen height: 1200x600 at 1440 tall, 900x450 at 1080p, 1800x900 at 4K. Bigger tolerates your target drifting off centre; smaller is faster. Give pixels to override, e.g. `1600x800` if you keep just missing. |
 | **Mask focused reads** *(adv)* | off | Changes how centre reads are prepared for the recogniser. Slower, and only occasionally better. Leave off. |
 | **Frames per read** | `3` | How many frames one press captures. Frames vote against each other, so a single bad read cannot name someone. `3` is the sweet spot. `5` for difficult scenes. `1` only for testing. |
 | **Gap between frames** | `0.1 s` | How long to wait between those frames. Tight is better: contacts drift and labels fade, and a late frame often catches neither. **Start at `0.1`.** Above about `0.5` the hit rate drops off, so treat `0.5` as the practical ceiling rather than the range end. |
@@ -394,6 +450,12 @@ There is a **Restart watcher** button in Maintenance.
 | setting | default | what it does |
 |---|---|---|
 | **Votes to announce** | `1` | How many frames of a burst must agree before a name is announced. `1` is fast and occasionally wrong. **`2` is the single setting most worth changing**, and costs you nothing but a moment. |
+| **Range gate** *(adv)* | off | An extra check that a range line really is one. Rejects more junk and occasionally a real contact with it. |
+| **Re-read dim range lines** | off | **Turn this on if you can plainly see names that never get reported.** Some displays draw the range line dimmer than the name above it, and one brightness rule then keeps half a label and throws the contact away. Costs about half a second per read. This completely fixed one tester's setup. |
+| **Haze locator** | off | For washed-out daylight and atmospheric flight. Turn on if you fly in atmosphere and detection falls off a cliff. |
+| **Re-announce after** | `300 s` | How long before the same contact is called out again. `60` if you want reminders, higher if the same person keeps interrupting. |
+| **Pairing radius** *(adv)* | `180 px` | How far below a name its range line may sit and still be paired with it. |
+| **Contact expiry** *(adv)* | `20 s` | How long a contact is remembered by screen position after it stops being seen. |
 
 Contacts the game labels `UNKNOWN` are never reported. There is no setting for
 it, because there was no useful setting of it: an UNKNOWN is an asteroid, a
@@ -401,13 +463,6 @@ cow, a crate or anything else the game has not identified, it is the most
 common label on a busy screen, and you can already tell what it is from your
 own instruments. They are discarded the moment the label is read, before any
 voting, database work or lookup happens.
-
-| **Range gate** *(adv)* | off | An extra check that a range line really is one. Rejects more junk and occasionally a real contact with it. |
-| **Re-read dim range lines** | off | **Turn this on if you can plainly see names that never get reported.** Some displays draw the range line dimmer than the name above it, and one brightness rule then keeps half a label and throws the contact away. Costs about half a second per read. This completely fixed one tester's setup. |
-| **Haze locator** | off | For washed-out daylight and atmospheric flight. Turn on if you fly in atmosphere and detection falls off a cliff. |
-| **Re-announce after** | `300 s` | How long before the same contact is called out again. `60` if you want reminders, higher if the same person keeps interrupting. |
-| **Pairing radius** *(adv)* | `180 px` | How far a contact may move between frames and still count as the same one. |
-| **Contact expiry** *(adv)* | `20 s` | How long a contact is remembered by screen position after it stops being seen. |
 
 ### Audio
 
@@ -442,13 +497,15 @@ the watcher window.
 
 ### RSI lookups
 
-*When to ask the API who a handle belongs to. Needs an API key.*
+*When to look a handle up, and where. SENTRY needs no key - see
+[The API key](#the-api-key-and-what-you-get-without-one).*
 
 | setting | default | what it does |
 |---|---|---|
-| **Look handles up** | on | Look up profiles at all. Does nothing without a key. |
-| **Votes before lookup** | `2` | How confident the reader must be before spending an API call on a name. Lower means more lookups on possibly-misread names. |
-| **API mode** *(adv)* | `auto` | `auto` uses the cache and falls back to live. `cache` never touches the network. `live` always does. Leave it on `auto`. |
+| **Look handles up** | on | Look players up at all. Off, the watcher looks nobody up and the background checks ask nothing; buttons you press still do. |
+| **Lookup source** | `sentry` | `sentry` asks SENTRY first and starcitizen-api.com for what it cannot answer. `sci` asks only starcitizen-api.com, the way it worked before SENTRY - and then nothing is looked up without a key. |
+| **Votes before lookup** | `2` | How confident the reader must be before a name is looked up. Lower means more lookups on possibly-misread names. Confirming an audit by hand always looks up. |
+| **API mode** *(adv)* | `auto` | For starcitizen-api.com only. `auto` lets it answer from its own stored copy where it has one; `live` makes it read RSI every time, which is slower; `cache` only ever uses its stored copies. Member lists always use `live`. Leave it on `auto`. |
 
 ### Shared watchlists
 
@@ -687,7 +744,7 @@ Work down this list. It is ordered by how often each one is the answer.
    [above](#wide-and-centre-the-one-to-try-if-reads-are-poor)), which recovered
    most of a tester's missing contacts, then **Re-read dim range lines** in
    Detection.
-6. **Daylight or atmospheric flight.** Turn on **Haze mode**.
+6. **Daylight or atmospheric flight.** Turn on **Haze locator**.
 7. **The debug overlay is on.** `r_displayInfo 0`.
 
 Still stuck? Take a screenshot of your HUD with a contact visible in it, then
@@ -747,15 +804,18 @@ than *listed on*: `SLIVER` and `5LIVER` are two different people.
 
 ## When a lookup fails
 
-Profile lookups go through a third-party API, and some days it is slow, rate
-limited, or down. None of that should look like "this player is fine".
+Profile lookups go through two third-party services, and some days one of
+them is slow, rate limited, or down. None of that should look like "this
+player is fine".
 
 - A tile that could not be looked up says **RSI lookup failed**, with the
   reason, and offers a **try now** button. It never says "no flags".
-- A failed lookup is retried automatically, twice, before it gives up.
-- After three failures in a row the tool stops asking for a minute, then two,
-  up to five - so a dead service does not become a five-second wait on every
-  contact. The first request after a pause is a probe; the console says when
+- A failed lookup is retried automatically: twice within a minute by the
+  watcher, and - for contacts you have met - again later in the background,
+  at most every 6 hours.
+- After three failures in a row, sc-watch stops asking that service for a
+  minute, then two, up to five - so a dead service does not become a
+  five-second wait on every contact. The first request after a pause is a probe; the console says when
   lookups are paused and when they resume.
 - If the service cannot be reached and there is an **old stored profile**, it
   is shown rather than nothing, with its age on the tile and a refresh button.
@@ -765,18 +825,31 @@ limited, or down. None of that should look like "this player is fine".
   away, skipping your cache, while you carry on: the tile says *looking up…*,
   then changes - or says *failed* beside the reason. The full answer is in the
   line at the bottom of the page. SENTRY's copy is only used for it if SENTRY
-  read RSI within the last day; otherwise the other service is asked, and the
-  other orgs SENTRY saw are kept. **Look up** in the header shows an answer in
-  full, including which service gave it.
+  read RSI within the last day; otherwise SENTRY is asked to read RSI again,
+  for up to half a minute, and only then the other service - keeping the other
+  orgs SENTRY saw. **Look up** in the header shows an answer in full,
+  including which service gave it.
 - **Two services, failing separately.** If SENTRY is slow or down, lookups go
   to starcitizen-api.com without waiting; if starcitizen-api.com is down,
   SENTRY still answers for anyone it has. Each pauses on its own.
+- **SENTRY is rate limiting new lookups.** SENTRY fetches a player it does
+  not have yet - including a misread - from RSI on the spot, and limits how
+  many of those it does per hour. When it says to wait, sc-watch stops asking
+  for them until the time is up, and the tile says so. Players SENTRY already
+  has keep being answered meanwhile.
+- **Focus unknown - SENTRY is still reading it.** The first time anyone asks
+  SENTRY about an org it has not read lately, it reads RSI in the background,
+  which takes a few minutes. The tile shows everything else meanwhile, marked
+  *focus unknown*. The watcher checks back after 1½ and 4 minutes, then the
+  page keeps checking in the background - every 10 minutes at first, then
+  less often - and the tile fills in when the answer arrives. **Try now** asks
+  again whenever you like.
 
 ---
 
 ## Sending a support bundle
 
-If something goes wrong, **Settings → Storage & cleanup → support bundle**
+If something goes wrong, **Settings → Storage & cleanup → Report a problem**
 builds a zip you can send. It is deliberately small in what it takes:
 
 **In it:** the session logs (what the watcher did and what it read), your
@@ -812,7 +885,8 @@ the program, containing:
 | `audit/` | cropped screenshots of labels you asked to check by eye |
 | `tones/` | the alert sounds, replaceable |
 | `sightings.csv` | a plain-text log of everything seen |
-| `debug_bursts/`, `live_frames/` | captured frames, if enabled. Large, swept automatically. |
+| `debug_bursts/`, `live_frames/` | session logs, and captured frames if enabled. Frames are large and swept automatically. |
+| `debug_bursts/sentry_requests.log` | one line per request sent to SENTRY - why, what kind, the answer - for working out lookup problems. No names in it, never sent anywhere, and not in support bundles. Kept under 4 MB. |
 
 **To back up, copy `sc-watch.db`.** That is your reputation history. Everything
 else regenerates.
@@ -831,9 +905,11 @@ to, and will not invent one from the other.
 
 It will also refuse to fold two spellings together when both resolve to real
 RSI accounts, because `SLIVER` and `5LIVER` are two different people and giving
-one of them the other's history is the worst mistake this tool could make. That
-check needs an API key. Without one, a merge you confirm by hand goes through
-unverified and the UI tells you so.
+one of them the other's history is the worst mistake this tool could make.
+SENTRY answers that check for anyone it has, key or no key. A name nobody can
+check - no key, and SENTRY has never heard of it - is not taken as a real
+account: a merge you confirm by hand then goes through, and the page tells you
+it could not be checked.
 
 ### The reasons you can report under
 
@@ -874,8 +950,8 @@ flagged, because leaving is also what hiding your membership looks like - the
 API leaves hidden members off the roster entirely - so the tile says
 *off it since 21 Sep (left, or hid it)* rather than claiming they left.
 
-Pulling a list is one request per second and up to twenty pages, so a large
-org takes a while. It runs in the background and nothing pulls one on a timer.
+Pulling a list is one request a second, a page at a time - 100 members a page
+from SENTRY - so a large org takes a moment. It runs in the background and nothing pulls one on a timer.
 If the list comes back empty or stops part way, nothing is recorded as having
 left: a failed request must not turn into a claim about a person.
 

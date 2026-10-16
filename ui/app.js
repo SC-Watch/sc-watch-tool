@@ -2305,9 +2305,9 @@ const keyBar=document.getElementById('keybar');
 function keyDismissed(){ try{ return localStorage.getItem('sc-keybar-off')==='1'; }catch(e){ return false; } }
 const KEY_WHY=`Without a starcitizen-api.com key, players are looked up through
   SENTRY only: a misread handle cannot be confirmed as a misread (so no
-  “no RSI account” audits), and an org's Piracy or Smuggling focus is only
-  known if it is already cached — new orgs show “focus unknown”. Orgs, account
-  age and flagged-org alerts still work. A key is free: register at
+  “no RSI account” audits), and an org's type is only known if it is already
+  cached — a new org gets no “Syndicate” mark. Orgs, their Piracy or Smuggling
+  focus, account age and flagged-org alerts all still work. A key is free: register at
   <a href="https://starcitizen-api.com" target="_blank" rel="noopener">starcitizen-api.com</a>,
   copy it, and paste it here.`;
 function keyFormHTML(prefix){

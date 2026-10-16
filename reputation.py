@@ -645,9 +645,23 @@ class Database:
         if self.verify is None:
             return False, False
         try:
-            return (bool(self.verify(a)) and bool(self.verify(b))), True
+            ra, rb = self._exists_strict(a), self._exists_strict(b)
         except Exception:
             return False, False
+        if ra is False or rb is False:
+            return False, True          # one is checked and is not an account
+        if ra is None or rb is None:
+            return False, False         # one could not be checked at all
+        return True, True
+
+    def _exists_strict(self, handle: str):
+        """verify() asked strictly: True, False, or None for "cannot tell" -
+        see rsi.Client.exists(). A verifier without `strict` answers as it
+        always did."""
+        try:
+            return self.verify(handle, strict=True)
+        except TypeError:
+            return bool(self.verify(handle))
 
     def close(self):
         """Release the connection.
@@ -1230,6 +1244,25 @@ class Database:
             (sid.upper(), name, time.time(), note))
         self.db.commit()
 
+    def unnamed_flagged(self) -> list[str]:
+        """Flagged orgs with no display name - see set_flag_name()."""
+        return [r[0] for r in self.db.execute(
+            "SELECT sid FROM org_flags WHERE name IS NULL OR name=''")]
+
+    def set_flag_name(self, sid: str, name: str) -> bool:
+        """Give a flagged org the name it lacks. Only a blank one: a name
+        already there was looked up, and stays. The name used to be written
+        with the flag and never again, so an org flagged while no name could
+        be had showed its SID for good."""
+        name = (name or "").strip()
+        if not name:
+            return False
+        cur = self.db.execute(
+            "UPDATE org_flags SET name=? WHERE sid=? AND (name IS NULL OR name='')",
+            (name[:200], sid.upper()))
+        self.db.commit()
+        return cur.rowcount > 0
+
     def unflag_org(self, sid: str):
         """Drop the flag AND the roster rows it put there.
 
@@ -1278,6 +1311,13 @@ class Database:
 
         Returns the buckets rather than acting, so a caller can show the list
         before anything is deleted.
+
+        SENTRY is asked DATABASE-ONLY (live=False). The handles this is for are
+        the ones SENTRY does not have, so a normal ask spent one of its live
+        RSI fetches on each - limited per hour, and refusing all of them once
+        used up - on a question SENTRY cannot answer: only the other service
+        says an account does not exist. SENTRY having someone still says they
+        are real, and that costs nothing.
         """
         import rsi as rsi_mod
         client = client or rsi_mod.Client()
@@ -1289,7 +1329,7 @@ class Database:
             if limit and len(out["ghosts"]) >= limit:
                 break
             try:
-                cit = client.citizen(h)
+                cit = client.citizen(h, live=False)
             except Exception as exc:
                 out["errors"].append((h, f"{type(exc).__name__}: {exc}"))
                 continue

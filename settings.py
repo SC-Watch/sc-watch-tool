@@ -305,12 +305,13 @@ SCHEMA = (
                   "Fetches org and enlistment data for handles it reads.",
                   restart="watcher"),
             Field("rsi_source", "Lookup source", "choice", "sentry",
-                  "'sentry' asks SENTRY first - fast, no key needed, and it "
-                  "sees every org a player is in - then starcitizen-api.com "
-                  "for anything SENTRY cannot answer. 'sci' uses only "
-                  "starcitizen-api.com, the way it worked before SENTRY. Only "
-                  "starcitizen-api.com is ever trusted to say an account does "
-                  "NOT exist, so misread checks still need its key.",
+                  "'sentry' asks SENTRY first - fast, no key needed, it sees "
+                  "every org a player is in, and it gives each org's focus - "
+                  "then starcitizen-api.com for anything SENTRY cannot answer. "
+                  "'sci' uses only starcitizen-api.com, the way it worked "
+                  "before SENTRY. Only starcitizen-api.com is ever trusted to "
+                  "say an account does NOT exist, so misread checks still need "
+                  "its key.",
                   choices=("sentry", "sci"), restart="watcher"),
             Field("rsi_min_votes", "Votes before lookup", "int", 2,
                   "A misread handle wastes a request and pollutes the "

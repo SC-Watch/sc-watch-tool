@@ -405,6 +405,17 @@ def _save_audit_images(name: str, crops: dict, frame=None,
     return saved
 
 
+def _rsi_why(tag: str):
+    """rsi.why(tag) - the reason the SENTRY request log gives - or nothing
+    if rsi cannot be loaded."""
+    try:
+        import rsi
+        return rsi.why(tag)
+    except Exception:
+        import contextlib
+        return contextlib.nullcontext()
+
+
 class RsiEnricher:
     """Look handles up on RSI without blocking the read loop.
 
@@ -465,10 +476,11 @@ class RsiEnricher:
                   "through SENTRY only. Without a key:\n"
                   "    - a misread handle cannot be confirmed as a misread, so "
                   "no 'no RSI account' audits are raised\n"
-                  "    - an org's Piracy / Smuggling focus is known only if it "
-                  "is already cached; new orgs show 'focus unknown'\n"
-                  "  Orgs, account age and flagged-org alerts still work. "
-                  "To add a key:\n" + _key_help(),
+                  "    - an org's type is known only if it is already cached, "
+                  "so a new org gets no 'Syndicate' mark\n"
+                  "  Orgs, their Piracy / Smuggling focus, account age and "
+                  "flagged-org alerts all still work. To add a key:\n"
+                  + _key_help(),
                   file=sys.stderr)
         self.client = client
         self.thread = threading.Thread(target=self._run, daemon=True)
@@ -484,6 +496,18 @@ class RsiEnricher:
     # practice took ~10 s to come back as HTTP 500 and answered normally when
     # asked again, so the first retry waits a little longer than that.
     RETRY_DELAYS = (15.0, 60.0)
+    # For a profile missing an org's focus while SENTRY has been asked to
+    # read that org (Citizen.awaiting_sentry). Its re-read is queued, not
+    # immediate: measured 2026-10-13, none had landed seconds after asking and
+    # every one checked a few minutes later had. 15 s and 60 s were spent
+    # before it could be there - each time asking a fallback that was failing
+    # with HTTP 500 - and then the watcher gave up on the handle.
+    # Two steps, the minutes a player is likely still near you - when a
+    # spoken alert still means something. A 10-minute step went (2026-10-14):
+    # each was a whole player lookup, and the page's background check
+    # (rsi.Client.complete_partials) now finishes the profile after that, one
+    # request per org.
+    SENTRY_WAIT_DELAYS = (90.0, 240.0)
 
     def submit(self, handle: str, crops: dict | None = None,
                range_km=None, votes: int = 0, total: int = 0, variants=None):
@@ -533,7 +557,7 @@ class RsiEnricher:
             if exc.until != self._announced_pause:
                 self._announced_pause = exc.until
                 waiting = len(self._retry) + self.q.qsize()
-                self.con.say(f"          rsi: the lookup service is not "
+                self.con.say(f"          rsi: {getattr(exc, 'service', None) or 'the lookup service'} is not "
                              f"responding - pausing lookups for "
                              f"{exc.remaining:.0f}s ({waiting} waiting)")
                 if self.dbg is not None:
@@ -577,17 +601,20 @@ class RsiEnricher:
             self.dbg.event("rsi_failed", handle=handle, why=why,
                            attempt=attempt, retry=retry)
 
-    def _keep_refreshing(self, handle: str, reason: str) -> bool:
+    def _keep_refreshing(self, handle: str, reason: str,
+                         waiting: bool = False) -> bool:
         """An expired stored profile stood in for a lookup that failed. Keep
-        trying for a current one on the same schedule as a failed lookup.
+        trying for a current one on the same schedule as a failed lookup -
+        or, `waiting` on SENTRY to read an org, on SENTRY_WAIT_DELAYS.
         Returns True the first time, so the copy is reported once."""
         first = handle not in self._stale_shown
         self._stale_shown.add(handle)
         attempt = self.attempts.get(handle, 0) + 1
         self.attempts[handle] = attempt
-        again = attempt <= len(self.RETRY_DELAYS)
+        delays = self.SENTRY_WAIT_DELAYS if waiting else self.RETRY_DELAYS
+        again = attempt <= len(delays)
         if again:
-            delay = self.RETRY_DELAYS[attempt - 1]
+            delay = delays[attempt - 1]
             down_for = getattr(self.client, "down_for", lambda: 0.0)()
             self._retry_seq += 1
             heapq.heappush(self._retry, (time.monotonic() + max(delay, down_for + 0.5),
@@ -615,13 +642,15 @@ class RsiEnricher:
             if handle is None:
                 return
             try:
-                c = self.client.citizen(handle)
+                with _rsi_why("watcher"):
+                    c = self.client.citizen(handle)
             except Exception as exc:
                 self._failed(handle, exc)
                 continue
             stale = getattr(c, "stale_reason", None)
             if stale:
-                if not self._keep_refreshing(handle, stale):
+                if not self._keep_refreshing(
+                        handle, stale, getattr(c, "awaiting_sentry", False)):
                     continue        # already reported from this copy
                 ev = self.pending.get(handle)   # the refresh may still need them
             else:
@@ -1153,6 +1182,7 @@ def _make_profile_client(args, cfg):
         return None
     try:
         import rsi
+        rsi.PROCESS = "watcher"         # names it in the SENTRY request log
         return rsi.Client(mode=cfg.get("rsi_mode", "auto"))
     except Exception as exc:
         print(f"! profile lookup disabled: {type(exc).__name__}: {exc}",

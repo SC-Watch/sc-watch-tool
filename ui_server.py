@@ -80,9 +80,11 @@ RESTART_FLAG = HERE / "restart.flag"
 # proceed. The check was written, tested and unreachable from the one place a
 # person actually clicks.
 #
-# One client for the process, built on first use. Lookups are cached in
-# rsi_cache.db, so confirming the same audit twice costs nothing, and with no
-# API key this stays None and behaves exactly as before.
+# The page's one client (_client()), so its identity checks share the pacing,
+# the pauses and the remembered answers of every other lookup here - it used
+# to be a second client of its own. Lookups are cached in rsi_cache.db, so
+# confirming the same audit twice costs nothing, and with no lookup backend
+# this stays None and behaves exactly as before.
 # --------------------------------------------------------------------------
 _verify = None
 _verify_ready = False
@@ -95,12 +97,15 @@ def _verifier():
         if not _verify_ready:
             _verify_ready = True
             try:
-                client = rsi.Client()
-                if client.enriches:
-                    _verify = client.exists
+                if _client().enriches:
+                    _verify = _shared_exists
             except Exception:
                 _verify = None
         return _verify
+
+
+def _shared_exists(handle: str, strict: bool = False):
+    return _client().exists(handle, strict=strict)
 
 
 def _open_db():
@@ -345,14 +350,170 @@ def _save_key(payload: dict) -> dict:
     return {"ok": True, "status": st, "message": msg}
 
 
+_CLIENT_LOCK = threading.Lock()
+_CLIENT: tuple | None = None        # (what it was built from, the client)
+
+
 def _client() -> "rsi.Client":
-    """An RSI client honouring the configured API mode.
+    """The page's RSI client, honouring the configured API mode.
 
     Built through here rather than `rsi.Client()` at each call site, because
     `rsi_mode` was a setting nothing read: three separate constructors all took
     the library default and the control in the UI did nothing.
+
+    ONE client, shared by every request, rebuilt only when what it was built
+    from changes (mode, source, key). It used to be a new one per call, and the
+    pacing and the outage breaker live on the client: five "try now" clicks
+    went out as five unpaced streams, a 429 telling SENTRY's caller to wait
+    was forgotten by the next lookup, and "once per run" guards lasted one
+    lookup. A client is safe across threads (dbopen, _Paced's locks).
     """
-    return rsi.Client(mode=settings.load().get("rsi_mode", "auto"))
+    global _CLIENT
+    cfg = settings.load()
+    key = (cfg.get("rsi_mode", "auto"), cfg.get("rsi_source", "sentry"),
+           rsi.find_api_key(), str(rsi.CACHE_PATH))
+    with _CLIENT_LOCK:
+        if _CLIENT is None or _CLIENT[0] != key:
+            _CLIENT = (key, rsi.Client(mode=key[0]))
+        return _CLIENT[1]
+
+
+# The background check on profiles missing an org's focus - see
+# rsi.Client.complete_partials(). Here, not in the watcher: it is about tiles,
+# and must never sit in the queue of lookups for players near you. First a
+# minute after start, out of the way of the first page load.
+FOCUS_SWEEP_FIRST, FOCUS_SWEEP_EVERY = 60.0, 600.0
+
+
+_NAME_TRIES: dict[str, tuple[int, float]] = {}    # SID -> (asked, next due)
+
+# Storage & cleanup's "look up contacts that were never checked": at most this
+# many a run. See the job.
+BACKFILL_MAX = 60
+
+# Contacts whose last lookup FAILED - no profile at all - asked again by the
+# background check: a lookup refused while SENTRY's live fetches were used
+# up, or one that met a failing fallback. Before, only a sighting or a button
+# did. A failure older than RETRY_FAILED_AFTER (the watcher's own retries are
+# long over), each contact once per rsi.SENTRY_LIVE_AGAIN, newest first.
+# SENTRY's database first - no live allowance, and it finds anyone SENTRY has
+# picked up on its own since - then at most RETRY_FAILED_LIVE live fetches a
+# round (60 an hour, half the allowance); none while SENTRY says wait.
+RETRY_FAILED_AFTER = 1800.0
+RETRY_FAILED_LIVE = 10
+RETRY_FAILED_CHECKS = 30
+_FAILED_TRIES: dict[str, float] = {}               # HANDLE -> next due
+
+
+def _retry_failed_lookups(client, ask: bool) -> dict:
+    """One round of retrying failed lookups - see RETRY_FAILED_AFTER.
+    Returns counts: checked (database asks), live (fetches), found."""
+    got = {"checked": 0, "live": 0, "found": 0}
+    sentry = client.sentry
+    if (not ask or sentry is None or not client.enriches
+            or sentry.down_for() > 0 or sentry.live_paused_for() > 0):
+        return got
+    rows = client.cache.db.execute(
+        """SELECT handle FROM lookup_failures
+           WHERE ts < ?
+             AND handle NOT IN (SELECT handle FROM citizens)
+             AND handle NOT IN (SELECT handle FROM partial_citizens)
+           ORDER BY ts DESC""", (time.time() - RETRY_FAILED_AFTER,)).fetchall()
+    db = _open_db()
+    try:
+        now = time.monotonic()
+        for (h,) in rows:
+            if got["checked"] >= RETRY_FAILED_CHECKS:
+                break
+            if now < _FAILED_TRIES.get(h, 0.0):
+                continue
+            # Contacts only: a reading that never became one was mostly a
+            # misread, and fetching those is what used the allowance up.
+            if not db.db.execute("SELECT 1 FROM players WHERE handle=?",
+                                 (h,)).fetchone():
+                continue
+            got["checked"] += 1
+            try:
+                held = sentry.citizen(h, live=False)    # its database only
+            except Exception:
+                break           # its breaker says when; the next round asks
+            if held is None:
+                if got["live"] >= RETRY_FAILED_LIVE or sentry.live_paused_for() > 0:
+                    continue    # no live fetch left this round: the next one
+                got["live"] += 1
+            _FAILED_TRIES[h] = now + rsi.SENTRY_LIVE_AGAIN
+            try:
+                # Held: from the remembered answer, no request. Not held: the
+                # one live fetch, then the other service as ever.
+                c = client.citizen(h)
+            except Exception:
+                if sentry.live_paused_for() > 0:
+                    break       # refused: stop for the pause
+                continue
+            if c.exists and not getattr(c, "unverified", False):
+                if c.orgs:
+                    db.set_orgs(h, c.orgs)
+                db.update_profile(h, c.moniker, c.enlisted)
+                got["found"] += 1
+    finally:
+        db.close()
+    return got
+
+
+def _fill_flag_names(client, ask: bool) -> int:
+    """Names for flagged orgs that have none - our cache first, at no cost,
+    then SENTRY's profile, one request per org, on rsi.FOCUS_SWEEP_GAPS.
+    Returns how many were named."""
+    db = _open_db()
+    named = 0
+    try:
+        now = time.monotonic()
+        for sid in db.unnamed_flagged():
+            name = client.org_name(sid, ask=False)
+            n, due = _NAME_TRIES.get(sid, (0, 0.0))
+            if not name and ask and now >= due:
+                gaps = rsi.FOCUS_SWEEP_GAPS
+                _NAME_TRIES[sid] = (n + 1, now + gaps[min(n, len(gaps) - 1)])
+                name = client.org_name(sid)
+            if name and db.set_flag_name(sid, name):
+                _NAME_TRIES.pop(sid, None)
+                named += 1
+    finally:
+        db.close()
+    return named
+
+
+def _focus_sweeper(srv):
+    """Run complete_partials() every FOCUS_SWEEP_EVERY until shutdown, name
+    any flagged org that has no name, and retry failed lookups
+    (_retry_failed_lookups). Asks SENTRY only while "Look
+    handles up" is on; whatever can be done from what is already stored costs
+    nothing and always runs. Tiles update through the stream, which watches
+    the cache. Never spoken."""
+    time.sleep(FOCUS_SWEEP_FIRST)
+    while not getattr(srv, "_shutting_down", False):
+        try:
+            ask = bool(settings.load().get("rsi_enabled", True))
+            client = _client()
+            with rsi.why("bg-focus"):
+                got = client.complete_partials(ask=ask)
+            if got["completed"] or got["filled"]:
+                print(f"  org focus check: {got['completed']} profile(s) "
+                      f"completed, {got['filled']} filled in part")
+            with rsi.why("bg-names"):
+                named = _fill_flag_names(client, ask)
+            if named:
+                print(f"  org focus check: named {named} flagged org(s)")
+            with rsi.why("bg-retry"):
+                again = _retry_failed_lookups(client, ask)
+            if again["found"]:
+                print(f"  background check: {again['found']} failed lookup(s) "
+                      f"answered ({again['live']} needed a live fetch)")
+        except Exception:
+            pass                # the next round tries again
+        finally:
+            dbopen.release_thread()
+        time.sleep(FOCUS_SWEEP_EVERY)
 
 
 def _rsi_cache(handles=None) -> dict:
@@ -530,7 +691,8 @@ def lookup_now(handle: str, fresh: bool = False) -> bool:
         try:
             client = _client()
             try:
-                c = client.citizen(h, fresh=fresh)
+                with rsi.why("try-now" if fresh else "page-lookup"):
+                    c = client.citizen(h, fresh=fresh)
             except Exception as exc:
                 _note_lookup_failure(client, h, exc)
                 raise
@@ -629,10 +791,11 @@ def fetch_roster_now(sid: str):
             # A big roster is thirty requests at one a second, so it says
             # where it has got to rather than sitting on one line for half a
             # minute looking stuck.
-            out = db.fetch_roster(
-                sid, client=_client(),
-                on_page=lambda page, so_far: ROSTERS.__setitem__(
-                    sid, f"{sid}: {so_far} member(s) so far, page {page}…"))
+            with rsi.why("roster"):
+                out = db.fetch_roster(
+                    sid, client=_client(),
+                    on_page=lambda page, so_far: ROSTERS.__setitem__(
+                        sid, f"{sid}: {so_far} member(s) so far, page {page}…"))
             if out.get("ok"):
                 bits = [f"{out['members']} member(s)"]
                 for key, word in (("joined", "new"), ("back", "back on it"),
@@ -743,7 +906,8 @@ def lookup_members_now(sid: str) -> dict:
                     job["message"] = f"stopped after {job['done']} of {job['total']}"
                     return
                 try:
-                    c = client.citizen(h)
+                    with rsi.why("org-members"):
+                        c = client.citizen(h)
                     stale = getattr(c, "stale_reason", None)
                     # Our own expired copy standing in (it carries no source):
                     # the lookup FAILED. But an answer missing an org's focus,
@@ -776,7 +940,8 @@ def lookup_members_now(sid: str) -> dict:
                     # would keep this thread going round forever.
                     waits[h] = waits.get(h, 0) + 1
                     if waits[h] <= 3:
-                        job["message"] = (f"the lookup service is not responding - "
+                        who = getattr(exc, "service", None) or "the lookup service"
+                        job["message"] = (f"{who} is not responding - "
                                           f"waiting {exc.remaining:.0f}s")
                         time.sleep(exc.remaining + 0.5)
                         todo.append(h)        # try this one again at the end
@@ -1438,7 +1603,8 @@ class Handler(BaseHTTPRequestHandler):
         fresh = bool(payload.get("fresh"))
         client = _client()
         try:
-            c = client.citizen(handle, fresh=fresh)
+            with rsi.why("lookup-window"):
+                c = client.citizen(handle, fresh=fresh)
         except Exception as exc:
             _note_lookup_failure(client, handle.upper(), exc)
             return {"ok": False, "handle": handle.upper(),
@@ -1846,11 +2012,15 @@ class Handler(BaseHTTPRequestHandler):
             name = ""
             # The org's display name is worth having on the row, but a failed
             # lookup must not stop the flag being recorded - the flag is the
-            # user's judgement and the name is decoration.
+            # user's judgement and the name is decoration. org_name(), not
+            # org(): org() wants the FOCUS, and dropped SENTRY's answer - name
+            # and all - for an org it had not read the focus of yet. One that
+            # comes back blank is filled in by the background check.
             try:
                 client = _client()
                 if client.enriches:
-                    name = getattr(client.org(sid), "name", "") or ""
+                    with rsi.why("flag"):
+                        name = client.org_name(sid)
             except Exception:
                 pass
             db.flag_org(sid, note, name)
@@ -1880,7 +2050,10 @@ class Handler(BaseHTTPRequestHandler):
         apply = payload.get("apply") is True
         if job == "ghosts":
             db = _open_db()
-            res = db.purge_ghosts(apply=apply)
+            # The page's client: its pacing, pauses and remembered answers. It
+            # used to build one of its own.
+            with rsi.why("ghost-check"):
+                res = db.purge_ghosts(client=_client(), apply=apply)
             n = len(res["ghosts"])
             if apply:
                 for g in res["ghosts"]:
@@ -1919,6 +2092,11 @@ class Handler(BaseHTTPRequestHandler):
                 # A partial profile is shown on the tile but is not an answer:
                 # an org on it still has no focus. Backfill is how it gets one.
                 if r["handle"].upper() not in cache or partial(r["handle"])]
+            # At most BACKFILL_MAX a run: a contact SENTRY does not have yet
+            # costs one of its live RSI fetches, limited per hour, and one
+            # click on a long list could spend the lot - after which SENTRY
+            # fetches nobody new for anyone until the hour is up.
+            later = max(0, len(todo) - BACKFILL_MAX)
             if not apply:
                 return {"ok": True, "job": job, "applied": False,
                         "count": len(todo),
@@ -1929,14 +2107,18 @@ class Handler(BaseHTTPRequestHandler):
                         "message": (f"{len(todo)} contact(s) corroborated "
                                     f"({need}+ votes in one read, or seen "
                                     f"{need}+ times) with no complete profile stored"
+                                    + (f" - {BACKFILL_MAX} are looked up per run, "
+                                       "to stay inside SENTRY's hourly limit"
+                                       if later else "")
                                     if todo else
                                     "every corroborated contact has been "
                                     "looked up")}
             client = _client()
             done, ghosts, errors = 0, [], []
-            for h in todo:
+            for h in todo[:BACKFILL_MAX]:
                 try:
-                    cit = client.citizen(h)
+                    with rsi.why("backfill"):
+                        cit = client.citizen(h)
                 except Exception as exc:
                     errors.append(f"{h}: {type(exc).__name__}")
                     continue
@@ -1950,7 +2132,9 @@ class Handler(BaseHTTPRequestHandler):
             return {"ok": True, "job": job, "applied": True, "count": done,
                     "items": [], "kept": ghosts, "errors": errors,
                     "message": f"looked up {done} contact(s)" +
-                               (f", {len(ghosts)} do not exist" if ghosts else "")}
+                               (f", {len(ghosts)} do not exist" if ghosts else "")
+                               + (f"; {later} left - run it again in an hour"
+                                  if later else "")}
         if job == "frames":
             pol = housekeeping.Policy.load()
             line = (housekeeping.run_now(apply=True, policy=pol) if apply
@@ -2186,6 +2370,7 @@ def main():
         return 1
     srv.daemon_threads = True       # open streams must not block shutdown
     srv._shutting_down = False
+    rsi.PROCESS = "page"            # names it in the SENTRY request log
     url = f"http://{HOST}:{args.port}/"
     print("=" * 58)
     print("  sc-watch UI")
@@ -2196,6 +2381,8 @@ def main():
     print("=" * 58)
     if not args.no_browser:
         threading.Timer(0.6, lambda: webbrowser.open(url)).start()
+    threading.Thread(target=_focus_sweeper, args=(srv,), daemon=True,
+                     name="focus-sweep").start()
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

@@ -25,8 +25,10 @@ one failing never pauses the other. What each is trusted for:
 
   who someone is, and their orgs   SENTRY, then starcitizen-api.com
   that someone does NOT exist      starcitizen-api.com ONLY - see citizen()
-  an org's focus and archetype     starcitizen-api.com ONLY - SENTRY does not
-                                   carry them, and they are the piracy flag
+  an org's focus (the piracy flag) SENTRY, then starcitizen-api.com - SENTRY
+                                   has carried it since 2026-10; see org()
+  an org's archetype (Syndicate)   starcitizen-api.com only, as a best effort
+                                   that nothing waits on; SENTRY has none
   an org's roster                  SENTRY, then starcitizen-api.com
 
 `rsi_source` in settings chooses between SENTRY-first and the old
@@ -59,13 +61,16 @@ are handled instead by pulling their member list once (see members()).
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import json
 import os
 import re
 import sqlite3
+import sys
 import threading
 import time
+from datetime import datetime
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -110,6 +115,155 @@ SENTRY_MAX_PAGES = 40           # 4,000 members; larger rosters say "partial"
 # anything else takes the same thirty days this cache does.
 FRESH_WINDOW = 86400
 SOURCES = ("sentry", "sci")      # sentry: SENTRY first. sci: the old way only.
+# SENTRY re-reads a PLAYER from RSI when asked with ?max_age, but not in the
+# same answer: measured 2026-10-13, the reply was the 15-day-old copy at once
+# and the refresh had landed 30 s later. So a "try now" asks, then checks back
+# through the cheap metadata call - first after SENTRY_REFRESH_FIRST, then
+# every SENTRY_REFRESH_POLL: four checks where every 3 s was ten. An ORG asked
+# with max_age=0 is queued the same way, and takes minutes - see
+# Client._org_sentry. The asking rides on the lookup's own request (max_age on
+# every player lookup); it used to be a request of its own.
+SENTRY_REFRESH_WAIT = 30.0
+SENTRY_REFRESH_FIRST = 12.0
+SENTRY_REFRESH_POLL = 6.0
+# One SENTRY answer is reused for this long. A reading that looks like a
+# contact on file was asked about by the identity check on each of a burst's
+# database calls, then again by the lookup - three requests for one handle in
+# a second; and an Orgs-tab walk asked about the same unread org once per
+# member. A player answer is reused only if it is young enough for the asker
+# (max_age), "nobody" only for an ask that could not have found more, and
+# never for try now. Under the watcher's first SENTRY retry (90 s), so that
+# retry asks afresh.
+SENTRY_MEMO_TTL = 60.0
+# An org SENTRY has been asked to re-read is not asked again for this long.
+# Its plain profile is still checked on every lookup - that is how the focus
+# is seen to have landed - but re-queuing the read each time asked SENTRY to
+# re-read one org once per member, when an Orgs-tab lookup walked a roster
+# whose main org it had not read yet.
+SENTRY_REREAD_AGAIN = 600.0
+# SENTRY limits LIVE lookups - a player or org it does not have, which it then
+# reads from RSI on the spot - apart from everything else. Measured
+# 2026-10-14: in the same minute, a database-only ask (scrape=false) answered
+# with 119 of 120 left, and the normal ask for the same handle got 429 with
+# Retry-After 3600. Misreads are most of the handles it does not have, and the
+# identity check, the lookup and both retries each asked again. Until then a
+# 429 paused ALL of SENTRY for that hour, so every lookup - players it held
+# included - went to the fallback, which was answering HTTP 500 that night.
+# Now a 429 on a request that can start a live lookup stops only those
+# (SENTRY_LIVE_PAUSE when it names no time), and a handle that has had a live
+# lookup is asked database-only for SENTRY_LIVE_AGAIN.
+#
+# A blocked request starts the hour AGAIN: asked six minutes after the first
+# 429, the reset was back at 3600. So no live lookup of a PLAYER is sent until
+# the time is up - a player it holds is asked database-only (scrape=false) -
+# and the pause is kept in rsi_cache.db (`pauses`), where the watcher and the
+# page both see it and a restart does not forget it. Orgs have no
+# database-only ask, and an org's focus is the piracy flag, so orgs are still
+# asked - nearly all are ones it holds - and an org that is refused is not
+# asked again until the pause is over.
+SENTRY_LIVE_PAUSE = 900.0
+SENTRY_LIVE_AGAIN = 6 * 3600.0
+# THE SENTRY REQUEST LOG. One line per request actually SENT to SENTRY - a
+# remembered answer sends nothing and logs nothing - from the watcher and the
+# page alike, both appending to one file. To find out what spends its live
+# allowance: on 2026-10-15 it ran out, and an hour after we had stopped asking
+# for live fetches it was still out, so something else we send counts.
+# No handles, no org IDs: when, which program, why (see why()), what kind,
+# whether it could start a live fetch, the outcome, how old SENTRY's copy
+# was, and SENTRY's rate-limit headers. Rotated at SENTRY_LOG_MAX, one old
+# copy kept (.1). Not in support bundles.
+SENTRY_LOG = ("debug_bursts", "sentry_requests.log")
+SENTRY_LOG_MAX = 2_000_000
+PROCESS = Path(sys.argv[0]).stem or "?"     # watch.py and ui_server.py name it
+_LOG_LOCK = threading.Lock()
+_TL = threading.local()                     # .why, .headers - per thread
+
+
+@contextlib.contextmanager
+def why(tag: str):
+    """Name the reason for the SENTRY requests made inside, for the request
+    log. Per thread; the innermost wins."""
+    prev = getattr(_TL, "why", None)
+    _TL.why = tag
+    try:
+        yield
+    finally:
+        _TL.why = prev
+
+
+def _log_sentry(path: str, live: bool, status: str, started: float,
+                payload=None, headers=None):
+    """One line in the SENTRY request log. Never raises."""
+    try:
+        route, _, query = path.partition("?")
+        q = urllib.parse.parse_qs(query)
+        if route.startswith("/citizens/"):
+            kind = "meta" if route.endswith("/metadata") else "player"
+        elif route.endswith("/memberships"):
+            kind = "roster"
+        elif route.startswith("/orgs/"):
+            kind = "org"
+        else:
+            kind = route.strip("/").split("/")[0] or "?"
+        # "db": cannot start a live fetch. "live?": does if SENTRY lacks it -
+        # a 404 on one means it looked on RSI and found nobody; a copy only
+        # seconds old on a 200 means it just fetched.
+        mode = "db" if (kind == "meta" or not live
+                        or q.get("scrape") == ["false"]) else "live?"
+        bits = []
+        if "max_age" in q:
+            bits.append(f"max_age={q['max_age'][0]}")
+        if isinstance(payload, dict) and kind == "player":
+            prof = payload.get("profile") or {}
+            seen = _parse_utc((payload.get("metadata") or {}).get("last_fetched")
+                              or prof.get("last_fetched"))
+            if seen:
+                age = time.time() - seen
+                bits.append(f"copy={age / 86400:.1f}d"
+                            if age >= 120 else f"copy={max(0, int(age))}s")
+                try:
+                    if "max_age" in q and age > float(q["max_age"][0]):
+                        bits.append("reread-queued")
+                except ValueError:
+                    pass
+            if payload.get("redirected_from"):
+                bits.append("renamed")
+        elif isinstance(payload, dict) and kind == "org":
+            prof = payload.get("profile", payload)
+            if isinstance(prof, dict) and not (prof.get("primary_activity")
+                                               or prof.get("secondary_activity")):
+                bits.append("no-focus")
+        if headers is not None:
+            rl = sorted((k.lower(), v) for k, v in headers.items()
+                        if "ratelimit" in k.lower() or k.lower() == "retry-after")
+            bits += [f"{k}={v}" for k, v in rl]
+        ms = int((time.monotonic() - started) * 1000)
+        line = (f"{datetime.now():%Y-%m-%d %H:%M:%S} {PROCESS:<9} "
+                f"{getattr(_TL, 'why', None) or '-':<12} {kind:<6} {mode:<5} "
+                f"{status:<9} {ms:>6}ms" + ("  " + " ".join(bits) if bits else ""))
+        with _LOG_LOCK:
+            p = paths.data(*SENTRY_LOG)
+            try:
+                if p.stat().st_size > SENTRY_LOG_MAX:
+                    p.replace(p.with_name(p.name + ".1"))
+            except OSError:
+                pass
+            with open(p, "a", encoding="utf-8") as fh:
+                fh.write(line + "\n")
+    except Exception:
+        pass
+
+
+# The page's background check on profiles missing an org's focus - see
+# Client.complete_partials(). An org SENTRY has not given a focus for is asked
+# again after these gaps, the last one repeating. SENTRY reads an org within
+# minutes, sometimes far longer, and nobody is waiting on these: the watcher's
+# own retries cover the minutes a player is near you.
+FOCUS_SWEEP_GAPS = (600.0, 1800.0, 3600.0, 21600.0)
+# The other service, asked only for an org's archetype (SENTRY has none) and
+# only as a best effort. It answers in 4-6 s when it works; anything slower is
+# it failing, and nothing waits on that.
+ARCHETYPE_TIMEOUT = 8.0
 
 CACHE_PATH = paths.data("rsi_cache.db")
 # Beside your data, not beside the program: an installed build lives
@@ -289,6 +443,22 @@ class Cache:
         self.db.execute("""CREATE TABLE IF NOT EXISTS partial_citizens (
             handle TEXT PRIMARY KEY, data TEXT, observed_at REAL,
             reason TEXT, unknown TEXT)""")
+        # A service saying "wait", kept where every process sees it and a
+        # restart does not forget it: until (epoch seconds). See
+        # SENTRY_LIVE_PAUSE. Its own table, so older builds ignore it.
+        self.db.execute("""CREATE TABLE IF NOT EXISTS pauses (
+            name TEXT PRIMARY KEY, until REAL)""")
+        self.db.commit()
+
+    def pause_until(self, name: str) -> float:
+        """Epoch seconds a stored pause runs to; 0 if there is none."""
+        row = self.db.execute("SELECT until FROM pauses WHERE name=?",
+                              (name,)).fetchone()
+        return float(row[0]) if row and row[0] else 0.0
+
+    def set_pause(self, name: str, until: float):
+        self.db.execute("INSERT OR REPLACE INTO pauses VALUES (?,?)",
+                        (name, until))
         self.db.commit()
 
     def get_citizen(self, handle: str, any_age: bool = False) -> Citizen | None:
@@ -331,13 +501,49 @@ class Cache:
         self.db.commit()
 
     def put_partial(self, c: Citizen, reason: str, unknown: list[str]):
-        """Keep a profile that is missing an org's focus - see the table."""
+        """Keep a profile that is missing an org's focus - see the table.
+
+        Clears any earlier FAILURE for the handle, as put_citizen() does: an
+        incomplete answer is still an answer, and its own reason says what is
+        missing. Kept, the old row went on saying "HTTP 500" after every
+        retry - one written weeks before, by a lookup that got nothing."""
         self.db.execute(
             """INSERT OR REPLACE INTO partial_citizens
                (handle, data, observed_at, reason, unknown) VALUES (?,?,?,?,?)""",
             (c.handle.upper(), json.dumps(asdict(c)),
              min(c.fetched_at or time.time(), time.time()), reason,
              json.dumps(unknown)))
+        self.db.execute("DELETE FROM lookup_failures WHERE handle=?",
+                        (c.handle.upper(),))
+        self.db.commit()
+
+    def partials(self) -> list[tuple[str, dict, float, list[str], str]]:
+        """Every partial profile: (handle, data, observed_at, unknown SIDs,
+        reason). A damaged row is skipped, not raised."""
+        out = []
+        for h, data, observed, unknown, reason in self.db.execute(
+                "SELECT handle, data, observed_at, unknown, reason "
+                "FROM partial_citizens").fetchall():
+            try:
+                out.append((h, json.loads(data), float(observed or 0),
+                            [str(x).upper() for x in json.loads(unknown or "[]")],
+                            reason or ""))
+            except (TypeError, ValueError):
+                continue
+        return out
+
+    def citizen_stored_at(self, handle: str) -> float | None:
+        """When the whole profile on file was read, whatever its age."""
+        row = self.db.execute("SELECT fetched_at FROM citizens WHERE handle=?",
+                              (handle.upper(),)).fetchone()
+        return row[0] if row else None
+
+    def update_partial(self, c: Citizen, reason: str, unknown: list[str]):
+        """Rewrite a partial profile in place - fewer orgs missing - keeping
+        when it was read and leaving any failure row alone."""
+        self.db.execute(
+            "UPDATE partial_citizens SET data=?, reason=?, unknown=? WHERE handle=?",
+            (json.dumps(asdict(c)), reason, json.dumps(unknown), c.handle.upper()))
         self.db.commit()
 
     def note_failure(self, handle: str, error: str, attempts: int,
@@ -354,10 +560,18 @@ class Cache:
             return None
         return Org(**json.loads(row[0]))
 
-    def put_org(self, o: Org):
+    def put_org(self, o: Org, stored_at: float | None = None):
+        """`stored_at` keeps an existing copy's age - for adding a detail to
+        it without claiming the whole record was just read."""
+        when = min(time.time(), stored_at) if stored_at else time.time()
         self.db.execute("INSERT OR REPLACE INTO orgs VALUES (?,?,?)",
-                        (o.sid.upper(), json.dumps(asdict(o)), time.time()))
+                        (o.sid.upper(), json.dumps(asdict(o)), when))
         self.db.commit()
+
+    def org_stored_at(self, sid: str) -> float | None:
+        row = self.db.execute("SELECT fetched_at FROM orgs WHERE sid=?",
+                              (sid.upper(),)).fetchone()
+        return row[0] if row else None
 
     def put_members(self, sid: str, handles: list[str], complete: bool = False):
         """Cache an org's member list, which member_orgs() hands to lookups.
@@ -416,13 +630,19 @@ class ServiceDown(Exception):
     is treated as down until `until` (time.monotonic()). Transient by
     definition - it is a statement about the service, not the handle."""
 
-    def __init__(self, until: float):
+    def __init__(self, until: float, service: str | None = None):
         self.until = until
+        self.service = service
         super().__init__(f"lookups paused for {self.remaining:.0f}s")
 
     @property
     def remaining(self) -> float:
         return max(0.0, self.until - time.monotonic())
+
+
+class LiveLimited(ServiceDown):
+    """SENTRY's limit on LIVE lookups is used up - see SENTRY_LIVE_PAUSE.
+    Everything it already holds can still be asked for, database-only."""
 
 
 def is_transient(exc: BaseException) -> bool:
@@ -442,39 +662,64 @@ def is_transient(exc: BaseException) -> bool:
                             ConnectionError, OSError))
 
 
+def _tag(exc: BaseException, service: str) -> BaseException:
+    """Note which service raised `exc`, for describe_failure(). Two services
+    can fail a lookup, and "the lookup service had an error (HTTP 500)" sent a
+    person looking at the wrong one - measured 2026-10-13, every such message
+    was starcitizen-api.com, while SENTRY answered every request."""
+    if getattr(exc, "service", None) is None:
+        try:
+            exc.service = service
+        except Exception:
+            pass
+    return exc
+
+
 def describe_failure(exc: BaseException) -> str:
-    """A short, plain reason a lookup failed, for the console and the tile."""
+    """A short, plain reason a lookup failed, for the console and the tile,
+    naming the service when it is known - and, in front, `sentry_note`: what
+    SENTRY could not do when the failure shown is the other service's."""
+    text = _describe_failure(exc)
+    note = getattr(exc, "sentry_note", None)
+    return f"{note}; {text}" if note else text
+
+
+def _describe_failure(exc: BaseException) -> str:
+    who = getattr(exc, "service", None) or "the lookup service"
+    if isinstance(exc, LiveLimited):
+        return (f"{who} is rate limiting new lookups for "
+                f"{max(1, round(exc.remaining / 60))} more min")
     if isinstance(exc, ServiceDown):
-        return "the lookup service is not responding, so lookups are paused"
+        return f"{who} is not responding, so lookups are paused"
     if isinstance(exc, NoKey):
         return "needs a starcitizen-api.com API key"
     if isinstance(exc, urllib.error.HTTPError):
         if exc.code == 429:
-            return "the lookup service is rate limiting (HTTP 429)"
+            return f"{who} is rate limiting (HTTP 429)"
         if exc.code >= 500:
-            return f"the lookup service had an error (HTTP {exc.code})"
+            return f"{who} had an error (HTTP {exc.code})"
         if exc.code in (401, 403):
             return f"the API key was refused (HTTP {exc.code})"
-        return f"HTTP {exc.code}"
+        return f"{who}: HTTP {exc.code}"
     if isinstance(exc, TimeoutError) or "timed out" in str(exc).lower():
-        return "the lookup service timed out"
+        return f"{who} timed out"
     if isinstance(exc, (urllib.error.URLError, ConnectionError)):
-        return "could not reach the lookup service"
+        return f"could not reach {who}"
     return type(exc).__name__
 
 
 def lookup_url(handle: str) -> str:
     """Third-party lookup, useful when we have no org data of our own."""
-    return LOOKUP_URL.format(handle=urllib.parse.quote(handle))
+    return LOOKUP_URL.format(handle=urllib.parse.quote(handle, safe=''))
 
 
 def profile_url(handle: str) -> str:
     """The player's own RSI page - for the second-screen 'open profile' button."""
-    return PROFILE_URL.format(handle=urllib.parse.quote(handle))
+    return PROFILE_URL.format(handle=urllib.parse.quote(handle, safe=''))
 
 
 def org_url(sid: str) -> str:
-    return ORG_URL.format(sid=urllib.parse.quote(sid))
+    return ORG_URL.format(sid=urllib.parse.quote(sid, safe=''))
 
 
 def _parse_utc(text) -> float | None:
@@ -492,6 +737,21 @@ def _parse_utc(text) -> float | None:
     return dt.timestamp()
 
 
+def _is_answer_for(d: dict, handle: str) -> bool:
+    """Is SENTRY's record about THIS handle?
+
+    SENTRY follows renames by default: asked about a handle somebody USED to
+    have, it answers with their current profile, and says `redirected_from`.
+    Filed under the handle asked about, that is one person's orgs on another -
+    whoever holds that handle now, or a misread that happens to spell it. So a
+    redirect is not an answer for the handle: the other service, or
+    "unverified", decides.
+    """
+    prof = (d or {}).get("profile") or {}
+    shown = str(prof.get("handle") or handle).strip().lower()
+    return shown == handle.strip().lower() and not d.get("redirected_from")
+
+
 class _Paced:
     """One service's request pacing and outage breaker.
 
@@ -506,6 +766,7 @@ class _Paced:
     # is still down afterwards, up to DOWN_MAX.
     DOWN_AFTER = 3
     DOWN_FIRST, DOWN_MAX = 60.0, 300.0
+    SERVICE = "the lookup service"       # named in failure messages
 
     def _init_pacing(self, min_interval: float):
         self.min_interval = min_interval
@@ -517,16 +778,21 @@ class _Paced:
         self._down_until = 0.0       # time.monotonic(); 0 = not paused
         self._pause = self.DOWN_FIRST
         self._probation = False      # paused before and not yet answered since
+        # Until when the service itself said to wait (429 + Retry-After). A
+        # forced request - a person pressing try now - may skip our own guess
+        # that it is down, but not that.
+        self._told_until = 0.0
 
     def down_for(self) -> float:
         """Seconds until lookups resume; 0 if the service is not paused."""
         with self._slot_lock:
             return max(0.0, self._down_until - time.monotonic())
 
-    def _check_paused(self):
+    def _check_paused(self, force: bool = False):
         with self._slot_lock:
-            if time.monotonic() < self._down_until:
-                raise ServiceDown(self._down_until)
+            until = self._told_until if force else self._down_until
+            if time.monotonic() < until:
+                raise ServiceDown(until, self.SERVICE)
 
     def _went_ok(self):
         with self._slot_lock:
@@ -551,6 +817,7 @@ class _Paced:
             if retry_after:
                 self._down_until = max(self._down_until,
                                        time.monotonic() + float(retry_after))
+                self._told_until = max(self._told_until, self._down_until)
                 self._trouble = 0
                 self._probation = True
                 return
@@ -599,25 +866,95 @@ class Sentry(_Paced):
     in Client, which is the one place both sources meet.
     """
 
-    def __init__(self, min_interval: float = MIN_INTERVAL):
+    SERVICE = "SENTRY"
+
+    LIVE_PAUSE = "sentry_live"          # its row in Cache.pauses
+
+    def __init__(self, min_interval: float = MIN_INTERVAL,
+                 cache: "Cache | None" = None):
         self._init_pacing(min_interval)
+        self._cache = cache
+        self._live_until = 0.0          # time.monotonic(); see LiveLimited
+        self._live_asked: dict[str, float] = {}   # HANDLE -> when, see citizen()
+        self._org_refused: dict[str, float] = {}  # SID -> until, see org()
+        # (kind, key) -> (time.monotonic(), answer, asked live) - see
+        # SENTRY_MEMO_TTL. kind "c" is a player, "o" an org's profile.
+        self._memo: dict[tuple[str, str], tuple[float, object, bool]] = {}
+
+    def _recall(self, kind: str, key: str):
+        """(found, answer) from the memo."""
+        m = self._memo.get((kind, key))
+        if m is None or time.monotonic() - m[0] >= SENTRY_MEMO_TTL:
+            return False, None
+        return True, m
+
+    def _remember(self, kind: str, key: str, answer, live: bool):
+        now = time.monotonic()
+        self._memo[(kind, key)] = (now, answer, live)
+        if len(self._memo) > 2000:
+            for k, m in list(self._memo.items()):
+                if now - m[0] >= SENTRY_MEMO_TTL:
+                    self._memo.pop(k, None)
+
+    def forget(self, handle: str):
+        """Drop a remembered answer for a player - its re-read has landed."""
+        self._memo.pop(("c", handle.upper()), None)
+
+    def live_paused_for(self) -> float:
+        """Seconds until live lookups may be asked for again; 0 if now.
+        Another process - the watcher, the page - may have been told."""
+        if self._cache is not None:
+            try:
+                left = self._cache.pause_until(self.LIVE_PAUSE) - time.time()
+            except Exception:
+                left = 0.0
+            if left > 0:
+                with self._slot_lock:
+                    self._live_until = max(self._live_until,
+                                           time.monotonic() + left)
+        return max(0.0, self._live_until - time.monotonic())
+
+    def _live_told(self, seconds: float):
+        """SENTRY said its live lookups are used up for `seconds`."""
+        with self._slot_lock:
+            self._live_until = max(self._live_until,
+                                   time.monotonic() + seconds)
+        if self._cache is not None:
+            try:
+                self._cache.set_pause(self.LIVE_PAUSE, time.time() + seconds)
+            except Exception:
+                pass
 
     def _fetch(self, url: str, timeout: float):
-        """One GET, parsed. Separate so tests can fake the network."""
+        """One GET, parsed. Separate so tests can fake the network. Its
+        rate-limit headers are left on the thread for the request log."""
         req = urllib.request.Request(url, headers={
             "User-Agent": SENTRY_USER_AGENT, "Accept": "application/json"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
+            _TL.headers = r.headers
             return json.loads(r.read().decode("utf-8", "replace"))
 
     def _call(self, path: str, timeout: float = SENTRY_TIMEOUT,
-              force: bool = False):
-        """A parsed answer, or None for 404. Raises on anything else."""
-        if not force:
-            self._check_paused()
+              force: bool = False, live: bool = True, gate: bool = True):
+        """A parsed answer, or None for 404. Raises on anything else.
+
+        `live` is a request that can make SENTRY read RSI on the spot - a
+        player or org it lacks. False only for database-only asks. A 429 on
+        one stops live requests for as long as it says, and nothing else; a
+        429 on a database-only ask is the whole service saying wait.
+        `gate` False sends a live request even during that pause - see
+        org()."""
+        self._check_paused(force)
+        if live and gate and self.live_paused_for() > 0:
+            _log_sentry(path, live, "not-sent", time.monotonic())
+            raise LiveLimited(self._live_until, self.SERVICE)
         self._wait_turn()
+        started = time.monotonic()
+        _TL.headers = None
         try:
             payload = self._fetch(SENTRY_HOST + path, timeout)
         except urllib.error.HTTPError as e:
+            _log_sentry(path, live, str(e.code), started, headers=e.headers)
             if e.code == 404:
                 self._went_ok()
                 return None
@@ -628,20 +965,122 @@ class Sentry(_Paced):
                         retry = float(e.headers.get("Retry-After") or 0) or None
                     except (TypeError, ValueError):
                         retry = None
+                    if live:
+                        self._live_told(retry or SENTRY_LIVE_PAUSE)
+                        raise LiveLimited(self._live_until, self.SERVICE) from e
                 self._went_wrong(retry)
-            raise
+            raise _tag(e, self.SERVICE)
         except Exception as e:
+            _log_sentry(path, live, ("timeout" if isinstance(e, TimeoutError)
+                                     or "timed out" in str(e).lower()
+                                     else type(e).__name__), started)
             if is_transient(e):
                 self._went_wrong()
-            raise
+            raise _tag(e, self.SERVICE)
+        _log_sentry(path, live, "200", started, payload, _TL.headers)
         self._went_ok()
         return payload
 
     def citizen(self, handle: str, force: bool = False,
-                timeout: float = SENTRY_TIMEOUT) -> dict | None:
-        """SENTRY's record of a citizen, or None if it has none."""
-        return self._call(f"/citizens/{urllib.parse.quote(handle)}",
-                          timeout=timeout, force=force)
+                timeout: float = SENTRY_TIMEOUT,
+                max_age: float | None = None,
+                live: bool = True) -> dict | None:
+        """SENTRY's record of a citizen, or None if it has none.
+
+        `max_age` asks it to re-read RSI if its copy is older than that many
+        seconds. The answer is still the copy it has; the refresh lands a few
+        seconds later (see SENTRY_REFRESH_WAIT).
+
+        `live` False asks its database only (scrape=false): it does not go
+        and read RSI for a handle it lacks. Database-only too, whatever
+        `live` says, while its live lookups are rate limited, and for a handle
+        that had one within SENTRY_LIVE_AGAIN - unless `force`, a person
+        pressing try now. A live lookup it started carries on at its end, so a
+        real player is in its database by the time a retry asks."""
+        key = handle.upper()
+        if live:
+            now = time.monotonic()
+            last = self._live_asked.get(key)
+            if (self.live_paused_for() > 0
+                    or (not force and last is not None
+                        and now - last < SENTRY_LIVE_AGAIN)):
+                live = False
+        if not force:
+            hit, m = self._recall("c", key)
+            if hit:
+                _, d, was_live = m
+                if d is not None:
+                    seen = _parse_utc(((d.get("metadata") or {}).get("last_fetched"))
+                                      or (d.get("profile") or {}).get("last_fetched"))
+                    if max_age is None or (seen and time.time() - seen <= max_age):
+                        return d
+                elif was_live or not live:
+                    return None         # nobody, and this ask could not do better
+        params = []
+        if max_age is not None:
+            params.append(f"max_age={max(0, int(max_age))}")
+        if not live:
+            params.append("scrape=false")
+        path = (f"/citizens/{urllib.parse.quote(handle, safe='')}"
+                + ("?" + "&".join(params) if params else ""))
+        try:
+            d = self._call(path, timeout=timeout, force=force, live=live)
+        except LiveLimited:
+            return self.citizen(handle, force, timeout, max_age, live=False)
+        except Exception:
+            if live:
+                self._note_live(key)    # timed out: it may still be reading
+            raise
+        if live and d is None:
+            self._note_live(key)        # it looked, and RSI had nobody
+        self._remember("c", key, d, live)
+        return d
+
+    def _note_live(self, key: str):
+        now = time.monotonic()
+        self._live_asked[key] = now
+        if len(self._live_asked) > 5000:
+            for k, t in list(self._live_asked.items()):
+                if now - t >= SENTRY_LIVE_AGAIN:
+                    self._live_asked.pop(k, None)
+
+    def citizen_fetched(self, handle: str) -> float | None:
+        """When SENTRY last read this player from RSI, as epoch seconds - the
+        light way to see whether a refresh has landed."""
+        d = self._call(f"/citizens/{urllib.parse.quote(handle, safe='')}/metadata",
+                       live=False)
+        return _parse_utc((d or {}).get("last_fetched")) if isinstance(d, dict) else None
+
+    def org(self, sid: str, max_age: float | None = None,
+            force: bool = False) -> dict | None:
+        """An org's profile - name, member count and, since 2026-10, its focus
+        as `primary_activity` / `secondary_activity` - or None if SENTRY has no
+        such org. Only the profile: the whole org record also carries a page of
+        members and its change history, which a focus does not need.
+
+        Asked even while live lookups are paused (see SENTRY_LIVE_PAUSE): an
+        org it holds is answered from its database, and the focus is the
+        piracy flag. One it refuses - it lacks it, and would have read RSI -
+        is not asked again until the pause is over."""
+        key = sid.upper()
+        refused = self._org_refused.get(key, 0.0)
+        if time.monotonic() < refused:
+            raise LiveLimited(refused, self.SERVICE)
+        if max_age is None and not force:
+            hit, m = self._recall("o", key)
+            if hit:
+                return m[1]
+        q = "" if max_age is None else f"?max_age={max(0, int(max_age))}"
+        try:
+            d = self._call(f"/orgs/{urllib.parse.quote(sid, safe='')}/profile{q}",
+                           gate=False)
+        except LiveLimited:
+            self._org_refused[key] = self._live_until
+            raise
+        prof = d.get("profile", d) if isinstance(d, dict) else None
+        prof = prof if isinstance(prof, dict) else None
+        self._remember("o", key, prof, True)
+        return prof
 
     def roster(self, sid: str, on_page=None) -> Roster | None:
         """An org's member list, walked to the end. None if SENTRY has no
@@ -657,9 +1096,11 @@ class Sentry(_Paced):
                 return Roster(out, False, "sentry", total, hidden, redacted,
                               observed)
             d = self._call(
-                f"/orgs/{urllib.parse.quote(sid)}/memberships"
+                f"/orgs/{urllib.parse.quote(sid, safe='')}/memberships"
                 f"?per_page={SENTRY_PAGE_SIZE}&page={page}",
-                timeout=SENTRY_PAGE_TIMEOUT)
+                # Sent during a live-lookup pause, as org() is: a roster is
+                # served from its database, and a person asked for it.
+                timeout=SENTRY_PAGE_TIMEOUT, gate=False)
             if d is None:
                 return None if page == 1 else Roster(
                     out, False, "sentry", total, hidden, redacted, observed)
@@ -726,7 +1167,19 @@ class Client(_Paced):
                 sentry = _settings.load().get("rsi_source", "sentry") != "sci"
             except Exception:
                 sentry = True
-        self.sentry = Sentry(min_interval) if sentry else None
+        self.sentry = Sentry(min_interval, self.cache) if sentry else None
+        # Orgs whose archetype the other service has been asked for this run -
+        # see _fill_archetype(). Once each, so a down service is not asked
+        # again for every tile.
+        self._archetype_tried: set[str] = set()
+        # Orgs SENTRY has been asked to re-read and has not yet, with when it
+        # was asked (time.monotonic()): their focus is on its way, which a
+        # missing-focus message should say - see _org_sentry().
+        self._sentry_reading: dict[str, float] = {}
+        # SID -> (times asked, when next due), for complete_partials().
+        self._focus_tries: dict[str, tuple[int, float]] = {}
+
+    SERVICE = "starcitizen-api.com"
 
     @property
     def ready(self) -> bool:
@@ -741,7 +1194,8 @@ class Client(_Paced):
         """Whether this backend returns org data, as opposed to just a link.
 
         True without an API key when SENTRY is on, because SENTRY needs none.
-        What a key still buys is `confirms_absence` and org focus - see there.
+        What a key still buys is `confirms_absence`, an archetype for orgs we
+        have none for, and a fallback when SENTRY cannot answer.
         """
         return self.provider == "api" and (bool(self.api_key)
                                            or self.sentry is not None)
@@ -758,7 +1212,7 @@ class Client(_Paced):
         return self.provider == "api" and bool(self.api_key)
 
     def _call(self, path: str, mode: str | None = None,
-              force: bool = False) -> dict | None:
+              force: bool = False, timeout: float | None = None) -> dict | None:
         """One rate-limited request, parsed, with the outage breaker applied.
 
         Returns the WHOLE payload so the caller can decide what an empty
@@ -773,25 +1227,23 @@ class Client(_Paced):
             raise NoKey(
                 "no API key. Get one at https://starcitizen-api.com, then set "
                 "SC_API_KEY or write it to sc_api_key.txt")
-        if not force:
-            with self._slot_lock:
-                if time.monotonic() < self._down_until:
-                    raise ServiceDown(self._down_until)
+        self._check_paused(force)
         self._wait_turn()
         url = f"{API_HOST}/{self.api_key}/v1/{mode or self.mode}/{path}"
         try:
-            payload = self._fetch(url)
+            payload = (self._fetch(url) if timeout is None
+                       else self._fetch(url, timeout=timeout))
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 self._went_ok()
                 return None
             if is_transient(e):
                 self._went_wrong()
-            raise
+            raise _tag(e, self.SERVICE)
         except Exception as e:
             if is_transient(e):
                 self._went_wrong()
-            raise
+            raise _tag(e, self.SERVICE)
         self._went_ok()
         return payload
 
@@ -823,20 +1275,38 @@ class Client(_Paced):
             return None
         return payload["data"]
 
-    def _fetch(self, url: str):
+    def _fetch(self, url: str, timeout: float = 25):
         """One GET, parsed. Separate from _get() so tests can fake the network
         without faking the rate limit."""
         req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT,
                                                    "Accept": "application/json"})
-        with urllib.request.urlopen(req, timeout=25) as r:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
             return json.loads(r.read().decode("utf-8", "replace"))
 
     def org(self, sid: str, force: bool = False) -> Org:
+        """An org with its focus: our cache, then SENTRY, then the other
+        service, then an expired copy. Raises only if none of them has it.
+
+        SENTRY's focus wins over the other service's. Measured 2026-10-13 on
+        157 cached orgs: where they differed, our copies from the other
+        service were 20-41 days old - and it can answer from a stored copy of
+        its own, of unknown age - while SENTRY's history showed the same focus
+        across months of re-reads. The other service failed every live request
+        that day."""
         cached = self.cache.get_org(sid)
         if cached:
+            self._fill_archetype(cached, keep_age=True)
             return cached
+        if self.sentry is not None:
+            try:
+                got = self._org_sentry(sid, force=force)
+            except Exception:
+                got = None      # counted by SENTRY's own breaker; ask the other
+            if got is not None:
+                self.cache.put_org(got)
+                return got
         try:
-            data = self._get(f"organization/{urllib.parse.quote(sid)}", force=force)
+            data = self._get(f"organization/{urllib.parse.quote(sid, safe='')}", force=force)
         except Exception:
             # Same fallback as citizen(): an expired copy of an org beats a
             # lookup that fails outright. With no copy at all this still
@@ -859,8 +1329,134 @@ class Client(_Paced):
         self.cache.put_org(org)
         return org
 
-    def citizen(self, handle: str, fresh: bool = False) -> Citizen:
+    def _org_sentry(self, sid: str, archetype: bool = True,
+                    force: bool = False) -> Org | None:
+        """SENTRY's org WITH its focus, or None if it cannot give the focus.
+
+        Its focus fields are null for an org it has not re-read since it began
+        carrying them ("null = not updated yet", its own docs) - and null is
+        NOT "no focus": read as one, it would clear a PIRACY mark. Asked again
+        with max_age=0, SENTRY QUEUES a re-read. Once (one org) the second
+        answer already carried the focus, in 1.4 s; usually it does not -
+        measured 2026-10-13, 32 of 32 orgs were still null straight after,
+        and all six re-checked a few minutes later had it. So the other
+        service is asked meanwhile, and the org is remembered as on its way
+        (`_sentry_reading`): the missing-focus message says so, and the
+        watcher retries such a profile on a ladder sized for minutes.
+
+        SENTRY has no archetype, which is where "Syndicate" comes from. The
+        one we already hold for the org is kept - an org's type is about the
+        most settled thing about it - and otherwise _fill_archetype() tries the
+        other service, without ever waiting on it.
+        """
+        def no_focus(p):
+            # Blank counts as null: every RSI org declares a primary focus, so
+            # an empty one is a field not filled in, and cached as "no focus"
+            # it would hide a PIRACY mark for thirty days.
+            return not (str(p.get("primary_activity") or "").strip()
+                        or str(p.get("secondary_activity") or "").strip())
+
+        key = sid.upper()
+        p = self.sentry.org(sid, force=force)     # force: try now, no memo
+        if p is None:
+            self._sentry_reading.pop(key, None)
+            return None
+        if no_focus(p):
+            asked = self._sentry_reading.get(key)
+            if asked is not None and time.monotonic() - asked < SENTRY_REREAD_AGAIN:
+                return None             # already queued - see SENTRY_REREAD_AGAIN
+            p = self.sentry.org(sid, max_age=0)
+            if p is None or no_focus(p):
+                if p is not None:
+                    self._sentry_reading[key] = time.monotonic()
+                return None
+        self._sentry_reading.pop(key, None)
+        org = self._org_from_profile(sid, p)
+        if archetype:
+            self._fill_archetype(org)
+        return org
+
+    def _org_from_profile(self, sid: str, p: dict) -> Org:
+        """SENTRY's org profile as an Org, carrying over the archetype we
+        hold (SENTRY has none). The caller has checked it has a focus."""
+        prim = str(p.get("primary_activity") or "").strip()
+        sec = str(p.get("secondary_activity") or "").strip()
+        if sec == prim:
+            sec = ""                    # seen once: the same focus in both
+        org = Org(sid=sid.upper(), name=p.get("name") or sid,
+                  members=int(p.get("member_count") or 0),
+                  primary_focus=prim, secondary_focus=sec)
+        old = self.cache.get_org(sid, any_age=True)
+        if old is not None:
+            org.archetype, org.commitment = old.archetype, old.commitment
+        return org
+
+    def org_name(self, sid: str, ask: bool = True) -> str:
+        """An org's display name, for flagging it - "" if none can be had.
+
+        Not org(): that wants the org's FOCUS, and threw SENTRY's whole answer
+        away when it had no focus yet - name included - then asked the other
+        service, which was failing. So a flagged org kept "" for a name, for
+        good: the name is only written when the flag is. Now: our cache, any
+        age; else SENTRY's profile, one request (`ask`), whose name is there
+        with or without a focus. Everything else it carries is kept too: with
+        a focus the whole org is stored, and no lookup asks for it again. The
+        other service is not asked, and no archetype is fetched."""
+        cached = self.cache.get_org(sid, any_age=True)
+        if cached is not None and cached.name:
+            return cached.name
+        if not ask or self.sentry is None or not self.enriches:
+            return ""
+        try:
+            p = self.sentry.org(sid)
+        except Exception:
+            return ""
+        if not p:
+            return ""
+        if (str(p.get("primary_activity") or "").strip()
+                or str(p.get("secondary_activity") or "").strip()):
+            self.cache.put_org(self._org_from_profile(sid, p))
+        return str(p.get("name") or "").strip()
+
+    def _fill_archetype(self, org: Org, keep_age: bool = False):
+        """Best effort: an archetype from the other service, for an org that
+        has none. Hardly ever waits on it - only with a key, once per org per
+        run, on a short timeout, and NOT AT ALL once it has failed and not
+        answered since (paused, or any failure in a row): a lookup meeting
+        three new orgs while it was down spent 8 s on each. At worst, one
+        8 s wait as an outage begins. Never fails the org: without one, the
+        org simply shows no Syndicate mark yet. Its focus is not taken;
+        SENTRY's is fresher (see org()). `keep_age` stores it without
+        restarting the cached copy's thirty days."""
+        if org.archetype or not self.confirms_absence:
+            return
+        sid = org.sid.upper()
+        if sid in self._archetype_tried or self.down_for() > 0 or self._trouble:
+            return
+        self._archetype_tried.add(sid)
+        try:
+            payload = self._call(f"organization/{urllib.parse.quote(sid, safe='')}",
+                                 timeout=ARCHETYPE_TIMEOUT)
+        except Exception:
+            return
+        data = (payload or {}).get("data") if isinstance(payload, dict) else None
+        if not isinstance(data, dict) or not data.get("archetype"):
+            return
+        org.archetype = data.get("archetype") or ""
+        org.commitment = org.commitment or data.get("commitment") or ""
+        if keep_age:                    # a fresh org is stored by org() itself
+            try:
+                self.cache.put_org(org, stored_at=self.cache.org_stored_at(sid))
+            except Exception:
+                pass
+
+    def citizen(self, handle: str, fresh: bool = False,
+                live: bool = True) -> Citizen:
         """A profile, from the cache when it has one unless `fresh`.
+
+        `live` False asks SENTRY's database only - never a live RSI fetch,
+        which its hourly limit counts. For a question SENTRY cannot answer
+        anyway: "does this account NOT exist" is the other service's alone.
 
         `fresh` is for a person pressing "look up" on a contact. The cache
         keeps "no such account" for a YEAR, so without it a forced lookup of
@@ -870,8 +1466,12 @@ class Client(_Paced):
 
           1. SENTRY. Its answer is taken when it has the person, its copy is
              recent enough (FRESH_WINDOW when `fresh`, CITIZEN_TTL otherwise),
-             and every org on it could be given its focus. That is the fast
-             path, and the one that sees affiliate orgs.
+             and every org on it could be given its focus - which SENTRY now
+             supplies too (org()). That is the fast path, and the one that
+             sees affiliate orgs. A copy too old is not handed to the other
+             service: SENTRY is asked to re-read RSI. A "try now" waits up to
+             SENTRY_REFRESH_WAIT for that; the watcher does not wait - the
+             old copy stands in, marked, and its retry collects the new one.
           2. starcitizen-api.com, for everything else - which includes every
              case where SENTRY does not have the person. SENTRY not having
              someone is a database's silence, not RSI saying they do not
@@ -901,21 +1501,43 @@ class Client(_Paced):
         cached = None if fresh else self.cache.get_citizen(handle)
         if cached:
             return cached
-        return self._resolve(handle, fresh, self.sentry)
+        return self._resolve(handle, fresh, self.sentry, live)
 
-    def _resolve(self, handle: str, fresh: bool, sentry) -> Citizen:
+    def _resolve(self, handle: str, fresh: bool, sentry,
+                 live: bool = True) -> Citizen:
         """citizen() past the cache. `sentry` is None when the caller has
         already asked SENTRY and had nothing - see exists()."""
-        found, sentry_err = None, None
+        found, sentry_err, queued = None, None, False
         if sentry is not None:
             try:
-                found = self._citizen_sentry(handle, fresh)
+                found = self._citizen_sentry(handle, fresh, live)
             except Exception as exc:
                 sentry_err = exc
             window = FRESH_WINDOW if fresh else CITIZEN_TTL
-            if (found is not None and not getattr(found, "stale_reason", None)
-                    and time.time() - found.fetched_at <= window):
+            if found is not None and time.time() - found.fetched_at > window:
+                # Too old to take as it is - but SENTRY can re-read them. It
+                # used to be handed straight to the other service, which then
+                # failed about half the time.
+                queued, newer = self._sentry_refresh(handle, found, window,
+                                                     wait=fresh)
+                if newer is not None:
+                    found = newer
+            whole = found is not None and not getattr(found, "stale_reason", None)
+            if whole and time.time() - found.fetched_at <= window:
                 found.source = "sentry"
+                self.cache.put_citizen(found, stored_at=found.fetched_at)
+                return found
+            if whole and queued and not fresh:
+                # Asked to re-read, not waited on: nobody pressed anything,
+                # and the watcher's retry collects the new copy - on its
+                # SENTRY ladder (awaiting_sentry), since the re-read takes
+                # about 30 s and a 15 s retry only asked again for nothing.
+                # Meanwhile the old one stands in, marked, and stored at its
+                # real age so it is still due a refresh.
+                found.source = "sentry"
+                found.stale_reason = "SENTRY is re-reading RSI for a newer copy"
+                found.awaiting_sentry = True
+                found.stored_at = found.fetched_at
                 self.cache.put_citizen(found, stored_at=found.fetched_at)
                 return found
 
@@ -944,6 +1566,12 @@ class Client(_Paced):
             found.source = "sentry"
             partial = getattr(found, "stale_reason", None)
             reason = describe_failure(err) if err else "not confirmed"
+            if queued and not partial:
+                # A "try now" whose re-read had not landed in time. Without a
+                # key that said only "not confirmed", which reads as doubt
+                # about the person rather than a newer copy on its way.
+                reason = ("SENTRY is re-reading RSI for a newer copy"
+                          + (f"; {reason}" if err else ""))
             # Once: the org focus usually failed for the same reason, and
             # "...timed out, so ...; the lookup service timed out" says it twice.
             found.stale_reason = (reason if not partial else partial
@@ -956,6 +1584,17 @@ class Client(_Paced):
                 self.cache.put_partial(found, partial,
                                        getattr(found, "unknown_focus", []))
             return found
+
+        if (err is not None and sentry_err is None and self.sentry is not None
+                and self.sentry.live_paused_for() > 0):
+            # SENTRY answered "nobody", from its database only - see
+            # SENTRY_LIVE_PAUSE. The failure shown is the other service's.
+            mins = max(1, round(self.sentry.live_paused_for() / 60))
+            try:
+                err.sentry_note = (f"SENTRY does not have them yet and is rate "
+                                   f"limiting new lookups for {mins} more min")
+            except Exception:
+                pass
 
         # EXPIRED IS BETTER THAN NOTHING. A stored profile past its 30 days
         # used to be dropped the moment the service failed to replace it, so
@@ -974,8 +1613,49 @@ class Client(_Paced):
                 return old_copy
         raise err
 
-    def exists(self, handle: str) -> bool:
+    def _sentry_refresh(self, handle: str, found: Citizen, window: float,
+                        wait: bool) -> tuple[bool, Citizen | None]:
+        """Wait for SENTRY's re-read of a player whose copy is older than
+        `window`.
+
+        Returns (asked, newer). The asking was the lookup's own request, which
+        carries max_age (_citizen_sentry) - it used to be a second request.
+        SENTRY's refresh is asynchronous - the answer was the copy it already
+        had - so with `wait` (a person pressed "try now"; this runs off the
+        page's thread) it checks back through the light metadata call, after
+        SENTRY_REFRESH_FIRST then every SENTRY_REFRESH_POLL, up to
+        SENTRY_REFRESH_WAIT, and returns the new copy once it lands. Without
+        `wait`, there is nothing to do.
+        """
+        if not wait:
+            return True, None
+        before = found.fetched_at or 0.0
+        deadline = time.time() + SENTRY_REFRESH_WAIT
+        pause = SENTRY_REFRESH_FIRST
+        while time.time() + pause <= deadline + 0.001:
+            time.sleep(pause)
+            pause = SENTRY_REFRESH_POLL
+            try:
+                landed = self.sentry.citizen_fetched(handle)
+            except Exception:
+                return True, None
+            if landed and landed > before + 1:
+                self.sentry.forget(handle)      # the remembered copy is the old one
+                try:
+                    return True, self._citizen_sentry(handle, False)
+                except Exception:
+                    return True, None
+        return True, None
+
+    def exists(self, handle: str, strict: bool = False) -> bool | None:
         """Is this a real account? The identity check's question, and ONLY that.
+
+        `strict` returns None for "nobody here can tell" - SENTRY has not heard
+        of them and there is no key for the other service. Without it that is
+        True, the safe answer for the automatic path (never merge on no
+        evidence). A person confirming a merge by hand needs the difference:
+        read as True, every keyless correction of a misread said "both resolve
+        to real accounts" when one of them was only unchecked.
 
         Asked on the main loop, mid-burst, whenever a new reading looks like a
         contact already on file. It used to build a whole profile to answer a
@@ -997,19 +1677,28 @@ class Client(_Paced):
                 # A shorter budget than a lookup gets: this blocks the watcher.
                 # A hit is a quarter of a second; anything slower is SENTRY
                 # crawling a name it has never seen, which is usually a misread.
-                if self.sentry.citizen(handle, timeout=EXISTS_TIMEOUT) is not None:
+                # Database-only: a live lookup here was mostly spent on
+                # misreads, and only the other service can say "no account".
+                with why("identity"):
+                    d = self.sentry.citizen(handle, timeout=EXISTS_TIMEOUT,
+                                            live=False)
+                if d is not None and _is_answer_for(d, handle):
                     return True
             except Exception:
                 pass
         # SENTRY has been asked; do not ask it again on the way through.
-        return self._resolve(handle, False, None).exists
+        with why("identity"):
+            c = self._resolve(handle, False, None)
+        if strict and getattr(c, "unverified", False):
+            return None
+        return c.exists
 
     def _org_details(self, sid: str, fresh: bool,
                      why: list[str] | None = None) -> Org | None:
-        """An org WITH its focus and archetype, or None if none can be had.
+        """An org WITH its focus, or None if none can be had.
 
-        SENTRY does not carry focus. starcitizen-api.com does, and so does our
-        own cache - any age, because an org's declared focus is about the most
+        org() asks SENTRY, then starcitizen-api.com; failing both, our own
+        cache - any age, because an org's declared focus is about the most
         stable thing in this data. None means nobody here can say whether it
         is a piracy org, which callers must not quietly render as "it is not".
 
@@ -1023,20 +1712,39 @@ class Client(_Paced):
         except Exception as exc:
             old = self.cache.get_org(sid, any_age=True)
             if old is None and why is not None:
-                why.append(describe_failure(exc))
+                if sid.upper() in self._sentry_reading:
+                    # The 500s people saw were the FALLBACK failing while the
+                    # answer was on its way from SENTRY - say both.
+                    why.append("SENTRY is still reading it (usually a few "
+                               "minutes)" + ("" if isinstance(exc, NoKey) else
+                                             f" and {describe_failure(exc)}"))
+                elif self.sentry is not None and self.sentry.live_paused_for() > 0:
+                    mins = max(1, round(self.sentry.live_paused_for() / 60))
+                    why.append(f"SENTRY is rate limiting new lookups for {mins} "
+                               "more min" + ("" if isinstance(exc, NoKey) else
+                                             f" and {describe_failure(exc)}"))
+                else:
+                    why.append(describe_failure(exc))
             return old
 
-    def _citizen_sentry(self, handle: str, fresh: bool) -> Citizen | None:
+    def _citizen_sentry(self, handle: str, fresh: bool,
+                        live: bool = True) -> Citizen | None:
         """SENTRY's record as a Citizen, or None if SENTRY does not have them.
 
         `stale_reason` is set if any org's focus could not be found - the
         record is then usable for the moment and must not be cached.
         """
-        d = self.sentry.citizen(handle, force=fresh)
+        # max_age: if SENTRY's copy is older than the asker wants, this same
+        # request queues its re-read - see _sentry_refresh().
+        d = self.sentry.citizen(handle, force=fresh,
+                                max_age=FRESH_WINDOW if fresh else CITIZEN_TTL,
+                                live=live)
         if not d or not isinstance(d, dict):
             return None
         prof = d.get("profile") or {}
         if not prof:
+            return None
+        if not _is_answer_for(d, handle):
             return None
         meta = d.get("metadata") or {}
         observed = (_parse_utc(meta.get("last_fetched"))
@@ -1085,6 +1793,10 @@ class Client(_Paced):
                               "whether it is a piracy org is unknown")
             c.unknown_focus = unknown
             c.stored_at = c.fetched_at
+            # Worth asking again in minutes rather than seconds: SENTRY has
+            # been asked to read at least one of them. See watch.py.
+            c.awaiting_sentry = any(s.upper() in self._sentry_reading
+                                    for s in unknown)
         return c
 
     def _keep_affiliates(self, c: Citizen, found: Citizen) -> Citizen:
@@ -1129,6 +1841,107 @@ class Client(_Paced):
             self.cache.put_citizen(c)
         return c
 
+    def complete_partials(self, ask: bool = True) -> dict:
+        """Finish profiles that are missing an org's focus - the page's
+        background check, every few minutes.
+
+        A partial profile used to wait for its player to be read again, or for
+        someone to press try now; the watcher's retries cover only the minutes
+        after a sighting. All of them were 4 to 78 days old when this was
+        written - nothing had gone back for any.
+
+          1. Free: every missing org our cache now holds - any age, the rule
+             _org_details() keeps - goes on with all it carries (name, members,
+             focus, archetype). A profile with nothing left missing is stored
+             whole, at the age it really is; one with some left is rewritten
+             with what was found, so its tile shows those.
+          2. With `ask`: SENTRY, about each ORG still missing - never a player,
+             never the other service - on FOCUS_SWEEP_GAPS, two requests at
+             most (_org_sentry(): its copy, then the re-read). One answer
+             finishes every profile waiting on that org. Not while SENTRY is
+             paused or limiting live lookups; it stops at the first failure.
+          3. Step 1 again, for what step 2 brought.
+
+        Nothing is spoken: by the time a focus arrives the player is usually
+        long gone, and the watcher announces it the next time they are read.
+        A profile with a NEWER whole copy on file is left alone - the page
+        shows the whole one. Returns counts.
+        """
+        got = {"completed": 0, "filled": 0, "asked": 0, "found": 0}
+        missing = self._fill_partials(got)
+        for sid in list(self._focus_tries):
+            if sid not in missing:
+                self._focus_tries.pop(sid, None)
+        sentry = self.sentry
+        if (not ask or not missing or sentry is None or not self.enriches
+                or sentry.down_for() > 0 or sentry.live_paused_for() > 0):
+            return got
+        now = time.monotonic()
+        for sid in sorted(missing):
+            n, due = self._focus_tries.get(sid, (0, 0.0))
+            if now < due:
+                continue
+            gap = FOCUS_SWEEP_GAPS[min(n, len(FOCUS_SWEEP_GAPS) - 1)]
+            self._focus_tries[sid] = (n + 1, now + gap)
+            got["asked"] += 1
+            try:
+                org = self._org_sentry(sid, archetype=False)
+            except Exception:
+                break           # its breaker says when; the next round asks
+            if org is not None:
+                self.cache.put_org(org)
+                got["found"] += 1
+        if got["found"]:
+            self._fill_partials(got)
+        return got
+
+    def _fill_partials(self, got: dict) -> set[str]:
+        """Step 1 of complete_partials(). Returns the SIDs still missing."""
+        missing: set[str] = set()
+        for handle, data, observed, unknown, reason in self.cache.partials():
+            whole_at = self.cache.citizen_stored_at(handle)
+            if whole_at is not None and whole_at >= observed:
+                continue
+            want = set(unknown)
+            orgs, left, found = [], [], 0
+            for od in data.get("orgs") or []:
+                try:
+                    o = Org(**od)
+                except TypeError:
+                    orgs = None
+                    break
+                sid = o.sid.upper()
+                if sid in want:
+                    known = self.cache.get_org(sid, any_age=True)
+                    if known is not None:
+                        known.is_main, known.rank = o.is_main, o.rank
+                        known.redacted = o.redacted
+                        o = known
+                        found += 1
+                    else:
+                        left.append(sid)
+                orgs.append(o)
+            if orgs is None:
+                continue                # a row this build cannot read
+            missing.update(left)
+            if not found:
+                continue
+            try:
+                c = Citizen(orgs=orgs,
+                            **{k: v for k, v in data.items() if k != "orgs"})
+            except TypeError:
+                continue
+            if left:
+                why = reason.split(":", 1)[1] if ":" in reason else (
+                    " not available, so whether it is a piracy org is unknown")
+                self.cache.update_partial(
+                    c, f"no org focus for {', '.join(left)}:{why}", left)
+                got["filled"] += 1
+            else:
+                self.cache.put_citizen(c, stored_at=observed)
+                got["completed"] += 1
+        return missing
+
     def _citizen_sci(self, handle: str, fresh: bool, store: bool = True) -> Citizen:
         """starcitizen-api.com's answer, and the only source of "no account".
 
@@ -1137,7 +1950,7 @@ class Client(_Paced):
         folded in what SENTRY knew.
         """
         # `fresh` is a person asking; it also gets past an outage pause.
-        data = self._get(f"user/{urllib.parse.quote(handle)}", force=fresh)
+        data = self._get(f"user/{urllib.parse.quote(handle, safe='')}", force=fresh)
         if not data:
             c = Citizen(handle=handle.upper(), exists=False, fetched_at=time.time())
             if store:
@@ -1267,7 +2080,7 @@ class Client(_Paced):
         complete = False
         for page in range(1, max_pages + 1):
             rows = self._rows(
-                f"organization_members/{urllib.parse.quote(sid)}?page={page}",
+                f"organization_members/{urllib.parse.quote(sid, safe='')}?page={page}",
                 mode="live")
             if rows is None:            # the service did not answer properly
                 break
