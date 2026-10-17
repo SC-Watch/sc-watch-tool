@@ -65,6 +65,7 @@ import contextlib
 import functools
 import json
 import os
+import random
 import re
 import sqlite3
 import sys
@@ -163,6 +164,16 @@ SENTRY_REREAD_AGAIN = 600.0
 # asked again until the pause is over.
 SENTRY_LIVE_PAUSE = 900.0
 SENTRY_LIVE_AGAIN = 6 * 3600.0
+# SENTRY's documented budgets are per minute: a 429 for one says to wait about
+# a minute (Retry-After 37 in its own example), and means the whole budget -
+# ask nothing until then. A Retry-After longer than this is the hourly limit
+# on live lookups, which its docs do not list: measured 3591 and 3600, on a
+# live ask, while a database-only ask in the same minute was still answered.
+SENTRY_BUDGET_MAX = 300.0
+# SENTRY's rule for every wait it asks for: "wait Retry-After seconds plus a
+# little random jitter". Ours too - the watcher and the page would otherwise
+# wake at the same moment and ask together.
+JITTER = (1.0, 5.0)
 # THE SENTRY REQUEST LOG. One line per request actually SENT to SENTRY - a
 # remembered answer sends nothing and logs nothing - from the watcher and the
 # page alike, both appending to one file. To find out what spends its live
@@ -228,6 +239,13 @@ def _log_sentry(path: str, live: bool, status: str, started: float,
                     pass
             if payload.get("redirected_from"):
                 bits.append("renamed")
+            meta = payload.get("metadata") or {}
+            if meta.get("is_stub") or prof.get("is_stub"):
+                bits.append("stub")
+            if meta.get("is_archived"):
+                bits.append("archived")
+            if meta.get("finalized") is False:
+                bits.append("unfinalized")
         elif isinstance(payload, dict) and kind == "org":
             prof = payload.get("profile", payload)
             if isinstance(prof, dict) and not (prof.get("primary_activity")
@@ -449,6 +467,48 @@ class Cache:
         self.db.execute("""CREATE TABLE IF NOT EXISTS pauses (
             name TEXT PRIMARY KEY, until REAL)""")
         self.db.commit()
+        # Once per process per file: stored placeholders go (see
+        # drop_placeholder_profiles). After the fix none are stored, so later
+        # runs find nothing.
+        if dbopen.migrated_once(path):
+            try:
+                self.drop_placeholder_profiles()
+            except sqlite3.Error:
+                pass
+
+    def book_slot(self, name: str, interval: float) -> float:
+        """Book the next turn to send, `interval` after the last one booked by
+        ANY process; returns when (epoch seconds). One statement, so two
+        processes cannot book the same turn."""
+        now = time.time()
+        row = self.db.execute(
+            """INSERT INTO pauses (name, until) VALUES (?, ?)
+               ON CONFLICT(name) DO UPDATE SET
+                   until = MAX(excluded.until, MIN(until, excluded.until + 60) + ?)
+               RETURNING until""", (name, now, interval)).fetchone()
+        self.db.commit()
+        return float(row[0]) if row else now
+
+    def drop_placeholder_profiles(self) -> int:
+        """Delete stored profiles no RSI read could have produced: a player
+        said to exist with no enlistment date, no citizen record and no org.
+        Every real profile has the first two. They were SENTRY placeholders
+        (see sentry_has()) stored as players before that was caught; dropped,
+        they are looked up again. Returns how many."""
+        gone = []
+        for h, data in self.db.execute("SELECT handle, data FROM citizens").fetchall():
+            try:
+                d = json.loads(data)
+            except (TypeError, ValueError):
+                continue
+            if (d.get("exists", True) and not d.get("enlisted")
+                    and not d.get("record") and not d.get("orgs")):
+                gone.append(h)
+        for h in gone:
+            self.db.execute("DELETE FROM citizens WHERE handle=?", (h,))
+        if gone:
+            self.db.commit()
+        return len(gone)
 
     def pause_until(self, name: str) -> float:
         """Epoch seconds a stored pause runs to; 0 if there is none."""
@@ -737,6 +797,41 @@ def _parse_utc(text) -> float | None:
     return dt.timestamp()
 
 
+def _retry_after(e) -> float | None:
+    """Seconds a 429 or 503 says to wait, or None."""
+    try:
+        v = float((e.headers or {}).get("Retry-After") or 0)
+    except (TypeError, ValueError, AttributeError):
+        return None
+    return min(v, 7200.0) if v > 0 else None
+
+
+def _jitter(seconds: float) -> float:
+    """`seconds` plus SENTRY's "little random jitter"."""
+    return float(seconds) + random.uniform(*JITTER)
+
+
+def sentry_has(d) -> bool:
+    """Is this SENTRY answer a real, current profile - something to take as a
+    player?
+
+    No for a PLACEHOLDER (`is_stub`): measured 2026-10-16, five handles the
+    other service confirmed do not exist all came back 200 from SENTRY as
+    stubs - no enlistment date, no record, no orgs, `finalized: false` -
+    rather than the 404 its docs promise. Taken as profiles, they were stored
+    as real players with no org for 30 days, never flagged as misreads; 24
+    were in the cache that day, 22 of them contacts. And no for an ARCHIVED
+    one: a profile RSI no longer has, of which SENTRY keeps the last copy -
+    not a current account. Either way the other service decides, or, without
+    a key, nobody can say.
+    """
+    if not isinstance(d, dict) or not d.get("profile"):
+        return False
+    meta = d.get("metadata") or {}
+    prof = d.get("profile") or {}
+    return not (meta.get("is_stub") or prof.get("is_stub") or meta.get("is_archived"))
+
+
 def _is_answer_for(d: dict, handle: str) -> bool:
     """Is SENTRY's record about THIS handle?
 
@@ -808,21 +903,25 @@ class _Paced:
         service is still down and the next, longer pause starts at once - not
         after another DOWN_AFTER requests have each spent 25 s finding out.
 
-        `retry_after` is a service TELLING us to wait (a 429 with Retry-After),
-        which is not a guess to be accumulated towards: it pauses at once, for
-        at least that long.
+        `retry_after` is a service TELLING us to wait (a 429 or 503 with
+        Retry-After), which is not a guess to be accumulated towards: it
+        pauses at once, for at least that long, plus the little random
+        jitter SENTRY asks for. A pause of our own gets up to 10% more.
         """
         with self._slot_lock:
             self._trouble += 1
             if retry_after:
                 self._down_until = max(self._down_until,
-                                       time.monotonic() + float(retry_after))
+                                       time.monotonic() + _jitter(retry_after))
                 self._told_until = max(self._told_until, self._down_until)
                 self._trouble = 0
                 self._probation = True
                 return
             if self._trouble >= self.DOWN_AFTER or self._probation:
-                self._down_until = time.monotonic() + self._pause
+                # Our own guess, not a wait we were told: up to 10% more, so
+                # the doubling stays a doubling.
+                self._down_until = (time.monotonic()
+                                    + self._pause * random.uniform(1.0, 1.1))
                 self._pause = min(self._pause * 2, self.DOWN_MAX)
                 self._trouble = 0
                 self._probation = True
@@ -900,6 +999,24 @@ class Sentry(_Paced):
         """Drop a remembered answer for a player - its re-read has landed."""
         self._memo.pop(("c", handle.upper()), None)
 
+    SLOT = "sentry_slot"                # its row in Cache.pauses: next send
+
+    def _wait_turn(self):
+        """One pace for every process. SENTRY's front door allows 60 requests
+        a minute from an address (a burst of 40), and the watcher and the page
+        each kept one a second - together up to 120. The next turn is booked
+        in rsi_cache.db, where both see it; within a process the lock still
+        orders threads. Without a cache, the per-process pace as before."""
+        if self._cache is None or self.min_interval <= 0:
+            return super()._wait_turn()
+        try:
+            slot = self._cache.book_slot(self.SLOT, self.min_interval)
+        except Exception:
+            return super()._wait_turn()
+        wait = min(slot - time.time(), 10.0)
+        if wait > 0:
+            time.sleep(wait)
+
     def live_paused_for(self) -> float:
         """Seconds until live lookups may be asked for again; 0 if now.
         Another process - the watcher, the page - may have been told."""
@@ -916,6 +1033,7 @@ class Sentry(_Paced):
 
     def _live_told(self, seconds: float):
         """SENTRY said its live lookups are used up for `seconds`."""
+        seconds = _jitter(seconds)
         with self._slot_lock:
             self._live_until = max(self._live_until,
                                    time.monotonic() + seconds)
@@ -959,15 +1077,16 @@ class Sentry(_Paced):
                 self._went_ok()
                 return None
             if is_transient(e):
-                retry = None
-                if e.code == 429:
-                    try:
-                        retry = float(e.headers.get("Retry-After") or 0) or None
-                    except (TypeError, ValueError):
-                        retry = None
-                    if live:
-                        self._live_told(retry or SENTRY_LIVE_PAUSE)
-                        raise LiveLimited(self._live_until, self.SERVICE) from e
+                # 429 (over a budget) and 503 (busy) both say how long to wait.
+                retry = _retry_after(e) if e.code in (429, 503) else None
+                if e.code == 429 and live and (retry or 0) > SENTRY_BUDGET_MAX:
+                    # The hourly limit on LIVE lookups: only those stop, and
+                    # the caller may ask the database at once (SENTRY_LIVE_PAUSE).
+                    self._live_told(retry)
+                    raise LiveLimited(self._live_until, self.SERVICE) from e
+                # Anything else is the whole budget, or the service busy:
+                # nothing goes until the time is up, and nothing is retried
+                # straight away - "never retry immediately", its docs.
                 self._went_wrong(retry)
             raise _tag(e, self.SERVICE)
         except Exception as e:
@@ -1238,7 +1357,8 @@ class Client(_Paced):
                 self._went_ok()
                 return None
             if is_transient(e):
-                self._went_wrong()
+                self._went_wrong(_retry_after(e) if e.code in (429, 503)
+                                 else None)
             raise _tag(e, self.SERVICE)
         except Exception as e:
             if is_transient(e):
@@ -1682,7 +1802,8 @@ class Client(_Paced):
                 with why("identity"):
                     d = self.sentry.citizen(handle, timeout=EXISTS_TIMEOUT,
                                             live=False)
-                if d is not None and _is_answer_for(d, handle):
+                if (d is not None and _is_answer_for(d, handle)
+                        and sentry_has(d)):
                     return True
             except Exception:
                 pass
@@ -1746,6 +1867,8 @@ class Client(_Paced):
             return None
         if not _is_answer_for(d, handle):
             return None
+        if not sentry_has(d):
+            return None             # a placeholder or an archived copy
         meta = d.get("metadata") or {}
         observed = (_parse_utc(meta.get("last_fetched"))
                     or _parse_utc(prof.get("last_fetched")) or time.time())

@@ -10,6 +10,32 @@ Windows only.
 
 ---
 
+## New in 0.2.2
+
+Fixed:
+
+- **Misreads shown as real players with no org.** For a handle it does not
+  know yet, SENTRY can answer at first with a placeholder - no enlistment
+  date, no record, no orgs - while it checks RSI. sc-watch took that as a real
+  player, kept it for 30 days and never flagged it as a misread. Placeholders
+  are no longer taken as players, and any already stored are cleared the first
+  time 0.2.2 starts, so those contacts are looked up again.
+- **Accounts RSI no longer has** were shown as current players from SENTRY's
+  last copy. They are not counted as current accounts any more.
+
+Kinder to SENTRY, following its published guidelines:
+
+- When it says it is busy, sc-watch waits as long as it asks, as it already
+  did when it said "too many requests" - and adds a few random seconds to every
+  wait, so it never comes back on the dot.
+- A short "too many requests" now pauses every request for that wait, instead
+  of retrying a lighter request straight away.
+- The watcher and the page now share one pace, so between them they stay
+  inside the requests a minute SENTRY allows one address.
+
+**Upgrading from 0.2.1:** copy your `data` folder into the new one, as in
+[Upgrading](#upgrading).
+
 ## New in 0.2.1
 
 **The Piracy and Smuggling flags no longer need starcitizen-api.com.** SENTRY
@@ -815,7 +841,9 @@ player is fine".
   at most every 6 hours.
 - After three failures in a row, sc-watch stops asking that service for a
   minute, then two, up to five - so a dead service does not become a
-  five-second wait on every contact. The first request after a pause is a probe; the console says when
+  five-second wait on every contact. When a service says how long to wait -
+  it is busy, or has had too many requests - sc-watch waits that long, plus a
+  few random seconds. The first request after a pause is a probe; the console says when
   lookups are paused and when they resume.
 - If the service cannot be reached and there is an **old stored profile**, it
   is shown rather than nothing, with its age on the tile and a refresh button.

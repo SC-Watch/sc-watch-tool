@@ -437,6 +437,8 @@ def _retry_failed_lookups(client, ask: bool) -> dict:
                 held = sentry.citizen(h, live=False)    # its database only
             except Exception:
                 break           # its breaker says when; the next round asks
+            if not rsi.sentry_has(held):                # a placeholder is not held
+                held = None
             if held is None:
                 if got["live"] >= RETRY_FAILED_LIVE or sentry.live_paused_for() > 0:
                     continue    # no live fetch left this round: the next one
