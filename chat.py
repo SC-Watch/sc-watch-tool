@@ -76,26 +76,47 @@ DEFAULT_REGION = (0.15, 0.30, 0.35, 0.45)      # x, y, w, h - legacy, see below
 # resolution. Every sample here is ~1440 tall, so the corpus CANNOT distinguish
 # height-scaled from fixed-pixel: this follows the existing convention rather
 # than a measurement, and a 1080p or 4K frame would settle it.
+#
+# WITH THE HELMET OFF THE WINDOW SITS FURTHER LEFT. Every sample above had a
+# helmet on, which draws a small pitch indicator left of the chat and pushes
+# the chat right (the user found the cause, 2026-10-17). Helmet off, on foot
+# in a station at 5120x1440, the [GLOBAL] tags began 1228 px left of centre:
+# the 1190 edge cut "[GLO" off every line, OCR read "BALI EXMPLHANDLE:", no
+# channel tag matched, and every chat read came back empty with the chat
+# plainly on screen.
+#
+# One wide region for both was measured and refused: on 54 saved frames
+# (helmet on) it LOST 32 names - the pitch indicator came into the crop - and
+# reading both regions and combining them found 251 against 220, but 17 of
+# the 31 extra names were look-alike spellings of names the other read had
+# found: two contacts for one person. So read() tries the helmet-on region
+# and only if that finds nobody - helmet off cuts every tag, so it always
+# finds nobody - the helmet-off one. One region's answer, never both.
 REFERENCE_HEIGHT = 1440
 _ANCHOR_LEFT = 1190.0     # px left of centre at 1440p (measured 1183 + margin)
 _WIDTH = 1120.0           # longest message measured ran 1032 px from the anchor
+_ANCHOR_LEFT_BARE = 1290.0   # helmet off: measured 1228 + margin
+_WIDTH_BARE = 1220.0         # the same right edge as the helmet-on region
 _HEIGHT = 520.0           # rows measured 179-211 px; room for a fuller window
 _BOTTOM = 0.590           # of frame height; measured 0.555-0.581
 
 
-def default_region(frame_w: int, frame_h: int) -> tuple:
-    """The chat rectangle for THIS frame, as x, y, w, h fractions.
+def default_region(frame_w: int, frame_h: int, helmet: bool = True) -> tuple:
+    """The chat rectangle for THIS frame, as x, y, w, h fractions - where it
+    sits with the helmet on, or with `helmet` False, off (see _ANCHOR_LEFT_BARE).
 
     Returned as fractions because that is what the rest of the pipeline and
     the settings file already speak, even though the underlying measurement
     is in pixels from the centre.
     """
+    anchor, width = ((_ANCHOR_LEFT, _WIDTH) if helmet
+                     else (_ANCHOR_LEFT_BARE, _WIDTH_BARE))
     s = frame_h / REFERENCE_HEIGHT
-    x0 = frame_w / 2.0 - _ANCHOR_LEFT * s
+    x0 = frame_w / 2.0 - anchor * s
     y1 = _BOTTOM * frame_h
     y0 = y1 - _HEIGHT * s
     return (max(0.0, x0) / frame_w, max(0.0, y0) / frame_h,
-            min(_WIDTH * s, frame_w - x0) / frame_w,
+            min(width * s, frame_w - x0) / frame_w,
             min(_HEIGHT * s, y1) / frame_h)
 
 # The channel tags, spelled to absorb the substitutions OCR makes inside them
@@ -185,7 +206,37 @@ def read(frame, ocr, region=None) -> list[ChatLine]:
     Deduplicated on the upper-case handle, keeping the first spelling seen:
     one person usually has several lines on screen, and they are one contact,
     not five sightings.
+
+    With the region worked out from the frame ("auto"), the helmet-on place is
+    read first and, only if it finds nobody, the helmet-off place - see
+    _ANCHOR_LEFT_BARE. A region you set yourself is read as it is.
     """
+    return read_located(frame, ocr, region)[0]
+
+
+# Where read_located()'s answer came from.
+PLACE_ON, PLACE_OFF, PLACE_BOTH, PLACE_SET = (
+    "helmet on", "helmet off", "helmet on+off", "your region")
+
+
+def read_located(frame, ocr, region=None) -> tuple[list[ChatLine], str]:
+    """read(), and where its answer came from: PLACE_ON or PLACE_OFF for
+    "auto", PLACE_SET for a region you set - or, when "auto" found nobody,
+    PLACE_BOTH: both places were looked at. For the session log and the
+    watcher's "nothing readable" line, which used to point at the chat
+    region setting when the helmet was the reason."""
+    if region is None or region == "auto":
+        fh, fw = frame.shape[:2]
+        lines = _read(frame, ocr, default_region(fw, fh))
+        if lines:
+            return lines, PLACE_ON
+        lines = _read(frame, ocr, default_region(fw, fh, helmet=False))
+        return lines, (PLACE_OFF if lines else PLACE_BOTH)
+    return _read(frame, ocr, region), PLACE_SET
+
+
+def _read(frame, ocr, region) -> list[ChatLine]:
+    """read() for one region."""
     crop, _ = crop_region(frame, region)
     if crop.size == 0:
         return []

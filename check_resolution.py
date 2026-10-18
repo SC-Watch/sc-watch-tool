@@ -113,11 +113,14 @@ def report(path: str, ocr):
         for c in other:
             print(f"      [{c.kind}] {c.name or '?'}")
 
-    # 5. chat region, as configured
-    crop, (x0, y0) = chat.crop_region(inner)
-    lines = chat.read(inner, ocr)
-    print(f"  chat region {crop.shape[1]}x{crop.shape[0]} at {x0},{y0} "
-          f"-> {len(lines)} handle(s)")
+    # 5. chat region, as configured ("auto": where chat sits with the helmet
+    #    on, then - only if that finds nobody - with it off)
+    ih, iw = inner.shape[:2]
+    for label, helmet in (("helmet on ", True), ("helmet off", False)):
+        crop, (x0, y0) = chat.crop_region(inner, chat.default_region(iw, ih, helmet))
+        print(f"  chat region, {label}: {crop.shape[1]}x{crop.shape[0]} at {x0},{y0}")
+    lines, place = chat.read_located(inner, ocr)
+    print(f"  chat read -> {len(lines)} handle(s), from: {place}")
     for c in lines:
         print(f"      {c.handle}")
 

@@ -151,7 +151,11 @@ SCHEMA = (
                   "'off' disables it.", restart="watcher"),
             Field("chat_region", "Chat window region", "str", "auto",
                   "'auto' works it out from your resolution, which is right "
-                  "unless you have dragged the chat window somewhere else. "
+                  "unless you have dragged the chat window somewhere else - "
+                  "and looks in both places the game puts it: with your "
+                  "helmet on (a pitch indicator pushes chat to the right) "
+                  "and with it off. A region you set is read as it is, so "
+                  "it has to cover wherever you use chat. "
                   "Chat sits a fixed distance left of screen CENTRE, so a "
                   "fixed fraction of the width - what this used to be - "
                   "framed the chat on a 3440 or 5120 screen and missed it "

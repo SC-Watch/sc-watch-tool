@@ -1437,24 +1437,35 @@ class Session:
             con.say("  chat: no frame captured")
             return
         try:
-            lines = chat.read(frame, self.ocr, region=self.chat_region)
+            lines, place = chat.read_located(frame, self.ocr,
+                                             region=self.chat_region)
         except Exception as exc:
             con.say(f"  chat: read failed ({type(exc).__name__}: {exc})")
+            self.dbg.event("chat", error=f"{type(exc).__name__}: {exc}")
             return
+        region = str(self.chat_region or "auto")
         if not lines:
+            # Logged too: an empty read used to leave nothing in the session
+            # log, so a chat key that "did nothing" looked like a key that was
+            # never pressed (2026-10-17 - it was the helmet).
+            self.dbg.event("chat", handles=[], region=region, place=place)
             con.say("  chat: nothing readable in the chat region "
-                    "(check 'chat region' in Settings)")
+                    + ("(looked where chat sits with the helmet on and off - "
+                       "is the chat window showing?)" if place == chat.PLACE_BOTH
+                       else "(check 'chat region' in Settings)"))
             if self.alerts is not None:
                 self.alerts.event("nothing")
             return
 
         lines = [c for c in lines if not self.ignored(c.key)]
         if not lines:
+            self.dbg.event("chat", handles=[], region=region, place=place,
+                           ignored=True)
             con.say("  chat: everything readable is on the ignore list")
             return
         con.say(f"  chat: {len(lines)} handle(s)")
         self.dbg.event("chat", handles=[c.handle for c in lines],
-                       region=str(self.chat_region or "auto"))
+                       region=region, place=place)
         # Known contacts in chat are SPOKEN, as they are from a read. They
         # used to get the routine tone and nothing else - a handle on your
         # own report list typing in chat made the same sound as a stranger.

@@ -10,6 +10,23 @@ Windows only.
 
 ---
 
+## New in 0.2.3
+
+Fixed:
+
+- **Chat reads found nobody with your helmet off.** Taking the helmet off
+  moves the chat window a little to the left - with it on, a pitch indicator
+  sits beside the chat and pushes it right - and the reader looked only where
+  it sits with the helmet on, so it cut the `[GLOBAL]` tag off every line and
+  read nothing, though the tone played. It now looks where chat sits with the
+  helmet on and, only if that finds nobody, where it sits with it off. With
+  the helmet on, nothing changes.
+- A chat read that finds nobody now says so in the session log, and says it
+  looked in both places - an empty read used to leave no trace there.
+
+**Upgrading from 0.2.2:** copy your `data` folder into the new one, as in
+[Upgrading](#upgrading).
+
 ## New in 0.2.2
 
 Fixed:
@@ -457,7 +474,7 @@ There is a **Restart watcher** button in Maintenance.
 | **Read key** | `0` | Full-screen read. Pick something you never touch in flight. Good choices: `0`, `-`, `=`, or a spare joystick button. |
 | **Focused read key** | `9` | Centre-only read. The best key on the tool, because it spends the whole reading budget on whatever you are pointing at instead of competing with twenty other labels. |
 | **Chat read key** | `off` | Reads the chat window and lists who is talking. Costs no ping and finds people you will never get a HUD label for. Try `8` if you spend time in busy areas. |
-| **Chat window region** *(adv)* | `auto` | Where chat sits. `auto` works it out from your resolution. Only set it - x, y, width, height as fractions of the screen, e.g. `0.15,0.30,0.35,0.45` - if chat reads nothing and you have moved the chat window. |
+| **Chat window region** *(adv)* | `auto` | Where chat sits. `auto` works it out from your resolution, and looks in both places the game puts it: with your helmet on, which adds a pitch indicator and pushes chat right, and with it off. Only set it - x, y, width, height as fractions of the screen, e.g. `0.15,0.30,0.35,0.45` - if chat reads nothing and you have moved the chat window; a region you set has to cover wherever you use chat. |
 | **Wide + centre key** | `off` | Reads the **whole screen and the centre on one press** and merges both. See [Wide + centre](#wide-and-centre-the-one-to-try-if-reads-are-poor) below. Set it to a key or button, or leave `off`. |
 | **Make the normal read key do both** | off | Turns every normal read into a wide + centre read, with no second binding to remember. Simpler, and you pay the extra cost on every ping. |
 | **Focused box size** | `auto` | The centre region the focus key reads. `auto` sizes it from your screen height: 1200x600 at 1440 tall, 900x450 at 1080p, 1800x900 at 4K. Bigger tolerates your target drifting off centre; smaller is faster. Give pixels to override, e.g. `1600x800` if you keep just missing. |
