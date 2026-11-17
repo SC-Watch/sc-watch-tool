@@ -81,6 +81,21 @@ EXTRA = [
                 "weights that read the HUD; the thresholds in this project "
                 "are calibrated to their specific failure modes.",
     },
+    {
+        "name": "IRIS - nameplate finder, letter reader and letter model",
+        "version": "2.0.0 (commit aec86f08), plus three detection fixes "
+                   "from its pull request #1 (commit 29c3250e95)",
+        "license": "GPL-3.0",
+        "url": "https://github.com/Niteb1rd/IRIS",
+        "note": "Ported from C# to Python in iris_reader.py, iris_detector.py "
+                "and iris_read.py (the 'iris+ocr' and 'iris' name readers); "
+                "models/iris-letters-model.bin is IRIS's letter model, "
+                "unchanged. The non-player word list in sc_detector.py "
+                "(NON_PLAYER_WORDS) is taken from IRIS's exclusion list, "
+                "in part. Same licence as sc-watch. Only finding and "
+                "reading nameplates was taken - none of IRIS's tracking, "
+                "overlay, network or lookup code.",
+    },
 ]
 
 HEADER = """\
@@ -93,7 +108,8 @@ This file covers the OTHER people's software distributed with it. Their
 licences apply to their code, not to sc-watch, and nothing here changes the
 terms of the program itself.
 
-Every component below is permissively licensed and is compatible with GPL-3.0.
+Every component below is permissively licensed and compatible with GPL-3.0,
+except IRIS, which is GPL-3.0 itself - the same licence as sc-watch.
 """
 
 

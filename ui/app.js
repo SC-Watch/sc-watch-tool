@@ -399,11 +399,12 @@ function tile(c){
   el.innerHTML=`
     <div class="row1">
       <span class="handle">${handleHTML(c.handle, c.verified)}</span>
-      <span class="range">${c.range_km!=null?c.range_km.toFixed(1)+' km':''}</span>
+      <span class="range">${c.met===false?'<span class="notmet">not met yet</span>'
+        :c.range_km!=null?c.range_km.toFixed(1)+' km':''}</span>
     </div>
     <div class="meta">
-      <span>seen ${c.sightings}×</span>
-      <span>${ago(c.last_seen)}</span>
+      ${c.met===false?'':`<span>seen ${c.sightings}×</span>
+      <span>${ago(c.last_seen)}</span>`}
       ${c.enlisted_days!=null?`<span>enlisted ${
         c.enlisted_days<365?c.enlisted_days+'d':Math.floor(c.enlisted_days/365)+'y'}</span>`:''}
     </div>
@@ -434,13 +435,13 @@ function tile(c){
       </div>
     </div>`:''}
     <div class="tile-actions">
-      <button class="flagbtn ${c.pending?'done':''}"
-              data-handle="${esc(c.handle)}">${c.pending?'flag again':'flag'}</button>
+      ${c.met===false?'':`<button class="flagbtn ${c.pending?'done':''}"
+              data-handle="${esc(c.handle)}">${c.pending?'flag again':'flag'}</button>`}
       ${(c.audits||[]).length?`<button class="auditbtn"
          data-handle="${esc(c.handle)}">audit ${c.audits.length}</button>`:''}
-      <button class="forget ${c.handle===armedHandle?'armed':''}"
+      ${c.met===false?'':`<button class="forget ${c.handle===armedHandle?'armed':''}"
               data-handle="${esc(c.handle)}">${c.handle===armedHandle
-                ?'delete '+esc(c.handle)+'? click again':'forget'}</button>
+                ?'delete '+esc(c.handle)+'? click again':'forget'}</button>`}
     </div>`;
   return el;
 }
@@ -587,7 +588,7 @@ function renderModal(){
     <button class="close" title="close">&times;</button>
     <h2>${esc(c.handle)}</h2>
     <div class="sub">
-      ${c.sightings} sighting${c.sightings===1?'':'s'}
+      ${c.met===false?'not met yet':`${c.sightings} sighting${c.sightings===1?'':'s'}`}
       ${enlistedHTML(c)}
       ${c.range_km!=null?` · last seen ${Number(c.range_km).toFixed(1)} km`:''}
       · score ${c.score}
@@ -683,12 +684,12 @@ function renderModal(){
           <a href="${esc(c.lookup_url)}" target="_blank" rel="noopener">SCI lookup</a>
         </span>
         <span style="flex:1"></span>
-        <button class="del forget-all ${armedDel==='forget'?'armed':''}"
+        ${c.met===false?'':`<button class="del forget-all ${armedDel==='forget'?'armed':''}"
                 data-handle="${esc(c.handle)}">${armedDel==='forget'
-                  ?'delete everything? click again':'forget this contact'}</button>
+                  ?'delete everything? click again':'forget this contact'}</button>`}
       </div>
     </section>
-    <section>
+    ${c.met===false?'':`<section>
       <h3>not a person?</h3>
       <div class="notperson">
         <p>Some things the HUD draws look exactly like a contact — a floating
@@ -704,7 +705,7 @@ function renderModal(){
                     :'not a player — always ignore'}</button>
         </div>
       </div>
-    </section>`;
+    </section>`}`;
   veil.hidden=false;
 }
 
@@ -744,7 +745,9 @@ function renderLookup(){
             : (r.fresh?'asked RSI just now, not the cache':'')}${
           (r.fresh||r.source)&&r.refreshed?' — ':''}${r.refreshed
           ?'your stored record for this contact was updated':''}</div>`:''}
-        ${r.stale?`<div class="lk-note bad">incomplete: ${esc(r.stale)}</div>`:''}
+        ${r.checking?`<div class="lk-note">not known yet: ${esc(r.stale)} — look
+          again in about ${Math.max(20, Math.round(r.retry_in||30))} s</div>`
+          :r.stale?`<div class="lk-note bad">incomplete: ${esc(r.stale)}</div>`:''}
         ${r.flagged_orgs.length?`<div class="lk-note bad">member of flagged org
           ${r.flagged_orgs.map(esc).join(', ')}</div>`:''}
         ${r.reasons.length?`<div class="reasons">${r.reasons.map(x=>
@@ -2212,7 +2215,7 @@ function render(){
   // it - the second click then armed it again and it could never commit.
   if(openHandle && !lookupOpen && !editingInModal()) renderModal();
   grid.hidden=settingsOpen||orgsOpen;
-  auditBar.hidden=!auditMode||settingsOpen||orgsOpen;
+  viewBar.hidden=!view||settingsOpen||orgsOpen;
   setPane.hidden=!settingsOpen;
   orgPane.hidden=!orgsOpen;
   if(orgsOpen){ empty.hidden=true; applyTileSize(); renderStats();
@@ -2222,51 +2225,70 @@ function render(){
   renderPending=false;
   const term=q.value.trim().toLowerCase();
   const onlyAlerts=fAlerts.getAttribute('aria-pressed')==='true';
-  let list=auditMode ? auditList() : data.contacts.filter(c=>c.in_window!==false);
-  // Not in the audit view: an uncertain read is worth settling whoever it is,
-  // and "alerts only" left on from earlier would hide most of the queue.
-  if(onlyAlerts && !auditMode) list=list.filter(c=>c.state==='known'||c.flags.length);
+  let list=view ? viewList() : data.contacts.filter(c=>c.in_window!==false);
+  // Not in a view: an uncertain read or a report is worth seeing whoever it
+  // is about, and "alerts only" left on from earlier would hide most of it.
+  if(onlyAlerts && !view) list=list.filter(c=>c.state==='known'||c.flags.length);
   if(term) list=list.filter(c=>c.handle.toLowerCase().includes(term)||
     c.orgs.some(o=>(o.sid+' '+o.name).toLowerCase().includes(term)));
   applyTileSize();
   grid.replaceChildren(...list.map(tile));
-  renderAuditBar(list.length);
-  empty.textContent=auditMode ? 'nothing to audit' : EMPTY_TEXT;
+  renderViewBar(list.length);
+  empty.textContent=!view ? EMPTY_TEXT
+    : !viewReady() ? 'loading…' : (VIEW_EMPTY[view.name]||'nobody here');
   empty.hidden=list.length>0;
   renderStats();
 }
 
-// ---- the audit view -----------------------------------------------------
-// The header's "to audit" count is a way in, like "flagged orgs". It narrows
-// the grid to the players with an uncertain read waiting, newest read first,
-// including anyone who has dropped out of the normal window - the server sends
-// those too, marked in_window:false, for exactly this.
-let auditMode=false;
-const auditBar=document.getElementById('auditbar');
+// ---- views ----------------------------------------------------------------
+// A view is a named set of players the server sends when the page asks for it
+// (/api/stream?view=): the audit queue, the reported players - including
+// anyone outside the normal window and anyone you have never met (met:false,
+// "not met yet"). Header counts are the way in. Only the open view's players
+// are sent; the stream is reopened when it changes, and until the first frame
+// for it arrives the grid says "loading" rather than showing the last view.
+let view=null;                       // {name, arg} while a view is open
+const viewBar=document.getElementById('auditbar');
 const EMPTY_TEXT=empty.textContent;
+const VIEW_EMPTY={audits:'nothing to audit', reports:'no reports'};
 
-function auditList(){
-  const newest=c=>Math.max(...c.audits.map(a=>a.ts||0));
-  return data.contacts.filter(c=>(c.audits||[]).length)
-                      .sort((a,b)=>newest(b)-newest(a));
+function viewQuery(){
+  return view ? `?view=${encodeURIComponent(view.name)}&arg=${encodeURIComponent(view.arg||'')}`
+              : '';
 }
+function viewReady(){
+  const v=data.stats&&data.stats.view;
+  return !!(view && v && v.name===view.name && (v.arg||'')===(view.arg||''));
+}
+function viewList(){
+  if(!viewReady()) return [];
+  return data.contacts.filter(c=>c.in_view).sort((a,b)=>a.view_rank-b.view_rank);
+}
+function viewOn(name){ return !!(view && view.name===name && !settingsOpen && !orgsOpen); }
 
-function setAuditMode(on){
-  auditMode=on;
-  if(on){
+function setView(name, arg){
+  view=name ? {name, arg: arg||''} : null;
+  if(name){
     if(settingsOpen){ settingsOpen=false; fSettings.setAttribute('aria-pressed','false'); }
     if(orgsOpen){ orgsOpen=false; fOrgs.setAttribute('aria-pressed','false'); }
   }
+  reconnect();
   render();
 }
 
-function renderAuditBar(shown){
-  if(!auditMode) return;
-  const all=data.contacts.filter(c=>(c.audits||[]).length);
+function renderViewBar(shown){
+  if(!view) return;
+  if(!viewReady()){
+    viewBar.innerHTML=`<span>loading…</span>
+      <button class="filter" id="audit-done">show everyone</button>`;
+    return;
+  }
+  if(view.name==='reports'){ viewBar.innerHTML=reportsBarHTML(shown); return; }
+  const all=data.contacts.filter(c=>c.in_view);
   const reads=all.reduce((n,c)=>n+c.audits.length,0);
   const gone=data.stats.audits_orphaned||0;
   const hidden=all.length-shown;
-  auditBar.innerHTML=`
+  viewBar.innerHTML=`
     <span><b>to audit</b> — ${reads
       ? `${reads} uncertain read${reads===1?'':'s'} on ${all.length}
          player${all.length===1?'':'s'}. Open one, pick the right spelling or
@@ -2279,13 +2301,38 @@ function renderAuditBar(shown){
       ${gone===1?'it':'them'}</span>`:''}
     <button class="filter" id="audit-done">show everyone</button>`;
 }
-auditBar.addEventListener('click', ev=>{
-  if(ev.target.id==='audit-done') setAuditMode(false);
+
+// The reports view: everyone with a report, most reports first - yours and
+// each org mate's, chosen with the chips.
+function reportsBarHTML(shown){
+  const v=data.stats.view, src=data.stats.report_sources||[];
+  const all=src.reduce((n,s)=>n+s.reports,0);
+  const chip=(key,label,n)=>`<button class="filter" data-view-arg="${esc(key)}"
+      aria-pressed="${(view.arg||'')===key}">${esc(label)} ${n}</button>`;
+  const hidden=Math.min(v.shown, v.total)-shown;
+  return `
+    <span><b>reports</b> — ${v.total} player${v.total===1?'':'s'}, most reports
+      first. Someone you have not met yet still gets a tile.</span>
+    <span>${chip('','all',all)}${src.map(s=>chip(s.key==='self'?'self':s.key,
+      s.name,s.reports)).join('')}</span>
+    ${v.total>v.shown?`<span class="warn">showing the ${v.shown} with the most
+      reports</span>`:''}
+    ${hidden>0?`<span class="warn">${hidden} hidden by the search box</span>`:''}
+    <button class="filter" id="audit-done">show everyone</button>`;
+}
+
+viewBar.addEventListener('click', ev=>{
+  if(ev.target.id==='audit-done'){ setView(null); return; }
+  const chip=ev.target.closest('[data-view-arg]');
+  if(chip) setView('reports', chip.dataset.viewArg);
 });
+// From settings or orgs, a count opens its view rather than toggling off one
+// that is not on screen.
 document.getElementById('s-audits').closest('.stat').addEventListener('click', ()=>{
-  // From settings or orgs, the count opens the view rather than toggling off
-  // one that is not on screen.
-  setAuditMode(!(auditMode && !settingsOpen && !orgsOpen));
+  setView(viewOn('audits') ? null : 'audits');
+});
+document.getElementById('s-reports').closest('.stat').addEventListener('click', ()=>{
+  setView(viewOn('reports') ? null : 'reports');
 });
 
 // Applied from the state so a change in another tab lands here too.
@@ -2304,10 +2351,11 @@ function applyTileSize(){
 const keyBar=document.getElementById('keybar');
 function keyDismissed(){ try{ return localStorage.getItem('sc-keybar-off')==='1'; }catch(e){ return false; } }
 const KEY_WHY=`Without a starcitizen-api.com key, players are looked up through
-  SENTRY only: a misread handle cannot be confirmed as a misread (so no
-  “no RSI account” audits), and an org's type is only known if it is already
-  cached — a new org gets no “Syndicate” mark. Orgs, their Piracy or Smuggling
-  focus, account age and flagged-org alerts all still work. A key is free: register at
+  SENTRY only: nothing else is asked while SENTRY is down or busy, so lookups
+  wait for it, and an org's type is only known if it is already cached — a new
+  org gets no “Syndicate” mark. Orgs, their Piracy or Smuggling focus, account
+  age, flagged-org alerts and “no RSI account” audits all still work. A key is
+  free: register at
   <a href="https://starcitizen-api.com" target="_blank" rel="noopener">starcitizen-api.com</a>,
   copy it, and paste it here.`;
 function keyFormHTML(prefix){
@@ -2390,12 +2438,13 @@ oldBar.addEventListener('click', ev=>{
 
 function renderStats(){
   const s=data.stats||{};
-  s_players.textContent=s.players??'–'; s_sightings.textContent=s.sightings??'–';
+  s_players.textContent=s.contacts??s.players??'–'; s_sightings.textContent=s.sightings??'–';
   s_reports.textContent=s.reports??'–'; s_orgs.textContent=s.flagged_orgs??'–';
   s_pending.textContent=s.pending??'–';
   s_audits.textContent=s.audits??'–';
   s_audits.parentElement.style.color=s.audits?'var(--cyan)':'';
-  s_audits.parentElement.classList.toggle('on', auditMode&&!settingsOpen&&!orgsOpen);
+  s_audits.parentElement.classList.toggle('on', viewOn('audits'));
+  s_reports.parentElement.classList.toggle('on', viewOn('reports'));
   renderKeyBar();
   renderOldBar();
   s_pending.parentElement.style.color=s.pending?'var(--amber)':'';
@@ -2417,7 +2466,7 @@ const s_players=document.getElementById('s-players'),
 
 async function poll(){
   try{
-    const r=await fetch('/api/contacts',{cache:'no-store'});
+    const r=await fetch('/api/contacts'+viewQuery(),{cache:'no-store'});
     data=await r.json();
     if(data.error){say('error: '+data.error);}
     // Do not overwrite what an action just reported. Every handler used to set
@@ -2440,11 +2489,11 @@ async function poll(){
 //
 // poll() is kept for an immediate refresh after your own action, and as the
 // fallback if the stream cannot connect.
-let es=null;
+let es=null, pollTimer=null;
 function connect(){
   try{
-    es=new EventSource('/api/stream');
-  }catch(e){ setInterval(poll,2000); return; }
+    es=new EventSource('/api/stream'+viewQuery());
+  }catch(e){ if(!pollTimer) pollTimer=setInterval(poll,2000); return; }
   es.onmessage=ev=>{
     try{ data=JSON.parse(ev.data); }catch(e){ return; }
     if(data.error){ say('error: '+data.error); return; }
@@ -2457,6 +2506,13 @@ function connect(){
     if(es.readyState===EventSource.CLOSED)
       say('disconnected — is ui_server.py running?');
   };
+}
+// A view changed: the stream is for one view, so it is reopened - its first
+// frame is the new view - and poll() answers at once in the meantime.
+function reconnect(){
+  if(es){ es.close(); es=null; }
+  poll();
+  connect();
 }
 poll().then(connect);
 

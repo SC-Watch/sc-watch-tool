@@ -96,11 +96,12 @@ MEMBER_PAGE_CAP = 60
 SENTRY_HOST = "https://sentry.wildknightsquadron.com/api/v1"
 SENTRY_USER_AGENT = ("sc-watch (Star Citizen contact tool; "
                      "+https://github.com/SC-Watch/sc-watch-tool)")
-# A citizen SENTRY already holds answers in well under a second. One it does
-# not hold makes it crawl RSI on the spot - measured at 26 to 40 s - and the
-# other source answers in 4 to 6. So SENTRY gets 8 s: plenty for a hit, and a
-# miss falls through rather than holding the queue. Its crawl carries on
-# server-side, so the next time that handle is asked about, it is a hit.
+# A citizen SENTRY already holds answers in well under a second. One it did
+# not hold used to make it crawl RSI on the spot - measured at 26 to 40 s -
+# which is what 8 s was sized against: plenty for a hit, and a miss fell
+# through rather than holding the queue. Since 2026-10-23 a never-seen name is
+# answered at once with a placeholder (measured 0.29-0.43 s) and checked in
+# the background, so 8 s now only bounds a slow day.
 SENTRY_TIMEOUT = 8.0
 # The identity check, on the main loop - see exists(). Hits measured 170-533
 # ms, so this is three times the slowest. A first try at 3 s cost a brand-new
@@ -174,6 +175,36 @@ SENTRY_BUDGET_MAX = 300.0
 # little random jitter". Ours too - the watcher and the page would otherwise
 # wake at the same moment and ask together.
 JITTER = (1.0, 5.0)
+# THE PLACEHOLDER'S REASON (SENTRY, 2026-10-23). A handle SENTRY has never
+# seen is answered at once with a placeholder whose `metadata.lookup_state`
+# says why it is one, and a 404 carries the same word in `X-Lookup-State`.
+# Measured that evening on made-up handles: the first answer `queued` with
+# `retry_after_hint` 20; asked again 30 s later, 404 `not_found`; then asked
+# database-only, 404 `not_found` again - it remembers, about two hours. A
+# database-only ask for a name nobody asked about: 404 `not_checked`.
+#   not_found      RSI has no public profile: "no such account", the same
+#                  evidence the other service's answer is.
+#   not_checked    nothing held and RSI not asked: silence, as before.
+#   queued         the check is running: ask again (its docs: no sooner than
+#   queued_low     15-30 s; or its hint), once it is through the slow queue.
+#   check_failed   the last check broke - NOT "no such account"; it is not
+#                  retried there before the hint.
+# A placeholder is remembered only this long - under the watcher's first
+# re-ask (watch.RsiEnricher.SENTRY_CHECK_DELAYS), so that re-ask asks.
+SENTRY_STUB_MEMO_TTL = 10.0
+SENTRY_CHECK_STATES = ("queued", "queued_low", "check_failed")
+# A "try now" on a name SENTRY is checking waits for the check once, this
+# long at least (its hint when longer), up to SENTRY_REFRESH_WAIT.
+SENTRY_CHECK_WAIT_MIN = 15.0
+# SENTRY's headers, since 2026-10-23: `RateLimit: "default";r=<left>;t=<s>`
+# on every answer - "pace yourself from r, and slow down when it is low".
+# One a second from both programs together keeps well inside 120 a minute;
+# this is for when something else on the same address spends it. At or below
+# SENTRY_RL_LOW left, the r requests are spread over the t seconds (at most
+# SENTRY_RL_MAX_GAP apart - the identity check waits on this); at 0, nothing
+# goes until t is up.
+SENTRY_RL_LOW = 10
+SENTRY_RL_MAX_GAP = 5.0
 # THE SENTRY REQUEST LOG. One line per request actually SENT to SENTRY - a
 # remembered answer sends nothing and logs nothing - from the watcher and the
 # page alike, both appending to one file. To find out what spends its live
@@ -242,6 +273,10 @@ def _log_sentry(path: str, live: bool, status: str, started: float,
             meta = payload.get("metadata") or {}
             if meta.get("is_stub") or prof.get("is_stub"):
                 bits.append("stub")
+                if meta.get("lookup_state"):
+                    bits.append(f"state={meta['lookup_state']}"
+                                + (f"/{meta['retry_after_hint']}s"
+                                   if meta.get("retry_after_hint") else ""))
             if meta.get("is_archived"):
                 bits.append("archived")
             if meta.get("finalized") is False:
@@ -253,7 +288,8 @@ def _log_sentry(path: str, live: bool, status: str, started: float,
                 bits.append("no-focus")
         if headers is not None:
             rl = sorted((k.lower(), v) for k, v in headers.items()
-                        if "ratelimit" in k.lower() or k.lower() == "retry-after")
+                        if "ratelimit" in k.lower()
+                        or k.lower() in ("retry-after", "x-lookup-state"))
             bits += [f"{k}={v}" for k, v in rl]
         ms = int((time.monotonic() - started) * 1000)
         line = (f"{datetime.now():%Y-%m-%d %H:%M:%S} {PROCESS:<9} "
@@ -847,6 +883,81 @@ def _is_answer_for(d: dict, handle: str) -> bool:
     return shown == handle.strip().lower() and not d.get("redirected_from")
 
 
+class NotOnRSI(dict):
+    """SENTRY's word that RSI has no public profile for a handle: a 404 with
+    `X-Lookup-State: not_found`, or a placeholder whose state is not_found -
+    see SENTRY_CHECK_STATES. EMPTY, so every caller that took a 404 as "no
+    answer" (`if not d`) still does; the ones that can use it check for it."""
+
+
+class Checking(Exception):
+    """SENTRY has never seen the handle and is checking RSI for it - its
+    placeholder, with the state (one of SENTRY_CHECK_STATES) and how long it
+    says to wait. Raised by Client._citizen_sentry, caught in _resolve: an
+    answer on its way, not a failure and not "no such account"."""
+
+    def __init__(self, state: str, hint: float | None):
+        self.state = state
+        self.hint = float(hint) if hint else None
+        super().__init__(self.reason)
+
+    @property
+    def reason(self) -> str:
+        if self.state == "check_failed":
+            return "SENTRY could not check RSI for them just now"
+        if self.state == "queued_low":
+            return "SENTRY is checking RSI for them, behind other new names"
+        return "SENTRY is checking RSI for them"
+
+
+def is_placeholder(d) -> bool:
+    """A SENTRY placeholder (`is_stub`), whether or not it says why."""
+    if not isinstance(d, dict):
+        return False
+    return bool((d.get("metadata") or {}).get("is_stub")
+                or (d.get("profile") or {}).get("is_stub"))
+
+
+def placeholder_state(d) -> tuple[str | None, float | None]:
+    """A SENTRY placeholder's (lookup_state, retry_after_hint); (None, None)
+    for a real profile, or a placeholder from before SENTRY said why."""
+    if not is_placeholder(d):
+        return None, None
+    meta = d.get("metadata") or {}
+    hint = meta.get("retry_after_hint")
+    try:
+        hint = float(hint) if hint is not None else None
+    except (TypeError, ValueError):
+        hint = None
+    return (str(meta.get("lookup_state") or "").lower() or None), hint
+
+
+def sentry_absent(d) -> bool:
+    """SENTRY saying RSI has no public profile for the handle: NotOnRSI, or a
+    placeholder whose state is not_found. Nothing else it says is absence."""
+    return isinstance(d, NotOnRSI) or placeholder_state(d)[0] == "not_found"
+
+
+def _rate_left(headers) -> tuple[int, float] | None:
+    """(requests left, seconds until there is room) from SENTRY's headers -
+    `RateLimit: "default";r=80;t=25`, or the older RateLimit-Remaining and
+    -Reset - or None if neither is there."""
+    if headers is None:
+        return None
+    try:
+        text = headers.get("RateLimit") or ""
+        r = re.search(r"\br=(\d+)", text)
+        t = re.search(r"\bt=(\d+)", text)
+        if r and t:
+            return int(r.group(1)), float(t.group(1))
+        left, reset = headers.get("RateLimit-Remaining"), headers.get("RateLimit-Reset")
+        if left is not None and reset is not None:
+            return int(left), float(reset)
+    except (TypeError, ValueError, AttributeError):
+        pass
+    return None
+
+
 class _Paced:
     """One service's request pacing and outage breaker.
 
@@ -979,11 +1090,20 @@ class Sentry(_Paced):
         # (kind, key) -> (time.monotonic(), answer, asked live) - see
         # SENTRY_MEMO_TTL. kind "c" is a player, "o" an org's profile.
         self._memo: dict[tuple[str, str], tuple[float, object, bool]] = {}
+        # From its RateLimit header - see SENTRY_RL_LOW: the gap to keep
+        # between requests, until when (time.monotonic()).
+        self._rl_gap = 0.0
+        self._rl_until = 0.0
 
     def _recall(self, kind: str, key: str):
-        """(found, answer) from the memo."""
+        """(found, answer) from the memo. A placeholder is kept only
+        SENTRY_STUB_MEMO_TTL: it is an answer on its way, and the re-ask
+        that collects it comes sooner than SENTRY_MEMO_TTL."""
         m = self._memo.get((kind, key))
-        if m is None or time.monotonic() - m[0] >= SENTRY_MEMO_TTL:
+        if m is None:
+            return False, None
+        ttl = SENTRY_STUB_MEMO_TTL if is_placeholder(m[1]) else SENTRY_MEMO_TTL
+        if time.monotonic() - m[0] >= ttl:
             return False, None
         return True, m
 
@@ -1007,15 +1127,43 @@ class Sentry(_Paced):
         each kept one a second - together up to 120. The next turn is booked
         in rsi_cache.db, where both see it; within a process the lock still
         orders threads. Without a cache, the per-process pace as before."""
+        gap = self._rl_gap if time.monotonic() < self._rl_until else 0.0
         if self._cache is None or self.min_interval <= 0:
+            if gap > self.min_interval:
+                with self._slot_lock:
+                    slot = max(time.time(), self._last + gap)
+                    self._last = slot
+                wait = slot - time.time()
+                if wait > 0:
+                    time.sleep(wait)
+                return
             return super()._wait_turn()
         try:
-            slot = self._cache.book_slot(self.SLOT, self.min_interval)
+            slot = self._cache.book_slot(self.SLOT, max(self.min_interval, gap))
         except Exception:
             return super()._wait_turn()
         wait = min(slot - time.time(), 10.0)
         if wait > 0:
             time.sleep(wait)
+
+    def _note_rate(self, headers):
+        """Pace from what SENTRY says is left - see SENTRY_RL_LOW."""
+        got = _rate_left(headers)
+        if got is None:
+            return
+        left, reset = got
+        now = time.monotonic()
+        with self._slot_lock:
+            if left <= 0 and reset > 0:
+                # Out until `reset`: the same as being told to wait.
+                self._down_until = max(self._down_until, now + _jitter(reset))
+                self._told_until = max(self._told_until, self._down_until)
+                self._rl_gap, self._rl_until = 0.0, 0.0
+            elif left <= SENTRY_RL_LOW and reset > 0:
+                self._rl_gap = min(reset / left, SENTRY_RL_MAX_GAP)
+                self._rl_until = now + reset
+            else:
+                self._rl_gap, self._rl_until = 0.0, 0.0
 
     def live_paused_for(self) -> float:
         """Seconds until live lookups may be asked for again; 0 if now.
@@ -1069,12 +1217,21 @@ class Sentry(_Paced):
         self._wait_turn()
         started = time.monotonic()
         _TL.headers = None
+        _TL.lookup_state = None
         try:
             payload = self._fetch(SENTRY_HOST + path, timeout)
         except urllib.error.HTTPError as e:
             _log_sentry(path, live, str(e.code), started, headers=e.headers)
             if e.code == 404:
+                # Which 404 - see SENTRY_CHECK_STATES. Left on the thread for
+                # the caller that asked; most only need "no answer".
+                try:
+                    _TL.lookup_state = ((e.headers or {}).get("X-Lookup-State")
+                                        or "").strip().lower() or None
+                except Exception:
+                    _TL.lookup_state = None
                 self._went_ok()
+                self._note_rate(e.headers)      # after: _went_ok clears pauses
                 return None
             if is_transient(e):
                 # 429 (over a budget) and 503 (busy) both say how long to wait.
@@ -1097,7 +1254,12 @@ class Sentry(_Paced):
                 self._went_wrong()
             raise _tag(e, self.SERVICE)
         _log_sentry(path, live, "200", started, payload, _TL.headers)
+        # Not on a 429: its headers describe the limit that refused, and the
+        # Retry-After above is the wait - the live limit's said "0 left" for
+        # an hour while everything it holds was still being answered. After
+        # _went_ok, which clears pauses.
         self._went_ok()
+        self._note_rate(_TL.headers)
         return payload
 
     def citizen(self, handle: str, force: bool = False,
@@ -1128,6 +1290,13 @@ class Sentry(_Paced):
             hit, m = self._recall("c", key)
             if hit:
                 _, d, was_live = m
+                if isinstance(d, NotOnRSI):
+                    return d            # RSI said no; asking again says the same
+                if is_placeholder(d):
+                    # On its way, and it has no read date for max_age to
+                    # judge: within SENTRY_STUB_MEMO_TTL asking again gains
+                    # nothing. (A burst's identity check and lookup.)
+                    return d
                 if d is not None:
                     seen = _parse_utc(((d.get("metadata") or {}).get("last_fetched"))
                                       or (d.get("profile") or {}).get("last_fetched"))
@@ -1150,7 +1319,12 @@ class Sentry(_Paced):
             if live:
                 self._note_live(key)    # timed out: it may still be reading
             raise
-        if live and d is None:
+        if d is None and getattr(_TL, "lookup_state", None) == "not_found":
+            # RSI has no public profile - on a live ask, or remembered by
+            # SENTRY on a database-only one. A 404 saying `not_checked`, or
+            # nothing (before 2026-10-23), stays None: silence.
+            d = NotOnRSI()
+        if live and not d:
             self._note_live(key)        # it looked, and RSI had nobody
         self._remember("c", key, d, live)
         return d
@@ -1313,20 +1487,23 @@ class Client(_Paced):
         """Whether this backend returns org data, as opposed to just a link.
 
         True without an API key when SENTRY is on, because SENTRY needs none.
-        What a key still buys is `confirms_absence`, an archetype for orgs we
-        have none for, and a fallback when SENTRY cannot answer.
+        What a key still buys is `has_key`: an archetype for orgs we have none
+        for, and a fallback when SENTRY cannot answer.
         """
         return self.provider == "api" and (bool(self.api_key)
                                            or self.sentry is not None)
 
     @property
-    def confirms_absence(self) -> bool:
-        """Can this client say a handle does NOT exist?
+    def has_key(self) -> bool:
+        """Can starcitizen-api.com be asked - the fallback, and the only
+        source of an org's archetype?
 
-        Only starcitizen-api.com is asked that, so only with a key. "No such
-        account" is what raises a misread audit, what purge_ghosts deletes on,
-        and what lets two spellings be treated as one person - so it is taken
-        from the service that asks RSI live, never from a database's silence.
+        It was `confirms_absence`, when only that service could say a handle
+        does NOT exist. "No such account" raises a misread audit, is what
+        purge_ghosts deletes on, and lets two spellings be treated as one
+        person - so it is taken only from a source that asked RSI: that
+        service, or since 2026-10-23 SENTRY saying so outright (NotOnRSI).
+        A database's silence is still never it.
         """
         return self.provider == "api" and bool(self.api_key)
 
@@ -1548,7 +1725,7 @@ class Client(_Paced):
         org simply shows no Syndicate mark yet. Its focus is not taken;
         SENTRY's is fresher (see org()). `keep_age` stores it without
         restarting the cached copy's thirty days."""
-        if org.archetype or not self.confirms_absence:
+        if org.archetype or not self.has_key:
             return
         sid = org.sid.upper()
         if sid in self._archetype_tried or self.down_for() > 0 or self._trouble:
@@ -1575,8 +1752,8 @@ class Client(_Paced):
         """A profile, from the cache when it has one unless `fresh`.
 
         `live` False asks SENTRY's database only - never a live RSI fetch,
-        which its hourly limit counts. For a question SENTRY cannot answer
-        anyway: "does this account NOT exist" is the other service's alone.
+        which its new-name allowance counts. It can still say "no such
+        account" for a name SENTRY checked in the last couple of hours.
 
         `fresh` is for a person pressing "look up" on a contact. The cache
         keeps "no such account" for a YEAR, so without it a forced lookup of
@@ -1592,15 +1769,20 @@ class Client(_Paced):
              service: SENTRY is asked to re-read RSI. A "try now" waits up to
              SENTRY_REFRESH_WAIT for that; the watcher does not wait - the
              old copy stands in, marked, and its retry collects the new one.
+             SENTRY saying RSI has NO profile (NotOnRSI) is taken too, from
+             2026-10-23: it asked RSI and says so. A database's silence - a
+             plain 404, or `not_checked` - never is: "no such account" drives
+             misread audits, ghost purges and identity merges.
           2. starcitizen-api.com, for everything else - which includes every
-             case where SENTRY does not have the person. SENTRY not having
-             someone is a database's silence, not RSI saying they do not
-             exist; "no such account" drives misread audits, ghost purges and
-             identity merges, so it is only ever taken from the source that
-             asks RSI live.
+             case where SENTRY does not have the person, and a name SENTRY is
+             still checking (its placeholder) when there is a key.
           3. If that fails too: SENTRY's copy if there was one, marked with
              why it could not be confirmed; else the expired copy in our own
-             cache, marked the same way; else the error.
+             cache, marked the same way; else the error. Without a key, a
+             name SENTRY is checking comes back seen-but-unverified and
+             marked `checking`, with how long SENTRY said to wait - the
+             watcher asks again then (SENTRY_CHECK_DELAYS); a "try now"
+             waits once for it here.
 
         Without SENTRY (`rsi_source = sci`) the order is the one it was before
         SENTRY existed: step 2, then our own expired copy. (One difference, on
@@ -1627,12 +1809,24 @@ class Client(_Paced):
                  live: bool = True) -> Citizen:
         """citizen() past the cache. `sentry` is None when the caller has
         already asked SENTRY and had nothing - see exists()."""
-        found, sentry_err, queued = None, None, False
+        found, sentry_err, queued, checking = None, None, False, None
         if sentry is not None:
             try:
                 found = self._citizen_sentry(handle, fresh, live)
+            except Checking as chk:
+                checking = chk
+                if fresh and not self.has_key:
+                    # A person pressed "try now", and nothing else here can
+                    # answer: wait for SENTRY's check, once.
+                    found, checking = self._await_check(handle, chk, live)
             except Exception as exc:
                 sentry_err = exc
+            if found is not None and not found.exists:
+                # SENTRY: RSI has no profile for them. The answer the other
+                # service would give, from the same place, kept as long.
+                found.source = "sentry"
+                self.cache.put_citizen(found)
+                return found
             window = FRESH_WINDOW if fresh else CITIZEN_TTL
             if found is not None and time.time() - found.fetched_at > window:
                 # Too old to take as it is - but SENTRY can re-read them. It
@@ -1661,7 +1855,7 @@ class Client(_Paced):
                 self.cache.put_citizen(found, stored_at=found.fetched_at)
                 return found
 
-        if self.confirms_absence:
+        if self.has_key:
             try:
                 c = self._citizen_sci(handle, fresh, store=found is None)
                 c.source = "sci"
@@ -1672,6 +1866,8 @@ class Client(_Paced):
                 err = exc
         else:
             err = sentry_err
+            if found is None and err is None and checking is not None:
+                return self._pending(handle, checking)
             if found is None and err is None:
                 # SENTRY has never heard of them and nothing here can ask RSI.
                 # That is not "no such account" - see above. Seen, unverified.
@@ -1731,7 +1927,43 @@ class Client(_Paced):
             if old_copy is not None:
                 old_copy.stale_reason = describe_failure(err)
                 return old_copy
+        if checking is not None:
+            # The other service failed, and SENTRY's own answer is on its way:
+            # that, with SENTRY's wait, rather than the other one's error.
+            return self._pending(handle, checking)
         raise err
+
+    def _await_check(self, handle: str, chk: Checking,
+                     live: bool) -> tuple[Citizen | None, Checking | None]:
+        """A "try now" on a name SENTRY is checking: wait for the check once -
+        SENTRY_CHECK_WAIT_MIN, or its hint when longer - and ask again. Not
+        when the check failed (SENTRY waits out its own hint first) or the
+        wait would pass SENTRY_REFRESH_WAIT. Returns (answer, still
+        checking); runs off the page's thread, like _sentry_refresh."""
+        wait = max(SENTRY_CHECK_WAIT_MIN, chk.hint or 0.0)
+        if chk.state == "check_failed" or wait > SENTRY_REFRESH_WAIT:
+            return None, chk
+        time.sleep(wait)
+        self.sentry.forget(handle)
+        try:
+            return self._citizen_sentry(handle, False, live), None
+        except Checking as again:
+            return None, again
+        except Exception:
+            return None, chk
+
+    @staticmethod
+    def _pending(handle: str, chk: Checking) -> Citizen:
+        """Seen, not yet known: SENTRY is checking RSI for them. Unverified,
+        so nothing treats it as a profile or as "no such account", and never
+        cached; `checking` and `retry_in` tell the watcher when to ask again
+        (watch.RsiEnricher.SENTRY_CHECK_DELAYS)."""
+        c = Citizen(handle=handle.upper(), exists=True, unverified=True,
+                    fetched_at=time.time())
+        c.stale_reason = chk.reason
+        c.checking = chk.state
+        c.retry_in = chk.hint
+        return c
 
     def _sentry_refresh(self, handle: str, found: Citizen, window: float,
                         wait: bool) -> tuple[bool, Citizen | None]:
@@ -1781,8 +2013,9 @@ class Client(_Paced):
         contact already on file. It used to build a whole profile to answer a
         yes/no - and with SENTRY returning every org a person is in, a whole
         profile can mean fetching details for six orgs. SENTRY having the
-        person is a yes on its own, answered in a quarter of a second. Anything
-        else goes the full way, because only that can say no.
+        person is a yes on its own, answered in a quarter of a second; SENTRY
+        remembering that RSI has no profile for them is a no. Anything else
+        goes the full way, because only that can say no.
         """
         handle = handle.strip()
         if SHIP_SERIAL_RE.match(handle.upper()):
@@ -1798,13 +2031,21 @@ class Client(_Paced):
                 # A hit is a quarter of a second; anything slower is SENTRY
                 # crawling a name it has never seen, which is usually a misread.
                 # Database-only: a live lookup here was mostly spent on
-                # misreads, and only the other service can say "no account".
+                # misreads. It can still say "no": SENTRY remembers RSI having
+                # no profile for a name it checked, about two hours.
                 with why("identity"):
                     d = self.sentry.citizen(handle, timeout=EXISTS_TIMEOUT,
                                             live=False)
                 if (d is not None and _is_answer_for(d, handle)
                         and sentry_has(d)):
                     return True
+                if sentry_absent(d):
+                    # Kept like any "no such account", so the lookup that
+                    # follows - and its misread audit - agree with this.
+                    self.cache.put_citizen(Citizen(handle=handle.upper(),
+                                                   exists=False,
+                                                   fetched_at=time.time()))
+                    return False
             except Exception:
                 pass
         # SENTRY has been asked; do not ask it again on the way through.
@@ -1860,8 +2101,15 @@ class Client(_Paced):
         d = self.sentry.citizen(handle, force=fresh,
                                 max_age=FRESH_WINDOW if fresh else CITIZEN_TTL,
                                 live=live)
+        if sentry_absent(d):
+            # RSI has no profile for them - SENTRY asked. See _resolve.
+            return Citizen(handle=handle.upper(), exists=False,
+                           fetched_at=time.time())
         if not d or not isinstance(d, dict):
             return None
+        state, hint = placeholder_state(d)
+        if state in SENTRY_CHECK_STATES and _is_answer_for(d, handle):
+            raise Checking(state, hint)     # on its way: see _resolve
         prof = d.get("profile") or {}
         if not prof:
             return None
@@ -2134,7 +2382,7 @@ class Client(_Paced):
                     return r
             except Exception as exc:
                 sentry_err = exc
-        if self.confirms_absence:
+        if self.has_key:
             members, complete = self.members_detail(sid, max_pages, on_page)
             return Roster(members, complete, "sci")
         if sentry_err is not None:

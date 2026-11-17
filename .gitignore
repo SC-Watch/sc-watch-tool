@@ -14,6 +14,14 @@ sc_api_key.txt
 sc-watch.db
 sc-watch.db.bak-*
 rsi_cache.db
+# The shared watchlists name people too. And ANY database, with SQLite's side
+# files: in WAL mode the newest rows live in the -wal file, not the .db - a
+# run from this folder on 2026-11-11 left all of them here, unignored.
+watchlist.db
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
 sightings.csv
 audit/
 

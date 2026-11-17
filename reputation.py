@@ -586,13 +586,7 @@ class Database:
         row = self.db.execute(
             "SELECT handle FROM players WHERE sketch=? LIMIT 1", (sk,)).fetchone()
         if row:
-            known = row["handle"]
-            if self._both_real(h, known):
-                return h, None
-            if len(h) > len(known) and h.startswith(known):
-                self._rename(known, h)
-                return h, known
-            return known, None
+            return self._settle_lookalike(h, row["handle"], mutate)
 
         # Truncations differ in length, so the sketch won't match. Try a stem
         # first (cheap, indexed), then fall back to a length-bounded scan -
@@ -611,15 +605,75 @@ class Database:
 
         for known in candidates:
             if consensus.same_contact(h, known):
-                if self._both_real(h, known):
-                    return h, None
-                if len(h) > len(known) and h.startswith(known):
-                    if not mutate:
-                        return h, None
-                    self._rename(known, h)
-                    return h, known
-                return known, None
+                return self._settle_lookalike(h, known, mutate)
         return h, None
+
+    def _realness(self, handle: str):
+        """True / False / None ("cannot tell") - strictly, never guessing."""
+        if self.verify is None:
+            return None
+        try:
+            return self._exists_strict(handle)
+        except Exception:
+            return None
+
+    def _lookalike_verdict(self, a: str, b: str) -> str:
+        """Two spellings that read alike - what the evidence says.
+
+        'separate'   both are real accounts, or either one cannot be checked:
+                     two people as far as anyone can tell (SLIVER / 5LIVER)
+        'a' / 'b'    that one is a real account and the other is not - the
+                     other is a misread of it
+        'misreads'   neither is a real account that could be shown
+        """
+        ra, rb = self._realness(a), self._realness(b)
+        if ra is not False and rb is not False:
+            return "separate"
+        if ra is True and rb is False:
+            return "a"
+        if rb is True and ra is False:
+            return "b"
+        return "misreads"
+
+    def _settle_lookalike(self, h: str, known: str, mutate: bool) -> tuple[str, str | None]:
+        """canonical() for a new reading `h` that reads like `known`, on file.
+
+        The stored spelling used to win whenever the two were not both real,
+        unless `h` merely extended it. So a misread recorded FIRST kept every
+        later clean read of the real name: on 2026-11-11 a real account's
+        reading was filed under a one-letter misread with no RSI account, and
+        the misread's audit never resolved (README, "Names that never merged").
+        Now the real account wins whichever came first - and the misread's
+        audits go with it, answered.
+        """
+        verdict = self._lookalike_verdict(h, known)
+        if verdict == "separate":
+            return h, None
+        if verdict == "a":
+            if not mutate:
+                return h, None
+            self._rename(known, h)
+            self._close_answered_audits(known)
+            return h, known
+        if verdict == "misreads" and len(h) > len(known) and h.startswith(known):
+            if not mutate:
+                return h, None
+            self._rename(known, h)
+            return h, known
+        return known, None
+
+    def _close_answered_audits(self, misread: str) -> int:
+        """Drop the audits of a spelling just folded into the real account it
+        misread: the question they asked - what did this label really say? -
+        now has its answer. Only called when one side is a confirmed account
+        and the other confirmed not to be one."""
+        rows = self.db.execute("SELECT * FROM audits WHERE handle=?", (misread,)).fetchall()
+        for row in rows:
+            self._drop_audit_files(row)
+        if rows:
+            self.db.execute("DELETE FROM audits WHERE handle=?", (misread,))
+            self.db.commit()
+        return len(rows)
 
     def _both_real(self, a: str, b: str) -> bool:
         """Do both spellings correspond to actual accounts?
@@ -724,7 +778,10 @@ class Database:
 
         Deduplication happens on write now, but records written before that
         are still split - SLIVER and 5LIVER as two players, each with half the
-        history. Walks longest-first so the fuller spelling wins.
+        history. Walks longest-first so the fuller spelling wins - unless the
+        shorter one is the real account and the longer one is not (a misread
+        with a letter too many must not swallow the real name): then the real
+        one is kept, and the misread's audits close with it.
         """
         handles = [r["handle"] for r in self.db.execute(
             "SELECT handle FROM players ORDER BY LENGTH(handle) DESC")]
@@ -737,10 +794,19 @@ class Database:
                     continue
                 if not consensus.same_contact(keep, other):
                     continue
-                if self._both_real(keep, other):
+                verdict = self._lookalike_verdict(keep, other)
+                if verdict == "separate":
                     skipped.append((other, keep))
                     continue
+                if verdict == "b":                 # `other` is the real one
+                    self._rename(keep, other)
+                    self._close_answered_audits(keep)
+                    merged.append((keep, other))
+                    gone.add(keep)
+                    break                          # `keep` is gone; move on
                 self._rename(other, keep)
+                if verdict == "a":
+                    self._close_answered_audits(other)
                 merged.append((other, keep))
                 gone.add(other)
         return merged, skipped
@@ -814,6 +880,29 @@ class Database:
         self.db.commit()
         return cur.rowcount > 0
 
+    def is_listed(self, handle: str) -> bool:
+        """Is this exact handle on one of YOUR lists - a report you filed, an
+        entry on an enabled watchlist source, or the roster of an org you
+        flagged (hand-added members included)?
+
+        The watcher asks this of a read that sc_detector classed as a game
+        label (NON_PLAYER_WORDS: DAYMAR, GOLD, ...). Your own lists outrank
+        the built-in one: if someone you are watching for is called GOLD, the
+        word list must not hide them.
+        """
+        h = (handle or "").strip()
+        if not h:
+            return False
+        if self.db.execute("SELECT 1 FROM reports WHERE handle=? COLLATE NOCASE LIMIT 1",
+                           (h,)).fetchone():
+            return True
+        if self.db.execute(
+                "SELECT 1 FROM org_membership m JOIN org_flags f ON f.sid = m.sid"
+                " WHERE m.handle=? COLLATE NOCASE LIMIT 1", (h,)).fetchone():
+            return True
+        wl = self.watchlist
+        return wl is not None and any(x.match == "exact" for x in wl.lookup(h, variants=False))
+
     def ignored_list(self) -> list[dict]:
         return [dict(r) for r in self.db.execute(
             "SELECT * FROM ignored ORDER BY hits DESC, label").fetchall()]
@@ -860,13 +949,21 @@ class Database:
         return cur.rowcount > 0
 
     def add_report(self, handle: str, category: str, note: str = "",
-                   evidence: str = "", source: str = "self"):
-        h, _ = self.canonical(handle)
+                   evidence: str = "", source: str = "self", exact: bool = False):
+        """File a report. `exact` - what the page asks for - files it under
+        the handle as given and makes nobody a contact: a report you type about
+        someone you have never met (an org mate told you) is not a sighting.
+        Without it, the watcher's and the CLI's way: the spelling is resolved,
+        and a players row made if there is none."""
         now = time.time()
-        self.db.execute(
-            """INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
-               VALUES (?,?,?,0,?) ON CONFLICT(handle) DO NOTHING""",
-            (h, now, now, sketch(h)))
+        if exact:
+            h = handle.strip().upper()
+        else:
+            h, _ = self.canonical(handle)
+            self.db.execute(
+                """INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
+                   VALUES (?,?,?,0,?) ON CONFLICT(handle) DO NOTHING""",
+                (h, now, now, sketch(h)))
         self.db.execute(
             "INSERT INTO reports (handle, ts, category, note, evidence, source)"
             " VALUES (?,?,?,?,?,?)", (h, now, category, note, evidence, source))
@@ -1315,9 +1412,12 @@ class Database:
         SENTRY is asked DATABASE-ONLY (live=False). The handles this is for are
         the ones SENTRY does not have, so a normal ask spent one of its live
         RSI fetches on each - limited per hour, and refusing all of them once
-        used up - on a question SENTRY cannot answer: only the other service
-        says an account does not exist. SENTRY having someone still says they
-        are real, and that costs nothing.
+        used up. SENTRY having someone still says they are real, and that
+        costs nothing. Since 2026-10-23 a database-only ask can also say "no":
+        SENTRY remembers RSI having no profile for a name it checked (about
+        two hours), and a lookup that heard that stored it as "no such
+        account" - so without a key, ghosts are found too. A name SENTRY has
+        simply never heard of is still unchecked, never a ghost.
         """
         import rsi as rsi_mod
         client = client or rsi_mod.Client()
@@ -1883,7 +1983,8 @@ class Database:
 
     # -- reads -----------------------------------------------------------
 
-    def assess(self, handle: str, variants: bool | None = None) -> Assessment:
+    def assess(self, handle: str, variants: bool | None = None,
+               exact: bool = False) -> Assessment:
         # `variants` is only the watchlist's variant-matching switch, passed
         # through. None means "ask the settings file", which is right for one
         # assessment at a time - the watcher's, a handful per burst - and wrong
@@ -1898,7 +1999,14 @@ class Database:
         # mutate=False: this is a read, and the UI calls it for every tile on
         # every poll - renaming records as a side effect of displaying them
         # would be a nasty surprise.
-        h, _ = self.canonical(handle, mutate=False)
+        #
+        # `exact` skips that resolution: the records filed under THIS handle,
+        # as stored. For a view's player you have never met (no players row),
+        # canonical() would look for a similar contact and could ask the
+        # lookup service whether both are real - a network request per tile,
+        # per page build - and could show a lookalike's records. Hand-entered
+        # and imported records are filed under the exact handle anyway.
+        h = handle.strip().upper() if exact else self.canonical(handle, mutate=False)[0]
         a = Assessment(handle=h)
         row = self.db.execute("SELECT * FROM players WHERE handle=?", (h,)).fetchone()
         if row:

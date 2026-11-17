@@ -40,7 +40,7 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 import dbopen
 import housekeeping
@@ -437,9 +437,12 @@ def _retry_failed_lookups(client, ask: bool) -> dict:
                 held = sentry.citizen(h, live=False)    # its database only
             except Exception:
                 break           # its breaker says when; the next round asks
+            # SENTRY remembering that RSI has no such account is an answer
+            # too: no live fetch needed to hear it again.
+            absent = rsi.sentry_absent(held)
             if not rsi.sentry_has(held):                # a placeholder is not held
                 held = None
-            if held is None:
+            if held is None and not absent:
                 if got["live"] >= RETRY_FAILED_LIVE or sentry.live_paused_for() > 0:
                     continue    # no live fetch left this round: the next one
                 got["live"] += 1
@@ -698,6 +701,12 @@ def lookup_now(handle: str, fresh: bool = False) -> bool:
             except Exception as exc:
                 _note_lookup_failure(client, h, exc)
                 raise
+            if getattr(c, "checking", None):
+                # SENTRY had never seen them and is checking RSI (a "try now"
+                # without a key has already waited once for it).
+                LOOKUPS[h] = (f"{h}: {c.stale_reason} - try again in about "
+                              f"{max(20, round(getattr(c, 'retry_in', None) or 30))} s")
+                return
             if not c.exists:
                 # Same reading as the watcher's: a handle that does not resolve
                 # is usually a misread, not a ghost.
@@ -705,10 +714,17 @@ def lookup_now(handle: str, fresh: bool = False) -> bool:
                 return
             db = _open_db()
             if c.orgs:
-                db.set_orgs(h, c.orgs)
-            db.update_profile(h, c.moniker, c.enlisted)
+                db.set_orgs(h, c.orgs)       # flagged-org marks reach them either way
+            # Only for someone already on file. update_profile() INSERTS a
+            # player that is not there, stamped now - a never-met player's
+            # look up (a view's tile) would have jumped to the top of the grid
+            # as if just seen. The Orgs tab's member lookups keep the same rule.
+            met = bool(db.db.execute("SELECT 1 FROM players WHERE handle=?",
+                                     (h,)).fetchone())
+            if met:
+                db.update_profile(h, c.moniker, c.enlisted)
             bits = [c.summary()]
-            a = db.assess(h)
+            a = db.assess(h, exact=not met)
             for sid, note in a.flagged_orgs:
                 bits.append(f"FLAGGED ORG {sid}" + (f" — {note}" if note else ""))
             for flag in c.flags:
@@ -1022,33 +1038,107 @@ def _audits_with_files(db, handle):
     return out
 
 
-def collect() -> dict:
+# ---- views ------------------------------------------------------------------
+# A view is a named set of players the page can ask for - the audit queue, the
+# reported players - drawn as tiles, including people outside the normal
+# window and people you have never met. The page says which view is open
+# (/api/stream?view=&arg=); only then are its players sent. Not always-sent,
+# the way out-of-window audits used to be: an import of 500 reports would have
+# put 500 tiles into every live update. Capped at VIEW_CAP.
+VIEW_CAP = 200
+
+
+def _view_audits(db, arg):
+    """Players with an uncertain read waiting, newest read first. Audits whose
+    player row is gone are counted apart (stats.audits_orphaned)."""
+    return [r[0] for r in db.db.execute(
+        """SELECT handle FROM audits
+           WHERE handle IN (SELECT handle FROM players)
+           GROUP BY handle ORDER BY MAX(ts) DESC""")]
+
+
+def _view_reports(db, arg):
+    """Everyone with a report - "" all, "self" yours, or one mate's install -
+    most reports first, ties to the newest report."""
+    where, params = "", ()
+    if arg == "self":
+        where = "WHERE origin IS NULL"
+    elif arg:
+        where, params = "WHERE origin LIKE ?", (arg + ":%",)
+    return [r[0] for r in db.db.execute(
+        f"""SELECT UPPER(handle) FROM reports {where}
+            GROUP BY UPPER(handle) ORDER BY COUNT(*) DESC, MAX(ts) DESC""", params)]
+
+
+VIEWS = {"audits": _view_audits, "reports": _view_reports}
+
+
+def _view_arg(view: str, arg: str) -> str | None:
+    """The argument a view may take, or None if this one is not allowed."""
+    if view == "reports":
+        return arg if arg in ("", "self") or share.INSTALL_RE.match(arg) else None
+    return ""
+
+
+def _report_sources(db) -> list[dict]:
+    """Whose reports there are, for the reports view's filter chips: yours
+    first, then each org mate by name."""
+    names = {r[0]: r[1] for r in db.db.execute("SELECT install, name FROM shares")}
+    out = []
+    for src, players, n in db.db.execute(
+            """SELECT CASE WHEN origin IS NULL THEN 'self'
+                      ELSE substr(origin, 1, instr(origin, ':') - 1) END AS src,
+                      COUNT(DISTINCT UPPER(handle)), COUNT(*)
+               FROM reports GROUP BY src"""):
+        out.append({"key": src, "players": players, "reports": n,
+                    "name": "yours" if src == "self" else (names.get(src) or "an org mate")})
+    out.sort(key=lambda d: (d["key"] != "self", d["name"].lower()))
+    return out
+
+
+def collect(view: str | None = None, arg: str = "") -> dict:
     db = _open_db()
     try:
-        return _collect(db)
+        return _collect(db, view, arg)
     finally:
         db.close()
 
 
-def _collect(db) -> dict:
+def _collect(db, view: str | None = None, arg: str = "") -> dict:
     contacts = []
 
     cfg = settings.load()
+    # THE NORMAL GRID IS THE PEOPLE THE WATCHER HAS SEEN - on the HUD or in
+    # chat. A hand lookup's "add", or a report typed before 2026-10-18, made a
+    # players row with no sightings, which sat in the grid stamped as just
+    # seen; those show in views now, as "not met yet", and nothing is deleted.
     rows = db.db.execute(
         """SELECT handle, sightings, first_seen, last_seen
-           FROM players ORDER BY last_seen DESC LIMIT ?""",
+           FROM players WHERE COALESCE(sightings, 0) > 0
+           ORDER BY last_seen DESC LIMIT ?""",
         (int(cfg.get("max_contacts", 120)),)).fetchall()
-    # Plus anyone with an audit waiting who has dropped out of that window.
-    # The header counts every audit, and clicking the count lists the players
-    # they belong to - a list that could only reach the most recent contacts
-    # would show "to audit 3" over two tiles, missing the oldest read - the
-    # one likeliest to be forgotten. Marked, so the normal grid
-    # still draws exactly the window it always did.
     window = {r["handle"] for r in rows}
-    rows = list(rows) + [r for r in db.db.execute(
-        """SELECT handle, sightings, first_seen, last_seen FROM players
-           WHERE handle IN (SELECT handle FROM audits)
-           ORDER BY last_seen DESC""") if r["handle"] not in window]
+    # The open view's players, in its order, up to VIEW_CAP. Those outside the
+    # window ride along marked, so the normal grid still draws exactly the
+    # window; one with no players row - never met - gets a stand-in row.
+    view_rank, view_total, met = {}, 0, set(window)
+    if view in VIEWS:
+        handles = VIEWS[view](db, arg)
+        view_total = len(handles)
+        handles = handles[:VIEW_CAP]
+        view_rank = {h.upper(): i for i, h in enumerate(handles)}
+        extra = [h for h in handles if h not in window]
+        found = {}
+        for i in range(0, len(extra), 400):
+            chunk = extra[i:i + 400]
+            for r in db.db.execute(
+                    "SELECT handle, sightings, first_seen, last_seen FROM players "
+                    f"WHERE handle IN ({','.join('?' * len(chunk))})", chunk):
+                found[r["handle"]] = r
+        met |= {h for h, r in found.items() if (r["sightings"] or 0) > 0}
+        rows = list(rows) + [found.get(h) or {"handle": h, "sightings": 0,
+                                              "first_seen": None, "last_seen": None}
+                             for h in extra]
     # Only the profiles for the contacts actually being drawn.
     cache = _rsi_cache([r["handle"] for r in rows])
     failures = _rsi_failures([r["handle"] for r in rows])
@@ -1067,7 +1157,8 @@ def _collect(db) -> dict:
 
     for row in rows:
         handle = row["handle"]
-        a = db.assess(handle, variants=variants)
+        # Outside the window, by the exact handle - see assess(exact=).
+        a = db.assess(handle, variants=variants, exact=handle not in window)
         last_range = db.db.execute(
             """SELECT range_km FROM sightings WHERE handle=?
                ORDER BY ts DESC LIMIT 1""", (handle,)).fetchone()
@@ -1142,6 +1233,11 @@ def _collect(db) -> dict:
         contacts.append({
             "handle": handle,
             "in_window": handle in window,
+            # In the open view, and where in its order; `met` False is a
+            # player with no players row at all - never seen by the watcher.
+            "in_view": handle.upper() in view_rank,
+            "view_rank": view_rank.get(handle.upper()),
+            "met": handle in met,
             "range_km": last_range["range_km"] if last_range else None,
             "sightings": row["sightings"] or 0,
             "first_seen": row["first_seen"],
@@ -1177,7 +1273,9 @@ def _collect(db) -> dict:
                          "age_days": int(r.age_days), "weight": round(r.weight, 2),
                          "source": r.source} for r in a.reports],
             "pending": sum(1 for r in a.reports if r.category == reputation.PENDING),
-            "audits": _audits_with_files(db, handle),
+            # A never-met player has no reads, so no audits - and
+            # audits_for() resolves the spelling, which is not for them.
+            "audits": _audits_with_files(db, handle) if handle in met else [],
             "enlisted_days": enlisted_days,
             "redacted": bool(prof.get("redacted")),
             # Three states, not two. A cache row means "we asked"; it does NOT
@@ -1221,6 +1319,9 @@ def _collect(db) -> dict:
         })
 
     stats = db.stats()
+    # The header's "contacts": people seen, the same rule as the grid.
+    stats["contacts"] = db.db.execute(
+        "SELECT COUNT(*) FROM players WHERE COALESCE(sightings, 0) > 0").fetchone()[0]
     stats["pending"] = len(db.pending_reports())
     stats["audits"] = len(db.open_audits())
     stats["focuses"] = list(rsi.FOCUSES)
@@ -1235,6 +1336,10 @@ def _collect(db) -> dict:
            WHERE handle NOT IN (SELECT handle FROM players)""").fetchone()[0]
     stats["lookups"] = dict(LOOKUPS)
     stats["lookup_done"] = dict(LOOKUP_DONE)
+    stats["view"] = ({"name": view, "arg": arg, "total": view_total,
+                      "shown": len(view_rank)} if view in VIEWS else None)
+    if view == "reports":
+        stats["report_sources"] = _report_sources(db)
     # The schema travels with the state so the settings form is rendered from
     # it, not hand-written: adding a Field in settings.py puts a control in the
     # UI with no changes here.
@@ -1418,6 +1523,16 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _view_query(self) -> tuple[str | None, str]:
+        """The view named in this request's query string, checked: an
+        unknown view, or an argument it does not take, is no view."""
+        qs = parse_qs(urlparse(self.path).query)
+        view = (qs.get("view") or [""])[0]
+        if view not in VIEWS:
+            return None, ""
+        arg = _view_arg(view, (qs.get("arg") or [""])[0][:64])
+        return (view, arg) if arg is not None else (None, "")
+
     def _stream(self):
         """Server-sent events: push when the data actually changes.
 
@@ -1463,12 +1578,12 @@ class Handler(BaseHTTPRequestHandler):
             return tuple(out)
 
         try:
-            self._stream_loop(stamp, POLL, KEEPALIVE)
+            self._stream_loop(stamp, POLL, KEEPALIVE, *self._view_query())
         finally:
             for v in watched:
                 v.close()
 
-    def _stream_loop(self, stamp, POLL, KEEPALIVE):
+    def _stream_loop(self, stamp, POLL, KEEPALIVE, view=None, arg=""):
         last, last_beat = None, 0.0
         while not self.server._shutting_down:
             now = time.time()
@@ -1476,7 +1591,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 if cur != last:
                     last = cur
-                    payload = json.dumps(collect())
+                    payload = json.dumps(collect(view, arg))
                     self.wfile.write(f"data: {payload}\n\n".encode())
                     self.wfile.flush()
                     last_beat = now
@@ -1561,7 +1676,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/contacts":
             try:
-                body = json.dumps(collect()).encode()
+                body = json.dumps(collect(*self._view_query())).encode()
             except Exception as exc:
                 body = json.dumps({"error": f"{type(exc).__name__}: {exc}"}).encode()
             self._send(body, "application/json")
@@ -1626,6 +1741,10 @@ class Handler(BaseHTTPRequestHandler):
                "observed_days": (int((time.time() - c.fetched_at) / 86400)
                                  if c.fetched_at else None),
                "stale": getattr(c, "stale_reason", None),
+               # SENTRY checking RSI for a name it had never seen: not known
+               # yet, either way - and how long to give it.
+               "checking": bool(getattr(c, "checking", None)),
+               "retry_in": getattr(c, "retry_in", None),
                "orgs": [{"sid": o.sid, "name": o.name, "members": o.members,
                          "is_main": o.is_main,
                          "focuses": [f for f in (o.primary_focus,
@@ -2324,7 +2443,10 @@ class Handler(BaseHTTPRequestHandler):
                     db.add_report(handle, reputation.PENDING)
                     out = {"flagged": True}
                 elif path == "/api/report/add":
-                    db.add_report(handle, category, note)
+                    # Under the exact handle, and nobody made a contact - see
+                    # add_report(exact=). For someone you have met, their row
+                    # is already there under this handle; nothing differs.
+                    db.add_report(handle, category, note, exact=True)
                     out = {"added": True}
                 elif path == "/api/player/enlisted":
                     iso = _clean_date(payload.get("enlisted"))

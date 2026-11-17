@@ -10,6 +10,69 @@ Windows only.
 
 ---
 
+## New in 0.3.0
+
+**A much faster name reader, now the default.** sc-watch reads plates with
+the nameplate finder and per-letter reader of
+[IRIS](https://github.com/Niteb1rd/IRIS) (GPL-3.0, ported to Python - see
+[Licence](#licence)): a small network trained on the HUD font, one letter at
+a time. In game it reads a frame in under a fifth of a second, where the OCR
+reader of earlier versions took about a second. **Settings → Detection →
+Name reader**:
+
+- `iris` (the default) - IRIS alone. The focus and wide + centre keys do a
+  normal read with it: they exist to work around OCR's limits.
+- `iris+ocr` - IRIS, with OCR reading the plates IRIS is unsure of.
+- `ocr` - the reader every earlier version used.
+
+On a set of test frames with the game's HDR option off, IRIS read every name
+the OCR reader did, and more. In a busy cockpit - the heading tape and pitch
+ladder crossing plates, labels stacked together - its finder skipped about
+half the plates OCR read. If that is how you fly and you miss people you can
+see, set **Name reader** to `ocr`.
+
+**HDR works.** With Windows HDR on, every earlier version captured a blown-out
+picture: the copy Windows gives capture tools treats 80 nits as white.
+sc-watch now captures the HDR picture itself and converts it back to the
+game's own image (**HDR capture**, on by default). NVIDIA RTX HDR works with
+it. What to set is in [HDR: what to set](#5-hdr-what-to-set).
+
+**Always-on mode is practical.** Trigger `auto` with the IRIS reader scans
+every frame for new contacts and reads each one as it appears - about one CPU
+core while playing, and no frame-rate cost we could measure on a machine
+where the game was limited by its graphics card. It waits half a second
+before reading a new contact (**Always-on read delay**), because the HUD
+types a new name in letter by letter.
+
+Also:
+
+- **A misread no longer keeps a real player's history.** If a misread was
+  stored first, later clean reads of the real name were filed under it, and
+  its audit never closed. Now, when one spelling is a real account and the
+  other is not, the real one keeps everything - whichever came first - and
+  the misread's audit closes. Two real accounts that look alike stay apart,
+  as before.
+- **Moons, planets, stars, creatures, minerals and plants** that the HUD
+  labels over a distance line are no longer reported or looked up (a word
+  list from IRIS). Someone on your own lists - a report, a watchlist, a
+  flagged org's roster - with one of those words as a handle still is.
+- **Red player labels with HDR off** are found by the OCR reader again:
+  without HDR their red text never got bright enough for its brightness rule,
+  so a red - hostile - contact was simply not seen. The IRIS reader always
+  saw them.
+- **SENTRY can now say an account does not exist**, so misreads are caught
+  without an API key - see [The API key](#the-api-key-and-what-you-get-without-one).
+- **The reports view:** the header's reports count opens every reported
+  player - yours and your org mates', including people you have never met -
+  and the contacts grid shows only people the watcher has actually seen.
+- **OpenCV threads** (Detection, advanced): image work is capped at 2 CPU
+  threads - with the game running, more only competed with it for cores.
+
+**Upgrading from 0.2.x:** copy your `data` folder into the new one, as in
+[Upgrading](#upgrading). Your settings carry over and the new ones start at
+their defaults - so the IRIS reader is on. For the old behaviour, set
+**Name reader** to `ocr`.
+
 ## New in 0.2.3
 
 Fixed:
@@ -190,7 +253,7 @@ Not affiliated with or endorsed by Cloud Imperium Games.
 ## Install
 
 One download, no installer. The zip is the whole program: Python, every
-dependency and the OCR models are already inside it. Nothing is written
+dependency, the OCR models and IRIS's letter model are already inside it. Nothing is written
 outside the folder you unpack it into.
 
 ### Unpack and run
@@ -273,8 +336,8 @@ instead, there is nothing to copy - unpack the new zip and run it.
 
 ## Before it will read anything
 
-Four things decide whether this works, and three of them are on your screen
-rather than in this tool.
+Five things decide whether this works, and most of them are settings in the
+game or what is on your screen rather than anything in this tool.
 
 ### 1. Turn chromatic aberration OFF
 
@@ -328,14 +391,22 @@ frame or over the MFDs, are the worst case.
 
 The centre-read key (**`9`** by default) helps here for a different reason: it
 reads only the middle of the screen, so it spends its whole budget on whatever
-you are pointing at rather than competing with twenty other labels.
+you are pointing at rather than competing with twenty other labels. That is
+the OCR reader; with the IRIS reader (the default) the key does a normal read.
+
+**This matters even more with the IRIS reader.** Its finder wants a plate
+standing clear of other text, and in a cockpit full of HUD - the heading tape
+across a plate, the pitch ladder beside it, labels stacked together - it
+skipped about half the plates the OCR reader read. If that is how you fly and
+you miss people you can see, set **Name reader** to `ocr`.
 
 ### 4. Watch out for bright backgrounds
 
-The reader finds text by **brightness**, not by colour. That choice is
+The OCR reader finds text by **brightness**, not by colour. That choice is
 deliberate, because a hostile label is red and a friendly one is cyan and one
 brightness rule sees both. The cost is that it needs the label to be brighter
-than what is behind it.
+than what is behind it. The IRIS reader looks at colour and contrast as well,
+but it too needs the label to stand out from what is behind it.
 
 Against a bright background the label stops standing out. Measured on a real
 frame of a contact in front of a sunlit planet: the label peaked just below the
@@ -368,6 +439,42 @@ claim about a real person that nobody made.
 
 If it misses one, ping again from a slightly different angle.
 
+### 5. HDR: what to set
+
+Two different switches are called HDR, and they do different things to this
+tool.
+
+**Star Citizen's own HDR option: keep it OFF.** With it on, the game draws a
+glow around HUD text and the letters bleed into each other - the "halo"
+round names. The IRIS reader misses most plates, and the OCR reader does
+worse too. The glow is drawn by the game itself, so nothing on the capture
+side can undo it.
+
+**Windows HDR** (Windows Settings → System → Display → Use HDR): **fine,
+with HDR capture.** The copy of the screen Windows hands to capture tools
+treats 80 nits as white. So with Windows HDR on, every earlier sc-watch got a
+blown-out picture: bright scenes flat white, and HUD text solid white inside
+a halo of its own glow, misread. **HDR capture** (Capture settings, `auto` by
+default) reads the HDR picture itself and converts it back to exactly what
+the game drew, at your SDR white level. The watcher window says
+**HDR capture** at startup when it is in use. It costs about 40 ms of CPU a
+frame at 5120x1440. If it cannot start, the watcher says so and uses the
+ordinary capture, with a warning to turn Windows HDR off.
+
+**NVIDIA RTX HDR: works.** It turns the game's normal picture into HDR in the
+driver, without the game's own glow, and it needs Windows HDR on - so it
+needs HDR capture, which is on by default. In our test the converted frames
+were as crisp as with HDR off, and misreads were about half those of the
+old, blown-out capture.
+
+So, either:
+
+- **everything SDR**: Windows HDR off for the game's screen and the game's own
+  HDR off - the simplest; or
+- **RTX HDR**: Windows HDR on, the game's own HDR off, HDR capture on `auto`.
+
+Not: the game's own HDR option on, whatever else is set.
+
 ---
 
 ## The API key, and what you get without one
@@ -383,16 +490,18 @@ org's focus - the **Piracy** and **Smuggling** flags - whether any is one you
 have flagged, how old the account is, and the check that refuses to merge
 `SLIVER` and `5LIVER` because both are real accounts - all from SENTRY.
 
-**A key adds three things:**
+And whether a name is a real account at all: when SENTRY has not heard of
+someone it checks RSI, and sc-watch asks again after 30 seconds, 90 seconds
+and 4 minutes. A name RSI has no account for is then marked as a misread for
+you to correct - with or without a key.
 
-- **Knowing a misread is a misread.** Only starcitizen-api.com is ever trusted
-  to say an account does *not* exist. SENTRY not having someone is a
-  database's silence, not proof - so without a key, a handle nobody has heard
-  of is shown as unchecked rather than flagged for you to correct.
+**A key adds two things:**
+
 - **The Syndicate mark on orgs you have not seen before.** It comes from an
   org's type, which SENTRY does not carry. sc-watch asks starcitizen-api.com
   for it when it can, and never waits on it.
-- **A fallback** when SENTRY is down or does not know someone.
+- **A fallback** when SENTRY is down or busy, or is still checking someone -
+  the answer comes at once instead of after SENTRY's check.
 
 If SENTRY's copy of a player is out of date, sc-watch asks SENTRY to read RSI
 again rather than going elsewhere: **try now** on a tile waits up to half a
@@ -419,8 +528,8 @@ Without a key, the watcher's console says so at startup, lists what you are
 missing, and prints the exact path of the file for your install.
 
 **Confirm it worked:** after the restart, the notice about a missing key is
-gone from the top of the page and from the watcher window. A handle that does
-not exist is then marked as having no RSI account, rather than left unchecked.
+gone from the top of the page and from the watcher window. A handle SENTRY has
+not heard of is then answered at once, rather than after SENTRY's own check.
 
 The key is stored in plain text on your machine and is sent only to
 starcitizen-api.com.
@@ -434,7 +543,7 @@ Ping, then press the read key. That is the loop.
 | key | what it does |
 |---|---|
 | `0` | read the whole screen |
-| `9` | read only the centre, for whoever you are pointing at |
+| `9` | read only the centre, for whoever you are pointing at (OCR reader; with IRIS, a normal read) |
 | off | read the chat window and list who is talking |
 
 All three are rebindable, including to joystick buttons and combinations.
@@ -470,19 +579,21 @@ There is a **Restart watcher** button in Maintenance.
 
 | setting | default | what it does |
 |---|---|---|
-| **Trigger** | `key` | `key` reads when you press the key. `auto` reads continuously on a timer. Leave it on `key`: continuous reading burns CPU and re-reads the same contacts. |
+| **Trigger** | `key` | `key` reads when you press the key. `auto` scans every frame and reads each new contact as it appears. With the IRIS reader that is about one CPU core while you play; with the OCR reader it is heavy - stay on `key` with OCR. |
 | **Read key** | `0` | Full-screen read. Pick something you never touch in flight. Good choices: `0`, `-`, `=`, or a spare joystick button. |
-| **Focused read key** | `9` | Centre-only read. The best key on the tool, because it spends the whole reading budget on whatever you are pointing at instead of competing with twenty other labels. |
+| **Focused read key** | `9` | Centre-only read. The best key on the tool, because it spends the whole reading budget on whatever you are pointing at instead of competing with twenty other labels. With the IRIS reader (the default) it does a normal read. |
 | **Chat read key** | `off` | Reads the chat window and lists who is talking. Costs no ping and finds people you will never get a HUD label for. Try `8` if you spend time in busy areas. |
 | **Chat window region** *(adv)* | `auto` | Where chat sits. `auto` works it out from your resolution, and looks in both places the game puts it: with your helmet on, which adds a pitch indicator and pushes chat right, and with it off. Only set it - x, y, width, height as fractions of the screen, e.g. `0.15,0.30,0.35,0.45` - if chat reads nothing and you have moved the chat window; a region you set has to cover wherever you use chat. |
-| **Wide + centre key** | `off` | Reads the **whole screen and the centre on one press** and merges both. See [Wide + centre](#wide-and-centre-the-one-to-try-if-reads-are-poor) below. Set it to a key or button, or leave `off`. |
-| **Make the normal read key do both** | off | Turns every normal read into a wide + centre read, with no second binding to remember. Simpler, and you pay the extra cost on every ping. |
-| **Focused box size** | `auto` | The centre region the focus key reads. `auto` sizes it from your screen height: 1200x600 at 1440 tall, 900x450 at 1080p, 1800x900 at 4K. Bigger tolerates your target drifting off centre; smaller is faster. Give pixels to override, e.g. `1600x800` if you keep just missing. |
-| **Mask focused reads** *(adv)* | off | Changes how centre reads are prepared for the recogniser. Slower, and only occasionally better. Leave off. |
+| **Wide + centre key** | `off` | Reads the **whole screen and the centre on one press** and merges both. See [Wide + centre](#wide-and-centre-the-one-to-try-if-reads-are-poor) below. Set it to a key or button, or leave `off`. With the IRIS reader it does a normal read. |
+| **Make the normal read key do both** | off | Turns every normal read into a wide + centre read, with no second binding to remember. Simpler, and you pay the extra cost on every ping. Not with the IRIS reader. |
+| **Focused box size** | `auto` | The centre region the focus key reads. `auto` sizes it from your screen height: 1200x600 at 1440 tall, 900x450 at 1080p, 1800x900 at 4K. Bigger tolerates your target drifting off centre; smaller is faster. Give pixels to override, e.g. `1600x800` if you keep just missing. OCR reader only. |
+| **Mask focused reads** *(adv)* | off | Changes how centre reads are prepared for the recogniser. Slower, and only occasionally better. Leave off. OCR reader only. |
 | **Frames per read** | `3` | How many frames one press captures. Frames vote against each other, so a single bad read cannot name someone. `3` is the sweet spot. `5` for difficult scenes. `1` only for testing. |
 | **Gap between frames** | `0.1 s` | How long to wait between those frames. Tight is better: contacts drift and labels fade, and a late frame often catches neither. **Start at `0.1`.** Above about `0.5` the hit rate drops off, so treat `0.5` as the practical ceiling rather than the range end. |
 | **Delay before first frame** | `0 s` | Waits after the key press before grabbing. Set `0.3` to `0.5` if you tend to press the key while the scan animation is still sweeping. Every second here is a second before you get an answer. |
+| **Always-on read delay** *(adv)* | `0.5 s` | With Trigger `auto`: how long to wait after a new contact appears before reading it. The HUD types a new name in letter by letter, and reading at once caught half-typed names. |
 | **Monitor** | `1` | Which screen the game is on, counting from 1. If you get black frames or the wrong screen, this is the setting. |
+| **HDR capture** | `auto` | With Windows HDR on for the game's screen: captures the HDR picture and converts it back to the game's own image, instead of the blown-out copy Windows gives capture tools. `off` always uses the ordinary copy. See [HDR: what to set](#5-hdr-what-to-set). |
 | **Key poll rate** *(adv)* | `5 Hz` | How often the trigger key is checked. `10` if presses feel missed. Costs a little CPU. |
 | **Queued reads** *(adv)* | `3` | How many presses can stack up while a read is already running. Raise it if you mash the key in a busy moment. |
 
@@ -492,10 +603,14 @@ There is a **Restart watcher** button in Maintenance.
 
 | setting | default | what it does |
 |---|---|---|
+| **Name reader** | `iris` | `iris`: IRIS's finder and per-letter reader - about ten times faster than OCR; the focus keys do a normal read. `iris+ocr`: IRIS, with OCR for the plates it is unsure of. `ocr`: the reader before 0.3.0 - slower, but in a busy cockpit it finds plates IRIS's finder skips. Chat reads always use OCR. |
+| **IRIS scan area** *(adv)* | `whole` | How much of the screen the IRIS reader searches: `whole`; `narrow` skips 5 % top and bottom and 3 % each side; `iris` is IRIS's own 15 % and 8 %, which skips contacts near the edges; `centre` the middle half. Smaller is faster. |
+| **IRIS always-on scan area** *(adv)* | `narrow` | With Trigger `auto`: the area scanned on every frame to notice a new contact. Reads still use the scan area above. |
+| **OpenCV threads** *(adv)* | `2` | CPU threads for image work. Measured in game: 2 used half the CPU of OpenCV's default - every core - at the same speed. `0` = every core. |
 | **Votes to announce** | `1` | How many frames of a burst must agree before a name is announced. `1` is fast and occasionally wrong. **`2` is the single setting most worth changing**, and costs you nothing but a moment. |
-| **Range gate** *(adv)* | off | An extra check that a range line really is one. Rejects more junk and occasionally a real contact with it. |
-| **Re-read dim range lines** | off | **Turn this on if you can plainly see names that never get reported.** Some displays draw the range line dimmer than the name above it, and one brightness rule then keeps half a label and throws the contact away. Costs about half a second per read. This completely fixed one tester's setup. |
-| **Haze locator** | off | For washed-out daylight and atmospheric flight. Turn on if you fly in atmosphere and detection falls off a cliff. |
+| **Range gate** *(adv)* | off | An extra check that a range line really is one. Rejects more junk and occasionally a real contact with it. OCR reader only. |
+| **Re-read dim range lines** | off | **Turn this on if you can plainly see names that never get reported.** Some displays draw the range line dimmer than the name above it, and one brightness rule then keeps half a label and throws the contact away. Costs about half a second per read. This completely fixed one tester's setup. OCR reader only. |
+| **Haze locator** | off | For washed-out daylight and atmospheric flight. Turn on if you fly in atmosphere and detection falls off a cliff. OCR reader only. |
 | **Re-announce after** | `300 s` | How long before the same contact is called out again. `60` if you want reminders, higher if the same person keeps interrupting. |
 | **Pairing radius** *(adv)* | `180 px` | How far below a name its range line may sit and still be paired with it. |
 | **Contact expiry** *(adv)* | `20 s` | How long a contact is remembered by screen position after it stops being seen. |
@@ -506,6 +621,13 @@ cow, a crate or anything else the game has not identified, it is the most
 common label on a busy screen, and you can already tell what it is from your
 own instruments. They are discarded the moment the label is read, before any
 voting, database work or lookup happens.
+
+The same goes for the stars, planets, moons, creatures, minerals and plants
+the HUD labels over a distance line - `DAYMAR`, `QUANTAINIUM` and so on, a
+word list taken from IRIS. Whole words only, so a handle that merely starts
+with one is a player. And if a handle on one of your own lists - a report, a
+watchlist entry, a flagged org's roster - is one of those words, it is
+reported anyway.
 
 ### Audio
 
@@ -566,11 +688,11 @@ what they are and how to remove one.*
 
 | setting | default | what it does |
 |---|---|---|
+| **Write a session log** | on | A plain-text log of what the watcher did, in `debug_bursts/`. It is what a support bundle is mostly made of. |
 | **Save uncertain reads** | on | Saves the cropped pixels behind reads the tool is unsure about. **Leave this on.** It is how a wrong name gets corrected instead of hardening into a record. |
 | **Keep audits for** | `7 days` | How long those rows and their images survive. |
 | **Keep the full frame** | on | Saves the whole frame next to the crops so you can see the context. Uses more disk. |
 | **Frame quality** *(adv)* | `90` | JPEG quality for those frames. Below about 80 the text gets hard to judge by eye, which defeats the point. |
-| **Write a session log** | on | A plain-text log of what the watcher did, in `debug_bursts/`. It is what a support bundle is mostly made of. |
 
 ### Storage & cleanup
 
@@ -611,6 +733,10 @@ that is usually right and one you can act on.
 ---
 
 ## Wide and centre: the one to try if reads are poor
+
+*For the OCR readers (`ocr`, `iris+ocr`). With the default `iris` reader the
+focus and wide + centre keys do a normal read: IRIS has no per-frame budget
+to share out.*
 
 The reader has a fixed budget of recognition work per frame. A **wide** read
 covers the whole screen but splits that budget across every label on it, so a
@@ -789,6 +915,10 @@ Work down this list. It is ordered by how often each one is the answer.
    Detection.
 6. **Daylight or atmospheric flight.** Turn on **Haze locator**.
 7. **The debug overlay is on.** `r_displayInfo 0`.
+8. **HDR.** Star Citizen's own HDR option on? Turn it off. Windows HDR on?
+   The watcher window should say **HDR capture** at startup - see
+   [HDR: what to set](#5-hdr-what-to-set).
+9. **A busy cockpit with the IRIS reader.** Try **Name reader** `ocr`.
 
 Still stuck? Take a screenshot of your HUD with a contact visible in it, then
 run this from the folder sc-watch is installed in:
@@ -1058,22 +1188,35 @@ record.
 No warranty. This tool reads blurry text off a screen and is sometimes wrong
 about a name. Treat what it tells you accordingly.
 
-Third-party components keep their own licences, all permissive and all
-compatible with GPL-3.0, listed with full texts in `THIRD-PARTY-NOTICES.txt`.
+Third-party components keep their own licences, all compatible with GPL-3.0
+and listed with full texts in `THIRD-PARTY-NOTICES.txt`. All are permissive
+but one: the IRIS name reader - the nameplate finder, the letter reader and
+its letter model, from [IRIS](https://github.com/Niteb1rd/IRIS) by Niteb1rd -
+is GPL-3.0 like this project, ported from C# to Python, and the word list of
+labels that are not players is taken in part from it.
 
 ---
 
 ## How it works
 
-Capture a burst of frames. Mask for HUD-bright pixels rather than for a colour,
-because a hostile label is red and a friendly one is cyan and one brightness
-rule sees both. Group the surviving pixels into label boxes, pair each name
-with the range line beneath it, and read only those crops. Then vote across the
-burst, so a single bad read cannot name someone.
+Capture a burst of frames - with Windows HDR on, the HDR picture, converted
+back to what the game drew. Then find the plates and read them.
+
+The **IRIS reader** (the default) masks HUD text by colour and contrast, finds
+each distance line and the name centred above it, and reads the name one
+letter at a time with a small network trained on the HUD font. The **OCR
+reader** masks for HUD-bright pixels rather than for a colour, because a
+hostile label is red and a friendly one is cyan and one brightness rule sees
+both, groups the surviving pixels into label boxes, pairs each name with the
+range line beneath it, and reads only those crops with a general text
+recogniser. Either way, vote across the burst, so a single bad read cannot
+name someone.
 
 ### A warning about the numbers
 
-Every threshold in `sc_detector.py` is a measurement, not a guess. Each was
+Every threshold in `sc_detector.py` (the OCR reader) is a measurement, not a
+guess. The IRIS reader's are IRIS's own, ported unchanged and checked to read
+exactly as IRIS does. Each was
 chosen by running a 48-frame validation set and comparing what changed, and
 several obvious-looking improvements were tried and rejected because they made
 things worse.

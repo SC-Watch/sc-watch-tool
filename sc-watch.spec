@@ -48,6 +48,9 @@ datas = [
     # paths.resource("ui"); without this entry the frozen UI is a 500.
     (str(HERE / "ui"), "ui"),
     (str(HERE / "starter_list.json"), "."),
+    # IRIS's letter model for the 'iris' reader (iris_reader.py), unchanged
+    # from github.com/Niteb1rd/IRIS (GPL-3.0).
+    (str(HERE / "models" / "iris-letters-model.bin"), "models"),
 ]
 
 # THE TONES ARE NOT BUNDLED, deliberately.
@@ -84,6 +87,16 @@ hiddenimports = [
     # dxcam builds its COM interfaces through comtypes at import time.
     "comtypes",
     "comtypes.stream",
+    # The HDR capture: imported by watch.open_source() only when Windows HDR
+    # is on, and it reaches into dxcam's internals inside functions.
+    "hdr_capture",
+    "dxcam.core.dxgi_duplicator",
+    "dxcam.core.stagesurf",
+    "dxcam.core.device",
+    "dxcam.core.output",
+    "dxcam.util.io",
+    "dxcam._libs.d3d11",
+    "dxcam._libs.dxgi",
     # The speech voice: audio.py creates SAPI.SpVoice through comtypes.client,
     # imported on the voice's own thread, so nothing at module level shows it.
     "comtypes.client",

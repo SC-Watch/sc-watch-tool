@@ -221,9 +221,28 @@ SCHEMA = (
                   "animation finish. Every second cut here is a second off "
                   "your answer.",
                   lo=0.0, hi=10.0, unit="s", restart="watcher"),
+            Field("auto_read_delay", "Always-on read delay", "float", 0.5,
+                  "With Trigger 'auto': how long to wait after a new contact "
+                  "appears before reading it. The HUD types a new name in "
+                  "letter by letter, and reading at once caught half-typed "
+                  "names (looked up, not found, never merged). Measured: the "
+                  "whole name was there 0.3 s after a half-typed frame.",
+                  lo=0.0, hi=3.0, unit="s", restart="watcher", advanced=True),
             Field("monitor", "Monitor", "int", 1,
                   "1-based index of the screen the game is on.",
                   lo=1, hi=8, restart="watcher"),
+            Field("hdr_capture", "HDR capture", "choice", "auto",
+                  "With Windows HDR on for the game's screen, the ordinary "
+                  "screen copy treats 80 nits as white: the picture arrives "
+                  "blown out and HUD text sits in a white halo, so names are "
+                  "misread. 'auto' captures the HDR picture itself and "
+                  "converts it back to the game's own image (about 40 ms of "
+                  "CPU a frame at 5120x1440) - what makes NVIDIA RTX HDR, "
+                  "which needs Windows HDR on, work with sc-watch. 'off' "
+                  "always uses the ordinary copy. Star Citizen's own HDR "
+                  "option should stay off either way: it makes HUD text bloom "
+                  "in the game itself.",
+                  choices=("auto", "off"), restart="watcher"),
             Field("hz", "Key poll rate", "float", 5.0,
                   "How often the trigger key is checked.",
                   lo=1.0, hi=30.0, unit="Hz", restart="watcher",
@@ -237,6 +256,47 @@ SCHEMA = (
         "detection", "Detection",
         "How hard the reader tries, and what it is willing to believe.",
         (
+            Field("reader", "Name reader", "choice", "iris",
+                  "Who finds and reads the name plates. 'iris' (the default) "
+                  "is IRIS's finder and per-letter reader, ported from "
+                  "github.com/Niteb1rd/IRIS (GPL-3.0): about ten times "
+                  "faster than OCR (0.11 s a frame against 1.2 s). Focused "
+                  "reads are off with it - they exist to work around OCR's "
+                  "limits - so the focus and dual keys do a full read. "
+                  "'iris+ocr' adds OCR for the plates IRIS is unsure of (at "
+                  "most 4 a frame) and keeps focused reads on OCR. 'ocr' is "
+                  "sc-watch's own pipeline from before 0.3.0: slower, but in "
+                  "a busy cockpit - the heading tape, pitch ladder and labels "
+                  "crowding a plate - it finds plates IRIS's finder skips. "
+                  "IRIS needs clean HUD text: keep Star Citizen's own HDR "
+                  "option off (its glow joins the letters). Chat reads use "
+                  "OCR whatever this says: IRIS reads name plates only.",
+                  choices=("ocr", "iris+ocr", "iris"), restart="watcher"),
+            Field("scan_area", "IRIS scan area", "choice", "whole",
+                  "With an IRIS reader ('iris+ocr' or 'iris'): how much of "
+                  "the screen is searched. "
+                  "'whole' misses nothing; 'narrow' skips 5% top and bottom "
+                  "and 3% each side; 'iris' is IRIS's own default, 15% and "
+                  "8%, which skips contacts near the edges; 'centre' searches "
+                  "the middle half. Smaller is faster.",
+                  choices=("whole", "narrow", "iris", "centre"),
+                  restart="watcher", advanced=True),
+            Field("auto_scan_area", "IRIS always-on scan area", "choice", "narrow",
+                  "With an IRIS reader and Trigger 'auto': the area searched "
+                  "on every frame to notice a new contact (reads still use "
+                  "the scan area above). It runs continuously, so it defaults "
+                  "to 'narrow'.",
+                  choices=("whole", "narrow", "iris", "centre"),
+                  restart="watcher", advanced=True),
+            Field("opencv_threads", "OpenCV threads", "int", 2,
+                  "How many CPU threads OpenCV's image work may use (IRIS's "
+                  "scan is almost all OpenCV). Measured in game, always-on "
+                  "with the IRIS reader: 2 threads used half the CPU of "
+                  "OpenCV's default (1.6-1.7 cores down to 0.8) at the same "
+                  "scan speed - with the game running, the extra threads only "
+                  "compete with it for cores. 0 = OpenCV's default, every "
+                  "core.",
+                  lo=0, hi=64, restart="watcher", advanced=True),
             Field("min_votes", "Votes to announce", "int", 1,
                   "How many frames of a burst must agree before a name is "
                   "said out loud. 1 announces fast and is sometimes wrong.",
@@ -313,9 +373,9 @@ SCHEMA = (
                   "every org a player is in, and it gives each org's focus - "
                   "then starcitizen-api.com for anything SENTRY cannot answer. "
                   "'sci' uses only starcitizen-api.com, the way it worked "
-                  "before SENTRY. Only starcitizen-api.com is ever trusted to "
-                  "say an account does NOT exist, so misread checks still need "
-                  "its key.",
+                  "before SENTRY. An account is only taken as NOT existing "
+                  "when RSI was asked - by starcitizen-api.com, or by SENTRY "
+                  "checking it - never because a database has not heard of it.",
                   choices=("sentry", "sci"), restart="watcher"),
             Field("rsi_min_votes", "Votes before lookup", "int", 2,
                   "A misread handle wastes a request and pollutes the "

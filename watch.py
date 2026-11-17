@@ -80,6 +80,7 @@ _SETTING_TO_ARG = {
     "focus_mask": "focus_mask", "burst": "burst",
     "burst_spacing": "burst_spacing", "ping_delay": "ping_delay",
     "monitor": "monitor", "hz": "hz", "queue_max": "queue_max",
+    "hdr_capture": "hdr_capture", "auto_read_delay": "auto_read_delay",
     "min_votes": "min_votes",
     "gate": "gate", "haze": "haze", "cooldown": "cooldown",
     "radius": "radius", "expire": "expire", "audio_mode": "audio",
@@ -88,7 +89,31 @@ _SETTING_TO_ARG = {
     "chat_key": "chat_key",
     "chat_region": "chat_region", "dual_key": "dual_key",
     "dual_on_read": "dual_on_read",
+    "reader": "reader", "scan_area": "scan_area",
+    "auto_scan_area": "auto_scan_area", "opencv_threads": "opencv_threads",
 }
+
+# The name readers: sc-watch's OCR pipeline, IRIS with OCR for the plates it
+# is unsure of, and IRIS alone.
+READERS = ("ocr", "iris+ocr", "iris")
+
+
+def make_iris_readers(args):
+    """(reader for full reads, always-on scanner, pure IRIS?) for args.reader.
+
+    'ocr' builds none. 'iris+ocr' hands IRIS's unsure plates to OCR and keeps
+    focused reads on OCR. 'iris' is IRIS alone: no OCR fallback, and focused
+    reads off (they exist to work around OCR's limits - Session._detect).
+    The always-on scanner never reads, so it never needs OCR; it scans its
+    own, smaller area on every frame, and reads go through the first reader.
+    """
+    reader = getattr(args, "reader", "ocr")
+    if reader not in ("iris", "iris+ocr"):
+        return None, None, False
+    import iris_read
+    pure = reader == "iris"
+    return (iris_read.IrisReader(args.scan_area, fallback=not pure),
+            iris_read.IrisReader(args.auto_scan_area, fallback=False), pure)
 
 
 # Per-frame diagnostic lines kept in the log. The console still prints
@@ -451,6 +476,8 @@ class RsiEnricher:
         # pending, and every flag already alerted per handle - so a refresh
         # that lands later neither repeats the line nor sounds the alarm twice.
         self._stale_shown: set[str] = set()
+        self._check_shown: set[str] = set()     # SENTRY checking, said once
+        self.last_delay: float | None = None    # see _keep_refreshing()
         self._alerted: dict[str, set] = {}
         # handle -> the crops and vote counts behind the read, kept only until
         # its lookup returns. See submit().
@@ -467,19 +494,22 @@ class RsiEnricher:
                   "  Set Settings > RSI lookups > Lookup source to 'sentry' to "
                   "look players up without a key, or add one:\n" + _key_help(),
                   file=sys.stderr)
-        elif getattr(client, "sentry", None) is not None and not client.confirms_absence:
-            # SENTRY needs no key, so lookups work - but only the other
-            # service can say a handle does NOT exist, and that is what raises
-            # a misread audit. Worth saying once rather than leaving it to be
-            # noticed as audits that never arrive.
+        elif getattr(client, "sentry", None) is not None and not client.has_key:
+            # SENTRY needs no key, so lookups work - and since 2026-10-23 it
+            # says when RSI has no such account, so misread audits do too.
+            # What a key still buys is worth saying once, rather than leaving
+            # it to be noticed. (Until then this said audits could not be
+            # raised without one; the "about 5 new names an hour" SENTRY then
+            # allowed was its bug, fixed, so it is not said either.)
             print("! no starcitizen-api.com key - players are looked up "
                   "through SENTRY only. Without a key:\n"
-                  "    - a misread handle cannot be confirmed as a misread, so "
-                  "no 'no RSI account' audits are raised\n"
+                  "    - nothing else is asked while SENTRY is down or busy, "
+                  "so lookups wait for it\n"
                   "    - an org's type is known only if it is already cached, "
                   "so a new org gets no 'Syndicate' mark\n"
-                  "  Orgs, their Piracy / Smuggling focus, account age and "
-                  "flagged-org alerts all still work. To add a key:\n"
+                  "  Orgs, their Piracy / Smuggling focus, account age, "
+                  "flagged-org alerts and 'no RSI account' audits all still "
+                  "work. To add a key:\n"
                   + _key_help(),
                   file=sys.stderr)
         self.client = client
@@ -508,6 +538,15 @@ class RsiEnricher:
     # (rsi.Client.complete_partials) now finishes the profile after that, one
     # request per org.
     SENTRY_WAIT_DELAYS = (90.0, 240.0)
+    # For a name SENTRY had never seen, which it is checking RSI for
+    # (Citizen.checking; rsi.SENTRY_CHECK_STATES). Measured 2026-10-23: its
+    # first answer comes at once, saying ask again in 20 s, and every check
+    # had finished 30 s later. Its docs: poll a placeholder no faster than
+    # every 15-30 s. So 30 s, then the SENTRY ladder's steps - and never
+    # sooner than the wait SENTRY names (Citizen.retry_in). Without a key
+    # this re-ask is the whole answer: it brings the profile, or "no such
+    # account" and with it the misread audit.
+    SENTRY_CHECK_DELAYS = (30.0, 90.0, 240.0)
 
     def submit(self, handle: str, crops: dict | None = None,
                range_km=None, votes: int = 0, total: int = 0, variants=None):
@@ -602,22 +641,30 @@ class RsiEnricher:
                            attempt=attempt, retry=retry)
 
     def _keep_refreshing(self, handle: str, reason: str,
-                         waiting: bool = False) -> bool:
+                         waiting: bool = False, checking: bool = False,
+                         hint: float | None = None) -> bool:
         """An expired stored profile stood in for a lookup that failed. Keep
         trying for a current one on the same schedule as a failed lookup -
-        or, `waiting` on SENTRY to read an org, on SENTRY_WAIT_DELAYS.
-        Returns True the first time, so the copy is reported once."""
-        first = handle not in self._stale_shown
-        self._stale_shown.add(handle)
+        or, `waiting` on SENTRY to read an org, on SENTRY_WAIT_DELAYS; or,
+        `checking` (SENTRY checking RSI for a new name), on
+        SENTRY_CHECK_DELAYS, never sooner than its `hint`. Returns True the
+        first time, so the copy (or the check) is reported once; the delay
+        used is left in `last_delay`, None when it gave up."""
+        shown = self._check_shown if checking else self._stale_shown
+        first = handle not in shown
+        shown.add(handle)
         attempt = self.attempts.get(handle, 0) + 1
         self.attempts[handle] = attempt
-        delays = self.SENTRY_WAIT_DELAYS if waiting else self.RETRY_DELAYS
+        delays = (self.SENTRY_CHECK_DELAYS if checking
+                  else self.SENTRY_WAIT_DELAYS if waiting else self.RETRY_DELAYS)
         again = attempt <= len(delays)
+        self.last_delay = None
         if again:
-            delay = delays[attempt - 1]
+            delay = max(delays[attempt - 1], hint or 0.0)
             down_for = getattr(self.client, "down_for", lambda: 0.0)()
+            self.last_delay = max(delay, down_for + 0.5)
             self._retry_seq += 1
-            heapq.heappush(self._retry, (time.monotonic() + max(delay, down_for + 0.5),
+            heapq.heappush(self._retry, (time.monotonic() + self.last_delay,
                                          self._retry_seq, handle))
         else:
             # Stop for this session's sake; the next sighting asks again.
@@ -625,6 +672,7 @@ class RsiEnricher:
             self.pending.pop(handle, None)
             self.seen.discard(handle)
             self._stale_shown.discard(handle)
+            self._check_shown.discard(handle)
         cache = getattr(self.client, "cache", None)
         if cache is not None:
             try:
@@ -648,6 +696,20 @@ class RsiEnricher:
                 self._failed(handle, exc)
                 continue
             stale = getattr(c, "stale_reason", None)
+            if getattr(c, "checking", None):
+                # SENTRY is checking RSI for a name it had never seen: no
+                # answer yet, either way. Asked again on SENTRY_CHECK_DELAYS;
+                # the crops stay for the misread audit a "no" would raise.
+                first = self._keep_refreshing(handle, stale, checking=True,
+                                              hint=getattr(c, "retry_in", None))
+                if self.last_delay is None:
+                    self.con.say(f"          rsi: {handle} - {stale}, not finished "
+                                 f"yet; will try again next time it is read")
+                elif first:
+                    self.con.say(f"          rsi: {handle} - {stale}; asking again "
+                                 f"in {self.last_delay:.0f}s")
+                continue
+            self._check_shown.discard(handle)
             if stale:
                 if not self._keep_refreshing(
                         handle, stale, getattr(c, "awaiting_sentry", False)):
@@ -780,6 +842,11 @@ def build_parser() -> argparse.ArgumentParser:
                          "so bind --key TAB and set this to ~4 to fire off the "
                          "ping itself. At 0 you trigger manually when the "
                          "screen already looks right")
+    ap.add_argument("--auto-read-delay", type=float, default=0.5,
+                    help="with --trigger auto: seconds to wait after a new "
+                         "contact appears before reading it, so the HUD has "
+                         "finished typing its name in (default 0.5; not in "
+                         "--replay, which has no time to wait for)")
     ap.add_argument("--burst-spacing", type=float, default=0.5,
                     help="seconds between burst frames. Voting only helps if "
                          "errors are independent, and frames a quarter-second "
@@ -824,6 +891,32 @@ def build_parser() -> argparse.ArgumentParser:
                          "are on by default and cost about 0.7 MB each; they "
                          "age out after a week and vanish the moment you "
                          "confirm one")
+    ap.add_argument("--reader", choices=READERS, default="iris",
+                    help="who finds and reads the name plates. 'iris' (the "
+                         "default) is IRIS's finder and per-letter reader "
+                         "(ported from github.com/Niteb1rd/IRIS, GPL-3.0), "
+                         "much faster - no OCR on any plate, and no focused "
+                         "reads (the focus and dual keys do a full read). "
+                         "'iris+ocr' adds OCR for any plate IRIS will not "
+                         "commit to, and for focused reads. 'ocr' is "
+                         "sc-watch's own pipeline from before 0.3.0. The IRIS "
+                         "readers need Star Citizen's own HDR option off. "
+                         "Chat reads always use OCR")
+    ap.add_argument("--scan-area", choices=("whole", "narrow", "iris", "centre"),
+                    default="whole",
+                    help="with an IRIS reader: how much of the screen to scan - "
+                         "'whole', 'narrow' (5/5/3/3 %% margins), 'iris' (IRIS's "
+                         "own 15/15/8/8 %%) or 'centre' (25/25/20/20 %%)")
+    ap.add_argument("--opencv-threads", type=int, default=2,
+                    help="CPU threads OpenCV's image work may use; 0 = OpenCV's "
+                         "default, every core. Default 2: measured in game it "
+                         "halved the IRIS scan's CPU at the same speed")
+    ap.add_argument("--auto-scan-area", choices=("whole", "narrow", "iris", "centre"),
+                    default="narrow",
+                    help="with an IRIS reader and --trigger auto: the area scanned "
+                         "on EVERY frame to notice new contacts (reads still "
+                         "use --scan-area). Default 'narrow', because it runs "
+                         "continuously")
     ap.add_argument("--focus-mask", action="store_true",
                     help="make focused reads use the mask pipeline instead of "
                          "handing the crop straight to OCR. The direct path is "
@@ -906,6 +999,12 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--expire", type=float, default=20.0,
                     help="seconds before a vanished contact counts as new again")
     ap.add_argument("--monitor", type=int, default=1, help="1-based monitor index")
+    ap.add_argument("--hdr-capture", choices=("auto", "off"), default="auto",
+                    help="with Windows HDR on for that monitor: 'auto' captures "
+                         "the HDR picture and converts it back to the game's "
+                         "own image, instead of Windows' 8-bit copy, which "
+                         "treats 80 nits as white and blows the HUD out. "
+                         "Needed for NVIDIA RTX HDR (default auto)")
     ap.add_argument("--seconds", type=float, default=0.0,
                     help="stop after N seconds (0 = run until Ctrl+C)")
     ap.add_argument("--replay", metavar="GLOB",
@@ -1084,6 +1183,14 @@ class ScreenSource:
     def grab(self):
         return self._cam.grab()
 
+    def display_name(self) -> str | None:
+        """Windows' name for the display being captured (\\\\.\\DISPLAY1), for
+        the HDR check. None if dxcam does not say."""
+        try:
+            return self._cam._output.devicename
+        except Exception:
+            return None
+
     def release(self):
         # Idempotent: the restart path hands the device back, and shutdown
         # would otherwise release it a second time.
@@ -1130,6 +1237,20 @@ def open_source(args):
         src = ReplaySource(args.replay)
         print(f"replaying {len(src.paths)} frames from {args.replay}")
         return src
+    # Windows HDR on for the game's screen: capture the HDR picture and
+    # convert it (hdr_capture.py) - the ordinary copy is blown out. Asked
+    # BEFORE dxcam opens its capture: one process can duplicate a screen only
+    # once. Any failure falls back to the ordinary capture, and the banner's
+    # HDR warning then says what that costs.
+    if getattr(args, "hdr_capture", "off") == "auto":
+        try:
+            import display_hdr
+            import hdr_capture
+            state = display_hdr.state_of(hdr_capture.output_name(args.monitor))
+            if hdr_capture.wanted("auto", state):
+                return hdr_capture.HdrScreenSource(args.monitor, state.sdr_white_nits)
+        except Exception as exc:
+            print(f"! HDR capture could not start ({exc}); using the ordinary capture")
     return ScreenSource(args.monitor)
 
 
@@ -1278,6 +1399,9 @@ class Session:
         self.binds = binds
         self.chat_region = chat_region
         self.focus_w, self.focus_h = focus
+        # IRIS's reader for full reads when asked for (iris_read.py); built
+        # once - it holds the letter model and per-size scan geometry.
+        self.iris, self.iris_scan, self.pure_iris = make_iris_readers(args)
         self.key_mode = args.trigger == "key" and not args.replay
         self.tracker = Tracker(args.radius, args.expire)
         self.announcer = Announcer(args.cooldown)
@@ -1296,8 +1420,12 @@ class Session:
             print(f"  trigger: {binds['full'].label()} pressed, then read after "
                   f"{args.ping_delay:.1f}s")
             if "focus" in binds:
-                print(f"  focused: {binds['focus'].label()} reads the centre "
-                      f"{args.focus_size} only")
+                if self.pure_iris:
+                    print(f"  focused: {binds['focus'].label()} does a full read "
+                          f"(focused reads are off with the 'iris' reader)")
+                else:
+                    print(f"  focused: {binds['focus'].label()} reads the centre "
+                          f"{args.focus_size} only")
             if "chat" in binds:
                 print(f"  chat:    {binds['chat'].label()} lists who is talking")
         else:
@@ -1318,8 +1446,38 @@ class Session:
         # and they do not agree, so a log without this is hard to compare
         # against the measurements in the README.
         print(f"  reading with {sd.ocr_backend_info()}")
+        if self.iris is not None:
+            print(f"  full reads: IRIS's finder and reader (scan area "
+                  f"{args.scan_area}), OCR "
+                  f"{'never (reader iris)' if self.pure_iris else 'for the plates it refuses'}")
+            if not self.key_mode:
+                print(f"  always on: IRIS's scan on every frame (scan area "
+                      f"{args.auto_scan_area}) notices new contacts")
         if args.debug:
             print("  DEBUG: saving every frame to debug_bursts/ (~4.7 MB each)")
+        # Windows HDR on the captured display blows the capture out: the copy
+        # capture tools get treats 80 nits as white (README, "Capturing the
+        # HDR signal itself"). Live capture only - a replay has no display.
+        # With the HDR capture (hdr_capture.py) the picture is right, so the
+        # warning becomes a note - unless Windows handed back 8-bit frames
+        # after all, in which case the warning still applies.
+        hdr = None
+        hdr_capture_on = bool(getattr(self.src, "converting", False))
+        if not args.replay and hasattr(self.src, "display_name"):
+            import display_hdr
+            hdr = display_hdr.state_of(self.src.display_name())
+            if hdr_capture_on:
+                print(f"  HDR capture: Windows HDR is on for {self.src.display_name()} - "
+                      f"reading the HDR picture and")
+                print(f"    converting it (SDR white {self.src.sdr_white_nits:.0f} nits), "
+                      f"so nothing is blown out. Keep Star")
+                print("    Citizen's own HDR option off: it makes HUD text bloom "
+                      "(NVIDIA RTX HDR does not).")
+            else:
+                for line in display_hdr.warning(hdr):
+                    print(line)
+                if hdr is not None and hdr.on and getattr(args, "hdr_capture", "off") == "off":
+                    print("    Or set Settings > Capture > HDR capture to 'auto'.")
 
         # The LOG is on by default and the FRAMES are not, because they cost
         # wildly different things: a session log is a few KB and rotates, a
@@ -1333,7 +1491,18 @@ class Session:
             "capture hz": args.hz,
             "trigger": "key" if self.key_mode else "auto",
             "bindings": _waiting_label(binds) if self.key_mode else "n/a",
+            "reader": (f"{args.reader}, scan area {args.scan_area}, ocr fallback "
+                       f"{'off, focused reads off' if self.pure_iris else 'on'}"
+                       if self.iris is not None else "ocr"),
+            "opencv threads": cv2.getNumThreads(),
+            "windows hdr": ("n/a (replay)" if args.replay else "unknown" if hdr is None
+                            else f"ON, SDR white {hdr.sdr_white_nits:.0f} nits" if hdr.on else "off"),
+            "capture": ("replay" if args.replay else self.src.describe()
+                        if hasattr(self.src, "describe") else "8-bit (dxcam)"),
         })
+        if hdr is not None and hdr.on:
+            self.dbg.event("windows_hdr_on", display=hdr.device,
+                           sdr_white_nits=round(hdr.sdr_white_nits))
         if self.dbg.path:
             print(f"  log: {self.dbg.path.name} in debug_bursts/")
         print("  Ctrl+C to stop")
@@ -1658,37 +1827,60 @@ class Session:
             return sd.detect_focused(frame, self.ocr, self.focus_w, self.focus_h,
                                      direct=not self.args.focus_mask)
 
+        def whole():
+            if self.iris is not None:
+                return self.iris.detect(frame, self.ocr)
+            return sd.detect(frame, self.ocr)
+
+        if self.pure_iris and mode in ("focus", "dual"):
+            # The 'iris' reader turns focused reads off: they exist to get
+            # past OCR's limits (its per-frame cap, small far plates), and
+            # with no OCR there is nothing for them to add. The key still
+            # reads - a press that silently did nothing would look broken.
+            return whole()
         if mode == "dual":
             # Both passes over the SAME frame, then merged. Costs roughly
             # twice the OCR of either alone, which is why it is a separate
             # binding rather than the default: you spend it when you want the
             # periphery and a good read of your target at once.
-            return sd.merge_contacts(sd.detect(frame, self.ocr), centre(),
-                                     frame.shape[0])
+            return sd.merge_contacts(whole(), centre(), frame.shape[0])
         if mode == "focus":
             return centre()
-        return sd.detect(frame, self.ocr)
+        return whole()
 
-    @staticmethod
-    def _tally(b: Burst, frame, found) -> int:
+    def listed(self, name) -> bool:
+        """Is this handle on one of your own lists? (Database.is_listed)"""
+        if self.db is None:
+            return False
+        try:
+            return self.db.is_listed(name)
+        except Exception:
+            return False
+
+    def _tally(self, b: Burst, frame, found) -> int:
         """Sort one frame's contacts into the burst. Returns named reads."""
         n_named = 0
         for c in found:
             if c.range_km is None:
                 continue
+            # A game label (a moon, a mineral - sc_detector.NON_PLAYER_WORDS)
+            # is still a person when YOUR lists name that handle.
+            kind = c.kind
+            if kind == "world_label" and self.listed(c.name):
+                kind = "player"
             # Only real handles go forward. Abandoned-ship serials
             # (XX-0000-XX) and crewed NPC vessels ("Firstname Lastname") are
             # contacts, but they aren't people - no point voting on them,
             # logging them, or looking them up.
-            if c.kind == "player":
+            if kind == "player":
                 b.accumulated.append(consensus.Reading(
                     c.name, c.range_km, c.name_box.cx, c.name_box.y))
                 b.evidence.append((c.name, frame, c.name_box, c.range_box))
                 n_named += 1
-            elif c.kind == "unreadable":
+            elif kind == "unreadable":
                 b.unreadable += 1
             else:
-                b.discarded[c.kind] = b.discarded.get(c.kind, 0) + 1
+                b.discarded[kind] = b.discarded.get(kind, 0) + 1
         b.per_frame.append(n_named)
         return n_named
 
@@ -1924,7 +2116,16 @@ class Session:
                 continue
             self.frames += 1
 
-            pairs = cheap_pass(frame, self.template)
+            # With the IRIS reader, IRIS's own scan notices contacts: its
+            # finder sees red labels without HDR, which cheap_pass's
+            # brightness-only mask cannot (README, "No-HDR pings"). Positions
+            # are the distance lines' - one per contact, like a name box.
+            if self.iris_scan is not None:
+                positions = [(x + w / 2.0, y) for x, y, w, h in self.iris_scan.scan(frame)]
+            else:
+                positions = [(p.name_box.cx, p.name_box.y)
+                             for p in cheap_pass(frame, self.template)]
+            pairs = positions
 
             # Replay runs frames as fast as they process, so wall-clock
             # advances far faster relative to the sequence than it would live
@@ -1932,8 +2133,7 @@ class Session:
             # hold. A virtual clock keeps replay faithful.
             now = (self.started + self.frames / args.hz) if args.replay \
                 else time.time()
-            n_new = self.tracker.update(
-                [(p.name_box.cx, p.name_box.y) for p in pairs], now)
+            n_new = self.tracker.update(positions, now)
 
             con.status(f"  watching | {self.frames} frames | {len(pairs)} "
                        f"contact(s) on screen | {len(self.tracker.tracks)} "
@@ -1948,7 +2148,19 @@ class Session:
 
             if n_new:
                 self.triggers += 1
-                self.read_burst(frame, now, f"reading {n_new} new contact(s)")
+                label = f"reading {n_new} new contact(s)"
+                delay = getattr(args, "auto_read_delay", 0.0)
+                if args.replay or delay <= 0:
+                    self.read_burst(frame, now, label)
+                else:
+                    # The HUD types a new contact's name in letter by letter,
+                    # and this frame is the one that first showed it - read
+                    # now and a half-typed name is looked up, not found and
+                    # never merged (README, "HDR capture in game"). Wait, then
+                    # read three fresh frames instead of this one. Not in a
+                    # replay: its frames are already fixed.
+                    time.sleep(delay)
+                    self.read_burst(None, time.time(), label)
 
             if not args.replay:
                 slack = interval - (time.perf_counter() - cycle)
@@ -2032,11 +2244,26 @@ class Session:
         print("=" * 62)
 
 
+def apply_opencv_threads(n: int) -> int:
+    """Cap OpenCV's worker threads for this process; returns what it uses now.
+
+    Measured in game (README, "Always-on while playing"): OpenCV's default -
+    every core - spent twice the CPU of 2 threads on IRIS's scan for the same
+    scan time, because with the game running the extra threads only compete
+    with it. In OpenCV, setNumThreads(0) means "no threads at all" and a
+    negative number means "back to the default", so the setting's 0 (default)
+    is passed on as -1. Process-wide: the OCR path's OpenCV work is capped too.
+    """
+    cv2.setNumThreads(n if n > 0 else -1)
+    return cv2.getNumThreads()
+
+
 def main(argv=None) -> int:
     args = parse_args(argv)
     rc = _run_utility(args)
     if rc is not None:
         return rc
+    apply_opencv_threads(args.opencv_threads)
 
     # Everything that can be wrong with the configuration is checked before
     # anything is opened. A mistyped binding used to be discovered after the

@@ -185,6 +185,37 @@ def _is_unknown_label(s: str) -> bool:
     return len(s) <= 10 and same_contact(s, "UNKNOWN")
 
 
+# Words the HUD draws over a distance line that are not people: the stars,
+# planets and moons it marks, creatures, mineable minerals, harvestables, and
+# a few HUD markers. From IRIS's exclusion list (App/Assets/exclusions.txt,
+# https://github.com/Niteb1rd/IRIS, GPL-3.0) - its unambiguous categories
+# only, with its 'Bexlite' typo fixed as its pull request #1 does. Its 'seen
+# in testing' words that read like a person's handle were left out. UNKNOWN is
+# not here: _is_unknown_label() catches it, misreads included. Nor are the
+# orbital markers OM-1..OM-6: PARTIAL_SERIAL_RE already takes them as
+# 'ship_serial', which is discarded the same way.
+#
+# EXACT whole-word matches, deliberately: some of these (GOLD, PYRO, DIAMOND)
+# are words a player could choose as a handle. That is why the watcher lets a
+# match through when the handle is on one of YOUR lists - a report you filed,
+# a watchlist entry, a flagged org's roster (Database.is_listed) - as IRIS
+# lets its players list override this one.
+NON_PLAYER_WORDS = {
+    "star": "STANTON PYRO NYX CASTRA",
+    "planet": "HURSTON MICROTECH ARCCORP CRUSADER",
+    "moon": "CELLIN DAYMAR YELA LYRIA WALA MAGDA ITA ARIAL ABERDEEN CLIO "
+            "CALLIOPE EUTERPE MONOLITH BLOOM STARLIGHT FUMAROLE",
+    "creature": "VANDUUL XIAN BANU KOPION MAROK STORMWAL",
+    "mineral": "QUANTAINIUM BEXALITE LARANITE TARANITE AGRICIUM HEPHAESTANITE "
+               "BORASE DIAMOND GOLD TITANIUM COPPER CORUNDUM QUARTZ ALUMINUM "
+               "BERYL AMETHYST SORENSEN DOLIVINE AMETRIN JANOLITE HADALITE APHORITE",
+    "harvestable": "RANTA",
+    "plant": "GOLDENROD PITIBU PROSTIS AMBY",
+    "hud": "AMMUNITION DECOY NOISE",
+}
+NON_PLAYER_LABELS = frozenset(w for ws in NON_PLAYER_WORDS.values() for w in ws.split())
+
+
 def classify_name(raw: str) -> tuple[str, str | None]:
     """Sort a raw OCR reading into what it actually is.
 
@@ -192,6 +223,8 @@ def classify_name(raw: str) -> tuple[str, str | None]:
       player       a real handle, worth reporting and looking up
       ship_serial  an abandoned ship's serial number, not a person
       npc_crew     a crewed NPC vessel - those are named "Firstname Lastname"
+      unknown_contact  the game's UNKNOWN label
+      world_label  a place, creature, mineral or HUD marker (NON_PLAYER_WORDS)
       unreadable   OCR produced nothing usable
 
     The space test has to happen BEFORE stripping whitespace. Player handles
@@ -241,6 +274,8 @@ def classify_name(raw: str) -> tuple[str, str | None]:
     # the same word with the same meaning.
     if _is_unknown_label(s):
         return "unknown_contact", s
+    if s in NON_PLAYER_LABELS:
+        return "world_label", s
     return "player", s
 
 
@@ -370,6 +405,32 @@ NEUTRAL_HI = 250
 # that is meant to accumulate evidence about real people. Enable it with
 # --haze when you are over sunlit terrain and want the read anyway.
 HAZE_LOCATOR_ENABLED = False
+
+# Saturated red, for red labels on a screen WITHOUT HDR. Measured 2026-11-09 on
+# 54 frames with HDR off: a red player label's glyphs were R 200-221 with G and
+# B at 0 - under LOCATE_V and RED_MIN alike, so not one of the 18 red plates
+# IRIS read in those frames ever became a contact, and in 12 of those frames we
+# found nothing at all. With HDR on, red text clips to 255 and the masks above
+# catch it, which is why this went unseen.
+#
+# The rule asks for red that DOMINATES, not red that is bright: R >= 170 and R
+# above both G and B by 150. On the HDR corpus about 180 pixels per million pass
+# it, against 8,890 for RED_MIN. It recovered 14 of the 18 plates, 13 with
+# exactly IRIS's text, and changed nothing on corpus/ or evidence/.
+#
+# Its boxes are only ADDED where no other locator found one. Folding it into
+# hud_masks() let it into the trim union and the de-duplication, which moved
+# existing boxes on red-heavy frames and lost 4 contacts (3 UNKNOWN, 1 crew).
+RED_SAT_MIN = 170
+RED_SAT_DOM = 150
+RED_SAT_ENABLED = True
+
+
+def red_sat_mask(bgr: np.ndarray, frame_h: int | None = None) -> np.ndarray:
+    """Pixels of saturated red - red labels that never reach the white point."""
+    b, g, r = (bgr[:, :, k].astype(np.int16) for k in range(3))
+    raw = ((r >= RED_SAT_MIN) & (r - np.maximum(g, b) >= RED_SAT_DOM)).astype(np.uint8)
+    return _drop_oversized(raw, frame_h or bgr.shape[0])
 
 
 def _drop_oversized(raw: np.ndarray, frame_h: int) -> np.ndarray:
@@ -522,6 +583,29 @@ def find_all_boxes(bgr: np.ndarray, frame_h: int | None = None) -> list[Box]:
                 break
         if not dup:
             kept.append(b)
+
+    # Saturated red last, and only where nothing else found a box: see
+    # RED_SAT_MIN. Trimmed against its own mask, never the union, so the boxes
+    # above stay exactly as they were.
+    if RED_SAT_ENABLED:
+        red = red_sat_mask(bgr, frame_h)
+        for b in find_boxes(red, frame_h):
+            ys, xs = np.nonzero(red[b.y:b.bottom, b.x:b.x + b.w])
+            if len(xs) >= 8:
+                nb = Box(x=b.x + int(xs.min()), y=b.y + int(ys.min()),
+                         w=int(xs.max() - xs.min()) + 1,
+                         h=int(ys.max() - ys.min()) + 1, core=b.core)
+                if nb.w >= 8 and nb.h >= 5:
+                    b = nb
+            clash = False
+            for k in kept:
+                ox = min(b.x + b.w, k.x + k.w) - max(b.x, k.x)
+                oy = min(b.bottom, k.bottom) - max(b.y, k.y)
+                if ox > 0 and oy > 0 and ox * oy > 0.5 * min(b.w * b.h, k.w * k.h):
+                    clash = True
+                    break
+            if not clash:
+                kept.append(b)
     return kept
 
 
