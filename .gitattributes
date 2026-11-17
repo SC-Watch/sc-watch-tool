@@ -9,6 +9,7 @@
 # Byte-exact, never touched.
 LICENSE            -text
 km_template.npy    binary
+*.bin              binary
 *.wav              binary
 *.npy              binary
 *.png              binary
