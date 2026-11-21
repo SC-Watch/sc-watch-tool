@@ -1,6 +1,6 @@
 [package]
 name = "scw-store"
-description = "sc-watch's stored data: JSON config files as jsonstore.py keeps them (the SQLite databases to follow)"
+description = "sc-watch's stored data: the JSON config files as jsonstore.py keeps them, and the SQLite databases"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,5 +9,6 @@ repository.workspace = true
 publish.workspace = true
 
 [dependencies]
+rusqlite = { version = "0.43", features = ["bundled"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }

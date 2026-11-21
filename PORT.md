@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files and audio done**; the databases, the RSI client and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files and audio done**; the databases under way (sc-watch.db's schema and migrations done); the RSI client and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -123,6 +123,16 @@ SAPI 5, made on the worker thread, speaking plain text synchronously, and
 measured to really speak: a line into a file is 6.2 s of speech, the same
 line to the speakers takes 6.5 s to return, and so does the second one (the
 pyttsx3 failure returned in 0.1 s); a tone plays to its end.
+
+**`scw-store::db` and `::reputation`** open the SQLite files as dbopen.py
+does (WAL, read before set; synchronous=NORMAL; a 5 s busy timeout), so
+both versions can use them at once, and create sc-watch.db from
+reputation.py's own schema text with its migrations in its order. A fresh
+database matches the Python's to the stored SQL of every table and index
+(CI). On copies of this PC's databases - September's, before three later
+migrations, November's and today's - the Python's migration and the port's
+end in identical files, schema and every row (tools/migrate_compare.py),
+and the port's sketch() equals the 701 sketches the Python stored.
 
 ## The replay tool
 
