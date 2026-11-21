@@ -8,12 +8,24 @@
 //! older database up to it, in the Python's order (ALTER TABLE appends to
 //! the stored CREATE text, so the order is part of the result).
 
+mod assess;
+mod database;
+mod orgs;
+mod records;
+
+pub use assess::{Assessment, Recent, Report, Stats, former_line, manual_line};
+pub use database::{Database, Hit, Verdict, Verify, WatchlistLookup};
+pub use orgs::{
+    FlaggedOrg, Member, MemberChange, OrgManual, ProfileOrg, RosterChanges, RosterMember,
+};
+pub use records::{Confirmed, DeletedReport, Ignored, Orphan, Pruned, Removed};
+
 use rusqlite::{Connection, params};
 
 use crate::db::columns;
 
 /// reputation.SCHEMA, extracted from the Python verbatim.
-pub const SCHEMA: &str = include_str!("reputation_schema.sql");
+pub const SCHEMA: &str = include_str!("schema.sql");
 
 /// Reports lose half their weight over this period.
 pub const HALF_LIFE_DAYS: f64 = 180.0;

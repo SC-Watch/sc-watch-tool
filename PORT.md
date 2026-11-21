@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files and audio done**; the databases under way (sc-watch.db's schema and migrations done); the RSI client and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags and sc-watch.db done**; watchlist.db, the RSI client (with its cache), sharing and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -133,6 +133,22 @@ database matches the Python's to the stored SQL of every table and index
 migrations, November's and today's - the Python's migration and the port's
 end in identical files, schema and every row (tools/migrate_compare.py),
 and the port's sketch() equals the 701 sketches the Python stored.
+
+The **reputation `Database`** is reputation.Database: identity (a merge
+needs a verifier saying one side is NOT a real account; with none, nothing
+merges), sightings, reports, the ignore list, audits and their images,
+flagged orgs and roster history, hand-added members, and the assessment
+with its score, spoken reasons and wording - the verifier, the watchlist,
+the clock and the report flags (`scw-store::flags`, flags.py exactly)
+injected. A script of 107 operations - every identity verdict, every
+confirm_audit path, roster pulls with leavers, returns, a source switch and
+a partial pull - gives the same return value, the same rows in every table
+and the same audit images on disk after every step as reputation.py (CI).
+On copies of this PC's three databases every read agrees for every player -
+585, 541 and 286 of them: assessments, is_listed, audits, flagged orgs and
+members, and 5,604 read-only canonical() checks on misread-style variants
+(tools/read_compare.py). The RSI-dependent find_ghosts and fetch_roster come
+with the RSI client.
 
 ## The replay tool
 
