@@ -70,10 +70,8 @@ impl<T: Copy + Default> Image<T> {
         assert!(c < self.channels);
         let data = self
             .data
-            .iter()
-            .skip(c)
-            .step_by(self.channels)
-            .copied()
+            .chunks_exact(self.channels)
+            .map(|p| p[c])
             .collect();
         Image::from_vec(self.width, self.height, 1, data)
     }

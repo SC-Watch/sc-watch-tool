@@ -50,7 +50,7 @@ fn main() {
                 .collect();
             let rect = Rect::new(b[0], b[1], b[2], b[3]);
             let t = Instant::now();
-            let m = rr.mask(&img, rect);
+            let m = rr.mask(&img, rect, false);
             t_mask += t.elapsed().as_secs_f64();
             {
                 use scw_vision::cv;

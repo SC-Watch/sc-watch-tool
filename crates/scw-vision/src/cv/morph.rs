@@ -84,18 +84,36 @@ fn filter_columns(src: &Image<u8>, k: usize, op: Op) -> Image<u8> {
     out
 }
 
-fn transpose(src: &Image<u8>) -> Image<u8> {
+/// Filters every row: out[x] = op over input x - anchor ..= x - anchor + k - 1
+/// (outside the row neutral). Windows double in size pass by pass (1, 2, 4,
+/// ...), then two overlapping windows make k; each pass is one contiguous,
+/// vectorisable sweep. min and max are exact, so any grouping gives OpenCV's
+/// bytes.
+fn filter_rows(src: &Image<u8>, k: usize, op: Op) -> Image<u8> {
     let (w, h) = (src.width, src.height);
-    let mut out = Image::new(h, w, 1);
-    const B: usize = 32;
-    for y0 in (0..h).step_by(B) {
-        for x0 in (0..w).step_by(B) {
-            for y in y0..(y0 + B).min(h) {
-                let row = src.row(y);
-                for x in x0..(x0 + B).min(w) {
-                    out.data[x * h + y] = row[x];
-                }
+    if k <= 1 || w == 0 || h == 0 {
+        return src.clone();
+    }
+    let anchor = k / 2;
+    let len = w + k - 1;
+    let mut out = Image::new(w, h, 1);
+    let (mut a, mut b) = (vec![0u8; len], vec![0u8; len]);
+    for y in 0..h {
+        a.fill(op.neutral());
+        a[anchor..anchor + w].copy_from_slice(src.row(y));
+        // a[i] = op over the `span` values from i.
+        let mut span = 1;
+        while span * 2 <= k {
+            let n = len - span;
+            for ((d, &x), &z) in b[..n].iter_mut().zip(&a[..n]).zip(&a[span..]) {
+                *d = op.apply(x, z);
             }
+            std::mem::swap(&mut a, &mut b);
+            span *= 2;
+        }
+        let rest = k - span;
+        for ((o, &x), &z) in out.row_mut(y).iter_mut().zip(&a[..w]).zip(&a[rest..]) {
+            *o = op.apply(x, z);
         }
     }
     out
@@ -104,13 +122,8 @@ fn transpose(src: &Image<u8>) -> Image<u8> {
 fn morph(src: &Image<u8>, kw: usize, kh: usize, op: Op) -> Image<u8> {
     assert_eq!(src.channels, 1, "morphology takes a single-channel image");
     assert!(kw >= 1 && kh >= 1, "kernel sides must be at least 1");
-    // A rectangle is separable: rows (as the columns of the transpose), then columns.
-    let rows_done = if kw > 1 {
-        transpose(&filter_columns(&transpose(src), kw, op))
-    } else {
-        src.clone()
-    };
-    filter_columns(&rows_done, kh, op)
+    // A rectangle is separable: rows, then columns.
+    filter_columns(&filter_rows(src, kw, op), kh, op)
 }
 
 /// `cv::erode` with a `kw` x `kh` rectangle.

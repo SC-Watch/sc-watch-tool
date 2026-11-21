@@ -139,7 +139,7 @@ pub fn compare_row_stages(
     how: MaskCheck,
 ) -> Vec<(&'static str, Result<(), String>)> {
     let mut out = Vec::new();
-    let mask = rr.mask(img, rect);
+    let mask = rr.mask(img, rect, false);
     let want = &expect["mask"];
     let mask_ok = match (&mask, want.is_null()) {
         (None, true) => Ok(()),

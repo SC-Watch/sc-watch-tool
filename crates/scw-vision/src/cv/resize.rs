@@ -262,33 +262,40 @@ fn resize_linear_u8(
         })
         .collect();
     let xmax = xtab.iter().position(|t| !t.2).unwrap_or(dw);
+    // Each source row's horizontal pass, once (|value| <= 255 * 2^11).
+    let width = dw * cn;
+    let mut hrows = vec![0i32; sh * width];
+    for sy in 0..sh {
+        let s = src.row(sy);
+        let buf = &mut hrows[sy * width..(sy + 1) * width];
+        for (dx, &(sx, a, _)) in xtab.iter().enumerate() {
+            for c in 0..cn {
+                buf[dx * cn + c] = if dx < xmax {
+                    (s[sx * cn + c] as i64 * a[0] + s[(sx + 1) * cn + c] as i64 * a[1]) as i32
+                } else {
+                    (s[sx * cn + c] as i64 * ONE) as i32
+                };
+            }
+        }
+    }
     let mut out = Image::new(dw, dh, cn);
-    let mut rows: Vec<Vec<i64>> = vec![vec![0; dw * cn]; 2];
     for dy in 0..dh {
         let (sy, f) = if area_mode {
             src_pos_area(dy, scale_y, inv_y)
         } else {
             src_pos(dy, scale_y)
         };
-        let beta = [fixed(1.0 - f) as i64, fixed(f) as i64];
-        for (k, buf) in rows.iter_mut().enumerate() {
-            let s = src.row(clamp_idx(sy + k as i32, sh));
-            for (dx, &(sx, a, _)) in xtab.iter().enumerate() {
-                for c in 0..cn {
-                    buf[dx * cn + c] = if dx < xmax {
-                        s[sx * cn + c] as i64 * a[0] + s[(sx + 1) * cn + c] as i64 * a[1]
-                    } else {
-                        s[sx * cn + c] as i64 * ONE
-                    };
-                }
-            }
-        }
+        let beta = [fixed(1.0 - f), fixed(f)];
+        let r = [0, 1].map(|k| {
+            let y = clamp_idx(sy + k, sh);
+            &hrows[y * width..(y + 1) * width]
+        });
         // OpenCV's 8-bit linear specialisation, vector blocks and the rest
         // alike: each row sum shifted down 4 bits into int16, multiplied
         // keeping the high half, then (sum + 2) >> 2.
-        for (i, px) in out.row_mut(dy).iter_mut().enumerate() {
-            let a = mul_hi_i16(sat_i16(rows[0][i] >> 4), beta[0] as i32);
-            let b = mul_hi_i16(sat_i16(rows[1][i] >> 4), beta[1] as i32);
+        for ((px, &h0), &h1) in out.row_mut(dy).iter_mut().zip(r[0]).zip(r[1]) {
+            let a = mul_hi_i16(sat_i16((h0 >> 4) as i64), beta[0]);
+            let b = mul_hi_i16(sat_i16((h1 >> 4) as i64), beta[1]);
             *px = sat_u8(((a + b + 2) >> 2) as i64);
         }
     }

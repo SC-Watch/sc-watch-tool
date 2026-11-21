@@ -25,6 +25,9 @@ pub struct LineMask {
     /// Where the trimmed mask starts inside the 4x crop.
     pub col_offset: i32,
     pub row_offset: i32,
+    /// The upscaled colour (BGR) under each ink pixel, in raster order, when
+    /// asked for: IRIS's plate tint.
+    pub ink_colors: Option<Vec<[u8; 3]>>,
 }
 
 impl LineMask {
@@ -103,6 +106,7 @@ pub fn create_mask(
     rect: Rect,
     threshold: Option<f64>,
     pad: i32,
+    keep_colors: bool,
 ) -> Option<LineMask> {
     assert!(bgr.channels >= 3, "create_mask takes a colour image");
     let (w, h) = (bgr.width as i32, bgr.height as i32);
@@ -125,7 +129,7 @@ pub fn create_mask(
     let thr = threshold.unwrap_or_else(|| cv::otsu_threshold(&top_hat).clamp(25.0, 90.0));
     let binary = cv::threshold_binary(&top_hat, thr, 1.0);
     let opened = cv::open(&binary, 1, 3);
-    trim_to_text(opened, x0, y0)
+    trim_to_text(opened, x0, y0, keep_colors.then_some(&big))
 }
 
 /// The three colour channels of a rectangle (a 4-channel capture loses alpha).
@@ -144,7 +148,12 @@ pub(crate) fn bgr_crop(src: &Image<u8>, x0: usize, y0: usize, x1: usize, y1: usi
 
 /// Trims a 0/1 mask to its text: the first and last rows holding more than
 /// 2% of the width in ink, then the columns with any ink between them.
-pub fn trim_to_text(data: Image<u8>, origin_x: i32, origin_y: i32) -> Option<LineMask> {
+pub fn trim_to_text(
+    data: Image<u8>,
+    origin_x: i32,
+    origin_y: i32,
+    colors4x: Option<&Image<u8>>,
+) -> Option<LineMask> {
     let (w, h) = (data.width, data.height);
     let busy =
         |y: usize| data.row(y).iter().map(|&v| v as i64).sum::<i64>() as f64 > 0.02 * w as f64;
@@ -153,12 +162,26 @@ pub fn trim_to_text(data: Image<u8>, origin_x: i32, origin_y: i32) -> Option<Lin
     let col_ink = |x: usize| (r0..=r1).any(|y| data.data[y * w + x] != 0);
     let c0 = (0..w).find(|&x| col_ink(x))?;
     let c1 = (0..w).rev().find(|&x| col_ink(x))?;
+    let data = data.crop(c0, r0, c1 - c0 + 1, r1 - r0 + 1);
+    let ink_colors = colors4x.map(|big| {
+        let mut out = Vec::new();
+        for y in 0..data.height {
+            for x in 0..data.width {
+                if data.data[y * data.width + x] != 0 {
+                    let p = &big.row(r0 + y)[(c0 + x) * big.channels..];
+                    out.push([p[0], p[1], p[2]]);
+                }
+            }
+        }
+        out
+    });
     Some(LineMask {
-        data: data.crop(c0, r0, c1 - c0 + 1, r1 - r0 + 1),
+        data,
         origin_x,
         origin_y,
         col_offset: c0 as i32,
         row_offset: r0 as i32,
+        ink_colors,
     })
 }
 

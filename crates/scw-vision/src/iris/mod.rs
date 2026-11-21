@@ -5,15 +5,20 @@
 //! unchanged.
 //!
 //! Given an image and the box of ONE text row, read it as a player name or
-//! as a distance line. Finding the rows is a separate layer.
+//! as a distance line ([`RowReader`]); find the rows and read whole plates
+//! ([`NameplateDetector`], [`ImageOps`]).
 
+pub mod detector;
 pub mod features;
 pub mod model;
+pub mod ops;
 pub mod reader;
 pub mod rules;
 
+pub use detector::{Candidates, DetectorSettings, NameplateDetector};
 pub use features::{CapBand, LineMask, create_mask};
 pub use model::{LetterModel, ModelError};
+pub use ops::{ImageOps, ReadClass, ReadResult, ScanGeometry, boundary_from_percents};
 pub use reader::{NameplateReader, Piece, PieceRead};
 pub use rules::DistanceReading;
 
@@ -100,22 +105,24 @@ impl RowReader {
         Self { reader, settings }
     }
 
-    pub fn mask(&self, bgr: &Image<u8>, rect: Rect) -> Option<LineMask> {
-        create_mask(bgr, rect, None, self.settings.mask_pad)
+    /// A row's mask; `keep_colors` also keeps the colour under the ink
+    /// (names do, for the plate tint; distance lines need not).
+    pub fn mask(&self, bgr: &Image<u8>, rect: Rect, keep_colors: bool) -> Option<LineMask> {
+        create_mask(bgr, rect, None, self.settings.mask_pad, keep_colors)
     }
 
     pub fn read_name(&self, bgr: &Image<u8>, rect: Rect) -> NameRead {
-        self.read_name_mask(bgr, self.mask(bgr, rect))
+        self.read_name_mask(bgr, self.mask(bgr, rect, true).as_ref())
     }
 
-    pub fn read_name_mask(&self, bgr: &Image<u8>, mask: Option<LineMask>) -> NameRead {
+    pub fn read_name_mask(&self, bgr: &Image<u8>, mask: Option<&LineMask>) -> NameRead {
         let Some(mask) = mask else {
             return NameRead::default();
         };
         let s = &self.settings;
         let read =
             self.reader
-                .read_pieces(&mask, Some(&self.reader.name_alphabet), s.name_min_ink, s);
+                .read_pieces(mask, Some(&self.reader.name_alphabet), s.name_min_ink, s);
         let text: String = read.pieces.iter().map(|p| p.text.as_str()).collect();
         if text.is_empty() {
             return NameRead::default();
@@ -135,30 +142,30 @@ impl RowReader {
                 score,
                 one_word,
                 valid_chars,
-                mask: Some(mask),
+                mask: Some(mask.clone()),
                 o0: Vec::new(),
             };
         }
         let mut evidence = Vec::new();
         let mut text = text;
         if s.o0_rule {
-            text = rules::o0_correct(bgr, &read, &mask, &text, &mut evidence);
+            text = rules::o0_correct(bgr, &read, mask, &text, &mut evidence);
         }
         if s.underscore_rule {
-            text = rules::underscore_hyphen_correct(&read, &mask, &text);
+            text = rules::underscore_hyphen_correct(&read, mask, &text);
         }
         NameRead {
             text,
             score,
             one_word: true,
             valid_chars: true,
-            mask: Some(mask),
+            mask: Some(mask.clone()),
             o0: evidence,
         }
     }
 
     pub fn read_distance(&self, bgr: &Image<u8>, rect: Rect) -> Option<DistanceReading> {
-        self.read_distance_mask(self.mask(bgr, rect).as_ref())
+        self.read_distance_mask(self.mask(bgr, rect, false).as_ref())
     }
 
     pub fn read_distance_mask(&self, mask: Option<&LineMask>) -> Option<DistanceReading> {

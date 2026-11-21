@@ -11,7 +11,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | Phase | What | State |
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
-| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions and reader done** - the finder next |
+| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions, reader and finder done**, exact on every reference frame - voting and the replay tool next |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | - |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
@@ -43,6 +43,19 @@ read takes 0.9 ms and a distance read 0.7 ms, against the Python port's 1.6
 and 1.4 ms on the same rows. In CI, 43 synthetic rows (OpenCV's own fonts on
 noise, read by the Python port) check the same stages.
 
+**`scw-vision::iris::{detector, ops}`** is IRIS's nameplate finder and its
+two app-level operations: scan a frame for distance lines, and read the plate
+above one. Against IRIS's own output on 135 real 5120x1440 frames, for both
+scan areas the Python port was checked with, every stage matches: the capture
+area, the candidate boxes (151 a frame) in order, the strict, crowd and loose
+pairs, the distance flags, the lines kept, and all 440 plate reads (406 of
+them names) with their class, reason, name and rows. One thread scans the
+app's area in about 90 ms a frame - what OpenCV's optimised code takes in the
+Python port (91.6 ms on one thread, 89.7 on the app's two) - and reads a
+plate in 2 ms against 4. The Python detector kept each frame's masks on
+itself between calls; here they belong to the call, so one detector can serve
+any number of threads.
+
 ## Build and test
 
 ```
@@ -66,9 +79,10 @@ What the folder holds:
 | Folder | What | Used by |
 |---|---|---|
 | `iris-golden/` | IRIS's own readings: the bench harness's `--golden` output, crops as PNG plus `golden.json` | `tests/iris_golden.rs` |
+| `iris-detect/` | `frames.txt` (one PNG frame per line; relative paths from this folder) and `out/` - IRIS's own finder output, the bench harness's `det_{whole,app}_{dump,read}.json` | `tests/iris_detect_golden.rs` |
 
 ```
-SCW_PARITY_DATA=/path/to/parity-data cargo test --release --test iris_golden -- --nocapture
+SCW_PARITY_DATA=/path/to/parity-data cargo test --release -- --nocapture
 ```
 
 To work on another machine with it, copy the folder there by hand - never
@@ -107,7 +121,7 @@ The port is when the app gets cleaned up, in this order:
 ## Layout
 
 ```
-crates/scw-vision    image functions (cv), IRIS reader (iris); the finder next
+crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (iris)
 ```
 
 Planned beside it: `scw-mining`, `scw-capture`, `scw-input`, `scw-audio`,
