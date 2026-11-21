@@ -11,5 +11,6 @@
 
 pub mod cv;
 pub mod image;
+pub mod iris;
 
-pub use image::Image;
+pub use image::{Image, Rect};

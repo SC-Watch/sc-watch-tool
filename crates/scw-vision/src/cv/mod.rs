@@ -16,6 +16,6 @@ pub use blur::blur;
 pub use components::{Stats, connected_components};
 pub use morph::{dilate, erode, open, tophat};
 pub use resize::{
-    resize_area_to, resize_cubic_by, resize_cubic_f32_by, resize_cubic_to, resize_linear_to,
-    scaled_size,
+    resize_area_f32_to, resize_area_to, resize_cubic_by, resize_cubic_f32_by, resize_cubic_to,
+    resize_linear_to, scaled_size,
 };

@@ -11,7 +11,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | Phase | What | State |
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
-| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions done** - the rest next |
+| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions and reader done** - the finder next |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | - |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
@@ -32,6 +32,17 @@ differently, and its label order - except the float cubic resize, which
 OpenCV hands to Intel's IPP: that one is held within 1e-4 and its one user,
 the O/0 rule, is held exactly at the reader level instead.
 
+**`scw-vision::iris`** is IRIS's text-row reader: the 4x ink mask, the
+letter model (in IRIS's own order of operations, so its logits are IRIS's to
+the bit), the best-path split of joined letters, the O/0 and `_`/`-` rules
+and the distance-line checks. Against IRIS's own readings of real game
+frames - 743 text rows in 243 crops, the reference the Python port was held
+to - every stage matches on every row: the mask bit for bit, the pieces in
+both alphabets, the names with their O/0 evidence, the distances. A name
+read takes 0.9 ms and a distance read 0.7 ms, against the Python port's 1.6
+and 1.4 ms on the same rows. In CI, 43 synthetic rows (OpenCV's own fonts on
+noise, read by the Python port) check the same stages.
+
 ## Build and test
 
 ```
@@ -49,6 +60,19 @@ databases name real players. They stay on the machine they were made on.
 Tests that need them read a folder from the `SCW_PARITY_DATA` environment
 variable and skip themselves when it is not set, so CI and a fresh clone run
 everything else. Fixtures in the repository are synthetic.
+
+What the folder holds:
+
+| Folder | What | Used by |
+|---|---|---|
+| `iris-golden/` | IRIS's own readings: the bench harness's `--golden` output, crops as PNG plus `golden.json` | `tests/iris_golden.rs` |
+
+```
+SCW_PARITY_DATA=/path/to/parity-data cargo test --release --test iris_golden -- --nocapture
+```
+
+To work on another machine with it, copy the folder there by hand - never
+through the repository.
 
 ## How the structure changes
 
@@ -83,7 +107,7 @@ The port is when the app gets cleaned up, in this order:
 ## Layout
 
 ```
-crates/scw-vision    image functions; IRIS finder and reader (in progress)
+crates/scw-vision    image functions (cv), IRIS reader (iris); the finder next
 ```
 
 Planned beside it: `scw-mining`, `scw-capture`, `scw-input`, `scw-audio`,

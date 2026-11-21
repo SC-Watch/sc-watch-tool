@@ -34,70 +34,83 @@ impl Op {
     }
 }
 
-/// Filters one line in place: out[i] = op(line[i - anchor ..= i - anchor + k - 1]),
-/// positions outside the line neutral. `pad`, `g` and `h` are scratch.
-fn filter_line(
-    line: &mut [u8],
-    k: usize,
-    op: Op,
-    pad: &mut Vec<u8>,
-    g: &mut Vec<u8>,
-    h: &mut Vec<u8>,
-) {
-    let n = line.len();
-    if k <= 1 || n == 0 {
-        return;
+/// Filters every column of `src` at once: out row y = op over input rows
+/// y - anchor ..= y - anchor + k - 1 (outside the image neutral). The van Herk
+/// / Gil-Werman recurrences run a whole row at a time, so each step is a
+/// plain element-wise min or max the compiler can vectorise.
+fn filter_columns(src: &Image<u8>, k: usize, op: Op) -> Image<u8> {
+    let (w, h) = (src.width, src.height);
+    if k <= 1 || w == 0 || h == 0 {
+        return src.clone();
     }
     let anchor = k / 2;
-    let len = n + k - 1;
-    pad.clear();
-    pad.resize(len, op.neutral());
-    pad[anchor..anchor + n].copy_from_slice(line);
-    g.clear();
-    g.resize(len, 0);
-    h.clear();
-    h.resize(len, 0);
-    // g: running op from each block's start; h: from each block's end.
+    let len = h + k - 1;
+    let neutral = vec![op.neutral(); w];
+    let pad = |y: usize| -> &[u8] {
+        if y < anchor || y >= anchor + h {
+            &neutral
+        } else {
+            src.row(y - anchor)
+        }
+    };
+    // g: running op from each block's start; hh: from each block's end.
+    let mut g = vec![0u8; len * w];
+    let mut hh = vec![0u8; len * w];
     for start in (0..len).step_by(k) {
         let end = (start + k).min(len);
-        g[start] = pad[start];
-        for j in start + 1..end {
-            g[j] = op.apply(g[j - 1], pad[j]);
+        g[start * w..(start + 1) * w].copy_from_slice(pad(start));
+        for y in start + 1..end {
+            let (prev, cur) = g[(y - 1) * w..(y + 1) * w].split_at_mut(w);
+            for ((c, &p), &v) in cur.iter_mut().zip(prev.iter()).zip(pad(y)) {
+                *c = op.apply(p, v);
+            }
         }
-        h[end - 1] = pad[end - 1];
-        for j in (start..end - 1).rev() {
-            h[j] = op.apply(h[j + 1], pad[j]);
+        hh[(end - 1) * w..end * w].copy_from_slice(pad(end - 1));
+        for y in (start..end - 1).rev() {
+            let (cur, next) = hh[y * w..(y + 2) * w].split_at_mut(w);
+            for ((c, &n), &v) in cur.iter_mut().zip(next.iter()).zip(pad(y)) {
+                *c = op.apply(n, v);
+            }
         }
     }
-    for (i, out) in line.iter_mut().enumerate() {
-        *out = op.apply(h[i], g[i + k - 1]);
+    let mut out = Image::new(w, h, 1);
+    for y in 0..h {
+        let a = &hh[y * w..(y + 1) * w];
+        let b = &g[(y + k - 1) * w..(y + k) * w];
+        for ((o, &x), &z) in out.row_mut(y).iter_mut().zip(a).zip(b) {
+            *o = op.apply(x, z);
+        }
     }
+    out
+}
+
+fn transpose(src: &Image<u8>) -> Image<u8> {
+    let (w, h) = (src.width, src.height);
+    let mut out = Image::new(h, w, 1);
+    const B: usize = 32;
+    for y0 in (0..h).step_by(B) {
+        for x0 in (0..w).step_by(B) {
+            for y in y0..(y0 + B).min(h) {
+                let row = src.row(y);
+                for x in x0..(x0 + B).min(w) {
+                    out.data[x * h + y] = row[x];
+                }
+            }
+        }
+    }
+    out
 }
 
 fn morph(src: &Image<u8>, kw: usize, kh: usize, op: Op) -> Image<u8> {
     assert_eq!(src.channels, 1, "morphology takes a single-channel image");
     assert!(kw >= 1 && kh >= 1, "kernel sides must be at least 1");
-    let (w, hgt) = (src.width, src.height);
-    let mut out = src.clone();
-    let (mut pad, mut g, mut h) = (Vec::new(), Vec::new(), Vec::new());
-    if kw > 1 {
-        for y in 0..hgt {
-            filter_line(out.row_mut(y), kw, op, &mut pad, &mut g, &mut h);
-        }
-    }
-    if kh > 1 {
-        let mut col = vec![0u8; hgt];
-        for x in 0..w {
-            for (y, c) in col.iter_mut().enumerate() {
-                *c = out.data[y * w + x];
-            }
-            filter_line(&mut col, kh, op, &mut pad, &mut g, &mut h);
-            for (y, &c) in col.iter().enumerate() {
-                out.data[y * w + x] = c;
-            }
-        }
-    }
-    out
+    // A rectangle is separable: rows (as the columns of the transpose), then columns.
+    let rows_done = if kw > 1 {
+        transpose(&filter_columns(&transpose(src), kw, op))
+    } else {
+        src.clone()
+    };
+    filter_columns(&rows_done, kh, op)
 }
 
 /// `cv::erode` with a `kw` x `kh` rectangle.

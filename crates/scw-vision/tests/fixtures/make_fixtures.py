@@ -168,7 +168,119 @@ for h, w in [(1, 1), (13, 37)]:
     src = noise(h, w, 3)
     case("bgr2gray", f"gray_{h}x{w}", [src], [cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)])
 
+# ---- float area resize: the glyph features' 16 x 24 letter image -----------------
+for h, w in [(24, 16), (48, 32), (72, 48), (30, 20), (53, 37), (17, 9), (40, 7), (10, 30), (96, 64),
+             (25, 17), (41, 11), (9, 5), (1, 1), (60, 90), (47, 16), (24, 3)]:
+    for kind, src in (("mask", (rng.random((h, w)) < 0.35).astype(np.float32)),
+                      ("rand", rng.random((h, w)).astype(np.float32))):
+        case("resize_area_f32", f"areaf_{h}x{w}_{kind}", [src],
+             [cv2.resize(src, (16, 24), interpolation=cv2.INTER_AREA)], dw=16, dh=24)
+
+# ---- the IRIS letter model and reader, through the Python port ---------------------
+# The Python port (iris_reader.py at the repository root) matches IRIS's own
+# readings on the real corpus; here it reads SYNTHETIC rows - OpenCV's Hershey
+# fonts on noise, placeholder names and random strings - so the whole reader
+# can be checked in CI without a game frame.
+import sys
+import tempfile
+import zlib
+
+ROOT = HERE.parents[3]
+sys.path.insert(0, str(ROOT))
+import paths                                    # noqa: E402
+
+paths.DATA_ROOT = Path(tempfile.mkdtemp())      # nothing here writes data; never the real folder
+import iris_reader as ir                        # noqa: E402
+
+model = ir.LetterModel.load(ROOT / "models" / "iris-letters-model.bin")
+
+
+def logits_csharp(x):
+    """IRIS's forward pass in its own order: biases first, then each input
+    row in turn (zero inputs skipped), multiply and add rounded separately."""
+    cur = x
+    last = len(model.layers) - 1
+    for k, (w, b) in enumerate(model.layers):
+        nxt = b.copy()
+        for i in range(w.shape[0]):
+            if cur[i] != 0.0:
+                nxt += cur[i] * w[i]
+        cur = np.maximum(nxt, 0.0) if k < last else nxt
+    return cur
+
+
+vectors = [np.zeros(ir.VECTOR_LENGTH)]
+for _ in range(12):
+    v = np.zeros(ir.VECTOR_LENGTH)
+    v[:384] = (rng.random(384) < 0.3) * rng.random(384)
+    v[384:] = rng.uniform(-1.0, 6.0, 4)
+    vectors.append(v)
+for k, v in enumerate(vectors):
+    case("letter_model", f"model_{k:02d}", [v], [logits_csharp(v), model.log_probs(v)])
+
+rr = ir.RowReader(ir.NameplateReader(model))
+FONTS = (cv2.FONT_HERSHEY_SIMPLEX, cv2.FONT_HERSHEY_DUPLEX)
+COLOURS = ((230, 230, 230), (255, 190, 90), (70, 70, 225), (120, 230, 120))
+
+
+def render(text, scale, colour, font, spacing=None):
+    (tw, th), base = cv2.getTextSize(text, font, scale, 1)
+    width = tw + 40 + 6 * len(text)
+    img = noise(th + base + 24, width, 3, lo=8, hi=45)
+    x0, y0 = 20, 12 + th
+    if spacing is None:
+        cv2.putText(img, text, (x0, y0), font, scale, colour, 1, cv2.LINE_AA)
+    else:
+        x = x0
+        for ch in text:
+            cv2.putText(img, ch, (x, y0), font, scale, colour, 1, cv2.LINE_AA)
+            x += cv2.getTextSize(ch, font, scale, 1)[0][0] + spacing
+        tw = x - x0
+    return img, (x0 - 2, y0 - th - 2, max(1, tw) + 4, th + base + 4)
+
+
+def pieces_json(read):
+    return {"cap": read.cap, "spans": [list(s) for s in read.spans],
+            "pieces": [[p.start, p.end, p.text, p.score, p.free_score] for p in read.pieces]}
+
+
+NAME_CHARS = ir.NAME_ALPHABET
+texts = ["EXMPL0NAME", "EXMPLHANDLE", "EXMPLORG", "O0O0_-0O", "A_B-C", "123.4km", "56.7m",
+         "1000.0km", "7.0m", "0.5km", "12.3km [", "AB CD", "W", "MM_WW-88"]
+texts += ["".join(rng.choice(list(NAME_CHARS), int(rng.integers(3, 15)))) for _ in range(14)]
+texts += [f"{int(rng.integers(0, 999))}.{int(rng.integers(0, 10))}{rng.choice(['km', 'm'])}" for _ in range(6)]
+rows = []
+for k, t in enumerate(texts):
+    rows.append((t, 0.40 + 0.05 * (k % 4), COLOURS[k % 4], FONTS[k % 2], None))
+for k, t in enumerate(["EXMPLTWO", "TOUCHING", "QOD0_8B", "45.6km"]):
+    rows.append((t, 0.5, COLOURS[k % 4], FONTS[k % 2], -3))           # letters run together
+rows.append(("WWWWWWWWWWWWWW", 0.5, COLOURS[0], FONTS[1], -5))       # one blob past the cap
+def row_case(name, img, box):
+    expect = {}
+    m = ir.create_mask(img, box)
+    if m is None:
+        expect["mask"] = None
+    else:
+        expect["mask"] = {"w": m.width, "h": m.height, "ox": m.origin_x, "oy": m.origin_y,
+                          "col": m.col_offset, "row": m.row_offset, "crc": zlib.crc32(m.data.tobytes())}
+        expect["namePieces"] = pieces_json(rr.reader.read_pieces(m, rr.reader.name_alphabet, ir.NAME_MIN_INK))
+        expect["distPieces"] = pieces_json(
+            rr.reader.read_pieces(m, rr.reader.distance_alphabet, ir.DISTANCE_MIN_INK))
+    nr = rr.read_name(img, box)
+    expect["name"] = {"text": nr.text, "score": nr.score, "oneWord": nr.one_word,
+                      "validChars": nr.valid_chars, "o0": [[i, p] for i, p in nr.o0]}
+    dr = rr.read_distance(img, box)
+    expect["dist"] = None if dr is None else {"text": dr.text, "value": dr.value, "km": dr.kilometers,
+                                              "speed": dr.speed_group}
+    case("iris_row", name, [img], [], box=list(box), expect=expect)
+
+
+for k, (t, scale, colour, font, spacing) in enumerate(rows):
+    row_case(f"row_{k:02d}", *render(t, scale, colour, font, spacing))
+row_case("row_blank", noise(30, 120, 3, lo=8, hi=45), (10, 5, 100, 20))
+row_case("row_outside", noise(30, 120, 3), (200, 50, 10, 10))
+
 (HERE / "opencv.bin").write_bytes(bytes(BLOB))
 (HERE / "index.json").write_text(json.dumps({"opencv": cv2.__version__, "numpy": np.__version__,
-                                             "cases": cases}, indent=0), encoding="utf-8")
+                                             "cases": cases}, indent=0), encoding="utf-8", newline="\n")
 print(f"{len(cases)} cases, opencv.bin {len(BLOB) / 1e6:.1f} MB")

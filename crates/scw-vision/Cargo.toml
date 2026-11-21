@@ -12,3 +12,7 @@ publish.workspace = true
 
 [dev-dependencies]
 serde_json = "1"
+# Only for the real-frame check (tests/iris_golden.rs): reading the reference
+# crops and their mask hashes.
+png = "0.17"
+sha1_smol = "1"

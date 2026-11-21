@@ -96,3 +96,19 @@ impl<T: Copy + Default> Image<T> {
         self.data.is_empty()
     }
 }
+
+/// A rectangle in pixels: left, top, width, height. Signed, as boxes found
+/// near an edge and then padded can start outside the image.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub struct Rect {
+    pub x: i32,
+    pub y: i32,
+    pub w: i32,
+    pub h: i32,
+}
+
+impl Rect {
+    pub const fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+        Self { x, y, w, h }
+    }
+}
