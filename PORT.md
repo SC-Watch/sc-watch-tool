@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture and keys done**; audio, store, RSI client and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys and the JSON config files done**; audio, the databases, the RSI client and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -93,6 +93,16 @@ state is read as the Python reads it - GetAsyncKeyState and joyGetPosEx,
 nothing hooked, nothing swallowed - and its device list on this PC is
 identical to `python inputs.py --list`, every field of four sticks. Linux
 (evdev) is phase 4.
+
+**`scw-store::json`** reads and writes the JSON config files as
+jsonstore.py does - a BOM or the Windows codepage read, NaN and Infinity as
+no value, an unreadable file copied aside before anything overwrites it,
+atomic writes with retries - and writes the same bytes: Python's
+`json.dumps(indent=2)` (non-ASCII escaped, floats as Python's repr, ties to
+even included) with Python's text-mode line endings. Checked on jsonstore's
+own answers (CI), and on this PC's real settings.json, audio.json and
+flags.json: read and written again, each comes out byte for byte the file
+the Python saved.
 
 ## The replay tool
 
@@ -176,6 +186,7 @@ crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (
                      name classifier and burst vote (names); frames to contacts (pipeline)
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-input     key and joystick bindings, and the Windows state readers
+crates/scw-store     the JSON config files (the databases to follow)
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 

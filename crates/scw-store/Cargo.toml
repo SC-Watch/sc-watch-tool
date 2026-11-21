@@ -1,0 +1,13 @@
+[package]
+name = "scw-store"
+description = "sc-watch's stored data: JSON config files as jsonstore.py keeps them (the SQLite databases to follow)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
