@@ -1,0 +1,3530 @@
+[
+{
+"raw": null,
+"loaded": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "unprovoked_attack",
+"label": "",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Unprovoked attack\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [],
+"loaded": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "unprovoked_attack",
+"label": "",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Unprovoked attack\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "kos",
+"label": "KOS!!!",
+"color": "#ff0000",
+"polarity": "negative",
+"say": "kill on sight"
+}
+],
+"loaded": [
+{
+"key": "kos",
+"label": "KOS!!!",
+"color": "#ff0000",
+"polarity": "negative",
+"say": "kill on sight",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "KOS!!!",
+"color": "#ff0000",
+"polarity": "negative",
+"say": "kill on sight",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "kill on sight"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"kos",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"kos",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "kos",
+"label": "",
+"color": "#ff0000",
+"polarity": "negative",
+"say": "kill on sight",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "kos",
+"label": "KOS!!!",
+"color": "#ff0000",
+"polarity": "negative",
+"say": "kill on sight",
+"retired": true
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"kos\",\n    \"label\": \"KOS!!!\",\n    \"color\": \"#ff0000\",\n    \"polarity\": \"negative\",\n    \"say\": \"kill on sight\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Camping a location\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": " Camping ",
+"label": "Spawn camping",
+"color": "#abc"
+},
+{
+"key": "camping",
+"label": "dup"
+}
+],
+"loaded": [
+{
+"key": "camping",
+"label": "Spawn camping",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Spawn camping",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Spawn camping"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Spawn camping",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Spawn camping"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"camping",
+"unprovoked_attack",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"camping",
+"unprovoked_attack",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "camping",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "camping",
+"label": "Spawn camping",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"camping\",\n    \"label\": \"Spawn camping\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "pending",
+"label": "mine"
+},
+{
+"key": "bad key",
+"label": "x"
+},
+{
+"key": "",
+"label": "y"
+},
+{
+"key": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+"label": "z"
+},
+"not a dict",
+5
+],
+"loaded": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "unprovoked_attack",
+"label": "",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "camping",
+"label": "Renamed",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Unprovoked attack\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "good_trader",
+"label": "Good trader",
+"polarity": "Positive"
+},
+{
+"key": "seen",
+"label": "Seen",
+"polarity": "meh"
+}
+],
+"loaded": [
+{
+"key": "good_trader",
+"label": "Good trader",
+"color": "#6b7a8c",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "seen",
+"label": "Seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "Good trader",
+"color": "#6b7a8c",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Good trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "Seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"good_trader",
+"seen",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"good_trader",
+"seen",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "good_trader",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "seen",
+"label": "Renamed",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "good_trader",
+"label": "Good trader",
+"color": "#6b7a8c",
+"polarity": "positive",
+"say": "",
+"retired": true
+},
+{
+"key": "seen",
+"label": "Renamed",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"good_trader\",\n    \"label\": \"Good trader\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"seen\",\n    \"label\": \"Renamed\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Unprovoked attack\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Camping a location\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "retired_one",
+"label": ""
+},
+{
+"key": "old",
+"label": "Old",
+"retired": 1
+},
+{
+"key": "n",
+"label": null
+},
+{
+"key": 7,
+"label": 3.5,
+"color": null,
+"polarity": null,
+"say": false
+}
+],
+"loaded": [
+{
+"key": "retired_one",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "old",
+"label": "Old",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "n",
+"label": "None",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "7",
+"label": "3.5",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "False",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "3.5",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "False",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "False"
+}
+],
+"active": [
+"n",
+"7",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"retired_one",
+"old",
+"n",
+"7",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "retired_one",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "old",
+"label": "Renamed",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "n",
+"label": "None",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "7",
+"label": "3.5",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "False",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "retired_one",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "old",
+"label": "Renamed",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "n",
+"label": "None",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "7",
+"label": "3.5",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "False",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"retired_one\",\n    \"label\": \"\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"old\",\n    \"label\": \"Renamed\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"n\",\n    \"label\": \"None\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"7\",\n    \"label\": \"3.5\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"False\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Unprovoked attack\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Camping a location\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "long",
+"label": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+"say": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+"color": " #A1b2C3 "
+}
+],
+"loaded": [
+{
+"key": "long",
+"label": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+"color": "#A1b2C3",
+"polarity": "negative",
+"say": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": false
+},
+"sign": 0.0,
+"speakable": "Note"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"long",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note"
+],
+"keys": [
+"long",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"note",
+"pending"
+],
+"save_items": [
+{
+"key": "long",
+"label": "",
+"color": "#A1b2C3",
+"polarity": "negative",
+"say": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "long",
+"label": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+"color": "#A1b2C3",
+"polarity": "negative",
+"say": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+"retired": true
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "note",
+"label": "Note",
+"color": "#8fa6bb",
+"polarity": "neutral",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"long\",\n    \"label\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n    \"color\": \"#A1b2C3\",\n    \"polarity\": \"negative\",\n    \"say\": \"SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Camping a location\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"note\",\n    \"label\": \"Note\",\n    \"color\": \"#8fa6bb\",\n    \"polarity\": \"neutral\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+},
+{
+"raw": [
+{
+"key": "note",
+"label": "My notes",
+"polarity": "negative"
+}
+],
+"loaded": [
+{
+"key": "note",
+"label": "My notes",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Unprovoked attack",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+}
+],
+"lookups": [
+{
+"key": "camping",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "CAMPING ",
+"by_key": {
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Camping a location"
+},
+{
+"key": "pending",
+"by_key": {
+"key": "pending",
+"label": "Awaiting reason",
+"color": "#7aa2f7",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "Awaiting reason"
+},
+{
+"key": "",
+"by_key": {
+"key": "unknown",
+"label": "unknown",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "unknown"
+},
+{
+"key": "nobody_knows",
+"by_key": {
+"key": "nobody_knows",
+"label": "nobody_knows",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "nobody_knows"
+},
+{
+"key": "friendly",
+"by_key": {
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": false
+},
+"sign": -1.0,
+"speakable": "Friendly"
+},
+{
+"key": "note",
+"by_key": {
+"key": "note",
+"label": "My notes",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+"sign": 1.0,
+"speakable": "My notes"
+},
+{
+"key": "kos",
+"by_key": {
+"key": "kos",
+"label": "kos",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "kos"
+},
+{
+"key": "good_trader",
+"by_key": {
+"key": "good_trader",
+"label": "good_trader",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "good_trader"
+},
+{
+"key": "seen",
+"by_key": {
+"key": "seen",
+"label": "seen",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "seen"
+},
+{
+"key": "none",
+"by_key": {
+"key": "none",
+"label": "none",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "none"
+},
+{
+"key": "7",
+"by_key": {
+"key": "7",
+"label": "7",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+"sign": 1.0,
+"speakable": "7"
+}
+],
+"active": [
+"note",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly"
+],
+"keys": [
+"note",
+"unprovoked_attack",
+"camping",
+"ransom_broken",
+"harassment",
+"cheating_suspected",
+"friendly",
+"pending"
+],
+"save_items": [
+{
+"key": "note",
+"label": "",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456"
+}
+],
+"written": [
+{
+"key": "note",
+"label": "My notes",
+"color": "#6b7a8c",
+"polarity": "negative",
+"say": "",
+"retired": true
+},
+{
+"key": "unprovoked_attack",
+"label": "Renamed",
+"color": "#ff5f56",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "camping",
+"label": "Camping a location",
+"color": "#ff9f43",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "ransom_broken",
+"label": "Broke a ransom",
+"color": "#ffd166",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "harassment",
+"label": "Harassment",
+"color": "#ff6b9d",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "cheating_suspected",
+"label": "Suspected cheating",
+"color": "#c77dff",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "brand_new",
+"label": "Brand new",
+"color": "#123456",
+"polarity": "negative",
+"say": "",
+"retired": false
+},
+{
+"key": "friendly",
+"label": "Friendly",
+"color": "#4ade80",
+"polarity": "positive",
+"say": "",
+"retired": true
+}
+],
+"file_after": "[\n  {\n    \"key\": \"note\",\n    \"label\": \"My notes\",\n    \"color\": \"#6b7a8c\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": true\n  },\n  {\n    \"key\": \"unprovoked_attack\",\n    \"label\": \"Renamed\",\n    \"color\": \"#ff5f56\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"camping\",\n    \"label\": \"Camping a location\",\n    \"color\": \"#ff9f43\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"ransom_broken\",\n    \"label\": \"Broke a ransom\",\n    \"color\": \"#ffd166\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"harassment\",\n    \"label\": \"Harassment\",\n    \"color\": \"#ff6b9d\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"cheating_suspected\",\n    \"label\": \"Suspected cheating\",\n    \"color\": \"#c77dff\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"brand_new\",\n    \"label\": \"Brand new\",\n    \"color\": \"#123456\",\n    \"polarity\": \"negative\",\n    \"say\": \"\",\n    \"retired\": false\n  },\n  {\n    \"key\": \"friendly\",\n    \"label\": \"Friendly\",\n    \"color\": \"#4ade80\",\n    \"polarity\": \"positive\",\n    \"say\": \"\",\n    \"retired\": true\n  }\n]"
+}
+]

@@ -16,13 +16,26 @@ fn check(path: &str, sql: &str) {
         .iter()
         .filter(|(h, s)| scw_store::reputation::sketch(h) != *s)
         .count();
-    println!("{}: {} stored sketches, {differ} differ", std::path::Path::new(path).file_name().unwrap().to_string_lossy(), rows.len());
+    println!(
+        "{}: {} stored sketches, {differ} differ",
+        std::path::Path::new(path)
+            .file_name()
+            .unwrap()
+            .to_string_lossy(),
+        rows.len()
+    );
 }
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    check(&args[0], "SELECT handle, sketch FROM players WHERE sketch IS NOT NULL AND sketch != ''");
+    check(
+        &args[0],
+        "SELECT handle, sketch FROM players WHERE sketch IS NOT NULL AND sketch != ''",
+    );
     if let Some(w) = args.get(1) {
-        check(w, "SELECT handle, sketch FROM entries WHERE sketch IS NOT NULL AND sketch != ''");
+        check(
+            w,
+            "SELECT handle, sketch FROM entries WHERE sketch IS NOT NULL AND sketch != ''",
+        );
     }
 }

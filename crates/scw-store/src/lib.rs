@@ -4,5 +4,6 @@
 //! dbopen.py does; [`reputation`] is sc-watch.db).
 
 pub mod db;
+pub mod flags;
 pub mod json;
 pub mod reputation;
