@@ -1,0 +1,17 @@
+[package]
+name = "scw-audio"
+description = "sc-watch's audible alerts: what is said (exactly as audio.py), the tones, and the alert queue with its Windows voice and player"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+regex = "1"
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+scw-store = { path = "../scw-store" }
+
+[dev-dependencies]
+scw-store = { path = "../scw-store" }

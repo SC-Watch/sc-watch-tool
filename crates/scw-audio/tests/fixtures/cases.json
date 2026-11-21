@@ -1,0 +1,6832 @@
+{
+"parse": [
+{
+"t": "",
+"ok": []
+},
+{
+"t": "plain",
+"ok": [
+[
+"plain",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{handle}",
+"ok": [
+[
+"",
+"handle",
+"",
+null
+]
+]
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"ok": [
+[
+"Warning. ",
+"handle",
+"",
+null
+],
+[
+". ",
+"distance",
+"",
+null
+],
+[
+". ",
+"flags",
+"",
+null
+]
+]
+},
+{
+"t": "{{literal}} {handle}",
+"ok": [
+[
+"{",
+null,
+null,
+null
+],
+[
+"literal}",
+null,
+null,
+null
+],
+[
+" ",
+"handle",
+"",
+null
+]
+]
+},
+{
+"t": "a}}b",
+"ok": [
+[
+"a}",
+null,
+null,
+null
+],
+[
+"b",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "}",
+"error": "Single '}' encountered in format string"
+},
+{
+"t": "{",
+"error": "Single '{' encountered in format string"
+},
+{
+"t": "{handle",
+"error": "expected '}' before end of string"
+},
+{
+"t": "x{handle}y{range}z",
+"ok": [
+[
+"x",
+"handle",
+"",
+null
+],
+[
+"y",
+"range",
+"",
+null
+],
+[
+"z",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{handle!r}",
+"ok": [
+[
+"",
+"handle",
+"",
+"r"
+]
+]
+},
+{
+"t": "{handle:>10}",
+"ok": [
+[
+"",
+"handle",
+">10",
+null
+]
+]
+},
+{
+"t": "{handle!}",
+"error": "unmatched '{' in format spec"
+},
+{
+"t": "{handle!rx}",
+"error": "expected ':' after conversion specifier"
+},
+{
+"t": "{handle!r",
+"error": "unmatched '{' in format spec"
+},
+{
+"t": "{handle:{range}}",
+"ok": [
+[
+"",
+"handle",
+"{range}",
+null
+]
+]
+},
+{
+"t": "{a{b}",
+"error": "unexpected '{' in field name"
+},
+{
+"t": "{a[0]}",
+"ok": [
+[
+"",
+"a[0]",
+"",
+null
+]
+]
+},
+{
+"t": "{a[0}",
+"error": "expected '}' before end of string"
+},
+{
+"t": "{}",
+"ok": [
+[
+"",
+"",
+"",
+null
+]
+]
+},
+{
+"t": "{0}",
+"ok": [
+[
+"",
+"0",
+"",
+null
+]
+]
+},
+{
+"t": "{handle.upper}",
+"ok": [
+[
+"",
+"handle.upper",
+"",
+null
+]
+]
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"ok": [
+[
+"Known contact. ",
+"handle",
+"",
+null
+],
+[
+". ",
+"range",
+"",
+null
+],
+[
+" kilometres. ",
+"reason",
+"",
+null
+]
+]
+},
+{
+"t": "{range} km to {handle}",
+"ok": [
+[
+"",
+"range",
+"",
+null
+],
+[
+" km to ",
+"handle",
+"",
+null
+]
+]
+},
+{
+"t": "{range}KM",
+"ok": [
+[
+"",
+"range",
+"",
+null
+],
+[
+"KM",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{range}   klicks.",
+"ok": [
+[
+"",
+"range",
+"",
+null
+],
+[
+"   klicks.",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{range} kilometers away",
+"ok": [
+[
+"",
+"range",
+"",
+null
+],
+[
+" kilometers away",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{range}kilometre",
+"ok": [
+[
+"",
+"range",
+"",
+null
+],
+[
+"kilometre",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "  ;; {handle} ,, . {flags} ..",
+"ok": [
+[
+"  ;; ",
+"handle",
+"",
+null
+],
+[
+" ,, . ",
+"flags",
+"",
+null
+],
+[
+" ..",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "a\t\tb\n\nc",
+"ok": [
+[
+"a\t\tb\n\nc",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"ok": [
+[
+"",
+"count",
+"",
+null
+],
+[
+" contacts, ",
+"flagged",
+"",
+null
+],
+[
+" flagged",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "\u00e9{handle}\u2014",
+"ok": [
+[
+"\u00e9",
+"handle",
+"",
+null
+],
+[
+"\u2014",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "Reported by {source}. {label}",
+"ok": [
+[
+"Reported by ",
+"source",
+"",
+null
+],
+[
+". ",
+"label",
+"",
+null
+]
+]
+},
+{
+"t": "{label}.,;:",
+"ok": [
+[
+"",
+"label",
+"",
+null
+],
+[
+".,;:",
+null,
+null,
+null
+]
+]
+},
+{
+"t": ". . .",
+"ok": [
+[
+". . .",
+null,
+null,
+null
+]
+]
+},
+{
+"t": "x \u001c\u001f y",
+"ok": [
+[
+"x \u001c\u001f y",
+null,
+null,
+null
+]
+]
+}
+],
+"check": [
+{
+"key": "flagged",
+"t": "",
+"result": null
+},
+{
+"key": "known",
+"t": "",
+"result": null
+},
+{
+"key": "summary",
+"t": "",
+"result": null
+},
+{
+"key": "nothing",
+"t": "",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": "",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "",
+"result": null
+},
+{
+"key": "bogus",
+"t": "",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "plain",
+"result": null
+},
+{
+"key": "known",
+"t": "plain",
+"result": null
+},
+{
+"key": "summary",
+"t": "plain",
+"result": null
+},
+{
+"key": "nothing",
+"t": "plain",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": "plain",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "plain",
+"result": null
+},
+{
+"key": "bogus",
+"t": "plain",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle}",
+"result": null
+},
+{
+"key": "known",
+"t": "{handle}",
+"result": null
+},
+{
+"key": "summary",
+"t": "{handle}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{handle}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{handle}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{handle}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{handle}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": null
+},
+{
+"key": "known",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "{flags} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "Warning. {handle}. {distance}. {flags}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{{literal}} {handle}",
+"result": null
+},
+{
+"key": "known",
+"t": "{{literal}} {handle}",
+"result": null
+},
+{
+"key": "summary",
+"t": "{{literal}} {handle}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{{literal}} {handle}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{{literal}} {handle}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{{literal}} {handle}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{{literal}} {handle}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "known",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "summary",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "nothing",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "a}}b",
+"result": null
+},
+{
+"key": "bogus",
+"t": "a}}b",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "known",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "summary",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "nothing",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "reason_shared",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "flag_piracy",
+"t": "}",
+"result": "unbalanced braces (Single '}' encountered in format string)"
+},
+{
+"key": "bogus",
+"t": "}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "known",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "summary",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "nothing",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "reason_shared",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "flag_piracy",
+"t": "{",
+"result": "unbalanced braces (Single '{' encountered in format string)"
+},
+{
+"key": "bogus",
+"t": "{",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "known",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "summary",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "nothing",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "reason_shared",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "flag_piracy",
+"t": "{handle",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "bogus",
+"t": "{handle",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "x{handle}y{range}z",
+"result": null
+},
+{
+"key": "known",
+"t": "x{handle}y{range}z",
+"result": null
+},
+{
+"key": "summary",
+"t": "x{handle}y{range}z",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "x{handle}y{range}z",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "x{handle}y{range}z",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "x{handle}y{range}z",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "x{handle}y{range}z",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle!r}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "known",
+"t": "{handle!r}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "summary",
+"t": "{handle!r}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{handle!r}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{handle!r}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{handle!r}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{handle!r}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle:>10}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "known",
+"t": "{handle:>10}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "summary",
+"t": "{handle:>10}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{handle:>10}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{handle:>10}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{handle:>10}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{handle:>10}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "known",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "summary",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "nothing",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "reason_shared",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "flag_piracy",
+"t": "{handle!}",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "bogus",
+"t": "{handle!}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "known",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "summary",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "nothing",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "reason_shared",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "flag_piracy",
+"t": "{handle!rx}",
+"result": "unbalanced braces (expected ':' after conversion specifier)"
+},
+{
+"key": "bogus",
+"t": "{handle!rx}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "known",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "summary",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "nothing",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "reason_shared",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "flag_piracy",
+"t": "{handle!r",
+"result": "unbalanced braces (unmatched '{' in format spec)"
+},
+{
+"key": "bogus",
+"t": "{handle!r",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle:{range}}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "known",
+"t": "{handle:{range}}",
+"result": "{handle} takes no formatting"
+},
+{
+"key": "summary",
+"t": "{handle:{range}}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{handle:{range}}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{handle:{range}}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{handle:{range}}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{handle:{range}}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "known",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "summary",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "nothing",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "reason_shared",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "flag_piracy",
+"t": "{a{b}",
+"result": "unbalanced braces (unexpected '{' in field name)"
+},
+{
+"key": "bogus",
+"t": "{a{b}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{a[0]}",
+"result": "{a[0]} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{a[0]}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "known",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "summary",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "nothing",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "reason_shared",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "flag_piracy",
+"t": "{a[0}",
+"result": "unbalanced braces (expected '}' before end of string)"
+},
+{
+"key": "bogus",
+"t": "{a[0}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{}",
+"result": "{} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{}",
+"result": "{} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{}",
+"result": "{} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{}",
+"result": "{} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{}",
+"result": "{} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{}",
+"result": "{} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{0}",
+"result": "{0} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{0}",
+"result": "{0} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{0}",
+"result": "{0} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{0}",
+"result": "{0} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{0}",
+"result": "{0} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{0}",
+"result": "{0} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{0}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{handle.upper}",
+"result": "{handle.upper} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{handle.upper}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "{reason} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": null
+},
+{
+"key": "summary",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{range} km to {handle}",
+"result": null
+},
+{
+"key": "known",
+"t": "{range} km to {handle}",
+"result": null
+},
+{
+"key": "summary",
+"t": "{range} km to {handle}",
+"result": "{range} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{range} km to {handle}",
+"result": "{range} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{range} km to {handle}",
+"result": "{range} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{range} km to {handle}",
+"result": "{range} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{range} km to {handle}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{range}KM",
+"result": null
+},
+{
+"key": "known",
+"t": "{range}KM",
+"result": null
+},
+{
+"key": "summary",
+"t": "{range}KM",
+"result": "{range} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{range}KM",
+"result": "{range} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{range}KM",
+"result": "{range} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{range}KM",
+"result": "{range} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{range}KM",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{range}   klicks.",
+"result": null
+},
+{
+"key": "known",
+"t": "{range}   klicks.",
+"result": null
+},
+{
+"key": "summary",
+"t": "{range}   klicks.",
+"result": "{range} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{range}   klicks.",
+"result": "{range} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{range}   klicks.",
+"result": "{range} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{range}   klicks.",
+"result": "{range} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{range}   klicks.",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{range} kilometers away",
+"result": null
+},
+{
+"key": "known",
+"t": "{range} kilometers away",
+"result": null
+},
+{
+"key": "summary",
+"t": "{range} kilometers away",
+"result": "{range} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{range} kilometers away",
+"result": "{range} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{range} kilometers away",
+"result": "{range} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{range} kilometers away",
+"result": "{range} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{range} kilometers away",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{range}kilometre",
+"result": null
+},
+{
+"key": "known",
+"t": "{range}kilometre",
+"result": null
+},
+{
+"key": "summary",
+"t": "{range}kilometre",
+"result": "{range} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{range}kilometre",
+"result": "{range} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{range}kilometre",
+"result": "{range} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{range}kilometre",
+"result": "{range} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{range}kilometre",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": null
+},
+{
+"key": "known",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "{flags} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "  ;; {handle} ,, . {flags} ..",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "known",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "summary",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "nothing",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "a\t\tb\n\nc",
+"result": null
+},
+{
+"key": "bogus",
+"t": "a\t\tb\n\nc",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{count} contacts, {flagged} flagged",
+"result": "{count} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{count} contacts, {flagged} flagged",
+"result": "{count} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{count} contacts, {flagged} flagged",
+"result": null
+},
+{
+"key": "nothing",
+"t": "{count} contacts, {flagged} flagged",
+"result": "{count} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{count} contacts, {flagged} flagged",
+"result": "{count} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "{count} contacts, {flagged} flagged",
+"result": "{count} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{count} contacts, {flagged} flagged",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "\u00e9{handle}\u2014",
+"result": null
+},
+{
+"key": "known",
+"t": "\u00e9{handle}\u2014",
+"result": null
+},
+{
+"key": "summary",
+"t": "\u00e9{handle}\u2014",
+"result": "{handle} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "\u00e9{handle}\u2014",
+"result": "{handle} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "\u00e9{handle}\u2014",
+"result": "{handle} is not available here - this one can use {label}, {source}"
+},
+{
+"key": "flag_piracy",
+"t": "\u00e9{handle}\u2014",
+"result": "{handle} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "\u00e9{handle}\u2014",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "Reported by {source}. {label}",
+"result": "{source} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "Reported by {source}. {label}",
+"result": "{source} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "Reported by {source}. {label}",
+"result": "{source} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "Reported by {source}. {label}",
+"result": "{source} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "Reported by {source}. {label}",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "Reported by {source}. {label}",
+"result": "{source} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "Reported by {source}. {label}",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "{label}.,;:",
+"result": "{label} is not available here - this one can use {distance}, {flags}, {handle}, {range}"
+},
+{
+"key": "known",
+"t": "{label}.,;:",
+"result": "{label} is not available here - this one can use {distance}, {handle}, {range}, {reason}"
+},
+{
+"key": "summary",
+"t": "{label}.,;:",
+"result": "{label} is not available here - this one can use {count}, {flagged}"
+},
+{
+"key": "nothing",
+"t": "{label}.,;:",
+"result": "{label} is not available here - this one takes no placeholders"
+},
+{
+"key": "reason_shared",
+"t": "{label}.,;:",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "{label}.,;:",
+"result": "{label} is not available here - this one can use {org}"
+},
+{
+"key": "bogus",
+"t": "{label}.,;:",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": ". . .",
+"result": null
+},
+{
+"key": "known",
+"t": ". . .",
+"result": null
+},
+{
+"key": "summary",
+"t": ". . .",
+"result": null
+},
+{
+"key": "nothing",
+"t": ". . .",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": ". . .",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": ". . .",
+"result": null
+},
+{
+"key": "bogus",
+"t": ". . .",
+"result": "bogus is not a phrase"
+},
+{
+"key": "flagged",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "known",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "summary",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "nothing",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "reason_shared",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "flag_piracy",
+"t": "x \u001c\u001f y",
+"result": null
+},
+{
+"key": "bogus",
+"t": "x \u001c\u001f y",
+"result": "bogus is not a phrase"
+},
+{
+"key": "known",
+"t": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+"result": "keep it under 200 characters"
+}
+],
+"render": [
+{
+"t": "",
+"vals": {},
+"out": ""
+},
+{
+"t": "",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "plain",
+"vals": {},
+"out": "plain"
+},
+{
+"t": "plain",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "plain"
+},
+{
+"t": "plain",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "plain"
+},
+{
+"t": "plain",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "plain"
+},
+{
+"t": "{handle}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Exmpl Pilot"
+},
+{
+"t": "{handle}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Exmpl"
+},
+{
+"t": "{handle}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"vals": {},
+"out": "Warning"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Warning. Exmpl Pilot. 2.4 kilometres. Piracy"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Warning. Exmpl"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "Warning. 1 kilometre"
+},
+{
+"t": "{{literal}} {handle}",
+"vals": {},
+"out": "{literal}"
+},
+{
+"t": "{{literal}} {handle}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "{literal} Exmpl Pilot"
+},
+{
+"t": "{{literal}} {handle}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "{literal} Exmpl"
+},
+{
+"t": "{{literal}} {handle}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "{literal}"
+},
+{
+"t": "a}}b",
+"vals": {},
+"out": "a}b"
+},
+{
+"t": "a}}b",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "a}b"
+},
+{
+"t": "a}}b",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "a}b"
+},
+{
+"t": "a}}b",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "a}b"
+},
+{
+"t": "}",
+"vals": {},
+"out": ""
+},
+{
+"t": "}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{",
+"vals": {},
+"out": ""
+},
+{
+"t": "{",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{handle",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{handle",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "x{handle}y{range}z",
+"vals": {},
+"out": "xyz"
+},
+{
+"t": "x{handle}y{range}z",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "xExmpl Piloty2.4z"
+},
+{
+"t": "x{handle}y{range}z",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "xExmplyz"
+},
+{
+"t": "x{handle}y{range}z",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "xy1z"
+},
+{
+"t": "{handle!r}",
+"vals": {},
+"out": "''"
+},
+{
+"t": "{handle!r}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "'Exmpl Pilot'"
+},
+{
+"t": "{handle!r}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "'Exmpl'"
+},
+{
+"t": "{handle!r}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "''"
+},
+{
+"t": "{handle:>10}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle:>10}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Exmpl Pilot"
+},
+{
+"t": "{handle:>10}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Exmpl"
+},
+{
+"t": "{handle:>10}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle!}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle!}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{handle!}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{handle!}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle!rx}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle!rx}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{handle!rx}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{handle!rx}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle!r",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle!r",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{handle!r",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{handle!r",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle:{range}}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{handle:{range}}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Exmp"
+},
+{
+"t": "{handle:{range}}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Exmpl"
+},
+{
+"t": "{handle:{range}}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{a{b}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{a{b}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{a{b}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{a{b}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{a[0]}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{a[0]}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{a[0]}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{a[0]}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{a[0}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{a[0}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{a[0}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{a[0}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{0}",
+"vals": {},
+"out": ""
+},
+{
+"t": "{0}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": "{0}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{0}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "{handle.upper}",
+"vals": {},
+"out": "<built-in method upper of str object at 0x00007FFD5C9CF6C0>"
+},
+{
+"t": "{handle.upper}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "<built-in method upper of str object at 0x00000219EDB36170>"
+},
+{
+"t": "{handle.upper}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "<built-in method upper of str object at 0x00000219EDB278A0>"
+},
+{
+"t": "{handle.upper}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "<built-in method upper of str object at 0x00007FFD5C9CF6C0>"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"vals": {},
+"out": "Known contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Known contact. Exmpl Pilot. 2.4 kilometres. Member of Example Org"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Known contact. Exmpl"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "Known contact. 1 kilometres"
+},
+{
+"t": "{range} km to {handle}",
+"vals": {},
+"out": "to"
+},
+{
+"t": "{range} km to {handle}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "2.4 km to Exmpl Pilot"
+},
+{
+"t": "{range} km to {handle}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "to Exmpl"
+},
+{
+"t": "{range} km to {handle}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "1 km to"
+},
+{
+"t": "{range}KM",
+"vals": {},
+"out": ""
+},
+{
+"t": "{range}KM",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "2.4KM"
+},
+{
+"t": "{range}KM",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{range}KM",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "1KM"
+},
+{
+"t": "{range}   klicks.",
+"vals": {},
+"out": ""
+},
+{
+"t": "{range}   klicks.",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "2.4 klicks"
+},
+{
+"t": "{range}   klicks.",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{range}   klicks.",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "1 klicks"
+},
+{
+"t": "{range} kilometers away",
+"vals": {},
+"out": "away"
+},
+{
+"t": "{range} kilometers away",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "2.4 kilometers away"
+},
+{
+"t": "{range} kilometers away",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "away"
+},
+{
+"t": "{range} kilometers away",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "1 kilometers away"
+},
+{
+"t": "{range}kilometre",
+"vals": {},
+"out": ""
+},
+{
+"t": "{range}kilometre",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "2.4kilometre"
+},
+{
+"t": "{range}kilometre",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{range}kilometre",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "1kilometre"
+},
+{
+"t": "  ;; {handle} ,, . {flags} ..",
+"vals": {},
+"out": ""
+},
+{
+"t": "  ;; {handle} ,, . {flags} ..",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Exmpl Pilot, Piracy"
+},
+{
+"t": "  ;; {handle} ,, . {flags} ..",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Exmpl"
+},
+{
+"t": "  ;; {handle} ,, . {flags} ..",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "a\t\tb\n\nc",
+"vals": {},
+"out": "a b c"
+},
+{
+"t": "a\t\tb\n\nc",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "a b c"
+},
+{
+"t": "a\t\tb\n\nc",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "a b c"
+},
+{
+"t": "a\t\tb\n\nc",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "a b c"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"vals": {},
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "6 contacts, 2 flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "contacts, flagged"
+},
+{
+"t": "\u00e9{handle}\u2014",
+"vals": {},
+"out": "\u00e9\u2014"
+},
+{
+"t": "\u00e9{handle}\u2014",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "\u00e9Exmpl Pilot\u2014"
+},
+{
+"t": "\u00e9{handle}\u2014",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "\u00e9Exmpl\u2014"
+},
+{
+"t": "\u00e9{handle}\u2014",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "\u00e9\u2014"
+},
+{
+"t": "Reported by {source}. {label}",
+"vals": {},
+"out": "Reported by"
+},
+{
+"t": "Reported by {source}. {label}",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Reported by Orgmate. Unprovoked attack"
+},
+{
+"t": "Reported by {source}. {label}",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "Reported by"
+},
+{
+"t": "Reported by {source}. {label}",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "Reported by"
+},
+{
+"t": "{label}.,;:",
+"vals": {},
+"out": ""
+},
+{
+"t": "{label}.,;:",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "Unprovoked attack"
+},
+{
+"t": "{label}.,;:",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": "{label}.,;:",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": ". . .",
+"vals": {},
+"out": ""
+},
+{
+"t": ". . .",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": ""
+},
+{
+"t": ". . .",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": ""
+},
+{
+"t": ". . .",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": ""
+},
+{
+"t": "x \u001c\u001f y",
+"vals": {},
+"out": "x y"
+},
+{
+"t": "x \u001c\u001f y",
+"vals": {
+"handle": "Exmpl Pilot",
+"range": "2.4",
+"distance": "2.4 kilometres",
+"flags": "Piracy",
+"reason": "Member of Example Org",
+"count": "6",
+"flagged": "2",
+"label": "Unprovoked attack",
+"source": "Orgmate"
+},
+"out": "x y"
+},
+{
+"t": "x \u001c\u001f y",
+"vals": {
+"handle": "Exmpl",
+"range": "",
+"distance": "",
+"flags": "",
+"reason": ""
+},
+"out": "x y"
+},
+{
+"t": "x \u001c\u001f y",
+"vals": {
+"handle": "",
+"range": "1",
+"distance": "1 kilometre"
+},
+"out": "x y"
+}
+],
+"distance": [
+{
+"km": null,
+"out": [
+"",
+""
+]
+},
+{
+"km": 0.0,
+"out": [
+"0",
+"0 kilometres"
+]
+},
+{
+"km": 0.04,
+"out": [
+"0",
+"0 kilometres"
+]
+},
+{
+"km": 0.05,
+"out": [
+"0.1",
+"0.1 kilometres"
+]
+},
+{
+"km": 0.25,
+"out": [
+"0.2",
+"0.2 kilometres"
+]
+},
+{
+"km": 0.35,
+"out": [
+"0.3",
+"0.3 kilometres"
+]
+},
+{
+"km": 1.0,
+"out": [
+"1",
+"1 kilometre"
+]
+},
+{
+"km": 1.04,
+"out": [
+"1",
+"1 kilometre"
+]
+},
+{
+"km": 2.4,
+"out": [
+"2.4",
+"2.4 kilometres"
+]
+},
+{
+"km": 2.45,
+"out": [
+"2.5",
+"2.5 kilometres"
+]
+},
+{
+"km": 10.0,
+"out": [
+"10",
+"10 kilometres"
+]
+},
+{
+"km": 12.96,
+"out": [
+"13",
+"13 kilometres"
+]
+},
+{
+"km": 100.0,
+"out": [
+"100",
+"100 kilometres"
+]
+},
+{
+"km": 999.95,
+"out": [
+"1000",
+"1000 kilometres"
+]
+},
+{
+"km": 1234.5,
+"out": [
+"1234.5",
+"1234.5 kilometres"
+]
+},
+{
+"km": -0.0,
+"out": [
+"-0",
+"-0 kilometres"
+]
+}
+],
+"speakable": [
+{
+"h": "",
+"out": "",
+"name": ""
+},
+{
+"h": "EXMPL0NAME",
+"out": "Exmpl0Name",
+"name": "Exmpl0Name"
+},
+{
+"h": "EXMPL_HANDLE",
+"out": "E X M P L Handle",
+"name": "E X M P L Handle"
+},
+{
+"h": "exmpl-somename",
+"out": "e x m p l Somename",
+"name": "e x m p l Somename"
+},
+{
+"h": "WZMBT",
+"out": "W Z M B T",
+"name": "W Z M B T"
+},
+{
+"h": "XYZ",
+"out": "Xyz",
+"name": "Xyz"
+},
+{
+"h": "ABCD",
+"out": "A B C D",
+"name": "A B C D"
+},
+{
+"h": "AEIO",
+"out": "Aeio",
+"name": "Aeio"
+},
+{
+"h": "BCDFGHJ_AEIOU",
+"out": "B C D F G H J Aeiou",
+"name": "B C D F G H J Aeiou"
+},
+{
+"h": "MCDONALD",
+"out": "Mcdonald",
+"name": "Mcdonald"
+},
+{
+"h": "o'neil",
+"out": "O'Neil",
+"name": "O'Neil"
+},
+{
+"h": "2pac",
+"out": "2 p a c",
+"name": "2 p a c"
+},
+{
+"h": "x  y",
+"out": "X Y",
+"name": "x  y"
+},
+{
+"h": "Stra\u00dfe",
+"out": "Stra\u00dfe",
+"name": "Stra\u00dfe"
+},
+{
+"h": "\u00e9t\u00e9",
+"out": "\u00c9t\u00e9",
+"name": "\u00c9t\u00e9"
+},
+{
+"h": "A_B-C",
+"out": "A B C",
+"name": "A B C"
+},
+{
+"h": "__",
+"out": "",
+"name": ""
+},
+{
+"h": "SKY",
+"out": "Sky",
+"name": "Sky"
+},
+{
+"h": "RHYTHM",
+"out": "R H Y T H M",
+"name": "R H Y T H M"
+},
+{
+"h": "Example Org",
+"out": "Example Org",
+"name": "Example Org"
+},
+{
+"h": "  EXMPLORG  ",
+"out": "Exmplorg",
+"name": "Exmplorg"
+},
+{
+"h": "two words here",
+"out": "Two w o r d s Here",
+"name": "two words here"
+},
+{
+"h": "EXMPL",
+"out": "E X M P L",
+"name": "E X M P L"
+}
+],
+"flags": [
+{
+"flags": [],
+"muted": [],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [],
+"muted": [],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [],
+"custom": false,
+"out": "Piracy",
+"live": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [],
+"custom": true,
+"out": "pirates (Exmplorg)",
+"live": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Piracy",
+"live": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "pirates (Exmplorg)",
+"live": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [],
+"custom": false,
+"out": "Syndicate",
+"live": [
+"Syndicate: EXMPLTWO"
+]
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [],
+"custom": true,
+"out": "Syndicate",
+"live": [
+"Syndicate: EXMPLTWO"
+]
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "Syndicate",
+"live": [
+"Syndicate: EXMPLTWO"
+]
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "Syndicate",
+"live": [
+"Syndicate: EXMPLTWO"
+]
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"Syndicate: EXMPLTWO"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [],
+"custom": false,
+"out": "New account",
+"live": [
+"new account (12d)"
+]
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [],
+"custom": true,
+"out": "12 days old",
+"live": [
+"new account (12d)"
+]
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "New account",
+"live": [
+"new account (12d)"
+]
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "12 days old",
+"live": [
+"new account (12d)"
+]
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"new account (12d)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [],
+"custom": false,
+"out": "New account",
+"live": [
+"New Account (3 d)"
+]
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [],
+"custom": true,
+"out": "3 days old",
+"live": [
+"New Account (3 d)"
+]
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "New account",
+"live": [
+"New Account (3 d)"
+]
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "3 days old",
+"live": [
+"New Account (3 d)"
+]
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"New Account (3 d)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"new account"
+],
+"muted": [],
+"custom": false,
+"out": "New account",
+"live": [
+"new account"
+]
+},
+{
+"flags": [
+"new account"
+],
+"muted": [],
+"custom": true,
+"out": "days old",
+"live": [
+"new account"
+]
+},
+{
+"flags": [
+"new account"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "New account",
+"live": [
+"new account"
+]
+},
+{
+"flags": [
+"new account"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "days old",
+"live": [
+"new account"
+]
+},
+{
+"flags": [
+"new account"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"new account"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [],
+"custom": false,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [],
+"custom": true,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "Smuggling, Infiltration",
+"live": [
+"Smuggling: EXMPLBIG",
+"Infiltration: EXMPLORG"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [],
+"custom": false,
+"out": "Piracy",
+"live": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [],
+"custom": true,
+"out": "pirates (Exmplorg), pirates (Exmpltwo)",
+"live": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Piracy",
+"live": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+]
+},
+{
+"flags": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "pirates (Exmplorg), pirates (Exmpltwo)",
+"live": [
+"PIRACY: EXMPLORG (40 members)",
+"Piracy: EXMPLTWO"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [],
+"custom": false,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [],
+"custom": true,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"Bounty hunting: EXMPLORG"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "Bounty Hunting",
+"live": [
+"Bounty hunting: EXMPLORG"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [],
+"custom": false,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [],
+"custom": true,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"weird"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "Weird",
+"live": [
+"weird"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [],
+"custom": false,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [],
+"custom": true,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "Infiltration",
+"live": [
+"  Infiltration :  EXMPL_IO-2  (9)"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [],
+"custom": false,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [],
+"custom": true,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+":nothing"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "",
+"live": [
+":nothing"
+]
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [],
+"custom": false,
+"out": "Piracy",
+"live": [
+"Piracy:"
+]
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [],
+"custom": true,
+"out": "pirates ()",
+"live": [
+"Piracy:"
+]
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": false,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [
+"flag_piracy"
+],
+"custom": true,
+"out": "",
+"live": []
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": false,
+"out": "Piracy",
+"live": [
+"Piracy:"
+]
+},
+{
+"flags": [
+"Piracy:"
+],
+"muted": [
+"flag_new_account",
+"flag_syndicate"
+],
+"custom": true,
+"out": "pirates ()",
+"live": [
+"Piracy:"
+]
+}
+],
+"reasons": [
+{
+"said": [],
+"muted": [],
+"out": ""
+},
+{
+"said": [],
+"muted": [
+"reason_org"
+],
+"out": ""
+},
+{
+"said": [],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 1
+}
+],
+"muted": [],
+"out": "Unprovoked attack"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 1
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "Unprovoked attack"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 1
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"muted": [],
+"out": "3 reports. Griefing"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "3 reports. Griefing"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "x"
+}
+],
+"muted": [],
+"out": "x"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "x"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "x"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "x"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "y",
+"count": 0
+}
+],
+"muted": [],
+"out": "y"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "y",
+"count": 0
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "y"
+},
+{
+"said": [
+{
+"kind": "report",
+"label": "y",
+"count": 0
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "shared",
+"label": "Camping",
+"source": "EXMPL_FRIEND"
+}
+],
+"muted": [],
+"out": "Reported by E X M P L Friend. Camping"
+},
+{
+"said": [
+{
+"kind": "shared",
+"label": "Camping",
+"source": "EXMPL_FRIEND"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "Reported by E X M P L Friend. Camping"
+},
+{
+"said": [
+{
+"kind": "shared",
+"label": "Camping",
+"source": "EXMPL_FRIEND"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": "Reported by E X M P L Friend. Camping"
+},
+{
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+],
+"muted": [],
+"out": "Member of Exmplorg"
+},
+{
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": "Member of Exmplorg"
+},
+{
+"said": [
+{
+"kind": "former",
+"org": "Example Org"
+}
+],
+"muted": [],
+"out": "Formerly Example Org"
+},
+{
+"said": [
+{
+"kind": "former",
+"org": "Example Org"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "Formerly Example Org"
+},
+{
+"said": [
+{
+"kind": "former",
+"org": "Example Org"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": "Formerly Example Org"
+},
+{
+"said": [
+{
+"kind": "watchlist"
+}
+],
+"muted": [],
+"out": "On the watch list"
+},
+{
+"said": [
+{
+"kind": "watchlist"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": "On the watch list"
+},
+{
+"said": [
+{
+"kind": "watchlist"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": "On the watch list"
+},
+{
+"said": [
+{
+"kind": "other"
+},
+{
+"kind": "org",
+"org": "EXMPLTWO"
+}
+],
+"muted": [],
+"out": "Member of Exmpltwo"
+},
+{
+"said": [
+{
+"kind": "other"
+},
+{
+"kind": "org",
+"org": "EXMPLTWO"
+}
+],
+"muted": [
+"reason_org"
+],
+"out": ""
+},
+{
+"said": [
+{
+"kind": "other"
+},
+{
+"kind": "org",
+"org": "EXMPLTWO"
+}
+],
+"muted": [
+"reason_report",
+"reason_reports"
+],
+"out": "Member of Exmpltwo"
+}
+],
+"lines": [
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {},
+"speak_handles": true,
+"out": "Warning"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": "Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": "Warning. Contact. 2.4 kilometres. Piracy"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": "Warning. E X M P L Pilot. New account"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": "Warning. Contact. New account"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle. 1 kilometre"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": "Warning. Contact. 1 kilometre"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle. 0 kilometres"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": "Warning. Contact. 0 kilometres"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": "Warning"
+},
+{
+"t": "Warning. {handle}. {distance}. {flags}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {},
+"speak_handles": true,
+"out": "Warning"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": "Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": "Warning. Contact. 2.4 kilometres. Piracy"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": "Warning. E X M P L Pilot. New account"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": "Warning. Contact. New account"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle. 1 kilometres"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": "Warning. Contact. 1 kilometres"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle. 0 kilometres"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": "Warning. Contact. 0 kilometres"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": "Warning. Exmplhandle"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": "Warning"
+},
+{
+"t": "Warning. {handle}. {range} kilometres. {flags}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": "Warning. Contact"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {},
+"speak_handles": true,
+"out": "Known contact"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": "Known contact. E X M P L Pilot. 2.4 kilometres"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": "Known contact. E X M P L Pilot"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. 1 kilometre. 3 reports. Griefing"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 1 kilometre. 3 reports. Griefing"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. 0 kilometres. 2 unprovoked attacks"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 0 kilometres. 2 unprovoked attacks"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. fallback line"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. fallback line"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": "Known contact"
+},
+{
+"t": "Known contact. {handle}. {distance}. {reason}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {},
+"speak_handles": true,
+"out": "Known contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": "Known contact. E X M P L Pilot. 2.4 kilometres"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": "Known contact. E X M P L Pilot"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. 1 kilometres. 3 reports. Griefing"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 1 kilometres. 3 reports. Griefing"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. 0 kilometres. 2 unprovoked attacks"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. 0 kilometres. 2 unprovoked attacks"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": "Known contact. Exmplhandle. fallback line"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": "Known contact. Contact. fallback line"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": "Known contact"
+},
+{
+"t": "Known contact. {handle}. {range} kilometres. {reason}",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": "Known contact. Contact"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": "contacts, flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": "6 contacts, 2 flagged"
+},
+{
+"t": "{count} contacts, {flagged} flagged",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": "6 contacts, 2 flagged"
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPL_PILOT",
+"flags": [
+"new account (12d)"
+]
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 1.0,
+"said": [
+{
+"kind": "report",
+"label": "Griefing",
+"count": 3
+}
+],
+"reason": "console line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"range_km": 0.0,
+"reason": "2 unprovoked attacks"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"handle": "EXMPLHANDLE",
+"said": [],
+"reason": "fallback line"
+},
+"speak_handles": false,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": true,
+"out": ""
+},
+{
+"t": "",
+"facts": {
+"count": 6,
+"flagged": 2
+},
+"speak_handles": false,
+"out": ""
+}
+],
+"samples": [
+{
+"key": "flagged",
+"text": "Warning. {handle}. {distance}. {flags}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. Piracy, New account"
+},
+{
+"key": "flagged",
+"text": "Warning. {handle}. {distance}. {flags}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. Piracy, New account"
+},
+{
+"key": "flagged",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "custom"
+},
+{
+"key": "flagged",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "custom"
+},
+{
+"key": "flagged",
+"text": "",
+"sh": true,
+"out": ""
+},
+{
+"key": "flagged",
+"text": "",
+"sh": false,
+"out": ""
+},
+{
+"key": "known",
+"text": "Known contact. {handle}. {distance}. {reason}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. Unprovoked attack"
+},
+{
+"key": "known",
+"text": "Known contact. {handle}. {distance}. {reason}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. Unprovoked attack"
+},
+{
+"key": "known",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "custom"
+},
+{
+"key": "known",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "custom"
+},
+{
+"key": "known",
+"text": "",
+"sh": true,
+"out": ""
+},
+{
+"key": "known",
+"text": "",
+"sh": false,
+"out": ""
+},
+{
+"key": "summary",
+"text": "{count} contacts, {flagged} flagged",
+"sh": true,
+"out": "6 contacts, 2 flagged"
+},
+{
+"key": "summary",
+"text": "{count} contacts, {flagged} flagged",
+"sh": false,
+"out": "6 contacts, 2 flagged"
+},
+{
+"key": "summary",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "custom 6"
+},
+{
+"key": "summary",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "custom 6"
+},
+{
+"key": "summary",
+"text": "",
+"sh": true,
+"out": ""
+},
+{
+"key": "summary",
+"text": "",
+"sh": false,
+"out": ""
+},
+{
+"key": "nothing",
+"text": "",
+"sh": true,
+"out": ""
+},
+{
+"key": "nothing",
+"text": "",
+"sh": false,
+"out": ""
+},
+{
+"key": "nothing",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "custom"
+},
+{
+"key": "nothing",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "custom"
+},
+{
+"key": "nothing",
+"text": "",
+"sh": true,
+"out": ""
+},
+{
+"key": "nothing",
+"text": "",
+"sh": false,
+"out": ""
+},
+{
+"key": "reason_report",
+"text": "{label}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. Unprovoked attack"
+},
+{
+"key": "reason_report",
+"text": "{label}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. Unprovoked attack"
+},
+{
+"key": "reason_report",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom Unprovoked attack 1"
+},
+{
+"key": "reason_report",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom Unprovoked attack 1"
+},
+{
+"key": "reason_report",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_report",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "reason_reports",
+"text": "{count} reports. {label}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. 3 reports. Unprovoked attack"
+},
+{
+"key": "reason_reports",
+"text": "{count} reports. {label}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. 3 reports. Unprovoked attack"
+},
+{
+"key": "reason_reports",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom Unprovoked attack 3"
+},
+{
+"key": "reason_reports",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom Unprovoked attack 3"
+},
+{
+"key": "reason_reports",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_reports",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "reason_shared",
+"text": "Reported by {source}. {label}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. Reported by Orgmate. Camping a location"
+},
+{
+"key": "reason_shared",
+"text": "Reported by {source}. {label}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. Reported by Orgmate. Camping a location"
+},
+{
+"key": "reason_shared",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom Camping a location"
+},
+{
+"key": "reason_shared",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom Camping a location"
+},
+{
+"key": "reason_shared",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_shared",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "reason_org",
+"text": "Member of {org}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. Member of Example Org"
+},
+{
+"key": "reason_org",
+"text": "Member of {org}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. Member of Example Org"
+},
+{
+"key": "reason_org",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom Example Org"
+},
+{
+"key": "reason_org",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom Example Org"
+},
+{
+"key": "reason_org",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_org",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "reason_former",
+"text": "Formerly {org}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. Formerly Example Org"
+},
+{
+"key": "reason_former",
+"text": "Formerly {org}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. Formerly Example Org"
+},
+{
+"key": "reason_former",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom Example Org"
+},
+{
+"key": "reason_former",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom Example Org"
+},
+{
+"key": "reason_former",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_former",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "reason_watchlist",
+"text": "On the watch list",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. On the watch list"
+},
+{
+"key": "reason_watchlist",
+"text": "On the watch list",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. On the watch list"
+},
+{
+"key": "reason_watchlist",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres. custom"
+},
+{
+"key": "reason_watchlist",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres. custom"
+},
+{
+"key": "reason_watchlist",
+"text": "",
+"sh": true,
+"out": "Known contact. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "reason_watchlist",
+"text": "",
+"sh": false,
+"out": "Known contact. Contact. 2.4 kilometres"
+},
+{
+"key": "flag_piracy",
+"text": "Piracy",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. Piracy"
+},
+{
+"key": "flag_piracy",
+"text": "Piracy",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. Piracy"
+},
+{
+"key": "flag_piracy",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_piracy",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_piracy",
+"text": "",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "flag_piracy",
+"text": "",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres"
+},
+{
+"key": "flag_syndicate",
+"text": "Syndicate",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. Syndicate"
+},
+{
+"key": "flag_syndicate",
+"text": "Syndicate",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. Syndicate"
+},
+{
+"key": "flag_syndicate",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_syndicate",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_syndicate",
+"text": "",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "flag_syndicate",
+"text": "",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres"
+},
+{
+"key": "flag_smuggling",
+"text": "Smuggling",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. Smuggling"
+},
+{
+"key": "flag_smuggling",
+"text": "Smuggling",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. Smuggling"
+},
+{
+"key": "flag_smuggling",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_smuggling",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_smuggling",
+"text": "",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "flag_smuggling",
+"text": "",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres"
+},
+{
+"key": "flag_infiltration",
+"text": "Infiltration",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. Infiltration"
+},
+{
+"key": "flag_infiltration",
+"text": "Infiltration",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. Infiltration"
+},
+{
+"key": "flag_infiltration",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_infiltration",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. custom Exmplorg"
+},
+{
+"key": "flag_infiltration",
+"text": "",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "flag_infiltration",
+"text": "",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres"
+},
+{
+"key": "flag_new_account",
+"text": "New account",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. New account"
+},
+{
+"key": "flag_new_account",
+"text": "New account",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. New account"
+},
+{
+"key": "flag_new_account",
+"text": "custom {org} {label} {count}",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres. custom"
+},
+{
+"key": "flag_new_account",
+"text": "custom {org} {label} {count}",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres. custom"
+},
+{
+"key": "flag_new_account",
+"text": "",
+"sh": true,
+"out": "Warning. Sample Pilot. 2.4 kilometres"
+},
+{
+"key": "flag_new_account",
+"text": "",
+"sh": false,
+"out": "Warning. Contact. 2.4 kilometres"
+}
+],
+"rates": [
+{
+"wpm": 175,
+"out": 1
+},
+{
+"wpm": 100,
+"out": -4
+},
+{
+"wpm": 156.63,
+"out": 0
+},
+{
+"wpm": 300,
+"out": 6
+},
+{
+"wpm": 50,
+"out": -10
+},
+{
+"wpm": 1,
+"out": -10
+},
+{
+"wpm": 10000,
+"out": 10
+},
+{
+"wpm": 0,
+"out": 0
+},
+{
+"wpm": -5,
+"out": 0
+}
+],
+"tones": [
+{
+"event": "trigger",
+"volume": 0.9,
+"steps": [
+[
+660,
+60
+]
+],
+"at": 0,
+"len": 5336
+},
+{
+"event": "contact",
+"volume": 0.9,
+"steps": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"at": 5336,
+"len": 14156
+},
+{
+"event": "flagged",
+"volume": 0.9,
+"steps": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"at": 19492,
+"len": 28268
+},
+{
+"event": "known",
+"volume": 0.9,
+"steps": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"at": 47760,
+"len": 22094
+},
+{
+"event": "nothing",
+"volume": 0.9,
+"steps": [
+[
+420,
+110
+]
+],
+"at": 69854,
+"len": 9746
+},
+{
+"event": "error",
+"volume": 0.9,
+"steps": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+],
+"at": 79600,
+"len": 35324
+},
+{
+"event": "trigger",
+"volume": 0.5,
+"steps": [
+[
+660,
+60
+]
+],
+"at": 114924,
+"len": 5336
+},
+{
+"event": "contact",
+"volume": 0.5,
+"steps": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"at": 120260,
+"len": 14156
+},
+{
+"event": "flagged",
+"volume": 0.5,
+"steps": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"at": 134416,
+"len": 28268
+},
+{
+"event": "known",
+"volume": 0.5,
+"steps": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"at": 162684,
+"len": 22094
+},
+{
+"event": "nothing",
+"volume": 0.5,
+"steps": [
+[
+420,
+110
+]
+],
+"at": 184778,
+"len": 9746
+},
+{
+"event": "error",
+"volume": 0.5,
+"steps": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+],
+"at": 194524,
+"len": 35324
+},
+{
+"event": "trigger",
+"volume": 1.0,
+"steps": [
+[
+660,
+60
+]
+],
+"at": 229848,
+"len": 5336
+},
+{
+"event": "contact",
+"volume": 1.0,
+"steps": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"at": 235184,
+"len": 14156
+},
+{
+"event": "flagged",
+"volume": 1.0,
+"steps": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"at": 249340,
+"len": 28268
+},
+{
+"event": "known",
+"volume": 1.0,
+"steps": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"at": 277608,
+"len": 22094
+},
+{
+"event": "nothing",
+"volume": 1.0,
+"steps": [
+[
+420,
+110
+]
+],
+"at": 299702,
+"len": 9746
+},
+{
+"event": "error",
+"volume": 1.0,
+"steps": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+],
+"at": 309448,
+"len": 35324
+}
+],
+"configs": [
+{
+"file": null,
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"mode\": \"speech\", \"volume\": 1, \"rate\": 200.0}",
+"loaded": "{\"mode\": \"speech\", \"volume\": 1.0, \"rate\": 200, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"volume\": \"lots\", \"rate\": true}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"volume\": Infinity, \"speak_handles\": 1, \"voice\": 5}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"speech\": {\"known\": \"Known contact. {handle}. {range} kilometres. {reason}\", \"extra\": \"hi\", \"n\": 1}}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\", \"extra\": \"hi\"}, \"muted\": []}"
+},
+{
+"file": "{\"muted\": [\"flag_piracy\", \"bogus\", 3, \"reason_org\"]}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": [\"flag_piracy\", \"reason_org\"]}"
+},
+{
+"file": "{\"tones\": {\"trigger\": [[500, 40]]}}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[500, 40]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"tones\": []}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "[1, 2]",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "not json",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"save\": 1, \"mode\": \"loud\"}",
+"loaded": "{\"mode\": \"loud\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+},
+{
+"file": "{\"max_spoken_per_burst\": 2.0}",
+"loaded": "{\"mode\": \"both\", \"volume\": 0.9, \"rate\": 175, \"voice\": \"\", \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"tones\": {\"trigger\": [[660, 60]], \"contact\": [[780, 70], [980, 90]], \"flagged\": [[1180, 90], [880, 90], [1180, 140]], \"known\": [[1180, 90], [760, 160]], \"nothing\": [[420, 110]], \"error\": [[240, 180], [200, 220]]}, \"speech\": {\"flagged\": \"Warning. {handle}. {distance}. {flags}\", \"known\": \"Known contact. {handle}. {distance}. {reason}\", \"summary\": \"{count} contacts, {flagged} flagged\", \"nothing\": \"\", \"reason_report\": \"{label}\", \"reason_reports\": \"{count} reports. {label}\", \"reason_shared\": \"Reported by {source}. {label}\", \"reason_org\": \"Member of {org}\", \"reason_former\": \"Formerly {org}\", \"reason_watchlist\": \"On the watch list\", \"flag_piracy\": \"Piracy\", \"flag_syndicate\": \"Syndicate\", \"flag_smuggling\": \"Smuggling\", \"flag_infiltration\": \"Infiltration\", \"flag_new_account\": \"New account\", \"contact\": \"\", \"trigger\": \"\", \"error\": \"Alert system error\"}, \"muted\": []}"
+}
+]
+}
