@@ -11,7 +11,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | Phase | What | State |
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
-| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions, reader and finder done**, exact on every reference frame - voting and the replay tool next |
+| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions, reader, finder, name classifier and burst vote done**, exact on every reference - the replay tool next |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | - |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |

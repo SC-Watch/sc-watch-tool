@@ -280,6 +280,82 @@ for k, (t, scale, colour, font, spacing) in enumerate(rows):
 row_case("row_blank", noise(30, 120, 3, lo=8, hi=45), (10, 5, 100, 20))
 row_case("row_outside", noise(30, 120, 3), (200, 50, 10, 10))
 
+# ---- names: classify_name and the burst vote, through the Python ------------------
+# Placeholder names (EXMPL...), generic words and random strings only.
+import consensus as cs                          # noqa: E402
+import sc_detector as sd                        # noqa: E402
+
+RAWS = ["", "   ", "\t", "EXMPL0NAME", " exmpl0name ", "EXMPL HANDLE", "John Smith", "XY-1234-AB",
+        "XY-12", "xy-1234-ab", "AB-1", "AB-", "UNKNOWN", "UNKNO", "UNKNOWIN", "JNKNOWN", "UNKNOWN00",
+        "-UNKNOWN", "UNKNOWNSOLDIER", "UNK", "GOLD", "gold", "GOLDEN", "Diamond.", "STANTON", "OM-3",
+        "EXMPL0NAME.", "(EXMPLORG)", "EXMPL$NAME", "AB", "ABC", "A" * 40, "A" * 41, "EXMPL_TWO",
+        "EXMPL-BIG-", "Straße", "café", "EXMPL NAME", "EXMPL\x1cNAME", "EXMPL​NAME",
+        "ﬁx", "1234", "EXMPL-SomeName", "...", "UNKNOWN.", "U_NKNOWN", "UNKN0WN", "QUARTZ", "Ranta",
+        "noise", "EXMPLHANDLE\n", "\x1f", "EXMPL0NAME!?"]
+alphabet = list(ir.NAME_ALPHABET + "abcxyz .:!")
+RAWS += ["".join(rng.choice(alphabet, int(rng.integers(0, 16)))) for _ in range(40)]
+for k, raw in enumerate(RAWS):
+    kind, cleaned = sd.classify_name(raw)
+    case("classify_name", f"name_{k:03d}", [], [], raw=raw, kind=kind, cleaned=cleaned)
+
+BASES = ["EXMPL0NAME", "EXMPLHANDLE", "EXMPLORG", "EXMPLTWO", "EXMPLBIG", "EXMPL-SomeName", "EXMPL_IO"]
+BASES += ["".join(rng.choice(list(ir.NAME_ALPHABET), int(rng.integers(4, 14)))) for _ in range(8)]
+GROUPS = ["0OD", "0Q", "1IL_", "1T", "5S", "8B", "6G", "2Z", "9G", "9P", "CG", "EF", "MN", "UV", "VY", "KX", "PR", "7T"]
+
+
+def variant(name):
+    r = rng.random()
+    if r < 0.6 or len(name) < 3:
+        return name
+    i = int(rng.integers(0, len(name)))
+    if r < 0.72:
+        return name[:int(rng.integers(2, len(name)))]                        # truncated
+    if r < 0.84:
+        g = [g for g in GROUPS if name[i].upper() in g]
+        if g:
+            alt = [c for c in g[0] if c != name[i].upper()]
+            return name[:i] + str(rng.choice(alt)) + name[i + 1:]           # confusable
+        return name
+    if r < 0.92:
+        return name[:i] + str(rng.choice(list(ir.NAME_ALPHABET))) + name[i + 1:]  # any slip
+    if r < 0.96:
+        return name.lower()
+    return ""                                                                # nothing read
+
+
+pairs = [(a, b) for a in BASES[:6] for b in (a, a[:5], a.lower(), variant(a), variant(a))]
+pairs += [("", ""), ("", "AB"), ("UNKNO", "UNKNOWN"), ("Straße", "STRASSE"), ("0O", "DQ"), ("_I", "1L")]
+pairs += [(str(rng.choice(BASES)), str(rng.choice(BASES))) for _ in range(20)]
+for k, (a, b) in enumerate(pairs):
+    case("name_distance", f"dist_{k:03d}", [], [], a=a, b=b, distance=cs.distance(a, b),
+         similarity=cs.similarity(a, b), same=cs.same_contact(a, b))
+
+for k in range(40):
+    contacts = [(str(rng.choice(BASES)), float(np.round(rng.uniform(0.3, 45.0), 1)))
+                for _ in range(int(rng.integers(1, 5)))]
+    readings = []
+    for _ in range(int(rng.integers(2, 12))):
+        frame = []
+        for name, km in contacts:
+            if rng.random() < 0.85:
+                slip = rng.random()
+                if slip < 0.08 and km >= 10:
+                    reading_km = float(np.round(km - 8.0, 1))                # a tens-digit slip
+                else:
+                    reading_km = float(np.round(km + rng.uniform(-0.15, 0.15), 1))
+                frame.append(cs.Reading(variant(name), reading_km, float(rng.uniform(0, 1)),
+                                        float(rng.uniform(0, 1))))
+        rng.shuffle(frame)
+        readings += frame
+    min_votes = int(rng.integers(1, 4))
+    out = cs.resolve(readings, min_votes)
+    clusters = cs.cluster(readings)
+    case("vote", f"vote_{k:02d}", [], [], min_votes=min_votes,
+         readings=[[r.name, r.range_km, r.cx, r.cy] for r in readings],
+         clusters=[[r.name for r in c] for c in clusters],
+         expect=[{"name": r.name, "range_km": r.range_km, "votes": r.votes, "total": r.total,
+                  "variants": [[n, c] for n, c in r.variants]} for r in out])
+
 (HERE / "opencv.bin").write_bytes(bytes(BLOB))
 (HERE / "index.json").write_text(json.dumps({"opencv": cv2.__version__, "numpy": np.__version__,
                                              "cases": cases}, indent=0), encoding="utf-8", newline="\n")
