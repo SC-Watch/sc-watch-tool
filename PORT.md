@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | - |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture done**; keys, audio, store, RSI client and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -67,6 +67,22 @@ Against the Python pipeline on the 135 reference frames
 output is identical, field for field, for two configurations: the default
 (whole screen, bursts of 3, 1 vote - 222 contacts, 34 voted) and IRIS's
 scan area with bursts of 5 and 2 votes (184 contacts, 14 voted).
+
+**`scw-capture`** gives frames from the Windows desktop through Desktop
+Duplication, as the Python's dxcam and hdr_capture.py: monitors numbered the
+same way, 8-bit frames as they come, and - with Windows HDR on and HDR
+capture `auto` - float frames converted to what the game drew at the
+display's SDR white level. Every float16 value converts exactly as
+hdr_capture.py does (ten white levels, checked in CI), and on this PC's two
+HDR monitors a frame from each path matches the Python's own capture of the
+same screen on 100.00% of pixels (the rest is the screen changing between
+the two grabs). An HDR frame takes 15 ms against the Python's 45. Two things
+found on the way: Windows refuses the float capture to a process that is not
+per-monitor DPI aware (dxcam sets that quietly; so does this), and the first
+frame of a new duplication is a blank float surface whatever was asked for -
+the Python passes it over only by luck of its start-up check; here it is
+skipped after every (re)open. The replay source for saved frames lives here
+too. Linux capture is phase 4.
 
 ## The replay tool
 
@@ -148,6 +164,7 @@ The port is when the app gets cleaned up, in this order:
 ```
 crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (iris);
                      name classifier and burst vote (names); frames to contacts (pipeline)
+crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 

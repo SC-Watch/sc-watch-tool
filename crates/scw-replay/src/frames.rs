@@ -4,35 +4,10 @@ use std::path::{Path, PathBuf};
 
 use scw_vision::Image;
 
-/// A PNG as OpenCV's `imread(IMREAD_COLOR)` gives it: 8-bit BGR (alpha
-/// dropped, grey spread to three channels, 16-bit cut to its high byte).
+/// A PNG as OpenCV's `imread(IMREAD_COLOR)` gives it (scw-capture's loader);
 /// None when the file is not a PNG.
 pub fn load(path: &Path) -> Result<Option<Image<u8>>, String> {
-    let file = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let mut dec = png::Decoder::new(std::io::BufReader::new(file));
-    dec.set_transformations(png::Transformations::EXPAND | png::Transformations::STRIP_16);
-    let Ok(mut r) = dec.read_info() else {
-        return Ok(None);
-    };
-    let mut buf = vec![0; r.output_buffer_size()];
-    let info = r
-        .next_frame(&mut buf)
-        .map_err(|e| format!("{}: {e}", path.display()))?;
-    let n = info.color_type.samples();
-    let mut data = Vec::with_capacity(info.width as usize * info.height as usize * 3);
-    for px in buf[..info.buffer_size()].chunks_exact(n) {
-        if n < 3 {
-            data.extend([px[0]; 3]);
-        } else {
-            data.extend([px[2], px[1], px[0]]);
-        }
-    }
-    Ok(Some(Image::from_vec(
-        info.width as usize,
-        info.height as usize,
-        3,
-        data,
-    )))
+    scw_capture::replay::load_png(path).map_err(|e| e.to_string())
 }
 
 /// Python's `sorted(Path)`: by path components, case-blind on Windows.

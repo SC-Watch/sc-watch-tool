@@ -10,5 +10,5 @@ publish.workspace = true
 
 [dependencies]
 scw-vision = { path = "../scw-vision" }
-png = "0.17"
+scw-capture = { path = "../scw-capture" }
 serde_json = { version = "1", features = ["float_roundtrip"] }
