@@ -13,5 +13,11 @@ regex = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 scw-store = { path = "../scw-store" }
 
-[dev-dependencies]
-scw-store = { path = "../scw-store" }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Media_Audio",
+    "Win32_Media_Speech",
+    "Win32_System_Com",
+] }

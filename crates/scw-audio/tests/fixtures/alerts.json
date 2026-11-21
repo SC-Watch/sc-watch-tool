@@ -1,0 +1,11650 @@
+[
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "default / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "default / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "default / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "default / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "default / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "default / flagged muted",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Syndicate"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "default / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. 2 reports. Unprovoked attack"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "default / known said only",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "default / known org muted",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. Member of Exmplorg"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "default / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Smuggling"
+],
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L F0. 2.4 kilometres. New account"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "default / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Infiltration"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "default / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Exmplhandle. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "tones only / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "tones only / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "tones only / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "tones only / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "tones only / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "tones only / flagged muted",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "tones only / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "tones only / known said only",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "tones only / known org muted",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "tones only / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "tones only / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "tones",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "tones only / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"tone",
+"trigger"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "speech only / none",
+"log": [
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "speech only / one routine",
+"log": [
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "speech only / three routine",
+"log": [
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "speech only / five routine",
+"log": [
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "speech only / flagged",
+"log": [
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "speech only / flagged muted",
+"log": [
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Syndicate"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "speech only / known",
+"log": [
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. 2 reports. Unprovoked attack"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "speech only / known said only",
+"log": [
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "speech only / known org muted",
+"log": [
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. Member of Exmplorg"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "speech only / crowd with flags",
+"log": [
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Smuggling"
+],
+[
+"speak",
+"Warning. E X M P L F0. 2.4 kilometres. New account"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "speech only / duplicates",
+"log": [
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Infiltration"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "speech",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "speech only / no range",
+"log": [
+[
+"speak",
+"Warning. Exmplhandle. Piracy"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "off / none",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "off / one routine",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "off / three routine",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "off / five routine",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "off / flagged",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "off / flagged muted",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "off / known",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "off / known said only",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "off / known org muted",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "off / crowd with flags",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "off / duplicates",
+"log": []
+},
+{
+"config": {
+"mode": "off",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "off / no range",
+"log": []
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "no handles / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "no handles / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "no handles / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "no handles / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "no handles / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "no handles / flagged muted",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres. Syndicate"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "no handles / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. Contact. 2.4 kilometres. 2 reports. Unprovoked attack"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "no handles / known said only",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "no handles / known org muted",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. Contact. 2.4 kilometres. Member of Exmplorg"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "no handles / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres. Smuggling"
+],
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres. New account"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "no handles / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. 2.4 kilometres. Infiltration"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "no handles / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Contact. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "one spoken / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "one spoken / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "one spoken / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "one spoken / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "one spoken / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "one spoken / flagged muted",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Syndicate"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "one spoken / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. 2 reports. Unprovoked attack"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "one spoken / known said only",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "one spoken / known org muted",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. Member of Exmplorg"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "one spoken / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Smuggling"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "one spoken / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Infiltration"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 1,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "one spoken / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Exmplhandle. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [],
+"name": "muted / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "muted / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "muted / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "muted / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "muted / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "muted / flagged muted",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "muted / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "muted / known said only",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "muted / known org muted",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "muted / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Smuggling"
+],
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L F0. 2.4 kilometres. New account"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "muted / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Infiltration"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": [
+"flag_syndicate",
+"reason_org",
+"known"
+]
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "muted / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Exmplhandle. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [],
+"name": "summarise above 1 / none",
+"log": [
+[
+"tone",
+"nothing"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+}
+],
+"name": "summarise above 1 / one routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+}
+],
+"name": "summarise above 1 / three routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"3 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_0",
+"range_km": 1.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 2.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 3.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_4",
+"range_km": 5.0
+}
+],
+"name": "summarise above 1 / five routine",
+"log": [
+[
+"tone",
+"contact"
+],
+[
+"speak",
+"5 contacts, 0 flagged"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "summarise above 1 / flagged",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Syndicate: EXMPLTWO"
+]
+}
+],
+"name": "summarise above 1 / flagged muted",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Syndicate"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "2 unprovoked attacks",
+"said": [
+{
+"kind": "report",
+"label": "Unprovoked attack",
+"count": 2
+}
+]
+}
+],
+"name": "summarise above 1 / known",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. 2 reports. Unprovoked attack"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "summarise above 1 / known said only",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"reason": "member",
+"said": [
+{
+"kind": "org",
+"org": "EXMPLORG"
+}
+]
+}
+],
+"name": "summarise above 1 / known org muted",
+"log": [
+[
+"tone",
+"known"
+],
+[
+"speak",
+"Known contact. E X M P L Pilot. 2.4 kilometres. Member of Exmplorg"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Smuggling: EXMPLBIG"
+]
+},
+{
+"handle": "EXMPL_F0",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F1",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_F2",
+"range_km": 2.4,
+"flags": [
+"new account (12d)"
+]
+},
+{
+"handle": "EXMPL_0",
+"range_km": 5.0
+},
+{
+"handle": "EXMPL_1",
+"range_km": 6.0
+},
+{
+"handle": "EXMPL_2",
+"range_km": 7.0
+},
+{
+"handle": "EXMPL_3",
+"range_km": 8.0
+}
+],
+"name": "summarise above 1 / crowd with flags",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Smuggling"
+],
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L F0. 2.4 kilometres. New account"
+],
+[
+"speak",
+"8 contacts, 4 flagged"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL0NAME",
+"range_km": 4.0
+},
+{
+"handle": "EXMPL_PILOT",
+"range_km": 2.4,
+"flags": [
+"Infiltration: EXMPLORG"
+]
+}
+],
+"name": "summarise above 1 / duplicates",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. E X M P L Pilot. 2.4 kilometres. Infiltration"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"contact"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+},
+{
+"config": {
+"mode": "both",
+"volume": 0.9,
+"rate": 175,
+"voice": "",
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 1,
+"tones": {
+"trigger": [
+[
+660,
+60
+]
+],
+"contact": [
+[
+780,
+70
+],
+[
+980,
+90
+]
+],
+"flagged": [
+[
+1180,
+90
+],
+[
+880,
+90
+],
+[
+1180,
+140
+]
+],
+"known": [
+[
+1180,
+90
+],
+[
+760,
+160
+]
+],
+"nothing": [
+[
+420,
+110
+]
+],
+"error": [
+[
+240,
+180
+],
+[
+200,
+220
+]
+]
+},
+"speech": {
+"flagged": "Warning. {handle}. {distance}. {flags}",
+"known": "Known contact. {handle}. {distance}. {reason}",
+"summary": "{count} contacts, {flagged} flagged",
+"nothing": "",
+"reason_report": "{label}",
+"reason_reports": "{count} reports. {label}",
+"reason_shared": "Reported by {source}. {label}",
+"reason_org": "Member of {org}",
+"reason_former": "Formerly {org}",
+"reason_watchlist": "On the watch list",
+"flag_piracy": "Piracy",
+"flag_syndicate": "Syndicate",
+"flag_smuggling": "Smuggling",
+"flag_infiltration": "Infiltration",
+"flag_new_account": "New account",
+"contact": "",
+"trigger": "",
+"error": "Alert system error"
+},
+"muted": []
+},
+"contacts": [
+{
+"handle": "EXMPLHANDLE",
+"flags": [
+"PIRACY: EXMPLORG (40 members)"
+]
+}
+],
+"name": "summarise above 1 / no range",
+"log": [
+[
+"tone",
+"flagged"
+],
+[
+"speak",
+"Warning. Exmplhandle. Piracy"
+],
+[
+"tone",
+"trigger"
+],
+[
+"speak",
+"a line as it is"
+]
+]
+}
+]

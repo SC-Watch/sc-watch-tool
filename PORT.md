@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files and what audio says done**; the alert player, the databases, the RSI client and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files and audio done**; the databases, the RSI client and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -114,6 +114,16 @@ spec or an attribute (`{handle!r}`, `{handle:>10}`, `{handle.upper}`) - which
 the settings page refuses to save - is silence, where the Python speaks
 quotes, cuts the handle short or reads out a memory address.
 
+The alert player (`scw-audio::alerts`) makes audio.Alerts' decisions: for 8
+configurations by 12 bursts, the same tones and the same lines in the same
+order as the Python's own Alerts with a recording voice (CI) - rationing,
+summaries, muted flags and reasons, tone-only contacts, the 20-second
+expiry, phrases re-read when audio.json changes. On Windows the voice is
+SAPI 5, made on the worker thread, speaking plain text synchronously, and
+measured to really speak: a line into a file is 6.2 s of speech, the same
+line to the speakers takes 6.5 s to return, and so does the second one (the
+pyttsx3 failure returned in 0.1 s); a tone plays to its end.
+
 ## The replay tool
 
 ```
@@ -197,7 +207,7 @@ crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files (the databases to follow)
-crates/scw-audio     what alerts say, the tones, audio.json (the player to follow)
+crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 
