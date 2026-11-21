@@ -113,6 +113,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "scw-replay"
+version = "0.1.0"
+dependencies = [
+ "png",
+ "scw-vision",
+ "serde_json",
+]
+
+[[package]]
 name = "scw-vision"
 version = "0.1.0"
 dependencies = [

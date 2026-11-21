@@ -11,7 +11,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | Phase | What | State |
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
-| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **image functions, reader, finder, name classifier and burst vote done**, exact on every reference - the replay tool next |
+| 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | - |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
@@ -56,6 +56,30 @@ plate in 2 ms against 4. The Python detector kept each frame's masks on
 itself between calls; here they belong to the call, so one detector can serve
 any number of threads.
 
+**`scw-vision::names`** sorts a raw read into what it is (player, ship serial,
+NPC crew, UNKNOWN, world label, unreadable) and votes a burst of reads into
+contacts, exactly as the Python's classify_name and consensus.py.
+**`scw-vision::pipeline`** joins it all as the watcher does with
+`--reader iris`: each frame's distance lines read and classified, a burst's
+players tallied and voted. **`scw-replay`** runs saved frames through it.
+Against the Python pipeline on the 135 reference frames
+(`crates/scw-replay/reference.py`, run with the Python's own reader) the
+output is identical, field for field, for two configurations: the default
+(whole screen, bursts of 3, 1 vote - 222 contacts, 34 voted) and IRIS's
+scan area with bursts of 5 and 2 votes (184 contacts, 14 voted).
+
+## The replay tool
+
+```
+cargo run --release -p scw-replay -- [options] <frames>...
+```
+
+Frames are PNG files, folders, or patterns (`D:/frames/burst_*.png`); bursts
+are consecutive frames, `--burst` at a time (the watcher's trigger is not
+modelled). `--scan-area`, `--min-votes` and `--listed` (handles that count as
+people even when they read as a world label) work as the watcher's own;
+`--json` writes one document for comparing. `--help` lists the rest.
+
 ## Build and test
 
 ```
@@ -80,6 +104,7 @@ What the folder holds:
 |---|---|---|
 | `iris-golden/` | IRIS's own readings: the bench harness's `--golden` output, crops as PNG plus `golden.json` | `tests/iris_golden.rs` |
 | `iris-detect/` | `frames.txt` (one PNG frame per line; relative paths from this folder) and `out/` - IRIS's own finder output, the bench harness's `det_{whole,app}_{dump,read}.json` | `tests/iris_detect_golden.rs` |
+| `replay/` | `*.json`: `reference.py --frames-list iris-detect/frames.txt [options]` output, one file per configuration | `crates/scw-replay/tests/replay_reference.rs` |
 
 ```
 SCW_PARITY_DATA=/path/to/parity-data cargo test --release -- --nocapture
@@ -121,7 +146,9 @@ The port is when the app gets cleaned up, in this order:
 ## Layout
 
 ```
-crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (iris)
+crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (iris);
+                     name classifier and burst vote (names); frames to contacts (pipeline)
+crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 
 Planned beside it: `scw-mining`, `scw-capture`, `scw-input`, `scw-audio`,

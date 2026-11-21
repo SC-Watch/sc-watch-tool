@@ -13,5 +13,6 @@ pub mod cv;
 pub mod image;
 pub mod iris;
 pub mod names;
+pub mod pipeline;
 
 pub use image::{Image, Rect};

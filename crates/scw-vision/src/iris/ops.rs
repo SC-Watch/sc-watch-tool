@@ -8,6 +8,7 @@ use super::features::LineMask;
 use super::{NameRead, RowReader};
 use crate::{Image, Rect};
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 // IRIS PR #1: a read crop is 'bright' when at least this share of its pixels
 // has a channel at or above this value (snow, sunlit hulls). An off-centre
@@ -239,14 +240,16 @@ impl ReadResult {
 
 /// DetectorImageOps: scan a frame for distance lines, read one plate.
 pub struct ImageOps {
-    pub rows: RowReader,
+    /// Shared: one letter model serves every frame size and thread.
+    pub rows: Arc<RowReader>,
     pub geometry: ScanGeometry,
     pub scan_detector: NameplateDetector,
     pub crop_detector: NameplateDetector,
 }
 
 impl ImageOps {
-    pub fn new(rows: RowReader, geometry: ScanGeometry) -> Self {
+    pub fn new(rows: impl Into<Arc<RowReader>>, geometry: ScanGeometry) -> Self {
+        let rows = rows.into();
         let mut crop = geometry.settings.clone();
         (
             crop.region_left,
