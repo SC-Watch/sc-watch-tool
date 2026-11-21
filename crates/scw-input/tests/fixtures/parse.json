@@ -1,0 +1,730 @@
+[
+{
+"spec": "",
+"ok": true,
+"tokens": [],
+"labels": []
+},
+{
+"spec": "off",
+"ok": true,
+"tokens": [],
+"labels": []
+},
+{
+"spec": "OFF",
+"ok": true,
+"tokens": [],
+"labels": []
+},
+{
+"spec": "  ",
+"ok": true,
+"tokens": [],
+"labels": []
+},
+{
+"spec": "A",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 65,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"a"
+]
+},
+{
+"spec": "a",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 65,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"a"
+]
+},
+{
+"spec": "f9",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 120,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"f9"
+]
+},
+{
+"spec": "F24",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 135,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"f24"
+]
+},
+{
+"spec": "F25",
+"ok": false,
+"error": "unknown key 'F25'"
+},
+{
+"spec": "rctrl",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 163,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"rctrl"
+]
+},
+{
+"spec": "rctrl+a",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 163,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 65,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"rctrl",
+"a"
+]
+},
+{
+"spec": "rctrl + joy0.b24",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 163,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "joy",
+"vk": 0,
+"index": 0,
+"ident": "",
+"button": 24
+}
+],
+"labels": [
+"rctrl",
+"joy0.b24"
+]
+},
+{
+"spec": "joy0.b1",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 0,
+"ident": "",
+"button": 1
+}
+],
+"labels": [
+"joy0.b1"
+]
+},
+{
+"spec": "joy0.b0",
+"ok": false,
+"error": "button 0 out of range 1-32 in 'joy0.b0'"
+},
+{
+"spec": "joy0.b33",
+"ok": false,
+"error": "button 33 out of range 1-32 in 'joy0.b33'"
+},
+{
+"spec": "joy0.b007",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 0,
+"ident": "",
+"button": 7
+}
+],
+"labels": [
+"joy0.b7"
+]
+},
+{
+"spec": "joy12.b32",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 12,
+"ident": "",
+"button": 32
+}
+],
+"labels": [
+"joy12.b32"
+]
+},
+{
+"spec": "joy00012.b3",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 12,
+"ident": "",
+"button": 3
+}
+],
+"labels": [
+"joy12.b3"
+]
+},
+{
+"spec": "joyx.b1",
+"ok": false,
+"error": "expected joy<number> in 'joyx.b1'"
+},
+{
+"spec": "joy.b1",
+"ok": false,
+"error": "expected joy<number> in 'joy.b1'"
+},
+{
+"spec": "joy0.c1",
+"ok": false,
+"error": "expected .b<number> in 'joy0.c1'"
+},
+{
+"spec": "joy0.b",
+"ok": false,
+"error": "expected .b<number> in 'joy0.b'"
+},
+{
+"spec": "joy0.b1x",
+"ok": false,
+"error": "expected .b<number> in 'joy0.b1x'"
+},
+{
+"spec": "joy0.b1.2",
+"ok": false,
+"error": "expected .b<number> in 'joy0.b1.2'"
+},
+{
+"spec": "vid231d:0126.b7",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid231d:0126",
+"button": 7
+}
+],
+"labels": [
+"vid231d:0126.b7"
+]
+},
+{
+"spec": "VID231D:0126.B7",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid231d:0126",
+"button": 7
+}
+],
+"labels": [
+"vid231d:0126.b7"
+]
+},
+{
+"spec": "vid231d0126.b7",
+"ok": false,
+"error": "expected vidXXXX:YYYY in 'vid231d0126.b7'"
+},
+{
+"spec": "vid231:0126.b7",
+"ok": false,
+"error": "expected vidXXXX:YYYY in 'vid231:0126.b7'"
+},
+{
+"spec": "vid231g:0126.b1",
+"ok": false,
+"error": "vid/pid must be hex in 'vid231g:0126.b1'"
+},
+{
+"spec": "vid0x12:4567.b1",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid0x12:4567",
+"button": 1
+}
+],
+"labels": [
+"vid0x12:4567.b1"
+]
+},
+{
+"spec": "vid-fff:0126.b1",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid-fff:0126",
+"button": 1
+}
+],
+"labels": [
+"vid-fff:0126.b1"
+]
+},
+{
+"spec": "vid1_23:4567.b1",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid1_23:4567",
+"button": 1
+}
+],
+"labels": [
+"vid1_23:4567.b1"
+]
+},
+{
+"spec": "vid__12:4567.b1",
+"ok": false,
+"error": "vid/pid must be hex in 'vid__12:4567.b1'"
+},
+{
+"spec": "vid12_3:4567.b1",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid12_3:4567",
+"button": 1
+}
+],
+"labels": [
+"vid12_3:4567.b1"
+]
+},
+{
+"spec": "a++b",
+"ok": false,
+"error": "empty part in 'a++b'"
+},
+{
+"spec": "+a",
+"ok": false,
+"error": "empty part in '+a'"
+},
+{
+"spec": "a+",
+"ok": false,
+"error": "empty part in 'a+'"
+},
+{
+"spec": "numpad3",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 99,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"numpad3"
+]
+},
+{
+"spec": "NUMPAD10",
+"ok": false,
+"error": "unknown key 'NUMPAD10'"
+},
+{
+"spec": "space+tab",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 32,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 9,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"space",
+"tab"
+]
+},
+{
+"spec": "ctrl+shift+alt+delete",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 17,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 16,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 18,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 46,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"ctrl",
+"shift",
+"alt",
+"delete"
+]
+},
+{
+"spec": "unknown",
+"ok": false,
+"error": "unknown key 'unknown'"
+},
+{
+"spec": "joy0.b1+vid231d:0126.b2+rshift",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 0,
+"ident": "",
+"button": 1
+},
+{
+"kind": "joy",
+"vk": 0,
+"index": null,
+"ident": "vid231d:0126",
+"button": 2
+},
+{
+"kind": "key",
+"vk": 161,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"joy0.b1",
+"vid231d:0126.b2",
+"rshift"
+]
+},
+{
+"spec": "it's",
+"ok": false,
+"error": "unknown key \"it's\""
+},
+{
+"spec": "a+'q",
+"ok": false,
+"error": "unknown key \"'q\""
+},
+{
+"spec": "say\"hi",
+"ok": false,
+"error": "unknown key 'say\"hi'"
+},
+{
+"spec": "joy0",
+"ok": false,
+"error": "unknown key 'joy0'"
+},
+{
+"spec": "vid231d:0126",
+"ok": false,
+"error": "unknown key 'vid231d:0126'"
+},
+{
+"spec": "joy0.b99999999999999999999",
+"ok": false,
+"error": "button 99999999999999999999 out of range 1-32 in 'joy0.b99999999999999999999'"
+},
+{
+"spec": "grave+backslash",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 192,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 220,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"grave",
+"backslash"
+]
+},
+{
+"spec": "pause",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 19,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"pause"
+]
+},
+{
+"spec": "lalt+ralt",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 164,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 165,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"lalt",
+"ralt"
+]
+},
+{
+"spec": "0",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 48,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"0"
+]
+},
+{
+"spec": "9+z",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 57,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 90,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"9",
+"z"
+]
+},
+{
+"spec": "Numpad0+numlock",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 96,
+"index": null,
+"ident": "",
+"button": 0
+},
+{
+"kind": "key",
+"vk": 144,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"numpad0",
+"numlock"
+]
+},
+{
+"spec": "joy3.b32+joy3.b31",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 3,
+"ident": "",
+"button": 32
+},
+{
+"kind": "joy",
+"vk": 0,
+"index": 3,
+"ident": "",
+"button": 31
+}
+],
+"labels": [
+"joy3.b32",
+"joy3.b31"
+]
+},
+{
+"spec": " f1 ",
+"ok": true,
+"tokens": [
+{
+"kind": "key",
+"vk": 112,
+"index": null,
+"ident": "",
+"button": 0
+}
+],
+"labels": [
+"f1"
+]
+},
+{
+"spec": "joy1.B5",
+"ok": true,
+"tokens": [
+{
+"kind": "joy",
+"vk": 0,
+"index": 1,
+"ident": "",
+"button": 5
+}
+],
+"labels": [
+"joy1.b5"
+]
+}
+]

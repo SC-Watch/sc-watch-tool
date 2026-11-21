@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture done**; keys, audio, store, RSI client and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture and keys done**; audio, store, RSI client and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -83,6 +83,16 @@ frame of a new duplication is a blank float surface whatever was asked for -
 the Python passes it over only by luck of its start-up check; here it is
 skipped after every (re)open. The replay source for saved frames lives here
 too. Linux capture is phase 4.
+
+**`scw-input`** is the bindings - keys, joystick buttons and combinations
+(`rctrl+joy0.b24`, `vid231d:0126.b7`) - and when they fire: once, on the
+change into all held. The parser gives inputs.parse()'s tokens, labels and
+error messages for all 58 specs it is checked on (CI); the press logic runs
+against any `InputState`, so it is tested with a fake one. On Windows the
+state is read as the Python reads it - GetAsyncKeyState and joyGetPosEx,
+nothing hooked, nothing swallowed - and its device list on this PC is
+identical to `python inputs.py --list`, every field of four sticks. Linux
+(evdev) is phase 4.
 
 ## The replay tool
 
@@ -165,6 +175,7 @@ The port is when the app gets cleaned up, in this order:
 crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (iris);
                      name classifier and burst vote (names); frames to contacts (pipeline)
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
+crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 

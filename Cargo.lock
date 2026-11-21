@@ -123,6 +123,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "scw-input"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "windows",
+]
+
+[[package]]
 name = "scw-replay"
 version = "0.1.0"
 dependencies = [
