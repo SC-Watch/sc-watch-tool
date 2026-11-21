@@ -1,0 +1,33 @@
+# The Rust port: format, lint and test on Windows and Linux, on every push to
+# the rust-port branch. Tests that need the real frame corpus skip themselves
+# here - those frames name real players and never leave the developer's PC
+# (PORT.md). Everything a runner can check without them, it checks.
+name: rust
+
+on:
+  push:
+    branches: [rust-port]
+  pull_request:
+    branches: [rust-port]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Toolchain
+        run: rustup update stable && rustup default stable && rustup component add rustfmt clippy
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Lint
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --workspace

@@ -1,0 +1,27 @@
+# sc-watch in Rust - the port, on the rust-port branch. See PORT.md.
+#
+# Library crates with no user interface (like SC All-In-One's sc-core), so the
+# standalone tool and SC All-In-One can both build on them. The Python program
+# beside this file is the reference the port is checked against, byte for
+# byte, until it is replaced.
+
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/SC-Watch/sc-watch-tool"
+publish = false
+
+[profile.release]
+strip = true
+lto = "thin"
+
+# The image functions are checked byte for byte against OpenCV; tests run them
+# on real frames, which is slow without optimisation.
+[profile.test]
+opt-level = 2
