@@ -1,0 +1,17 @@
+[package]
+name = "scw-watch"
+description = "The sc-watch watcher - watch.py: trigger, burst, announce, settle, look up"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+regex = "1"
+scw-input = { path = "../scw-input" }
+scw-store = { path = "../scw-store" }
+scw-vision = { path = "../scw-vision" }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }

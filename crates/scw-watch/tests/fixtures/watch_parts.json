@@ -1,0 +1,882 @@
+{
+"home": "C:\\Users\\Exmpl Person",
+"user": "exmplperson",
+"at": "2026-09-21T14:03:07.123456",
+"tracker": [
+{
+"points": [
+[
+100,
+100
+]
+],
+"now": 0.0,
+"new": 1,
+"tracks": [
+[
+100,
+100,
+0.0
+]
+]
+},
+{
+"points": [
+[
+110,
+105
+]
+],
+"now": 1.0,
+"new": 0,
+"tracks": [
+[
+110,
+105,
+1.0
+]
+]
+},
+{
+"points": [
+[
+400,
+100
+],
+[
+110,
+105
+]
+],
+"now": 2.0,
+"new": 1,
+"tracks": [
+[
+110,
+105,
+2.0
+],
+[
+400,
+100,
+2.0
+]
+]
+},
+{
+"points": [
+[
+100,
+100
+],
+[
+279,
+100
+],
+[
+281,
+100
+]
+],
+"now": 3.0,
+"new": 0,
+"tracks": [
+[
+100,
+100,
+3.0
+],
+[
+281,
+100,
+3.0
+]
+]
+},
+{
+"points": [],
+"now": 10.0,
+"new": 0,
+"tracks": [
+[
+100,
+100,
+3.0
+],
+[
+281,
+100,
+3.0
+]
+]
+},
+{
+"points": [
+[
+400,
+100
+]
+],
+"now": 22.9,
+"new": 0,
+"tracks": [
+[
+100,
+100,
+3.0
+],
+[
+400,
+100,
+22.9
+]
+]
+},
+{
+"points": [
+[
+400,
+100
+]
+],
+"now": 23.0,
+"new": 0,
+"tracks": [
+[
+400,
+100,
+23.0
+]
+]
+},
+{
+"points": [
+[
+100.5,
+100.5
+]
+],
+"now": 24.0,
+"new": 1,
+"tracks": [
+[
+400,
+100,
+23.0
+],
+[
+100.5,
+100.5,
+24.0
+]
+]
+},
+{
+"points": [
+[
+0,
+0
+],
+[
+0,
+0
+]
+],
+"now": 50.0,
+"new": 1,
+"tracks": [
+[
+0,
+0,
+50.0
+]
+]
+},
+{
+"points": [
+[
+500,
+500
+]
+],
+"now": 80.0,
+"new": 1,
+"tracks": [
+[
+500,
+500,
+80.0
+]
+]
+},
+{
+"points": [
+[
+680,
+500
+]
+],
+"now": 81.0,
+"new": 1,
+"tracks": [
+[
+500,
+500,
+80.0
+],
+[
+680,
+500,
+81.0
+]
+]
+},
+{
+"points": [
+[
+590,
+500
+]
+],
+"now": 82.0,
+"new": 0,
+"tracks": [
+[
+590,
+500,
+82.0
+],
+[
+680,
+500,
+81.0
+]
+]
+}
+],
+"announcer": [
+{
+"name": "EXMPLHORNE",
+"ok": true,
+"was": null,
+"counts": {
+"EXMPLHORNE": 1
+},
+"known": [
+"EXMPLHORNE"
+]
+},
+{
+"name": "EXMPLHORNET65",
+"ok": true,
+"was": "EXMPLHORNE",
+"counts": {
+"EXMPLHORNET65": 2
+},
+"known": [
+"EXMPLHORNET65"
+]
+},
+{
+"name": "EXMPLHORNE",
+"ok": false,
+"was": null,
+"counts": {
+"EXMPLHORNET65": 3
+},
+"known": [
+"EXMPLHORNET65"
+]
+},
+{
+"name": "EXMPLH0RNET65",
+"ok": false,
+"was": null,
+"counts": {
+"EXMPLHORNET65": 4
+},
+"known": [
+"EXMPLHORNET65"
+]
+},
+{
+"name": "EXMPLSLIVER",
+"ok": true,
+"was": null,
+"counts": {
+"EXMPLHORNET65": 4,
+"EXMPLSLIVER": 1
+},
+"known": [
+"EXMPLHORNET65",
+"EXMPLSLIVER"
+]
+},
+{
+"name": "EXMPL5LIVER",
+"ok": false,
+"was": null,
+"counts": {
+"EXMPLHORNET65": 4,
+"EXMPLSLIVER": 2
+},
+"known": [
+"EXMPLHORNET65",
+"EXMPLSLIVER"
+]
+},
+{
+"name": "EXMPLHORNET65X",
+"ok": true,
+"was": "EXMPLHORNET65",
+"counts": {
+"EXMPLSLIVER": 2,
+"EXMPLHORNET65X": 5
+},
+"known": [
+"EXMPLSLIVER",
+"EXMPLHORNET65X"
+]
+},
+{
+"name": "OTHERNAME",
+"ok": true,
+"was": null,
+"counts": {
+"EXMPLSLIVER": 2,
+"EXMPLHORNET65X": 5,
+"OTHERNAME": 1
+},
+"known": [
+"EXMPLSLIVER",
+"EXMPLHORNET65X",
+"OTHERNAME"
+]
+},
+{
+"name": "OTHERNAM",
+"ok": false,
+"was": null,
+"counts": {
+"EXMPLSLIVER": 2,
+"EXMPLHORNET65X": 5,
+"OTHERNAME": 2
+},
+"known": [
+"EXMPLSLIVER",
+"EXMPLHORNET65X",
+"OTHERNAME"
+]
+},
+{
+"name": "EXMPLSLIVERZZ",
+"ok": true,
+"was": "EXMPLSLIVER",
+"counts": {
+"EXMPLHORNET65X": 5,
+"OTHERNAME": 2,
+"EXMPLSLIVERZZ": 3
+},
+"known": [
+"EXMPLHORNET65X",
+"OTHERNAME",
+"EXMPLSLIVERZZ"
+]
+},
+{
+"name": "AB",
+"ok": true,
+"was": null,
+"counts": {
+"EXMPLHORNET65X": 5,
+"OTHERNAME": 2,
+"EXMPLSLIVERZZ": 3,
+"AB": 1
+},
+"known": [
+"EXMPLHORNET65X",
+"OTHERNAME",
+"EXMPLSLIVERZZ",
+"AB"
+]
+}
+],
+"bindings": [
+{
+"specs": [
+"0",
+"9",
+"off",
+"off"
+],
+"key_mode": true,
+"labels": {
+"full": "0",
+"focus": "9"
+},
+"waiting": "full:0 focus:9"
+},
+{
+"specs": [
+"0",
+"off",
+"off",
+"off"
+],
+"key_mode": true,
+"labels": {
+"full": "0"
+},
+"waiting": "full:0"
+},
+{
+"specs": [
+"rctrl+joy0.b24",
+"rctrl+joy0.b25",
+"rctrl+joy0.b26",
+"off"
+],
+"key_mode": true,
+"labels": {
+"full": "rctrl + joy0.b24",
+"focus": "rctrl + joy0.b25",
+"dual": "rctrl + joy0.b26"
+},
+"waiting": "rctrl+(full:joy0.b24 focus:joy0.b25 dual:joy0.b26)"
+},
+{
+"specs": [
+"lshift+rctrl+joy0.b1",
+"rctrl+lshift+joy0.b2",
+"off",
+"8"
+],
+"key_mode": true,
+"labels": {
+"full": "lshift + rctrl + joy0.b1",
+"focus": "rctrl + lshift + joy0.b2",
+"chat": "8"
+},
+"waiting": "full:lshift+rctrl+joy0.b1 focus:rctrl+lshift+joy0.b2 chat:8"
+},
+{
+"specs": [
+"off",
+"9",
+"off",
+"off"
+],
+"key_mode": true,
+"error": "--key cannot be 'off' - it is the main trigger"
+},
+{
+"specs": [
+"off",
+"9",
+"off",
+"off"
+],
+"key_mode": false,
+"labels": {
+"focus": "9"
+},
+"waiting": "focus:9"
+},
+{
+"specs": [
+"0",
+"0",
+"off",
+"off"
+],
+"key_mode": true,
+"error": "focus and full are both bound to 0; they have to differ"
+},
+{
+"specs": [
+"0",
+"nonsense+key",
+"off",
+"off"
+],
+"key_mode": true,
+"error": "--focus-key 'nonsense+key': unknown key 'nonsense'\n  keys:      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, ALT, B, BACKSLASH, BACKSPACE, C, CAPSLOCK, COMMA, ...\n  joysticks: joy0.b24, vid231d:0126.b7, rctrl+joy0.b24\n  run `python inputs.py --listen` to find yours"
+},
+{
+"specs": [
+"f9",
+"rctrl+f9",
+"f9+rctrl",
+"off"
+],
+"key_mode": true,
+"error": "dual and focus are both bound to f9 + rctrl; they have to differ"
+},
+{
+"specs": [
+"tab",
+"joy1.b3",
+"vid231d:0126.b7",
+"f10"
+],
+"key_mode": true,
+"labels": {
+"full": "tab",
+"focus": "joy1.b3",
+"dual": "vid231d:0126.b7",
+"chat": "f10"
+},
+"waiting": "full:tab focus:joy1.b3 dual:vid231d:0126.b7 chat:f10"
+},
+{
+"specs": [
+"",
+"",
+"",
+""
+],
+"key_mode": false,
+"labels": {},
+"waiting": "nothing"
+},
+{
+"specs": [
+"rctrl+lshift+joy0.b1",
+"rctrl+lshift+joy0.b2",
+"off",
+"off"
+],
+"key_mode": true,
+"labels": {
+"full": "rctrl + lshift + joy0.b1",
+"focus": "rctrl + lshift + joy0.b2"
+},
+"waiting": "lshift+rctrl+(full:joy0.b1 focus:joy0.b2)"
+}
+],
+"key_names": [
+"0",
+"1",
+"2",
+"3",
+"4",
+"5",
+"6",
+"7",
+"8",
+"9",
+"A",
+"ALT",
+"B",
+"BACKSLASH",
+"BACKSPACE",
+"C",
+"CAPSLOCK",
+"COMMA"
+],
+"regions": [
+{
+"spec": "auto",
+"ok": null
+},
+{
+"spec": "",
+"ok": null
+},
+{
+"spec": "  AUTO ",
+"ok": null
+},
+{
+"spec": "0.15,0.30,0.35,0.45",
+"ok": [
+0.15,
+0.3,
+0.35,
+0.45
+]
+},
+{
+"spec": "0,0,1,1",
+"ok": [
+0.0,
+0.0,
+1.0,
+1.0
+]
+},
+{
+"spec": "0.1,0.2,0.3",
+"error": "--chat-region '0.1,0.2,0.3' should be 'auto' or four fractions between 0 and 1, like 0.15,0.30,0.35,0.45"
+},
+{
+"spec": "0.1,0.2,0.3,1.5",
+"error": "--chat-region '0.1,0.2,0.3,1.5' should be 'auto' or four fractions between 0 and 1, like 0.15,0.30,0.35,0.45"
+},
+{
+"spec": "a,b,c,d",
+"error": "--chat-region 'a,b,c,d' should be 'auto' or four fractions between 0 and 1, like 0.15,0.30,0.35,0.45"
+},
+{
+"spec": " 0.1, 0.2 ,0.3,0.4",
+"ok": [
+0.1,
+0.2,
+0.3,
+0.4
+]
+},
+{
+"spec": "1e-1,0,0,0",
+"ok": [
+0.1,
+0.0,
+0.0,
+0.0
+]
+},
+{
+"spec": "0.1,,0.2,0.3",
+"error": "--chat-region '0.1,,0.2,0.3' should be 'auto' or four fractions between 0 and 1, like 0.15,0.30,0.35,0.45"
+}
+],
+"sizes": [
+{
+"spec": "auto",
+"ok": [
+null,
+null
+]
+},
+{
+"spec": "",
+"ok": [
+null,
+null
+]
+},
+{
+"spec": "AUTO",
+"ok": [
+null,
+null
+]
+},
+{
+"spec": "1200x600",
+"ok": [
+1200,
+600
+]
+},
+{
+"spec": "1200X600",
+"ok": [
+1200,
+600
+]
+},
+{
+"spec": " 800 x 400 ",
+"ok": [
+800,
+400
+]
+},
+{
+"spec": "800x",
+"error": "--focus-size '800x' should be 'auto' or look like 1200x600"
+},
+{
+"spec": "x",
+"error": "--focus-size 'x' should be 'auto' or look like 1200x600"
+},
+{
+"spec": "8x8x8",
+"error": "--focus-size '8x8x8' should be 'auto' or look like 1200x600"
+},
+{
+"spec": "-5x10",
+"ok": [
+-5,
+10
+]
+},
+{
+"spec": "1.5x2",
+"error": "--focus-size '1.5x2' should be 'auto' or look like 1200x600"
+},
+{
+"spec": "big",
+"error": "--focus-size 'big' should be 'auto' or look like 1200x600"
+}
+],
+"rows": [
+[
+"EXMPLONE",
+1.25,
+3,
+3
+],
+[
+"EXMPLTWO",
+12.35,
+1,
+3
+],
+[
+"EXMPL,COMMA",
+0.05,
+2,
+3
+],
+[
+"EXMPL\"Q",
+100.0,
+2,
+2
+],
+[
+"EXMPLSIX",
+2.675,
+2,
+6
+]
+],
+"sightings": "timestamp,name,range_km,votes,total,confidence\r\n2026-09-21T14:03:07,EXMPLONE,1.2,3,3,1.00\r\n2026-09-21T14:03:07,EXMPLTWO,12.3,1,3,0.33\r\n2026-09-21T14:03:07,\"EXMPL,COMMA\",0.1,2,3,0.67\r\n2026-09-21T14:03:07,\"EXMPL\"\"Q\",100.0,2,2,1.00\r\n2026-09-21T14:03:07,EXMPLSIX,2.7,2,6,0.33\r\n2026-09-21T14:03:07,EXMPLAGAIN,3.0,1,1,1.00\r\n",
+"events": [
+[
+"read",
+{
+"file": "",
+"idx": 0,
+"mode": "full",
+"named": 2,
+"unreadable": 0,
+"discarded": null,
+"got": [
+[
+"EXMPLONE",
+1.25
+],
+[
+"EXMPLTWO",
+null
+]
+]
+}
+],
+[
+"burst",
+{
+"label": "reading",
+"mode": "full",
+"frames": 3,
+"per_frame": [
+2,
+1,
+2
+],
+"result": [
+[
+"EXMPLONE",
+3,
+3,
+1.25
+]
+]
+}
+],
+[
+"audit",
+{
+"handle": "EXMPLONE",
+"reason": "weak_read",
+"votes": 1,
+"total": 3,
+"seen": 0
+}
+],
+[
+"note",
+{
+"text": "saved to C:\\Users\\Exmpl Person\\data and C:/Users/Exmpl Person/x"
+}
+],
+[
+"rsi_failed",
+{
+"handle": "EXMPLTWO",
+"why": "api_key=abc123 refused, token: xyz",
+"attempt": 1,
+"retry": true
+}
+],
+[
+"chat",
+{
+"handles": [],
+"region": "auto",
+"place": "both",
+"ignored": true
+}
+],
+[
+"discards",
+{
+"discarded": {
+"world_label": 2,
+"serial": 1
+},
+"pi": 3.141592653589793,
+"big": 10000000000000000000,
+"neg": -0.0,
+"uni": "café ✓"
+}
+],
+[
+"user",
+{
+"who": "ExmplPerson said hi",
+"path": "D:/Users/Other/exmplperson.txt"
+}
+],
+[
+"start",
+{}
+]
+],
+"log": [
+"14:03:07.123 read             file=\"\" idx=0 mode=\"full\" named=2 unreadable=0 discarded=null got=[[\"EXMPLONE\", 1.25], [\"EXMPLTWO\", null]]",
+"14:03:07.123 burst            label=\"reading\" mode=\"full\" frames=3 per_frame=[2, 1, 2] result=[[\"EXMPLONE\", 3, 3, 1.25]]",
+"14:03:07.123 audit            handle=\"EXMPLONE\" reason=\"weak_read\" votes=1 total=3 seen=0",
+"14:03:07.123 note             text=\"saved to C:\\\\Users\\\\Exmpl Person\\\\data and ~/x\"",
+"14:03:07.123 rsi_failed       handle=\"EXMPLTWO\" why=\"api_key=<redacted> refused, token=<redacted> attempt=1 retry=true",
+"14:03:07.123 chat             handles=[] region=\"auto\" place=\"both\" ignored=true",
+"14:03:07.123 discards         discarded={\"world_label\": 2, \"serial\": 1} pi=3.141592653589793 big=10000000000000000000 neg=-0.0 uni=\"caf\\u00e9 \\u2713\"",
+"14:03:07.123 user             who=\"<user> said hi\" path=\"D:/Users/Other/<user>.txt\"",
+"14:03:07.123 start",
+"14:03:07.123 note             text=\"a plain note\"",
+"14:03:07.123 error            where=\"burst\" type=\"ValueError\" detail=\"bad frame xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"",
+"",
+"-- session summary",
+"   audit                    1",
+"   burst                    1",
+"   chat                     1",
+"   discards                 1",
+"   error                    1",
+"   note                     2",
+"   read                     1",
+"   rsi_failed               1",
+"   start                    1",
+"   user                     1",
+"   minutes                  1.5",
+"   frames                   10",
+"   triggers                 2",
+"   announced                3",
+"   audio_last_error         -",
+"   audio_available          {'tones': True, 'speech': False}",
+"   contacts                 {'EXMPLONE': 2, 'EXMPLTWO': 1}"
+],
+"log_name": "session_20260921_140307.log"
+}

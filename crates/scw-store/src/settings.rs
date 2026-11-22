@@ -17,7 +17,7 @@ use std::sync::OnceLock;
 use serde::Deserialize;
 use serde_json::{Map, Value, json};
 
-use crate::json::{Expect, py_str, py_strip, read, truthy, update};
+use crate::json::{Expect, py_float_text, py_str, py_strip, read, truthy, update};
 
 const SCHEMA_JSON: &str = include_str!("settings_schema.json");
 
@@ -93,23 +93,6 @@ pub fn defaults() -> Map<String, Value> {
         .iter()
         .map(|f| (f.key.clone(), f.default.clone()))
         .collect()
-}
-
-/// Python's `float(text)`: surrounding whitespace, a sign, digits with
-/// single underscores between them, a point, an exponent, inf and nan.
-fn py_float_text(s: &str) -> Option<f64> {
-    let t = py_strip(s);
-    let b = t.as_bytes();
-    for (i, c) in b.iter().enumerate() {
-        if *c == b'_'
-            && !(i > 0
-                && b[i - 1].is_ascii_digit()
-                && b.get(i + 1).is_some_and(|n| n.is_ascii_digit()))
-        {
-            return None;
-        }
-    }
-    t.replace('_', "").parse().ok()
 }
 
 impl Field {

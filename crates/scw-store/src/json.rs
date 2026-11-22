@@ -710,6 +710,34 @@ pub fn py_strip(s: &str) -> &str {
     s.trim_matches(py_isspace)
 }
 
+/// Digits may hold single underscores between them, as Python allows.
+fn underscores_ok(b: &[u8]) -> bool {
+    b.iter().enumerate().all(|(i, c)| {
+        *c != b'_'
+            || (i > 0 && b[i - 1].is_ascii_digit() && b.get(i + 1).is_some_and(u8::is_ascii_digit))
+    })
+}
+
+/// Python's `float(text)`: surrounding whitespace, a sign, digits with
+/// single underscores between them, a point, an exponent, inf and nan.
+pub fn py_float_text(s: &str) -> Option<f64> {
+    let t = py_strip(s);
+    if !underscores_ok(t.as_bytes()) {
+        return None;
+    }
+    t.replace('_', "").parse().ok()
+}
+
+/// Python's `int(text)`: surrounding whitespace, a sign, decimal digits with
+/// single underscores between them.
+pub fn py_int_text(s: &str) -> Option<i64> {
+    let t = py_strip(s);
+    if !underscores_ok(t.as_bytes()) {
+        return None;
+    }
+    t.replace('_', "").parse().ok()
+}
+
 /// Python's truthiness.
 pub fn truthy(v: Option<&Value>) -> bool {
     match v {

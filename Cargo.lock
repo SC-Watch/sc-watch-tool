@@ -626,6 +626,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "scw-watch"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "regex",
+ "scw-input",
+ "scw-store",
+ "scw-vision",
+ "serde_json",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.229"
 source = "registry+https://github.com/rust-lang/crates.io-index"
