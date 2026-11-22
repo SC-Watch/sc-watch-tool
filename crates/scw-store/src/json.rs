@@ -320,8 +320,8 @@ fn py_string(s: &str, out: &mut String) {
     out.push('"');
 }
 
-fn dump(v: &Value, level: usize, out: &mut String) -> Result<(), String> {
-    let pad = |n: usize| "  ".repeat(n);
+fn dump(v: &Value, level: usize, indent: usize, out: &mut String) -> Result<(), String> {
+    let pad = |n: usize| " ".repeat(n * indent);
     match v {
         Value::Null => out.push_str("null"),
         Value::Bool(b) => out.push_str(if *b { "true" } else { "false" }),
@@ -341,7 +341,7 @@ fn dump(v: &Value, level: usize, out: &mut String) -> Result<(), String> {
             for (i, item) in a.iter().enumerate() {
                 out.push_str(if i == 0 { "\n" } else { ",\n" });
                 out.push_str(&pad(level + 1));
-                dump(item, level + 1, out)?;
+                dump(item, level + 1, indent, out)?;
             }
             out.push('\n');
             out.push_str(&pad(level));
@@ -355,7 +355,7 @@ fn dump(v: &Value, level: usize, out: &mut String) -> Result<(), String> {
                 out.push_str(&pad(level + 1));
                 py_string(k, out);
                 out.push_str(": ");
-                dump(item, level + 1, out)?;
+                dump(item, level + 1, indent, out)?;
             }
             out.push('\n');
             out.push_str(&pad(level));
@@ -365,10 +365,17 @@ fn dump(v: &Value, level: usize, out: &mut String) -> Result<(), String> {
     Ok(())
 }
 
+/// Python's `json.dumps(v, indent=n, allow_nan=False)`, byte for byte.
+pub fn dumps_indent(v: &Value, indent: usize) -> Result<String, String> {
+    let mut out = String::new();
+    dump(v, 0, indent, &mut out)?;
+    Ok(out)
+}
+
 /// Python's `json.dumps(v, indent=2, allow_nan=False)`, byte for byte.
 pub fn dumps(v: &Value) -> Result<String, String> {
     let mut out = String::new();
-    dump(v, 0, &mut out)?;
+    dump(v, 0, 2, &mut out)?;
     Ok(out)
 }
 
@@ -600,9 +607,71 @@ pub fn py_str(v: &Value) -> String {
         Value::String(s) => s.clone(),
         Value::Number(n) if n.is_f64() => py_float(n.as_f64().unwrap()).unwrap_or_default(),
         Value::Number(n) => n.to_string(),
-        // Python would print its repr; a list or object here is nonsense.
-        other => other.to_string(),
+        // str() of a list or a dict is its repr.
+        other => py_repr(other),
     }
+}
+
+/// Python's `repr(value)` for what JSON can hold.
+pub fn py_repr(v: &Value) -> String {
+    match v {
+        Value::String(s) => py_repr_str(s),
+        Value::Array(a) => format!("[{}]", a.iter().map(py_repr).collect::<Vec<_>>().join(", ")),
+        Value::Object(m) => format!(
+            "{{{}}}",
+            m.iter()
+                .map(|(k, x)| format!("{}: {}", py_repr_str(k), py_repr(x)))
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
+        other => py_str(other),
+    }
+}
+
+/// Python's `str.isprintable()` for one character, for the characters a
+/// handle or a name could hold: controls, separators other than the space,
+/// and the common format and private-use characters are not.
+fn py_printable(c: char) -> bool {
+    if c == ' ' {
+        return true;
+    }
+    if c.is_control() || c.is_whitespace() {
+        return false;
+    }
+    !matches!(c as u32,
+        0xAD | 0x600..=0x605 | 0x61C | 0x6DD | 0x70F | 0x180E | 0x200B..=0x200F
+        | 0x202A..=0x202E | 0x2060..=0x2064 | 0x2066..=0x206F | 0xFEFF | 0xFFF9..=0xFFFB
+        | 0xFFFE | 0xFFFF | 0xE000..=0xF8FF | 0xF0000..=0x10FFFF)
+}
+
+/// Python's `repr(str)`: single quotes unless the text holds one and no
+/// double quote; escapes for the quote, backslash, \t \n \r and anything
+/// not printable.
+pub fn py_repr_str(s: &str) -> String {
+    let quote = if s.contains('\'') && !s.contains('"') {
+        '"'
+    } else {
+        '\''
+    };
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push(quote);
+    for c in s.chars() {
+        match c {
+            c if c == quote || c == '\\' => {
+                out.push('\\');
+                out.push(c);
+            }
+            '\t' => out.push_str("\\t"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            c if py_printable(c) => out.push(c),
+            c if (c as u32) < 0x100 => out.push_str(&format!("\\x{:02x}", c as u32)),
+            c if (c as u32) < 0x10000 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push_str(&format!("\\U{:08x}", c as u32)),
+        }
+    }
+    out.push(quote);
+    out
 }
 
 /// Python's `json.dumps(v)` with its defaults: one line, ", " and ": ",

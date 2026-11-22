@@ -15,3 +15,8 @@ serde = { version = "1", features = ["derive"] }
 rusqlite = { version = "0.43", features = ["bundled"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+zip = { version = "9.7.3", default-features = false, features = ["deflate"] }
+getrandom = "0.4.3"
+
+[dev-dependencies]
+filetime = "0.2.30"

@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, and the RSI client with its cache and HTTPS done**; sharing, housekeeping, settings and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing and housekeeping done**; settings and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -207,6 +207,39 @@ deliberate breakages are each caught. Deliberately different: find_ghosts
 words a failed lookup with `describe`, where reputation.py printed the
 Python exception.
 
+**`scw-store::share`** is share.py: exporting your own reports, the reasons
+they use, your flagged orgs and hand-added roster members to an org mate,
+and importing theirs. An import keeps who said what, a re-export replaces
+it, and one person's imports can all be removed. An export is untrusted
+input: only share.json is read, sizes are checked before anything is
+decompressed, and every field is checked before anything is written. Three
+made-up installs export, preview, import, re-export, collide on a member
+and remove a source over 59 steps. Results, rows and flags.json match after
+every step, and each side reads the other's zips. 64 crafted documents, 14
+crafted zips (encrypted, oversized, duplicated, not UTF-8, nested 5,000
+deep) and 15 base64 texts get the same answers (CI). Eleven of twelve
+deliberate breakages are caught; the twelfth removes a rule share.py
+itself makes redundant. On a copy of this PC's database, the export (8
+reports, 3 reasons, 6 orgs) and its import into an empty database are
+identical (tools/share_compare.py). Deliberately stricter than share.py:
+Python's `$` lets a value ending in a newline pass its checks (a handle, an
+install id, a reason key or a colour stored with the newline), and its bool
+passes as a version. The port refuses both, and refuses a share holding an
+infinite number.
+
+**`scw-store::housekeeping`** is housekeeping.py: retention for captured
+frames in the managed directories only, never below the newest few, and the
+audit pruning by database row. The settings come in as an argument rather
+than being read here. A made-up data folder, rebuilt in the test with the
+same names, sizes and times, swept under nine policies, dry and for real,
+deletes the same frames and prints the same lines. Policy loading reads 13
+legacy-file and settings cases the same way. The audit pruning leaves the
+same rows and images (CI). On Windows, frames of equal age and the
+case-blind `*.png` match too. Twelve deliberate breakages are each caught.
+A dry run over this PC's real data folder is identical: 307 frames due in
+debug_bursts, 26 audits and 2 orphan images, nothing deleted
+(tools/housekeeping_compare.py).
+
 ## The replay tool
 
 ```
@@ -289,7 +322,8 @@ crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (
                      name classifier and burst vote (names); frames to contacts (pipeline)
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-input     key and joystick bindings, and the Windows state readers
-crates/scw-store     the JSON config files, report flags, sc-watch.db and watchlist.db
+crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
+                     sharing with org mates, frame and audit housekeeping
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON

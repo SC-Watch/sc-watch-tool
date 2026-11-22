@@ -1,0 +1,1207 @@
+{
+"now": 1790000000.0,
+"tree": [
+[
+"live_frames/f00.png",
+1000,
+1.0
+],
+[
+"live_frames/f01.png",
+1001,
+4.1
+],
+[
+"live_frames/f02.png",
+1002,
+7.2
+],
+[
+"live_frames/f03.png",
+1003,
+10.3
+],
+[
+"live_frames/f04.png",
+1004,
+13.4
+],
+[
+"live_frames/f05.png",
+1005,
+16.5
+],
+[
+"live_frames/f06.png",
+1006,
+19.6
+],
+[
+"live_frames/f07.png",
+1007,
+22.7
+],
+[
+"live_frames/f08.png",
+1008,
+25.8
+],
+[
+"live_frames/f09.png",
+1009,
+28.900000000000002
+],
+[
+"live_frames/f10.png",
+1010,
+32.0
+],
+[
+"live_frames/f11.png",
+1011,
+35.1
+],
+[
+"live_frames/g00.jpg",
+250000,
+2.0
+],
+[
+"live_frames/g01.jpg",
+500000,
+9.3
+],
+[
+"live_frames/g02.jpg",
+750000,
+16.6
+],
+[
+"live_frames/g03.jpg",
+1000000,
+23.9
+],
+[
+"live_frames/g04.jpg",
+1250000,
+31.2
+],
+[
+"live_frames/notes.txt",
+10,
+500.0
+],
+[
+"live_frames/.png",
+7,
+400.0
+],
+[
+"debug_bursts/b1.png",
+1500000,
+30.0
+],
+[
+"debug_bursts/b2.png",
+1000000,
+50.5
+],
+[
+"debug_bursts/sentry_requests.log",
+99,
+900.0
+],
+[
+"detections/keep.json",
+5,
+900.0
+],
+[
+"frames/reference.png",
+11000000,
+2000.0
+],
+[
+"mine/old.jpg",
+42,
+100.0
+],
+[
+"mine/new.jpg",
+43,
+0.5
+]
+],
+"dirs": [
+"live_frames/dir.png"
+],
+"managed": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"sweeps": [
+{
+"label": "defaults",
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 19
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/19 (0 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "keep two",
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 2,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 7,
+"bytes_freed": 1254045,
+"kept": 12
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping would free 1 MB across 7 file(s) | live_frames: 7/19 (1 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "cap three",
+"policy": {
+"enabled": true,
+"max_age_hours": 1000.0,
+"max_files_per_dir": 3,
+"keep_newest": 1,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 16,
+"bytes_freed": 3510072,
+"kept": 3
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping would free 4 MB across 16 file(s) | live_frames: 16/19 (4 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "disabled",
+"policy": {
+"enabled": false,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 0,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [],
+"summary": "housekeeping: nothing to do",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "keep all",
+"policy": {
+"enabled": true,
+"max_age_hours": 0.0,
+"max_files_per_dir": 0,
+"keep_newest": 99,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 19
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/19 (0 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "negative keep",
+"policy": {
+"enabled": true,
+"max_age_hours": 0.0,
+"max_files_per_dir": 0,
+"keep_newest": -3,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 3,
+"bytes_freed": 1018,
+"kept": 16
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 2,
+"bytes_freed": 2500000,
+"kept": 0
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping would free 3 MB across 5 file(s) | live_frames: 3/19 (0 MB) | debug_bursts: 2/2 (2 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "custom dir",
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 0,
+"directories": [
+"mine",
+"nowhere",
+"live_frames"
+],
+"audit_max_age_days": 7.0
+},
+"apply": false,
+"result": [
+{
+"directory": "mine",
+"examined": 2,
+"deleted": 1,
+"bytes_freed": 42,
+"kept": 1
+},
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 7,
+"bytes_freed": 1254045,
+"kept": 12
+}
+],
+"summary": "housekeeping would free 1 MB across 8 file(s) | mine: 1/2 (0 MB) | live_frames: 7/19 (1 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/f08.png",
+"live_frames/f09.png",
+"live_frames/f10.png",
+"live_frames/f11.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/g04.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "keep two, applied",
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 2,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": true,
+"result": [
+{
+"directory": "live_frames",
+"examined": 19,
+"deleted": 6,
+"bytes_freed": 1254045,
+"kept": 13
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping freed 1 MB across 6 file(s) | live_frames: 6/19 (1 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/f02.png",
+"live_frames/f03.png",
+"live_frames/f04.png",
+"live_frames/f05.png",
+"live_frames/f06.png",
+"live_frames/f07.png",
+"live_frames/g00.jpg",
+"live_frames/g01.jpg",
+"live_frames/g02.jpg",
+"live_frames/g03.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+},
+{
+"label": "cap three, applied",
+"policy": {
+"enabled": true,
+"max_age_hours": 1000.0,
+"max_files_per_dir": 3,
+"keep_newest": 1,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+},
+"apply": true,
+"result": [
+{
+"directory": "live_frames",
+"examined": 13,
+"deleted": 9,
+"bytes_freed": 2256027,
+"kept": 4
+},
+{
+"directory": "debug_bursts",
+"examined": 2,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 2
+},
+{
+"directory": "detections",
+"examined": 0,
+"deleted": 0,
+"bytes_freed": 0,
+"kept": 0
+}
+],
+"summary": "housekeeping freed 2 MB across 9 file(s) | live_frames: 9/13 (2 MB) | debug_bursts: 0/2 (0 MB)",
+"files": [
+"debug_bursts/b1.png",
+"debug_bursts/b2.png",
+"debug_bursts/sentry_requests.log",
+"detections/keep.json",
+"frames/reference.png",
+"live_frames/f00.png",
+"live_frames/f01.png",
+"live_frames/g00.jpg",
+"live_frames/notes.txt",
+"mine/new.jpg",
+"mine/old.jpg"
+]
+}
+],
+"case": {
+"tree": [
+[
+"live_frames/a.png",
+1,
+30.0
+],
+[
+"live_frames/b.jpg",
+2,
+30.0
+],
+[
+"live_frames/C.PNG",
+3,
+30.0
+],
+[
+"live_frames/d.Jpg",
+4,
+30.0
+],
+[
+"live_frames/e.png",
+5,
+40.0
+]
+],
+"result": [
+{
+"directory": "live_frames",
+"examined": 5,
+"deleted": 3,
+"bytes_freed": 11,
+"kept": 2
+}
+],
+"files": [
+"live_frames/a.png",
+"live_frames/C.PNG"
+]
+},
+"loads": [
+{
+"label": "nothing",
+"legacy": null,
+"settings": null,
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "settings only",
+"legacy": null,
+"settings": {
+"housekeeping_enabled": true,
+"max_age_hours": 48.0,
+"keep_newest": 5,
+"max_files_per_dir": 100,
+"audit_max_age_days": 3.0
+},
+"policy": {
+"enabled": true,
+"max_age_hours": 48.0,
+"max_files_per_dir": 100,
+"keep_newest": 5,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 3.0
+}
+},
+{
+"label": "legacy only",
+"legacy": "{\"enabled\": false, \"max_age_hours\": 12, \"keep_newest\": 7.0, \"directories\": [\"mine\", 3, null, \"live_frames\"]}",
+"settings": null,
+"policy": {
+"enabled": false,
+"max_age_hours": 12.0,
+"max_files_per_dir": 0,
+"keep_newest": 7,
+"directories": [
+"mine",
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "legacy bom",
+"legacy": "\ufeff{\"max_files_per_dir\": 9, \"unknown\": 1}",
+"settings": null,
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 9,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "legacy wrong types",
+"legacy": "{\"enabled\": 1, \"max_age_hours\": \"x\", \"keep_newest\": 2.5, \"directories\": \"mine\", \"audit_max_age_days\": true}",
+"settings": null,
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "legacy not a dict",
+"legacy": "[1, 2]",
+"settings": null,
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "legacy broken",
+"legacy": "{nope",
+"settings": null,
+"policy": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "both",
+"legacy": "{\"directories\": [\"mine\"], \"keep_newest\": 1}",
+"settings": {
+"housekeeping_enabled": true,
+"max_age_hours": 48.0,
+"keep_newest": 5,
+"max_files_per_dir": 100,
+"audit_max_age_days": 3.0
+},
+"policy": {
+"enabled": true,
+"max_age_hours": 48.0,
+"max_files_per_dir": 100,
+"keep_newest": 5,
+"directories": [
+"mine",
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 3.0
+}
+},
+{
+"label": "settings as text",
+"legacy": null,
+"settings": {
+"housekeeping_enabled": 0,
+"max_age_hours": "36",
+"keep_newest": "4",
+"max_files_per_dir": 2.9,
+"audit_max_age_days": " 2.5 "
+},
+"policy": {
+"enabled": false,
+"max_age_hours": 36.0,
+"max_files_per_dir": 2,
+"keep_newest": 4,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 2.5
+}
+},
+{
+"label": "settings bool numbers",
+"legacy": null,
+"settings": {
+"housekeeping_enabled": "",
+"max_age_hours": true,
+"keep_newest": true,
+"max_files_per_dir": false,
+"audit_max_age_days": 1
+},
+"policy": {
+"enabled": false,
+"max_age_hours": 1.0,
+"max_files_per_dir": 0,
+"keep_newest": 1,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 1.0
+}
+},
+{
+"label": "settings stops at a bad value",
+"legacy": "{\"keep_newest\": 8}",
+"settings": {
+"housekeeping_enabled": false,
+"max_age_hours": "abc",
+"keep_newest": 3,
+"max_files_per_dir": 1,
+"audit_max_age_days": 1.0
+},
+"policy": {
+"enabled": false,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 8,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "settings missing a key",
+"legacy": null,
+"settings": {
+"housekeeping_enabled": false,
+"max_age_hours": 5
+},
+"policy": {
+"enabled": false,
+"max_age_hours": 5.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+},
+{
+"label": "settings int from float text",
+"legacy": null,
+"settings": {
+"housekeeping_enabled": true,
+"max_age_hours": 48.0,
+"keep_newest": "3.0",
+"max_files_per_dir": 100,
+"audit_max_age_days": 3.0
+},
+"policy": {
+"enabled": true,
+"max_age_hours": 48.0,
+"max_files_per_dir": 0,
+"keep_newest": 20,
+"directories": [
+"live_frames",
+"debug_bursts",
+"probe_frames",
+"detections"
+],
+"audit_max_age_days": 7.0
+}
+}
+],
+"saved": {
+"enabled": true,
+"max_age_hours": 24.0,
+"max_files_per_dir": 0,
+"keep_newest": 3,
+"directories": [
+"mine"
+],
+"audit_max_age_days": 7.0
+},
+"summaries": [
+{
+"results": [],
+"applied": false,
+"line": "housekeeping: nothing to do"
+},
+{
+"results": [
+[
+"a",
+0,
+0,
+0,
+0
+]
+],
+"applied": true,
+"line": "housekeeping freed 0 MB across 0 file(s) | "
+},
+{
+"results": [
+[
+"a",
+3,
+2,
+500000,
+1
+],
+[
+"b",
+1,
+1,
+1500000,
+0
+],
+[
+"c",
+0,
+0,
+0,
+0
+]
+],
+"applied": false,
+"line": "housekeeping would free 2 MB across 3 file(s) | a: 2/3 (0 MB) | b: 1/1 (2 MB)"
+},
+{
+"results": [
+[
+"a",
+9,
+4,
+2500000,
+5
+],
+[
+"b",
+2,
+2,
+3500000,
+0
+]
+],
+"applied": true,
+"line": "housekeeping freed 6 MB across 6 file(s) | a: 4/9 (2 MB) | b: 2/2 (4 MB)"
+},
+{
+"results": [
+[
+"x",
+1,
+1,
+999999999999,
+0
+]
+],
+"applied": true,
+"line": "housekeeping freed 1000000 MB across 1 file(s) | x: 1/1 (1000000 MB)"
+}
+],
+"audits": [
+[
+"EXMPLOLD",
+864000.0,
+"old.png"
+],
+[
+"EXMPLNEW",
+86400.0,
+"new.png"
+],
+[
+"EXMPLGONE",
+172800.0,
+"gone.png"
+]
+],
+"audit_steps": [
+{
+"apply": false,
+"result": [
+2,
+1
+],
+"rows": [
+{
+"handle": "EXMPLGONE",
+"crop_name": "audit/gone.png"
+},
+{
+"handle": "EXMPLNEW",
+"crop_name": "audit/new.png"
+},
+{
+"handle": "EXMPLOLD",
+"crop_name": "audit/old.png"
+}
+],
+"files": [
+"gone.png",
+"new.png",
+"old.png",
+"stray.png"
+]
+},
+{
+"apply": true,
+"result": [
+2,
+1
+],
+"rows": [
+{
+"handle": "EXMPLNEW",
+"crop_name": "audit/new.png"
+}
+],
+"files": [
+"new.png"
+]
+},
+{
+"apply": true,
+"result": [
+0,
+0
+],
+"rows": [
+{
+"handle": "EXMPLNEW",
+"crop_name": "audit/new.png"
+}
+],
+"files": [
+"new.png"
+]
+}
+],
+"run_now": [
+"housekeeping would free 2 MB across 3 file(s) | live_frames: 1/4 (0 MB) | debug_bursts: 2/2 (2 MB)",
+"housekeeping freed 2 MB across 2 file(s) | live_frames: 0/4 (0 MB) | debug_bursts: 2/2 (2 MB)"
+]
+}
