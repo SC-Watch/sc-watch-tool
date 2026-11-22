@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags and sc-watch.db done**; watchlist.db, the RSI client (with its cache), sharing and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db and watchlist.db done**; the RSI client (with its cache), sharing and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -149,6 +149,18 @@ On copies of this PC's three databases every read agrees for every player -
 members, and 5,604 read-only canonical() checks on misread-style variants
 (tools/read_compare.py). The RSI-dependent find_ghosts and fetch_roster come
 with the RSI client.
+
+**`scw-store::watchlist`** is watchlist.py: sources (enable, forget),
+entries with their confidence and claims, flagged orgs, exact and
+misread-variant lookup (each `Hit` worded by `describe()` as the Python
+words it), the bundled starter list seeded and re-seeded by version, and
+pasted lists through parse_lines, import_text and safe_url. It implements
+the reputation `Database`'s watchlist lookup, so an assessment with a
+watchlist attached is the Python's. A script of 40 operations gives the same
+results and rows after every step; parse_lines on 7 pasted texts, safe_url
+and 6 assessments with hits agree (CI). On a copy of this PC's watchlist,
+lookups of all 702 known handles, the sources, orgs, stats and starter
+seeding are identical (tools/watchlist_compare.py).
 
 ## The replay tool
 

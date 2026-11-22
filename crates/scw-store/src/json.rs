@@ -590,3 +590,29 @@ pub fn coerce(default: &Value, value: &Value) -> Value {
         }
     }
 }
+
+/// Python's `str(value)` for what a JSON file can hold.
+pub fn py_str(v: &Value) -> String {
+    match v {
+        Value::Null => "None".into(),
+        Value::Bool(true) => "True".into(),
+        Value::Bool(false) => "False".into(),
+        Value::String(s) => s.clone(),
+        Value::Number(n) if n.is_f64() => py_float(n.as_f64().unwrap()).unwrap_or_default(),
+        Value::Number(n) => n.to_string(),
+        // Python would print its repr; a list or object here is nonsense.
+        other => other.to_string(),
+    }
+}
+
+/// Python's truthiness.
+pub fn truthy(v: Option<&Value>) -> bool {
+    match v {
+        None | Some(Value::Null) | Some(Value::Bool(false)) => false,
+        Some(Value::Number(n)) => n.as_f64() != Some(0.0),
+        Some(Value::String(s)) => !s.is_empty(),
+        Some(Value::Array(a)) => !a.is_empty(),
+        Some(Value::Object(o)) => !o.is_empty(),
+        Some(Value::Bool(true)) => true,
+    }
+}

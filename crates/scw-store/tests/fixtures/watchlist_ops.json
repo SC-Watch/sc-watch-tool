@@ -1,0 +1,7805 @@
+{
+"starters": {
+"starter_v1.json": "7b226e616d65223a202245584d504c2062756e646c6564206c697374222c202276657273696f6e223a20312c20226e6f7465223a20226d616465207570222c2022656e7472696573223a205b7b2268616e646c65223a202245584d504c424144222c2022636c61696d223a202267616e6b65642061206861756c6572222c2022706f73746564223a2022323032362d30312d3032227d2c207b2268616e646c65223a202245584d504c424144222c2022636c61696d223a2022222c2022706f73746564223a2022323032362d30322d3033227d2c207b2268616e646c65223a202245584d504c484544474544222c2022636f6e666964656e6365223a2022756e636f6e6669726d6564227d2c207b2268616e646c65223a20222065786d706c73706163656420222c2022636f6e666964656e6365223a20227765697264227d2c20226e6f7420612064696374222c207b2268616e646c65223a2022227d2c207b2268616e646c65223a206e756c6c2c2022636c61696d223a202278227d2c207b2268616e646c65223a20372c2022636c61696d223a20332e357d5d2c20226f726773223a205b7b22736964223a202265786d706c6f7267222c2022636c61696d223a20226772696566657273227d2c207b22636c61696d223a20226e6f20736964227d2c202278225d7d",
+"starter_v2.json": "7b226e616d65223a202245584d504c2062756e646c6564206c697374222c202276657273696f6e223a202232222c2022656e7472696573223a205b7b2268616e646c65223a202245584d504c424144222c2022636c61696d223a202267616e6b65642061206861756c6572222c2022706f73746564223a2022323032362d30312d3032227d2c207b2268616e646c65223a202245584d504c4e4557222c2022636c61696d223a20226e657720696e207632227d5d7d",
+"starter_bom.json": "efbbbf7b226e616d65223a202245584d504c20626f6d206c697374222c2022656e7472696573223a205b7b2268616e646c65223a202245584d504c424f4d227d5d7d",
+"starter_bad.json": "7b206e6f7065",
+"starter_noentries.json": "7b226e616d65223a202278222c2022656e7472696573223a20226e6f227d"
+},
+"steps": [
+{
+"at": 1790000000.0,
+"op": "add_source",
+"args": [
+"EXMPL source",
+"https://example.invalid/a",
+"first"
+],
+"kwargs": {},
+"result": 1,
+"dump": {
+"entries": [],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/a",
+"first",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000060.0,
+"op": "add_source",
+"args": [
+"EXMPL source",
+"https://example.invalid/b",
+"second"
+],
+"kwargs": {},
+"result": 1,
+"dump": {
+"entries": [],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000120.0,
+"op": "add_entry",
+"args": [
+1,
+"EXMPLBAD"
+],
+"kwargs": {
+"claim": "rammed",
+"msg_id": "m1",
+"posted_ts": "2026-03-04"
+},
+"result": true,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000180.0,
+"op": "add_entry",
+"args": [
+1,
+"EXMPLBAD"
+],
+"kwargs": {
+"claim": "again",
+"msg_id": "m1"
+},
+"result": false,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000240.0,
+"op": "add_entry",
+"args": [
+1,
+"EXMPLBAD"
+],
+"kwargs": {
+"claim": "another day",
+"msg_id": "m2"
+},
+"result": true,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000300.0,
+"op": "add_entry",
+"args": [
+1,
+"  "
+],
+"kwargs": {},
+"result": false,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000360.0,
+"op": "add_entry",
+"args": [
+1,
+"EXMPL0NAME"
+],
+"kwargs": {
+"confidence": "unconfirmed",
+"claim": "maybe"
+},
+"result": true,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000420.0,
+"op": "add_entry",
+"args": [
+1,
+"EXMPLDISPUTED"
+],
+"kwargs": {
+"confidence": "disputed",
+"alt_of": "EXMPLBAD",
+"reported_by": "EXMPL_ME",
+"msg_url": "https://example.invalid/m"
+},
+"result": true,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000480.0,
+"op": "add_org",
+"args": [
+1,
+" exmplorg "
+],
+"kwargs": {
+"claim": "pirates"
+},
+"result": null,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000540.0,
+"op": "add_org",
+"args": [
+1,
+"EXMPLORG"
+],
+"kwargs": {
+"claim": "dup"
+},
+"result": null,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+null,
+1
+]
+]
+}
+},
+{
+"at": 1790000600.0,
+"op": "mark_synced",
+"args": [
+1
+],
+"kwargs": {},
+"result": null,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000660.0,
+"op": "lookup",
+"args": [
+"exmplbad"
+],
+"kwargs": {
+"variants": false
+},
+"result": [
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "rammed",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-03-04",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL source - rammed [2026-03-04]"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "another day",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL source - another day"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000720.0,
+"op": "lookup",
+"args": [
+"EXMPLONAME"
+],
+"kwargs": {
+"variants": true
+},
+"result": [
+{
+"handle": "EXMPL0NAME",
+"source": "EXMPL source",
+"confidence": "unconfirmed",
+"claim": "maybe",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "variant",
+"describe": "a name like this is on EXMPL source (source was unsure) - maybe"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000780.0,
+"op": "lookup",
+"args": [
+"EXMPLONAME"
+],
+"kwargs": {
+"variants": false
+},
+"result": [],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000840.0,
+"op": "lookup",
+"args": [
+"EXMPLONAME"
+],
+"kwargs": {},
+"result": [
+{
+"handle": "EXMPL0NAME",
+"source": "EXMPL source",
+"confidence": "unconfirmed",
+"claim": "maybe",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "variant",
+"describe": "a name like this is on EXMPL source (source was unsure) - maybe"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000900.0,
+"op": "lookup",
+"args": [
+"  "
+],
+"kwargs": {},
+"result": [],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790000960.0,
+"op": "reason_coverage",
+"args": [],
+"kwargs": {},
+"result": [
+3,
+4
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001020.0,
+"op": "stats",
+"args": [],
+"kwargs": {},
+"result": {
+"entries": 4,
+"handles": 3,
+"sources": 1,
+"orgs": 1
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001080.0,
+"op": "orgs_flagged",
+"args": [],
+"kwargs": {},
+"result": [
+{
+"id": 1,
+"source_id": 1,
+"sid": "EXMPLORG",
+"claim": "pirates",
+"msg_id": "",
+"fetched_ts": 1790000480.0,
+"source": "EXMPL source"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001140.0,
+"op": "sources",
+"args": [],
+"kwargs": {},
+"result": [
+{
+"id": 1,
+"name": "EXMPL source",
+"url": "https://example.invalid/b",
+"note": "second",
+"added_ts": 1790000000.0,
+"synced_ts": 1790000600.0,
+"enabled": 1,
+"n": 4,
+"n_reason": 3,
+"bundled": false
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+]
+],
+"meta": [],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001200.0,
+"op": "seed",
+"args": [
+"starter_v1.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 5,
+"why": "imported",
+"source": "EXMPL bundled list",
+"version": "1"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"made up",
+1790001200.0,
+1790001200.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001260.0,
+"op": "seed",
+"args": [
+"starter_v1.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 0,
+"why": "already seeded"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"made up",
+1790001200.0,
+1790001200.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001320.0,
+"op": "seed",
+"args": [
+"starter_v2.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 1,
+"why": "imported",
+"source": "EXMPL bundled list",
+"version": "2"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+]
+],
+"meta": [
+[
+"starter_version",
+"2"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001380.0,
+"op": "seed",
+"args": [
+"starter_bom.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 1,
+"why": "imported",
+"source": "EXMPL bom list",
+"version": "1"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001440.0,
+"op": "seed",
+"args": [
+"starter_bad.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 0,
+"why": "no bundled list"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001500.0,
+"op": "seed",
+"args": [
+"starter_noentries.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 0,
+"why": "no bundled list"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001560.0,
+"op": "seed",
+"args": [
+"missing.json"
+],
+"kwargs": {},
+"result": {
+"seeded": 0,
+"why": "no bundled list"
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001620.0,
+"op": "sources",
+"args": [],
+"kwargs": {},
+"result": [
+{
+"id": 3,
+"name": "EXMPL bom list",
+"url": "",
+"note": "",
+"added_ts": 1790001380.0,
+"synced_ts": 1790001380.0,
+"enabled": 1,
+"n": 1,
+"n_reason": 0,
+"bundled": false
+},
+{
+"id": 2,
+"name": "EXMPL bundled list",
+"url": "",
+"note": "",
+"added_ts": 1790001200.0,
+"synced_ts": 1790001320.0,
+"enabled": 1,
+"n": 6,
+"n_reason": 3,
+"bundled": true
+},
+{
+"id": 1,
+"name": "EXMPL source",
+"url": "https://example.invalid/b",
+"note": "second",
+"added_ts": 1790000000.0,
+"synced_ts": 1790000600.0,
+"enabled": 1,
+"n": 4,
+"n_reason": 3,
+"bundled": false
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001680.0,
+"op": "lookup",
+"args": [
+"EXMPLBAD"
+],
+"kwargs": {},
+"result": [
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "rammed",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-03-04",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL source - rammed [2026-03-04]"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "another day",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL source - another day"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL bundled list",
+"confidence": "asserted",
+"claim": "ganked a hauler",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-01-02",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL bundled list - ganked a hauler [2026-01-02]"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL bundled list",
+"confidence": "asserted",
+"claim": "",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-02-03",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL bundled list [2026-02-03]"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001740.0,
+"op": "import_text",
+"args": [
+"  EXMPL pasted  ",
+"# a comment\n// another\n1. EXMPLONE - camped the station\n- EXMPLTWO: rammed us\n* EXMPLTHREE | griefing,  repeatedly\nEXMPLFOUR  two spaces then a reason\nhttps://robertsspaceindustries.com/citizens/EXMPLFIVE  - killed on sight\nhttps://robertsspaceindustries.com/en/citizens/EXMPL_SIX\nsee https://robertsspaceindustries.com/orgs/EXMPLORG for the org\nhttps://robertsspaceindustries.com/orgs/EXMPLTWOORG\nnot a handle!!! - at all\nx\nEXMPLONE - said twice\n\u2022 EXMPLBULLET \u2013 en dash\nEXMPLTAB\t-\ttabbed\n"
+],
+"kwargs": {
+"url": "javascript:alert(1)",
+"note": " n ",
+"reported_by": "EXMPL_FRIEND",
+"posted_ts": "2026-05-06T07:08:09.123456789Z"
+},
+"result": {
+"ok": true,
+"source_id": 4,
+"added": 8,
+"seen": 8,
+"orgs": [
+"EXMPLORG",
+"EXMPLTWOORG"
+],
+"skipped": [
+"not a handle!!! - at all",
+"x"
+],
+"skipped_n": 2
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001800.0,
+"op": "import_text",
+"args": [
+"",
+"!!!\n???"
+],
+"kwargs": {},
+"result": {
+"ok": false,
+"error": "nothing in there looked like a handle",
+"skipped": [
+"!!!",
+"???"
+]
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001860.0,
+"op": "import_text",
+"args": [
+"",
+"EXMPLURL"
+],
+"kwargs": {
+"url": "HTTPS://example.invalid/list"
+},
+"result": {
+"ok": true,
+"source_id": 5,
+"added": 1,
+"seen": 1,
+"orgs": [],
+"skipped": [],
+"skipped_n": 0
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001920.0,
+"op": "set_enabled",
+"args": [
+1,
+false
+],
+"kwargs": {},
+"result": null,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+0
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790001980.0,
+"op": "lookup",
+"args": [
+"EXMPLBAD"
+],
+"kwargs": {},
+"result": [
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL bundled list",
+"confidence": "asserted",
+"claim": "ganked a hauler",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-01-02",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL bundled list - ganked a hauler [2026-01-02]"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL bundled list",
+"confidence": "asserted",
+"claim": "",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-02-03",
+"msg_url": "",
+"match": "exact",
+"describe": "listed on EXMPL bundled list [2026-02-03]"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+0
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002040.0,
+"op": "orgs_flagged",
+"args": [],
+"kwargs": {},
+"result": [
+{
+"id": 2,
+"source_id": 2,
+"sid": "EXMPLORG",
+"claim": "griefers",
+"msg_id": "",
+"fetched_ts": 1790001200.0,
+"source": "EXMPL bundled list"
+},
+{
+"id": 3,
+"source_id": 4,
+"sid": "EXMPLORG",
+"claim": "named in the imported list",
+"msg_id": "",
+"fetched_ts": 1790001740.0,
+"source": "EXMPL pasted"
+},
+{
+"id": 4,
+"source_id": 4,
+"sid": "EXMPLTWOORG",
+"claim": "named in the imported list",
+"msg_id": "",
+"fetched_ts": 1790001740.0,
+"source": "EXMPL pasted"
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+0
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002100.0,
+"op": "set_enabled",
+"args": [
+1,
+true
+],
+"kwargs": {},
+"result": null,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+5,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"ganked a hauler",
+"",
+"",
+"2026-01-02",
+"s0",
+"",
+1790001200.0
+],
+[
+6,
+2,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"",
+"",
+"",
+"2026-02-03",
+"s1",
+"",
+1790001200.0
+],
+[
+7,
+2,
+"EXMPLHEDGED",
+"EXMPIHEOCEO",
+"unconfirmed",
+"",
+"",
+"",
+"",
+"s2",
+"",
+1790001200.0
+],
+[
+8,
+2,
+"exmplspaced",
+"EXMPISPACEO",
+"asserted",
+"",
+"",
+"",
+"",
+"s3",
+"",
+1790001200.0
+],
+[
+9,
+2,
+"7",
+"T",
+"asserted",
+"3.5",
+"",
+"",
+"",
+"s7",
+"",
+1790001200.0
+],
+[
+10,
+2,
+"EXMPLNEW",
+"EXMPINEW",
+"asserted",
+"new in v2",
+"",
+"",
+"",
+"s1",
+"",
+1790001320.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+2,
+2,
+"EXMPLORG",
+"griefers",
+"",
+1790001200.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+2,
+"EXMPL bundled list",
+"",
+"",
+1790001200.0,
+1790001320.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002160.0,
+"op": "forget_source",
+"args": [
+2
+],
+"kwargs": {},
+"result": 6,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002220.0,
+"op": "forget_source",
+"args": [
+99
+],
+"kwargs": {},
+"result": 0,
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002280.0,
+"op": "sources",
+"args": [],
+"kwargs": {},
+"result": [
+{
+"id": 3,
+"name": "EXMPL bom list",
+"url": "",
+"note": "",
+"added_ts": 1790001380.0,
+"synced_ts": 1790001380.0,
+"enabled": 1,
+"n": 1,
+"n_reason": 0,
+"bundled": false
+},
+{
+"id": 4,
+"name": "EXMPL pasted",
+"url": "",
+"note": "n",
+"added_ts": 1790001740.0,
+"synced_ts": 1790001740.0,
+"enabled": 1,
+"n": 8,
+"n_reason": 7,
+"bundled": false
+},
+{
+"id": 1,
+"name": "EXMPL source",
+"url": "https://example.invalid/b",
+"note": "second",
+"added_ts": 1790000000.0,
+"synced_ts": 1790000600.0,
+"enabled": 1,
+"n": 4,
+"n_reason": 3,
+"bundled": false
+},
+{
+"id": 5,
+"name": "pasted list",
+"url": "HTTPS://example.invalid/list",
+"note": "",
+"added_ts": 1790001860.0,
+"synced_ts": 1790001860.0,
+"enabled": 1,
+"n": 1,
+"n_reason": 0,
+"bundled": false
+}
+],
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+},
+{
+"at": 1790002340.0,
+"op": "stats",
+"args": [],
+"kwargs": {},
+"result": {
+"entries": 14,
+"handles": 13,
+"sources": 4,
+"orgs": 3
+},
+"dump": {
+"entries": [
+[
+1,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"rammed",
+"",
+"",
+"2026-03-04",
+"m1",
+"",
+1790000120.0
+],
+[
+2,
+1,
+"EXMPLBAD",
+"EXMPIBAO",
+"asserted",
+"another day",
+"",
+"",
+"",
+"m2",
+"",
+1790000240.0
+],
+[
+3,
+1,
+"EXMPL0NAME",
+"EXMPIONAME",
+"unconfirmed",
+"maybe",
+"",
+"",
+"",
+"",
+"",
+1790000360.0
+],
+[
+4,
+1,
+"EXMPLDISPUTED",
+"EXMPIOISPUTEO",
+"disputed",
+"",
+"EXMPLBAD",
+"EXMPL_ME",
+"",
+"",
+"https://example.invalid/m",
+1790000420.0
+],
+[
+11,
+3,
+"EXMPLBOM",
+"EXMPIBOM",
+"asserted",
+"",
+"",
+"",
+"",
+"s0",
+"",
+1790001380.0
+],
+[
+12,
+4,
+"EXMPLONE",
+"EXMPIONE",
+"asserted",
+"camped the station",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+13,
+4,
+"EXMPLTWO",
+"EXMPITWO",
+"asserted",
+"rammed us",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+14,
+4,
+"EXMPLTHREE",
+"EXMPITHREE",
+"asserted",
+"griefing,  repeatedly",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+15,
+4,
+"EXMPLFOUR",
+"EXMPIFOUR",
+"asserted",
+"two spaces then a reason",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+16,
+4,
+"EXMPLFIVE",
+"EXMPIFIUE",
+"asserted",
+"killed on sight",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+17,
+4,
+"EXMPL_SIX",
+"EXMPIISIX",
+"asserted",
+"",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+18,
+4,
+"EXMPLBULLET",
+"EXMPIBUIIET",
+"asserted",
+"en dash",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+19,
+4,
+"EXMPLTAB",
+"EXMPITAB",
+"asserted",
+"tabbed",
+"",
+"EXMPL_FRIEND",
+"2026-05-06T07:08:09.123456789Z",
+"paste",
+"",
+1790001740.0
+],
+[
+20,
+5,
+"EXMPLURL",
+"EXMPIURI",
+"asserted",
+"",
+"",
+"",
+"",
+"paste",
+"HTTPS://example.invalid/list",
+1790001860.0
+]
+],
+"meta": [
+[
+"starter_version",
+"1"
+]
+],
+"orgs": [
+[
+1,
+1,
+"EXMPLORG",
+"pirates",
+"",
+1790000480.0
+],
+[
+3,
+4,
+"EXMPLORG",
+"named in the imported list",
+"",
+1790001740.0
+],
+[
+4,
+4,
+"EXMPLTWOORG",
+"named in the imported list",
+"",
+1790001740.0
+]
+],
+"sources": [
+[
+1,
+"EXMPL source",
+"https://example.invalid/b",
+"second",
+1790000000.0,
+1790000600.0,
+1
+],
+[
+3,
+"EXMPL bom list",
+"",
+"",
+1790001380.0,
+1790001380.0,
+1
+],
+[
+4,
+"EXMPL pasted",
+"",
+"n",
+1790001740.0,
+1790001740.0,
+1
+],
+[
+5,
+"pasted list",
+"HTTPS://example.invalid/list",
+"",
+1790001860.0,
+1790001860.0,
+1
+]
+]
+}
+}
+],
+"parse": [
+{
+"text": "# a comment\n// another\n1. EXMPLONE - camped the station\n- EXMPLTWO: rammed us\n* EXMPLTHREE | griefing,  repeatedly\nEXMPLFOUR  two spaces then a reason\nhttps://robertsspaceindustries.com/citizens/EXMPLFIVE  - killed on sight\nhttps://robertsspaceindustries.com/en/citizens/EXMPL_SIX\nsee https://robertsspaceindustries.com/orgs/EXMPLORG for the org\nhttps://robertsspaceindustries.com/orgs/EXMPLTWOORG\nnot a handle!!! - at all\nx\nEXMPLONE - said twice\n\u2022 EXMPLBULLET \u2013 en dash\nEXMPLTAB\t-\ttabbed\n",
+"result": {
+"entries": [
+{
+"handle": "EXMPLONE",
+"claim": "camped the station"
+},
+{
+"handle": "EXMPLTWO",
+"claim": "rammed us"
+},
+{
+"handle": "EXMPLTHREE",
+"claim": "griefing,  repeatedly"
+},
+{
+"handle": "EXMPLFOUR",
+"claim": "two spaces then a reason"
+},
+{
+"handle": "EXMPLFIVE",
+"claim": "killed on sight"
+},
+{
+"handle": "EXMPL_SIX",
+"claim": ""
+},
+{
+"handle": "EXMPLBULLET",
+"claim": "en dash"
+},
+{
+"handle": "EXMPLTAB",
+"claim": "tabbed"
+}
+],
+"skipped": [
+"not a handle!!! - at all",
+"x"
+],
+"orgs": [
+"EXMPLORG",
+"EXMPLTWOORG"
+]
+}
+},
+{
+"text": "",
+"result": {
+"entries": [],
+"skipped": [],
+"orgs": []
+}
+},
+{
+"text": "   \n\n",
+"result": {
+"entries": [],
+"skipped": [],
+"orgs": []
+}
+},
+{
+"text": "EXMPLA\r\nEXMPLB\rEXMPLC\u2028EXMPLD",
+"result": {
+"entries": [
+{
+"handle": "EXMPLA",
+"claim": ""
+},
+{
+"handle": "EXMPLB",
+"claim": ""
+},
+{
+"handle": "EXMPLC",
+"claim": ""
+},
+{
+"handle": "EXMPLD",
+"claim": ""
+}
+],
+"skipped": [],
+"orgs": []
+}
+},
+{
+"text": "EXMPL EXMPL EXMPL ",
+"result": {
+"entries": [],
+"skipped": [
+"EXMPL EXMPL EXMPL"
+],
+"orgs": []
+}
+},
+{
+"text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+"result": {
+"entries": [],
+"skipped": [
+"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+],
+"orgs": []
+}
+},
+{
+"text": "ab",
+"result": {
+"entries": [
+{
+"handle": "ab",
+"claim": ""
+}
+],
+"skipped": [],
+"orgs": []
+}
+}
+],
+"safe_url": [
+[
+"https://x",
+"https://x"
+],
+[
+" HTTP://Y ",
+"HTTP://Y"
+],
+[
+"ftp://z",
+""
+],
+[
+"javascript:a",
+""
+],
+[
+"",
+""
+],
+[
+"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
+""
+]
+],
+"assess_at": 1790086400.0,
+"assessed": [
+{
+"handle": "EXMPLBAD",
+"variants": null,
+"assess": {
+"handle": "EXMPLBAD",
+"known": true,
+"sightings": 1,
+"first_seen": 1790086400.0,
+"last_seen": 1790086400.0,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "rammed",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "2026-03-04",
+"msg_url": "",
+"match": "exact"
+},
+{
+"handle": "EXMPLBAD",
+"source": "EXMPL source",
+"confidence": "asserted",
+"claim": "another day",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "exact"
+}
+],
+"score": 0.0,
+"alert": true,
+"spoken_all": [
+{
+"kind": "watchlist"
+}
+],
+"lines": [
+"listed on EXMPL source - rammed [2026-03-04]",
+"listed on EXMPL source - another day"
+]
+},
+"listed": true
+},
+{
+"handle": "EXMPLONAME",
+"variants": true,
+"assess": {
+"handle": "EXMPLONAME",
+"known": true,
+"sightings": 1,
+"first_seen": 1790086400.0,
+"last_seen": 1790086400.0,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [
+{
+"handle": "EXMPL0NAME",
+"source": "EXMPL source",
+"confidence": "unconfirmed",
+"claim": "maybe",
+"alt_of": "",
+"reported_by": "",
+"posted_ts": "",
+"msg_url": "",
+"match": "variant"
+}
+],
+"score": 0.0,
+"alert": false,
+"spoken_all": [],
+"lines": [
+"a name like this is on EXMPL source (source was unsure) - maybe"
+]
+},
+"listed": false
+},
+{
+"handle": "EXMPLONAME",
+"variants": false,
+"assess": {
+"handle": "EXMPLONAME",
+"known": true,
+"sightings": 1,
+"first_seen": 1790086400.0,
+"last_seen": 1790086400.0,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [],
+"score": 0.0,
+"alert": false,
+"spoken_all": [],
+"lines": []
+},
+"listed": false
+},
+{
+"handle": "EXMPLNEW",
+"variants": null,
+"assess": {
+"handle": "EXMPLNEW",
+"known": false,
+"sightings": 0,
+"first_seen": null,
+"last_seen": null,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [],
+"score": 0.0,
+"alert": false,
+"spoken_all": [],
+"lines": []
+},
+"listed": false
+},
+{
+"handle": "EXMPLNOBODY",
+"variants": null,
+"assess": {
+"handle": "EXMPLNOBODY",
+"known": false,
+"sightings": 0,
+"first_seen": null,
+"last_seen": null,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [],
+"score": 0.0,
+"alert": false,
+"spoken_all": [],
+"lines": []
+},
+"listed": false
+},
+{
+"handle": "EXMPLHEDGED",
+"variants": true,
+"assess": {
+"handle": "EXMPLHEDGED",
+"known": false,
+"sightings": 0,
+"first_seen": null,
+"last_seen": null,
+"reports": [],
+"flagged_orgs": [],
+"former_orgs": [],
+"manual_orgs": {},
+"manual_by": {},
+"org_names": {},
+"watchlist": [],
+"score": 0.0,
+"alert": false,
+"spoken_all": [],
+"lines": []
+},
+"listed": false
+}
+]
+}

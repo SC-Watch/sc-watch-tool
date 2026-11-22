@@ -437,6 +437,7 @@ name = "scw-store"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "regex",
  "rusqlite",
  "scw-vision",
  "serde",

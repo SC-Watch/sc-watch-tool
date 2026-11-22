@@ -233,7 +233,7 @@ impl Assessment {
         for (sid, since) in &self.former_orgs {
             out.push(former_line(sid, Some(*since), utc));
         }
-        out.extend(self.watchlist.iter().map(|h| h.description.clone()));
+        out.extend(self.watchlist.iter().map(|h| h.describe()));
         if self.sightings > 1 {
             let span = (self.last_seen.unwrap_or(0.0) - self.first_seen.unwrap_or(0.0)) / 86400.0;
             out.push(if span >= 1.0 {

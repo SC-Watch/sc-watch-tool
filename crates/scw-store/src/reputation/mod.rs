@@ -15,6 +15,7 @@ mod records;
 
 pub use assess::{Assessment, Recent, Report, Stats, former_line, manual_line};
 pub use database::{Database, Hit, Verdict, Verify, WatchlistLookup};
+pub(crate) use database::{json_value, system_time};
 pub use orgs::{
     FlaggedOrg, Member, MemberChange, OrgManual, ProfileOrg, RosterChanges, RosterMember,
 };

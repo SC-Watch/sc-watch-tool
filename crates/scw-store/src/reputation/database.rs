@@ -13,26 +13,16 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::types::ValueRef;
 use rusqlite::{Connection, OptionalExtension, Params, params};
-use serde::Serialize;
 use serde_json::{Map, Value};
 
 use super::{migrate, sketch};
 use crate::flags::Flags;
+pub use crate::watchlist::Hit;
 
 /// "Is this a real account?" asked strictly: Some(true), Some(false), or
 /// None for "cannot tell"; Err when the asking itself failed.
 pub trait Verify {
     fn exists(&self, handle: &str) -> Result<Option<bool>, String>;
-}
-
-/// One watchlist match on a handle (watchlist.Hit).
-#[derive(Clone, Debug, PartialEq, Serialize)]
-pub struct Hit {
-    /// "exact" or "variant".
-    #[serde(rename = "match")]
-    pub match_kind: String,
-    /// How sure the source was, in words (Hit.describe()).
-    pub description: String,
 }
 
 /// A watchlist that can be asked about a handle.
