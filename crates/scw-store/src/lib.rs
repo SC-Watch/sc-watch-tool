@@ -7,6 +7,7 @@ pub mod db;
 pub mod flags;
 pub mod housekeeping;
 pub mod json;
+pub mod paths;
 pub mod reputation;
 pub mod settings;
 pub mod share;

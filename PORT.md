@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher under way (tracking, checks, logs, the lookup worker and the session done; the program next) |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -292,9 +292,45 @@ frame and logs its size, but the OCR pipeline's diagnostics (boxes, pairs,
 the km gate) are not there. Ctrl+C is noticed at the next key poll or loop
 turn (within 30 ms), not at whatever line Python was on.
 
-Kept as Python does it: a burst's alert lists every contact the burst
-settled, labels on the ignore list included; only the console and the
-records leave them out.
+- **The program** (`sc-watch`, watch.py's main). The command line has
+  the saved settings as its defaults and argparse's rules: abbreviations,
+  `--flag=value`, Python's number rules, the same error messages and exit
+  codes. Eighty command lines over three settings files match
+  watch.parse_args; twelve of thirteen deliberate breakages are caught,
+  and the thirteenth changes a default no command line can reach. The
+  console's status line matches watch.Console byte for byte, at three
+  widths and redirected. The data folder follows the built Python's rules:
+  `data\` beside a `portable.txt`, else %LOCALAPPDATA%\sc-watch. Then it
+  wires up the screen (8-bit or HDR), keys, the IRIS reader, the alert
+  player, the lookup client and worker, the database with its watchlist,
+  and the session log.
+
+  Whole sessions were compared on real frames. watch.py and sc-watch ran
+  `--replay` over three folders of saved frames (122 frames) and once with
+  other options. Each side had its own fresh data folder, with no lookups
+  and audio off. The announcements, sightings.csv, the database rows, the
+  audit crops' pixels and every session-log event were identical on all
+  four runs. sc-watch took about three quarters of the Python's time
+  (10.8 s against 14.3 s for 54 frames). The frames name real people, so
+  the comparison stays on the machine that has them.
+
+Deliberately different in the program:
+- `SCW_DATA_ROOT` names the data folder outright, for development and
+  tests.
+- A saved `ocr` or `iris+ocr` reader is warned about and read as `iris`.
+- `--support-bundle` and `--check-resolution` say they are not in this
+  version yet.
+- A second Ctrl+C leaves at once.
+- A restart starts a new process and leaves, as os.execv does on Windows.
+- A capture that fails says so once per reason.
+- Lines printed while the status line shows (housekeeping) clear it first;
+  the Python printed over it.
+
+Kept as Python does it:
+- A burst's alert lists every contact the burst settled, labels on the
+  ignore list included; only the console and the records leave them out.
+- The housekeeping line reads "freed 0 MB across 0 file(s) | " when its
+  folders exist but hold nothing due.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
@@ -385,7 +421,7 @@ crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
                      sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
-crates/scw-watch     the watcher (watch.py): tracking, announcing, lookups, audits, logs, the session
+crates/scw-watch     the watcher (watch.py) and the sc-watch program: tracking, announcing, lookups, audits, logs, the session
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```

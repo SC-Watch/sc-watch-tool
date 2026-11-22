@@ -2,7 +2,7 @@
 //! (tests/fixtures/make_alerts.py): for 8 configurations x 12 bursts, the
 //! same tones and the same spoken lines, in the same order.
 
-use scw_audio::phrases::{Facts, Reason, ReasonKind};
+use scw_audio::phrases::{Facts, Reason};
 use scw_audio::{Alerts, AudioConfig, TonePlayer, Voice};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -28,22 +28,7 @@ impl TonePlayer for RecTones {
 }
 
 fn reason(v: &Value) -> Reason {
-    let kind = match v["kind"].as_str().unwrap_or("") {
-        "report" => ReasonKind::Report,
-        "shared" => ReasonKind::Shared,
-        "org" => ReasonKind::Org,
-        "former" => ReasonKind::Former,
-        "watchlist" => ReasonKind::Watchlist,
-        _ => ReasonKind::Other,
-    };
-    let text = |k: &str| v.get(k).and_then(Value::as_str).unwrap_or("").to_string();
-    Reason {
-        kind,
-        label: text("label"),
-        count: v.get("count").and_then(Value::as_i64),
-        source: text("source"),
-        org: text("org"),
-    }
+    Reason::from_value(v)
 }
 
 fn facts(v: &Value) -> Facts {

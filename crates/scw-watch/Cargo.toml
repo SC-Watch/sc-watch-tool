@@ -8,14 +8,22 @@ license.workspace = true
 repository.workspace = true
 publish.workspace = true
 
+[[bin]]
+name = "sc-watch"
+path = "src/main.rs"
+
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
+ctrlc = "3.4.5"
 jpeg-encoder = "0.7.1"
 png = "0.17"
 regex = "1"
 rusqlite = { version = "0.43", features = ["bundled"] }
+scw-audio = { path = "../scw-audio" }
+scw-capture = { path = "../scw-capture" }
 scw-input = { path = "../scw-input" }
 scw-rsi = { path = "../scw-rsi" }
 scw-store = { path = "../scw-store" }
 scw-vision = { path = "../scw-vision" }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+terminal_size = "0.4.1"

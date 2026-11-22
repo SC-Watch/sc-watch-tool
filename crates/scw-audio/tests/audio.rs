@@ -3,8 +3,8 @@
 //! settings page's samples, the SAPI rate, the tone WAVs and AudioConfig.
 
 use scw_audio::phrases::{
-    self, Facts, Reason, ReasonKind, distance_words, flag_words, live_flags, reason_words, render,
-    render_line, sample, sapi_rate, speakable, speakable_name,
+    self, Facts, Reason, distance_words, flag_words, live_flags, reason_words, render, render_line,
+    sample, sapi_rate, speakable, speakable_name,
 };
 use scw_audio::{AudioConfig, format, tones};
 use serde_json::Value;
@@ -45,22 +45,7 @@ fn words(vals: &Value) -> impl Fn(&str) -> String + '_ {
 }
 
 fn reason(v: &Value) -> Reason {
-    let kind = match v["kind"].as_str().unwrap_or("") {
-        "report" => ReasonKind::Report,
-        "shared" => ReasonKind::Shared,
-        "org" => ReasonKind::Org,
-        "former" => ReasonKind::Former,
-        "watchlist" => ReasonKind::Watchlist,
-        _ => ReasonKind::Other,
-    };
-    let text = |k: &str| v.get(k).and_then(Value::as_str).unwrap_or("").to_string();
-    Reason {
-        kind,
-        label: text("label"),
-        count: v.get("count").and_then(Value::as_i64),
-        source: text("source"),
-        org: text("org"),
-    }
+    Reason::from_value(v)
 }
 
 fn facts(v: &Value) -> Facts {

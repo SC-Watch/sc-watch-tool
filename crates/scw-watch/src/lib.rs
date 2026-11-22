@@ -7,9 +7,12 @@
 //! than reaching for them, so a test can drive a whole session on a script.
 
 pub mod audit;
+pub mod cli;
 pub mod config;
+pub mod console;
 pub mod debuglog;
 pub mod enricher;
+pub mod live;
 pub mod session;
 pub mod sightings;
 pub mod sinks;

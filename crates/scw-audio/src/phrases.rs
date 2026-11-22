@@ -459,6 +459,33 @@ pub struct Reason {
     pub org: String,
 }
 
+impl Reason {
+    /// One of Assessment.spoken_all()'s entries:
+    /// {"kind", "label", "count", "source", "org"}.
+    pub fn from_value(v: &serde_json::Value) -> Reason {
+        let text = |k: &str| {
+            v.get(k)
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("")
+                .to_string()
+        };
+        Reason {
+            kind: match v.get("kind").and_then(serde_json::Value::as_str) {
+                Some("report") => ReasonKind::Report,
+                Some("shared") => ReasonKind::Shared,
+                Some("org") => ReasonKind::Org,
+                Some("former") => ReasonKind::Former,
+                Some("watchlist") => ReasonKind::Watchlist,
+                _ => ReasonKind::Other,
+            },
+            label: text("label"),
+            count: v.get("count").and_then(serde_json::Value::as_i64),
+            source: text("source"),
+            org: text("org"),
+        }
+    }
+}
+
 /// Which phrase speaks one reason.
 pub fn reason_key(r: &Reason) -> Option<&'static str> {
     match r.kind {

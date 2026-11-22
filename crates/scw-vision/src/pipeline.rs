@@ -125,6 +125,14 @@ impl FrameReader {
         self.ops.get(&(width, height))
     }
 
+    /// Where the frame's distance lines are, without reading them (the
+    /// always-on scan, iris_read.IrisReader.scan).
+    pub fn scan(&mut self, frame: &Image<u8>) -> Vec<Rect> {
+        self.ops_for(frame.width, frame.height)
+            .map(|ops| ops.scan(frame))
+            .unwrap_or_default()
+    }
+
     /// Every distance line in the frame, read (iris_read.IrisReader.detect
     /// without the OCR fallback).
     pub fn read(&mut self, frame: &Image<u8>) -> FrameRead {

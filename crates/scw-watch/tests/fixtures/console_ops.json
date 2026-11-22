@@ -1,0 +1,83 @@
+{
+ "script": [
+  [
+   "status",
+   "  idle | 0 pings | 0 announced | waiting for full:0"
+  ],
+  [
+   "say",
+   "[14:13:20]  EXMPLONE                 2.5 km   1/1 votes"
+  ],
+  [
+   "status",
+   "  reading - captured 3, reading..."
+  ],
+  [
+   "status",
+   "  reading - reading frame 1/3..."
+  ],
+  [
+   "say",
+   "          final: EXMPLONE 3/3"
+  ],
+  [
+   "status",
+   "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ],
+  [
+   "say",
+   "line after a clamped status"
+  ],
+  [
+   "status",
+   "short"
+  ],
+  [
+   "status",
+   "  watching | 4 frames | 1 contact(s) on screen…"
+  ],
+  [
+   "done"
+  ],
+  [
+   "say",
+   "after done"
+  ],
+  [
+   "status",
+   ""
+  ],
+  [
+   "say",
+   "after an empty status"
+  ],
+  [
+   "done"
+  ],
+  [
+   "done"
+  ]
+ ],
+ "runs": [
+  {
+   "live": true,
+   "columns": 80,
+   "out": "  idle | 0 pings | 0 announced | waiting for full:0\r                                                   \r[14:13:20]  EXMPLONE                 2.5 km   1/1 votes\n  idle | 0 pings | 0 announced | waiting for full:0\r                                                   \r  reading - captured 3, reading...\r                                  \r  reading - reading frame 1/3...\r                                \r          final: EXMPLONE 3/3\n  reading - reading frame 1/3...\r                                \rxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…\r                                                                               \rline after a clamped status\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…\r                                                                               \rshort\r     \r  watching | 4 frames | 1 contact(s) on screen…\r                                               \rafter done\n  watching | 4 frames | 1 contact(s) on screen…\r                                               \rafter an empty status\n"
+  },
+  {
+   "live": true,
+   "columns": 40,
+   "out": "  idle | 0 pings | 0 announced | waiti…\r                                       \r[14:13:20]  EXMPLONE                 2.5 km   1/1 votes\n  idle | 0 pings | 0 announced | waiti…\r                                       \r  reading - captured 3, reading...\r                                  \r  reading - reading frame 1/3...\r                                \r          final: EXMPLONE 3/3\n  reading - reading frame 1/3...\r                                \rxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…\r                                       \rline after a clamped status\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…\r                                       \rshort\r     \r  watching | 4 frames | 1 contact(s) o…\r                                       \rafter done\n  watching | 4 frames | 1 contact(s) o…\r                                       \rafter an empty status\n"
+  },
+  {
+   "live": true,
+   "columns": 3,
+   "out": " …\r  \r[14:13:20]  EXMPLONE                 2.5 km   1/1 votes\n …\r  \r …\r  \r …\r  \r          final: EXMPLONE 3/3\n …\r  \rx…\r  \rline after a clamped status\nx…\r  \rs…\r  \r …\r  \rafter done\n …\r  \rafter an empty status\n"
+  },
+  {
+   "live": false,
+   "columns": 80,
+   "out": "[14:13:20]  EXMPLONE                 2.5 km   1/1 votes\n          final: EXMPLONE 3/3\nline after a clamped status\nafter done\nafter an empty status\n"
+  }
+ ]
+}
