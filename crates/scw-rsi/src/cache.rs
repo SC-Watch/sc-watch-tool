@@ -387,6 +387,21 @@ impl Cache {
         tx.commit()
     }
 
+    /// Handles whose lookup failed before `before` and that have no
+    /// profile since, whole or partial - newest failure first (the page's
+    /// background retry).
+    pub fn failed_unanswered(&self, before: f64) -> rusqlite::Result<Vec<String>> {
+        let db = self.db();
+        let mut st = db.prepare(
+            "SELECT handle FROM lookup_failures
+               WHERE ts < ?
+                 AND handle NOT IN (SELECT handle FROM citizens)
+                 AND handle NOT IN (SELECT handle FROM partial_citizens)
+               ORDER BY ts DESC",
+        )?;
+        st.query_map([before], |r| r.get(0))?.collect()
+    }
+
     /// Forgets an org's member list.
     pub fn drop_members(&self, sid: &str) -> rusqlite::Result<()> {
         self.db()

@@ -699,6 +699,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "scw-ui"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "ctrlc",
+ "regex",
+ "rusqlite",
+ "scw-audio",
+ "scw-input",
+ "scw-rsi",
+ "scw-store",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "scw-vision"
 version = "0.1.0"
 dependencies = [

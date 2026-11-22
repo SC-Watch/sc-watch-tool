@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames) |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -332,6 +332,36 @@ Kept as Python does it:
 - The housekeeping line reads "freed 0 MB across 0 file(s) | " when its
   folders exist but hold nothing due.
 
+**`scw-ui`** is the page's server, ui_server.py, and the `sc-watch-ui`
+program. The page itself - ui/index.html, app.js, app.css - is the Python's,
+built in byte for byte. Behind it: the state the page draws, the audit
+pictures, every write, the lookups and roster pulls it starts in the
+background, the background check, and the live stream. Everything outside -
+the clock, the network, threads, the file manager, the voice, the keys - is
+a hook, so one script drives it all.
+
+make_ui_ops.py runs the real ui_server.py on a socket, 147 requests across
+every route, on a made-up network (profiles, orgs and member lists answered
+as SENTRY answers) and a fake clock. sc-watch-ui gives the same status,
+content type and body for each, sends the same requests out, opens the same
+folders and says the same lines. At each checkpoint all three databases and
+the files it writes are the same. Nineteen of twenty deliberate breakages
+are caught; the twentieth rewords a message nobody sees while jobs run
+inline. A socket test checks the HTTP itself: HTTP/1.0, http.server's error
+pages, the stream's headers and first event.
+
+On the real data: both servers ran on copies of the dev data (120 tiles,
+both views, six flagged orgs' member lists, the watchlist, shares, phrases
+and storage panels) and gave identical answers. The comparison prints paths,
+never values, and deletes the copies.
+
+Deliberately different in the page's server:
+- The support bundle says it is not in this version yet.
+- A ghost check's HTTP failure reads as every other lookup error ("SENTRY
+  had an error (HTTP 500)"), not urllib's "HTTP Error 500: <reason>".
+- A share export's zip is this compressor's bytes; what is inside is the
+  same.
+
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
 backslash is doubled, so such a path went into the log unscrubbed.
@@ -422,6 +452,7 @@ crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist
                      sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
 crates/scw-watch     the watcher (watch.py) and the sc-watch program: tracking, announcing, lookups, audits, logs, the session
+crates/scw-ui        the page's server (ui_server.py) and the sc-watch-ui program; the page is ui/, built in
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
