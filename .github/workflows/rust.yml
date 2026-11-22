@@ -30,4 +30,20 @@ jobs:
       - name: Lint
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Test
-        run: cargo test --workspace
+        shell: bash
+        run: |
+          set -o pipefail
+          cargo test --workspace 2>&1 | tee test.log
+      # A failing test's first lines, as annotations on the run: they can be
+      # read without signing in, which the log cannot. Only committed,
+      # made-up fixtures are tested here, so nothing private is in them.
+      - name: Why the tests failed
+        if: failure()
+        shell: bash
+        run: |
+          awk '
+            /^---- .* stdout ----$/ { if (msg != "") print msg; msg = "::error title=" $2 "::"; n = 0; next }
+            /^failures:$/ { if (msg != "") print msg; msg = ""; exit }
+            msg != "" && n < 20 { gsub(/%/, "%25"); msg = msg $0 "%0A"; n++ }
+            END { if (msg != "") print msg }
+          ' test.log

@@ -132,9 +132,7 @@
 0.5
 ]
 ],
-"dirs": [
-"live_frames/dir.png"
-],
+"dirs": [],
 "managed": [
 "live_frames",
 "debug_bursts",
@@ -161,10 +159,10 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
+"examined": 18,
 "deleted": 0,
 "bytes_freed": 0,
-"kept": 19
+"kept": 18
 },
 {
 "directory": "debug_bursts",
@@ -181,7 +179,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/19 (0 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/18 (0 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -230,8 +228,8 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
-"deleted": 7,
+"examined": 18,
+"deleted": 6,
 "bytes_freed": 1254045,
 "kept": 12
 },
@@ -250,7 +248,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping would free 1 MB across 7 file(s) | live_frames: 7/19 (1 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping would free 1 MB across 6 file(s) | live_frames: 6/18 (1 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -299,8 +297,8 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
-"deleted": 16,
+"examined": 18,
+"deleted": 15,
 "bytes_freed": 3510072,
 "kept": 3
 },
@@ -319,7 +317,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping would free 4 MB across 16 file(s) | live_frames: 16/19 (4 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping would free 4 MB across 15 file(s) | live_frames: 15/18 (4 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -415,10 +413,10 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
+"examined": 18,
 "deleted": 0,
 "bytes_freed": 0,
-"kept": 19
+"kept": 18
 },
 {
 "directory": "debug_bursts",
@@ -435,7 +433,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/19 (0 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping would free 0 MB across 0 file(s) | live_frames: 0/18 (0 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -484,10 +482,10 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
+"examined": 18,
 "deleted": 3,
-"bytes_freed": 1018,
-"kept": 16
+"bytes_freed": 2028,
+"kept": 15
 },
 {
 "directory": "debug_bursts",
@@ -504,7 +502,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping would free 3 MB across 5 file(s) | live_frames: 3/19 (0 MB) | debug_bursts: 2/2 (2 MB)",
+"summary": "housekeeping would free 3 MB across 5 file(s) | live_frames: 3/18 (0 MB) | debug_bursts: 2/2 (2 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -559,13 +557,13 @@
 },
 {
 "directory": "live_frames",
-"examined": 19,
-"deleted": 7,
+"examined": 18,
+"deleted": 6,
 "bytes_freed": 1254045,
 "kept": 12
 }
 ],
-"summary": "housekeeping would free 1 MB across 8 file(s) | mine: 1/2 (0 MB) | live_frames: 7/19 (1 MB)",
+"summary": "housekeeping would free 1 MB across 7 file(s) | mine: 1/2 (0 MB) | live_frames: 6/18 (1 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -614,10 +612,10 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 19,
+"examined": 18,
 "deleted": 6,
 "bytes_freed": 1254045,
-"kept": 13
+"kept": 12
 },
 {
 "directory": "debug_bursts",
@@ -634,7 +632,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping freed 1 MB across 6 file(s) | live_frames: 6/19 (1 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping freed 1 MB across 6 file(s) | live_frames: 6/18 (1 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -677,10 +675,10 @@
 "result": [
 {
 "directory": "live_frames",
-"examined": 13,
+"examined": 12,
 "deleted": 9,
 "bytes_freed": 2256027,
-"kept": 4
+"kept": 3
 },
 {
 "directory": "debug_bursts",
@@ -697,7 +695,7 @@
 "kept": 0
 }
 ],
-"summary": "housekeeping freed 2 MB across 9 file(s) | live_frames: 9/13 (2 MB) | debug_bursts: 0/2 (0 MB)",
+"summary": "housekeeping freed 2 MB across 9 file(s) | live_frames: 9/12 (2 MB) | debug_bursts: 0/2 (0 MB)",
 "files": [
 "debug_bursts/b1.png",
 "debug_bursts/b2.png",
@@ -741,13 +739,25 @@
 40.0
 ]
 ],
+"dirs": [
+"live_frames/dir.png"
+],
+"dry": [
+{
+"directory": "live_frames",
+"examined": 6,
+"deleted": 4,
+"bytes_freed": 11,
+"kept": 2
+}
+],
 "result": [
 {
 "directory": "live_frames",
-"examined": 5,
+"examined": 6,
 "deleted": 3,
 "bytes_freed": 11,
-"kept": 2
+"kept": 3
 }
 ],
 "files": [
@@ -1201,7 +1211,7 @@
 }
 ],
 "run_now": [
-"housekeeping would free 2 MB across 3 file(s) | live_frames: 1/4 (0 MB) | debug_bursts: 2/2 (2 MB)",
-"housekeeping freed 2 MB across 2 file(s) | live_frames: 0/4 (0 MB) | debug_bursts: 2/2 (2 MB)"
+"housekeeping would free 2 MB across 2 file(s) | live_frames: 0/3 (0 MB) | debug_bursts: 2/2 (2 MB)",
+"housekeeping freed 2 MB across 2 file(s) | live_frames: 0/3 (0 MB) | debug_bursts: 2/2 (2 MB)"
 ]
 }

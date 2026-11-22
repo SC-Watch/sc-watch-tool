@@ -129,11 +129,19 @@ fn housekeeping_matches_housekeeping_py() {
     // Ties and the case-blind *.png: Windows only, where the fixture was made.
     if cfg!(windows) {
         let case = base.join("case");
-        make(&case, &fx["case"]["tree"], &json!([]), now);
+        make(&case, &fx["case"]["tree"], &fx["case"]["dirs"], now);
         let p = Policy {
             keep_newest: 2,
             ..Policy::default()
         };
+        let dry = housekeeping::sweep(&p, &case, now, false);
+        if !same(&json!(dry), &fx["case"]["dry"]) {
+            bad.push(format!(
+                "case dry run:\n    python {}\n    rust   {}",
+                fx["case"]["dry"],
+                json!(dry)
+            ));
+        }
         let res = housekeeping::sweep(&p, &case, now, true);
         if !same(&json!(res), &fx["case"]["result"]) || files(&case) != fx["case"]["files"] {
             bad.push(format!(

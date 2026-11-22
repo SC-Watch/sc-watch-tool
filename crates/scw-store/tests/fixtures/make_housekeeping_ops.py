@@ -54,7 +54,9 @@ TREE = [
     ("mine/old.jpg", 42, 100.0),
     ("mine/new.jpg", 43, 0.5),
 ]
-DIRS = ["live_frames/dir.png"]                        # a folder that looks like a frame
+# A folder that looks like a frame is in the Windows scenario: a folder's
+# size is 0 there and 4096 on Linux, and a dry run counts it as freed.
+DIRS = []
 
 
 def make(root, tree, dirs):
@@ -116,9 +118,12 @@ CASE = Path(tempfile.mkdtemp())
 CASE_TREE = [("live_frames/a.png", 1, 30.0), ("live_frames/b.jpg", 2, 30.0),
              ("live_frames/C.PNG", 3, 30.0), ("live_frames/d.Jpg", 4, 30.0),
              ("live_frames/e.png", 5, 40.0)]
-make(CASE, CASE_TREE, [])
+CASE_DIRS = ["live_frames/dir.png"]
+make(CASE, CASE_TREE, CASE_DIRS)
+case_dry = housekeeping.sweep(pol(keep_newest=2), root=CASE, apply=False)
 case_res = housekeeping.sweep(pol(keep_newest=2), root=CASE, apply=True)
-case = {"tree": CASE_TREE, "result": [asdict(r) for r in case_res], "files": files(CASE)}
+case = {"tree": CASE_TREE, "dirs": CASE_DIRS, "dry": [asdict(r) for r in case_dry],
+        "result": [asdict(r) for r in case_res], "files": files(CASE)}
 
 # ---- Policy.load ------------------------------------------------------------------
 FULL = {"housekeeping_enabled": True, "max_age_hours": 48.0, "keep_newest": 5,
