@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher under way (tracking, checks, logs and the lookup worker done; the session and the program next) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -256,6 +256,27 @@ bytes (tools/settings_compare.py). Known: a number past 64 bits reaches the
 port as a float, so as text it reads "1e+30" where Python prints every
 digit; as a number or a switch it clamps the same.
 
+**`scw-watch`** is the watcher, watch.py, being ported in parts. Done so
+far:
+
+- **The small pieces.** Contact tracking and repeat suppression (a longer
+  reading of the same contact corrects a shorter one). The binding,
+  chat-region and focus-size checks with their messages. The "waiting for"
+  label. sightings.csv, written as Python's csv module writes it. The
+  session log (debuglog.DebugLog). Every step and line matches the Python;
+  twelve deliberate breakages are each caught.
+- **The lookup worker** (RsiEnricher). It has its retry ladders, service
+  pauses, expired copies, SENTRY still checking, misread audits with their
+  pictures, and a flag alerted once. It is a core driven a step at a time,
+  plus a thread around it. A 51-step script on a scripted client and fake
+  clock gives watch.py's lookups at the same moments. The lines, alerts, log
+  events, failure notes, retry state, rows and audit pictures all match.
+  Thirteen deliberate breakages are each caught.
+
+Deliberately stricter than debuglog.py: a Windows home folder inside an
+event's values is scrubbed. debuglog.py scrubs the JSON text, where every
+backslash is doubled, so such a path went into the log unscrubbed.
+
 ## The replay tool
 
 ```
@@ -341,6 +362,7 @@ crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
                      sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
+crates/scw-watch     the watcher (watch.py): tracking, announcing, lookups, audits, logs
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
