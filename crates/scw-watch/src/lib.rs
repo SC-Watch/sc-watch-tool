@@ -10,11 +10,13 @@ pub mod audit;
 pub mod config;
 pub mod debuglog;
 pub mod enricher;
+pub mod session;
 pub mod sightings;
 pub mod sinks;
 pub mod tracker;
 
 pub use config::{ConfigError, parse_bindings, parse_chat_region, parse_focus_size, waiting_label};
 pub use debuglog::{DebugLog, Scrub};
+pub use session::{Mode, Parts, Session, SessionOptions, Stop};
 pub use sightings::SightingsLog;
 pub use tracker::{Announcer, Track, Tracker};

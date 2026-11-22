@@ -185,6 +185,17 @@ impl Burst {
     /// A world label counts as a player when `listed` says the handle is on
     /// one of the user's lists. Plates with no range are left out.
     pub fn tally(&mut self, contacts: &[Contact], listed: &dyn Fn(&str) -> bool) -> usize {
+        self.tally_with(contacts, listed, |_| {})
+    }
+
+    /// [`Burst::tally`], telling `player` about each contact taken as a
+    /// player (the watcher keeps the boxes behind each reading).
+    pub fn tally_with(
+        &mut self,
+        contacts: &[Contact],
+        listed: &dyn Fn(&str) -> bool,
+        mut player: impl FnMut(&Contact),
+    ) -> usize {
         let mut named = 0;
         for c in contacts {
             let Some(km) = c.range_km else {
@@ -202,6 +213,7 @@ impl Burst {
                         cx: c.name_box.x as f64 + c.name_box.w as f64 / 2.0,
                         cy: c.name_box.y as f64,
                     });
+                    player(c);
                     named += 1;
                 }
                 NameKind::Unreadable => self.unreadable += 1,

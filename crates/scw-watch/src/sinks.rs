@@ -11,6 +11,41 @@ pub trait Console: Send + Sync {
     fn say(&self, text: &str);
     fn status(&self, text: &str);
     fn done(&self) {}
+    /// A plain line on standard output (the summary, housekeeping).
+    fn print(&self, text: &str) {
+        println!("{text}");
+    }
+    /// A plain line on standard error (a failed restart).
+    fn eprint(&self, text: &str) {
+        eprintln!("{text}");
+    }
+}
+
+/// The alert player's failures and repairs, for the session's summary.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AudioHealth {
+    pub failures: u64,
+    pub repairs: u64,
+    pub last_error: String,
+    /// What it can play: {"tones": bool, "speech": bool}.
+    pub available: Value,
+    /// Alerts dropped unsaid because they waited too long.
+    pub expired: u64,
+    /// How long an alert may wait before it is dropped, in seconds.
+    pub max_alert_age: f64,
+}
+
+impl Default for AudioHealth {
+    fn default() -> Self {
+        AudioHealth {
+            failures: 0,
+            repairs: 0,
+            last_error: String::new(),
+            available: Value::Object(Default::default()),
+            expired: 0,
+            max_alert_age: 20.0,
+        }
+    }
 }
 
 /// One contact in a burst's alert (watch.Session._burst_audio's payload).
@@ -31,16 +66,25 @@ pub trait AlertSink: Send + Sync {
     fn event(&self, kind: &str, handle: Option<&str>, flags: &[String], range_km: Option<f64>);
     fn burst_result(&self, contacts: &[Spoken]);
     fn close(&self) {}
+    fn health(&self) -> AudioHealth {
+        AudioHealth::default()
+    }
 }
 
 /// Where structured events go (debuglog.DebugLog.event).
 pub trait EventLog: Send + Sync {
     fn event(&self, kind: &str, fields: &[(&str, Value)]);
+    /// The session's closing numbers.
+    fn close(&self, _summary: &[(&str, Value)]) {}
 }
 
 impl EventLog for crate::DebugLog {
     fn event(&self, kind: &str, fields: &[(&str, Value)]) {
         crate::DebugLog::event(self, kind, fields)
+    }
+
+    fn close(&self, summary: &[(&str, Value)]) {
+        crate::DebugLog::close(self, summary)
     }
 }
 

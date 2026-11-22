@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher under way (tracking, checks, logs and the lookup worker done; the session and the program next) |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher under way (tracking, checks, logs, the lookup worker and the session done; the program next) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -272,6 +272,29 @@ far:
   clock gives watch.py's lookups at the same moments. The lines, alerts, log
   events, failure notes, retry state, rows and audit pictures all match.
   Thirteen deliberate breakages are each caught.
+- **The session** (watch.Session). It covers the key loop with its queue
+  and ping delay, the auto loop with its tracker, and bursts read frame by
+  frame with announcements as they go. Each burst is settled into
+  sightings.csv, the database, weak-read audits and the lookup queue. Then
+  come the burst's alert, restart, the shutdown wait for lookups, and the
+  summary. Everything it uses is handed to it: frames, reader, keys,
+  console, alerts, log, database, lookup queue, clock, restart flag and
+  housekeeping. Eleven scenarios run the real watch.Session on a scripted
+  reader and keys and a fake clock. They give the same lines, status
+  changes, alerts, log events, lookups (with the crops' pixels), reader
+  calls, CSV, rows, audit pictures, summary and exit code. The clock ends at
+  the same moment to the last bit, so every wait loop turned as often.
+  Twenty deliberate breakages are each caught.
+
+Deliberately different in the session. Reading chat needs OCR, which this
+version lacks: the chat key says so instead of reading. `--debug` saves each
+frame and logs its size, but the OCR pipeline's diagnostics (boxes, pairs,
+the km gate) are not there. Ctrl+C is noticed at the next key poll or loop
+turn (within 30 ms), not at whatever line Python was on.
+
+Kept as Python does it: a burst's alert lists every contact the burst
+settled, labels on the ignore list included; only the console and the
+records leave them out.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
@@ -362,7 +385,7 @@ crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
                      sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
-crates/scw-watch     the watcher (watch.py): tracking, announcing, lookups, audits, logs
+crates/scw-watch     the watcher (watch.py): tracking, announcing, lookups, audits, logs, the session
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
