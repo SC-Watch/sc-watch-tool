@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing and housekeeping done**; settings and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -240,6 +240,22 @@ A dry run over this PC's real data folder is identical: 307 frames due in
 debug_bursts, 26 audits and 2 orphan images, nothing deleted
 (tools/housekeeping_compare.py).
 
+**`scw-store::settings`** is settings.py. Its schema is data, as settings.py
+intends: `settings_schema.json` is settings.py's own `describe()` (every
+setting's type, default, range, label and help), generated from it, so the
+page's form and every default are the Python's by construction. The code
+holds the rules. Each value is clamped to its field's type and range (the
+default when it cannot be read); two superseded defaults are upgraded; a
+save merges over the file under its lock. On top is a typed `Settings` for
+the watcher, with enums for the choices, which must cover exactly the
+schema. Clamping 14 fields of every kind against 46 awkward values (CI),
+loading 11 crafted files and a sequence of saves all match settings.py.
+Eleven deliberate breakages are each caught. On copies of this PC's two
+settings files, the load matches and an unchanged save writes the same
+bytes (tools/settings_compare.py). Known: a number past 64 bits reaches the
+port as a float, so as text it reads "1e+30" where Python prints every
+digit; as a number or a switch it clamps the same.
+
 ## The replay tool
 
 ```
@@ -323,7 +339,7 @@ crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
-                     sharing with org mates, frame and audit housekeeping
+                     sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON

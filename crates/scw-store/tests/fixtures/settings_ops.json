@@ -1,0 +1,4802 @@
+{
+"defaults": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"clamps": [
+{
+"field": "gate",
+"value": true,
+"result": true
+},
+{
+"field": "gate",
+"value": false,
+"result": false
+},
+{
+"field": "gate",
+"value": 0,
+"result": false
+},
+{
+"field": "gate",
+"value": 1,
+"result": true
+},
+{
+"field": "gate",
+"value": -1,
+"result": true
+},
+{
+"field": "gate",
+"value": 2,
+"result": true
+},
+{
+"field": "gate",
+"value": 2.5,
+"result": true
+},
+{
+"field": "gate",
+"value": 3.5,
+"result": true
+},
+{
+"field": "gate",
+"value": -0.5,
+"result": true
+},
+{
+"field": "gate",
+"value": 0.49,
+"result": true
+},
+{
+"field": "gate",
+"value": 1e+300,
+"result": true
+},
+{
+"field": "gate",
+"value": -1e+300,
+"result": true
+},
+{
+"field": "gate",
+"value": 1000000000000000000000000000000,
+"result": true
+},
+{
+"field": "gate",
+"value": "4",
+"result": true
+},
+{
+"field": "gate",
+"value": " 4 ",
+"result": true
+},
+{
+"field": "gate",
+"value": "2.5",
+"result": true
+},
+{
+"field": "gate",
+"value": "1e3",
+"result": true
+},
+{
+"field": "gate",
+"value": "1_000",
+"result": true
+},
+{
+"field": "gate",
+"value": "_1",
+"result": false
+},
+{
+"field": "gate",
+"value": "1__0",
+"result": false
+},
+{
+"field": "gate",
+"value": "+3",
+"result": true
+},
+{
+"field": "gate",
+"value": "-0",
+"result": false
+},
+{
+"field": "gate",
+"value": ".5",
+"result": true
+},
+{
+"field": "gate",
+"value": "5.",
+"result": true
+},
+{
+"field": "gate",
+"value": "on",
+"result": true
+},
+{
+"field": "gate",
+"value": "Yes",
+"result": true
+},
+{
+"field": "gate",
+"value": "Y",
+"result": true
+},
+{
+"field": "gate",
+"value": "off",
+"result": false
+},
+{
+"field": "gate",
+"value": "no",
+"result": false
+},
+{
+"field": "gate",
+"value": "",
+"result": false
+},
+{
+"field": "gate",
+"value": "  ",
+"result": false
+},
+{
+"field": "gate",
+"value": "nan",
+"result": true
+},
+{
+"field": "gate",
+"value": "inf",
+"result": true
+},
+{
+"field": "gate",
+"value": "-Infinity",
+"result": true
+},
+{
+"field": "gate",
+"value": "abc",
+"result": false
+},
+{
+"field": "gate",
+"value": null,
+"result": false
+},
+{
+"field": "gate",
+"value": [],
+"result": false
+},
+{
+"field": "gate",
+"value": [
+1
+],
+"result": true
+},
+{
+"field": "gate",
+"value": {},
+"result": false
+},
+{
+"field": "gate",
+"value": {
+"a": 1
+},
+"result": true
+},
+{
+"field": "gate",
+"value": "auto",
+"result": false
+},
+{
+"field": "gate",
+"value": "key",
+"result": false
+},
+{
+"field": "gate",
+"value": "iris+ocr",
+"result": false
+},
+{
+"field": "gate",
+"value": "IRIS",
+"result": false
+},
+{
+"field": "gate",
+"value": "f9",
+"result": false
+},
+{
+"field": "gate",
+"value": "1200x600",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": true,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": false,
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": 0,
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": 1,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": -1,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 2,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 2.5,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 3.5,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": -0.5,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 0.49,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 1e+300,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": -1e+300,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": 1000000000000000000000000000000,
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "4",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": " 4 ",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "2.5",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "1e3",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "1_000",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "_1",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "1__0",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "+3",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "-0",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": ".5",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "5.",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "on",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "Yes",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "Y",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "off",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "no",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "  ",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "nan",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "inf",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "-Infinity",
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "abc",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": null,
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": [],
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": [
+1
+],
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": {},
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": {
+"a": 1
+},
+"result": true
+},
+{
+"field": "dual_on_read",
+"value": "auto",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "key",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "iris+ocr",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "IRIS",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "f9",
+"result": false
+},
+{
+"field": "dual_on_read",
+"value": "1200x600",
+"result": false
+},
+{
+"field": "burst",
+"value": true,
+"result": 1
+},
+{
+"field": "burst",
+"value": false,
+"result": 1
+},
+{
+"field": "burst",
+"value": 0,
+"result": 1
+},
+{
+"field": "burst",
+"value": 1,
+"result": 1
+},
+{
+"field": "burst",
+"value": -1,
+"result": 1
+},
+{
+"field": "burst",
+"value": 2,
+"result": 2
+},
+{
+"field": "burst",
+"value": 2.5,
+"result": 2
+},
+{
+"field": "burst",
+"value": 3.5,
+"result": 4
+},
+{
+"field": "burst",
+"value": -0.5,
+"result": 1
+},
+{
+"field": "burst",
+"value": 0.49,
+"result": 1
+},
+{
+"field": "burst",
+"value": 1e+300,
+"result": 10
+},
+{
+"field": "burst",
+"value": -1e+300,
+"result": 1
+},
+{
+"field": "burst",
+"value": 1000000000000000000000000000000,
+"result": 10
+},
+{
+"field": "burst",
+"value": "4",
+"result": 4
+},
+{
+"field": "burst",
+"value": " 4 ",
+"result": 4
+},
+{
+"field": "burst",
+"value": "2.5",
+"result": 2
+},
+{
+"field": "burst",
+"value": "1e3",
+"result": 10
+},
+{
+"field": "burst",
+"value": "1_000",
+"result": 10
+},
+{
+"field": "burst",
+"value": "_1",
+"result": 3
+},
+{
+"field": "burst",
+"value": "1__0",
+"result": 3
+},
+{
+"field": "burst",
+"value": "+3",
+"result": 3
+},
+{
+"field": "burst",
+"value": "-0",
+"result": 1
+},
+{
+"field": "burst",
+"value": ".5",
+"result": 1
+},
+{
+"field": "burst",
+"value": "5.",
+"result": 5
+},
+{
+"field": "burst",
+"value": "on",
+"result": 3
+},
+{
+"field": "burst",
+"value": "Yes",
+"result": 3
+},
+{
+"field": "burst",
+"value": "Y",
+"result": 3
+},
+{
+"field": "burst",
+"value": "off",
+"result": 3
+},
+{
+"field": "burst",
+"value": "no",
+"result": 3
+},
+{
+"field": "burst",
+"value": "",
+"result": 3
+},
+{
+"field": "burst",
+"value": "  ",
+"result": 3
+},
+{
+"field": "burst",
+"value": "nan",
+"result": 3
+},
+{
+"field": "burst",
+"value": "inf",
+"result": 3
+},
+{
+"field": "burst",
+"value": "-Infinity",
+"result": 3
+},
+{
+"field": "burst",
+"value": "abc",
+"result": 3
+},
+{
+"field": "burst",
+"value": null,
+"result": 3
+},
+{
+"field": "burst",
+"value": [],
+"result": 3
+},
+{
+"field": "burst",
+"value": [
+1
+],
+"result": 3
+},
+{
+"field": "burst",
+"value": {},
+"result": 3
+},
+{
+"field": "burst",
+"value": {
+"a": 1
+},
+"result": 3
+},
+{
+"field": "burst",
+"value": "auto",
+"result": 3
+},
+{
+"field": "burst",
+"value": "key",
+"result": 3
+},
+{
+"field": "burst",
+"value": "iris+ocr",
+"result": 3
+},
+{
+"field": "burst",
+"value": "IRIS",
+"result": 3
+},
+{
+"field": "burst",
+"value": "f9",
+"result": 3
+},
+{
+"field": "burst",
+"value": "1200x600",
+"result": 3
+},
+{
+"field": "keep_newest",
+"value": true,
+"result": 1
+},
+{
+"field": "keep_newest",
+"value": false,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 0,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 1,
+"result": 1
+},
+{
+"field": "keep_newest",
+"value": -1,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 2,
+"result": 2
+},
+{
+"field": "keep_newest",
+"value": 2.5,
+"result": 2
+},
+{
+"field": "keep_newest",
+"value": 3.5,
+"result": 4
+},
+{
+"field": "keep_newest",
+"value": -0.5,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 0.49,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 1e+300,
+"result": 2000
+},
+{
+"field": "keep_newest",
+"value": -1e+300,
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": 1000000000000000000000000000000,
+"result": 2000
+},
+{
+"field": "keep_newest",
+"value": "4",
+"result": 4
+},
+{
+"field": "keep_newest",
+"value": " 4 ",
+"result": 4
+},
+{
+"field": "keep_newest",
+"value": "2.5",
+"result": 2
+},
+{
+"field": "keep_newest",
+"value": "1e3",
+"result": 1000
+},
+{
+"field": "keep_newest",
+"value": "1_000",
+"result": 1000
+},
+{
+"field": "keep_newest",
+"value": "_1",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "1__0",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "+3",
+"result": 3
+},
+{
+"field": "keep_newest",
+"value": "-0",
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": ".5",
+"result": 0
+},
+{
+"field": "keep_newest",
+"value": "5.",
+"result": 5
+},
+{
+"field": "keep_newest",
+"value": "on",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "Yes",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "Y",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "off",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "no",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "  ",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "nan",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "inf",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "-Infinity",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "abc",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": null,
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": [],
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": [
+1
+],
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": {},
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": {
+"a": 1
+},
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "auto",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "key",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "iris+ocr",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "IRIS",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "f9",
+"result": 20
+},
+{
+"field": "keep_newest",
+"value": "1200x600",
+"result": 20
+},
+{
+"field": "port",
+"value": true,
+"result": 1024
+},
+{
+"field": "port",
+"value": false,
+"result": 1024
+},
+{
+"field": "port",
+"value": 0,
+"result": 1024
+},
+{
+"field": "port",
+"value": 1,
+"result": 1024
+},
+{
+"field": "port",
+"value": -1,
+"result": 1024
+},
+{
+"field": "port",
+"value": 2,
+"result": 1024
+},
+{
+"field": "port",
+"value": 2.5,
+"result": 1024
+},
+{
+"field": "port",
+"value": 3.5,
+"result": 1024
+},
+{
+"field": "port",
+"value": -0.5,
+"result": 1024
+},
+{
+"field": "port",
+"value": 0.49,
+"result": 1024
+},
+{
+"field": "port",
+"value": 1e+300,
+"result": 65535
+},
+{
+"field": "port",
+"value": -1e+300,
+"result": 1024
+},
+{
+"field": "port",
+"value": 1000000000000000000000000000000,
+"result": 65535
+},
+{
+"field": "port",
+"value": "4",
+"result": 1024
+},
+{
+"field": "port",
+"value": " 4 ",
+"result": 1024
+},
+{
+"field": "port",
+"value": "2.5",
+"result": 1024
+},
+{
+"field": "port",
+"value": "1e3",
+"result": 1024
+},
+{
+"field": "port",
+"value": "1_000",
+"result": 1024
+},
+{
+"field": "port",
+"value": "_1",
+"result": 8731
+},
+{
+"field": "port",
+"value": "1__0",
+"result": 8731
+},
+{
+"field": "port",
+"value": "+3",
+"result": 1024
+},
+{
+"field": "port",
+"value": "-0",
+"result": 1024
+},
+{
+"field": "port",
+"value": ".5",
+"result": 1024
+},
+{
+"field": "port",
+"value": "5.",
+"result": 1024
+},
+{
+"field": "port",
+"value": "on",
+"result": 8731
+},
+{
+"field": "port",
+"value": "Yes",
+"result": 8731
+},
+{
+"field": "port",
+"value": "Y",
+"result": 8731
+},
+{
+"field": "port",
+"value": "off",
+"result": 8731
+},
+{
+"field": "port",
+"value": "no",
+"result": 8731
+},
+{
+"field": "port",
+"value": "",
+"result": 8731
+},
+{
+"field": "port",
+"value": "  ",
+"result": 8731
+},
+{
+"field": "port",
+"value": "nan",
+"result": 8731
+},
+{
+"field": "port",
+"value": "inf",
+"result": 8731
+},
+{
+"field": "port",
+"value": "-Infinity",
+"result": 8731
+},
+{
+"field": "port",
+"value": "abc",
+"result": 8731
+},
+{
+"field": "port",
+"value": null,
+"result": 8731
+},
+{
+"field": "port",
+"value": [],
+"result": 8731
+},
+{
+"field": "port",
+"value": [
+1
+],
+"result": 8731
+},
+{
+"field": "port",
+"value": {},
+"result": 8731
+},
+{
+"field": "port",
+"value": {
+"a": 1
+},
+"result": 8731
+},
+{
+"field": "port",
+"value": "auto",
+"result": 8731
+},
+{
+"field": "port",
+"value": "key",
+"result": 8731
+},
+{
+"field": "port",
+"value": "iris+ocr",
+"result": 8731
+},
+{
+"field": "port",
+"value": "IRIS",
+"result": 8731
+},
+{
+"field": "port",
+"value": "f9",
+"result": 8731
+},
+{
+"field": "port",
+"value": "1200x600",
+"result": 8731
+},
+{
+"field": "max_files_per_dir",
+"value": true,
+"result": 1
+},
+{
+"field": "max_files_per_dir",
+"value": false,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 0,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 1,
+"result": 1
+},
+{
+"field": "max_files_per_dir",
+"value": -1,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 2,
+"result": 2
+},
+{
+"field": "max_files_per_dir",
+"value": 2.5,
+"result": 2
+},
+{
+"field": "max_files_per_dir",
+"value": 3.5,
+"result": 4
+},
+{
+"field": "max_files_per_dir",
+"value": -0.5,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 0.49,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 1e+300,
+"result": 100000
+},
+{
+"field": "max_files_per_dir",
+"value": -1e+300,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": 1000000000000000000000000000000,
+"result": 100000
+},
+{
+"field": "max_files_per_dir",
+"value": "4",
+"result": 4
+},
+{
+"field": "max_files_per_dir",
+"value": " 4 ",
+"result": 4
+},
+{
+"field": "max_files_per_dir",
+"value": "2.5",
+"result": 2
+},
+{
+"field": "max_files_per_dir",
+"value": "1e3",
+"result": 1000
+},
+{
+"field": "max_files_per_dir",
+"value": "1_000",
+"result": 1000
+},
+{
+"field": "max_files_per_dir",
+"value": "_1",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "1__0",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "+3",
+"result": 3
+},
+{
+"field": "max_files_per_dir",
+"value": "-0",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": ".5",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "5.",
+"result": 5
+},
+{
+"field": "max_files_per_dir",
+"value": "on",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "Yes",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "Y",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "off",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "no",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "  ",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "nan",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "inf",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "-Infinity",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "abc",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": null,
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": [],
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": [
+1
+],
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": {},
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": {
+"a": 1
+},
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "auto",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "key",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "iris+ocr",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "IRIS",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "f9",
+"result": 0
+},
+{
+"field": "max_files_per_dir",
+"value": "1200x600",
+"result": 0
+},
+{
+"field": "burst_spacing",
+"value": true,
+"result": 1.0
+},
+{
+"field": "burst_spacing",
+"value": false,
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": 0,
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": 1,
+"result": 1.0
+},
+{
+"field": "burst_spacing",
+"value": -1,
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": 2,
+"result": 2.0
+},
+{
+"field": "burst_spacing",
+"value": 2.5,
+"result": 2.5
+},
+{
+"field": "burst_spacing",
+"value": 3.5,
+"result": 3.5
+},
+{
+"field": "burst_spacing",
+"value": -0.5,
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": 0.49,
+"result": 0.49
+},
+{
+"field": "burst_spacing",
+"value": 1e+300,
+"result": 5.0
+},
+{
+"field": "burst_spacing",
+"value": -1e+300,
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": 1000000000000000000000000000000,
+"result": 5.0
+},
+{
+"field": "burst_spacing",
+"value": "4",
+"result": 4.0
+},
+{
+"field": "burst_spacing",
+"value": " 4 ",
+"result": 4.0
+},
+{
+"field": "burst_spacing",
+"value": "2.5",
+"result": 2.5
+},
+{
+"field": "burst_spacing",
+"value": "1e3",
+"result": 5.0
+},
+{
+"field": "burst_spacing",
+"value": "1_000",
+"result": 5.0
+},
+{
+"field": "burst_spacing",
+"value": "_1",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "1__0",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "+3",
+"result": 3.0
+},
+{
+"field": "burst_spacing",
+"value": "-0",
+"result": 0.0
+},
+{
+"field": "burst_spacing",
+"value": ".5",
+"result": 0.5
+},
+{
+"field": "burst_spacing",
+"value": "5.",
+"result": 5.0
+},
+{
+"field": "burst_spacing",
+"value": "on",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "Yes",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "Y",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "off",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "no",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "  ",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "nan",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "inf",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "-Infinity",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "abc",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": null,
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": [],
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": [
+1
+],
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": {},
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": {
+"a": 1
+},
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "auto",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "key",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "iris+ocr",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "IRIS",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "f9",
+"result": 0.1
+},
+{
+"field": "burst_spacing",
+"value": "1200x600",
+"result": 0.1
+},
+{
+"field": "volume",
+"value": true,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": false,
+"result": 0.0
+},
+{
+"field": "volume",
+"value": 0,
+"result": 0.0
+},
+{
+"field": "volume",
+"value": 1,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": -1,
+"result": 0.0
+},
+{
+"field": "volume",
+"value": 2,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": 2.5,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": 3.5,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": -0.5,
+"result": 0.0
+},
+{
+"field": "volume",
+"value": 0.49,
+"result": 0.49
+},
+{
+"field": "volume",
+"value": 1e+300,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": -1e+300,
+"result": 0.0
+},
+{
+"field": "volume",
+"value": 1000000000000000000000000000000,
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "4",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": " 4 ",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "2.5",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "1e3",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "1_000",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "_1",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "1__0",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "+3",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "-0",
+"result": 0.0
+},
+{
+"field": "volume",
+"value": ".5",
+"result": 0.5
+},
+{
+"field": "volume",
+"value": "5.",
+"result": 1.0
+},
+{
+"field": "volume",
+"value": "on",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "Yes",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "Y",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "off",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "no",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "  ",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "nan",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "inf",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "-Infinity",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "abc",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": null,
+"result": 0.9
+},
+{
+"field": "volume",
+"value": [],
+"result": 0.9
+},
+{
+"field": "volume",
+"value": [
+1
+],
+"result": 0.9
+},
+{
+"field": "volume",
+"value": {},
+"result": 0.9
+},
+{
+"field": "volume",
+"value": {
+"a": 1
+},
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "auto",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "key",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "iris+ocr",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "IRIS",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "f9",
+"result": 0.9
+},
+{
+"field": "volume",
+"value": "1200x600",
+"result": 0.9
+},
+{
+"field": "max_age_hours",
+"value": true,
+"result": 1.0
+},
+{
+"field": "max_age_hours",
+"value": false,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 0,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 1,
+"result": 1.0
+},
+{
+"field": "max_age_hours",
+"value": -1,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 2,
+"result": 2.0
+},
+{
+"field": "max_age_hours",
+"value": 2.5,
+"result": 2.5
+},
+{
+"field": "max_age_hours",
+"value": 3.5,
+"result": 3.5
+},
+{
+"field": "max_age_hours",
+"value": -0.5,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 0.49,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 1e+300,
+"result": 8760.0
+},
+{
+"field": "max_age_hours",
+"value": -1e+300,
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": 1000000000000000000000000000000,
+"result": 8760.0
+},
+{
+"field": "max_age_hours",
+"value": "4",
+"result": 4.0
+},
+{
+"field": "max_age_hours",
+"value": " 4 ",
+"result": 4.0
+},
+{
+"field": "max_age_hours",
+"value": "2.5",
+"result": 2.5
+},
+{
+"field": "max_age_hours",
+"value": "1e3",
+"result": 1000.0
+},
+{
+"field": "max_age_hours",
+"value": "1_000",
+"result": 1000.0
+},
+{
+"field": "max_age_hours",
+"value": "_1",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "1__0",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "+3",
+"result": 3.0
+},
+{
+"field": "max_age_hours",
+"value": "-0",
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": ".5",
+"result": 0.5
+},
+{
+"field": "max_age_hours",
+"value": "5.",
+"result": 5.0
+},
+{
+"field": "max_age_hours",
+"value": "on",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "Yes",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "Y",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "off",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "no",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "  ",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "nan",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "inf",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "-Infinity",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "abc",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": null,
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": [],
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": [
+1
+],
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": {},
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": {
+"a": 1
+},
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "auto",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "key",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "iris+ocr",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "IRIS",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "f9",
+"result": 24.0
+},
+{
+"field": "max_age_hours",
+"value": "1200x600",
+"result": 24.0
+},
+{
+"field": "trigger",
+"value": true,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": false,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 0,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 1,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": -1,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 2,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 2.5,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 3.5,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": -0.5,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 0.49,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 1e+300,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": -1e+300,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": 1000000000000000000000000000000,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "4",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": " 4 ",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "2.5",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "1e3",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "1_000",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "_1",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "1__0",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "+3",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "-0",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": ".5",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "5.",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "on",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "Yes",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "Y",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "off",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "no",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "  ",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "nan",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "inf",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "-Infinity",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "abc",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": null,
+"result": "key"
+},
+{
+"field": "trigger",
+"value": [],
+"result": "key"
+},
+{
+"field": "trigger",
+"value": [
+1
+],
+"result": "key"
+},
+{
+"field": "trigger",
+"value": {},
+"result": "key"
+},
+{
+"field": "trigger",
+"value": {
+"a": 1
+},
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "auto",
+"result": "auto"
+},
+{
+"field": "trigger",
+"value": "key",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "iris+ocr",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "IRIS",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "f9",
+"result": "key"
+},
+{
+"field": "trigger",
+"value": "1200x600",
+"result": "key"
+},
+{
+"field": "reader",
+"value": true,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": false,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 0,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 1,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": -1,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 2,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 2.5,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 3.5,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": -0.5,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 0.49,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 1e+300,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": -1e+300,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": 1000000000000000000000000000000,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "4",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": " 4 ",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "2.5",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "1e3",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "1_000",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "_1",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "1__0",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "+3",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "-0",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": ".5",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "5.",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "on",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "Yes",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "Y",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "off",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "no",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "  ",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "nan",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "inf",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "-Infinity",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "abc",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": null,
+"result": "iris"
+},
+{
+"field": "reader",
+"value": [],
+"result": "iris"
+},
+{
+"field": "reader",
+"value": [
+1
+],
+"result": "iris"
+},
+{
+"field": "reader",
+"value": {},
+"result": "iris"
+},
+{
+"field": "reader",
+"value": {
+"a": 1
+},
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "auto",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "key",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "iris+ocr",
+"result": "iris+ocr"
+},
+{
+"field": "reader",
+"value": "IRIS",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "f9",
+"result": "iris"
+},
+{
+"field": "reader",
+"value": "1200x600",
+"result": "iris"
+},
+{
+"field": "hdr_capture",
+"value": true,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": false,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 0,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 1,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": -1,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 2,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 2.5,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 3.5,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": -0.5,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 0.49,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 1e+300,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": -1e+300,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": 1000000000000000000000000000000,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "4",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": " 4 ",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "2.5",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "1e3",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "1_000",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "_1",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "1__0",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "+3",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "-0",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": ".5",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "5.",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "on",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "Yes",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "Y",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "off",
+"result": "off"
+},
+{
+"field": "hdr_capture",
+"value": "no",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "  ",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "nan",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "inf",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "-Infinity",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "abc",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": null,
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": [],
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": [
+1
+],
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": {},
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": {
+"a": 1
+},
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "auto",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "key",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "iris+ocr",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "IRIS",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "f9",
+"result": "auto"
+},
+{
+"field": "hdr_capture",
+"value": "1200x600",
+"result": "auto"
+},
+{
+"field": "key",
+"value": true,
+"result": "True"
+},
+{
+"field": "key",
+"value": false,
+"result": "False"
+},
+{
+"field": "key",
+"value": 0,
+"result": "0"
+},
+{
+"field": "key",
+"value": 1,
+"result": "1"
+},
+{
+"field": "key",
+"value": -1,
+"result": "-1"
+},
+{
+"field": "key",
+"value": 2,
+"result": "2"
+},
+{
+"field": "key",
+"value": 2.5,
+"result": "2.5"
+},
+{
+"field": "key",
+"value": 3.5,
+"result": "3.5"
+},
+{
+"field": "key",
+"value": -0.5,
+"result": "-0.5"
+},
+{
+"field": "key",
+"value": 0.49,
+"result": "0.49"
+},
+{
+"field": "key",
+"value": 1e+300,
+"result": "1e+300"
+},
+{
+"field": "key",
+"value": -1e+300,
+"result": "-1e+300"
+},
+{
+"field": "key",
+"value": 1000000000000000000000000000000,
+"result": "1000000000000000000000000000000"
+},
+{
+"field": "key",
+"value": "4",
+"result": "4"
+},
+{
+"field": "key",
+"value": " 4 ",
+"result": " 4 "
+},
+{
+"field": "key",
+"value": "2.5",
+"result": "2.5"
+},
+{
+"field": "key",
+"value": "1e3",
+"result": "1e3"
+},
+{
+"field": "key",
+"value": "1_000",
+"result": "1_000"
+},
+{
+"field": "key",
+"value": "_1",
+"result": "_1"
+},
+{
+"field": "key",
+"value": "1__0",
+"result": "1__0"
+},
+{
+"field": "key",
+"value": "+3",
+"result": "+3"
+},
+{
+"field": "key",
+"value": "-0",
+"result": "-0"
+},
+{
+"field": "key",
+"value": ".5",
+"result": ".5"
+},
+{
+"field": "key",
+"value": "5.",
+"result": "5."
+},
+{
+"field": "key",
+"value": "on",
+"result": "on"
+},
+{
+"field": "key",
+"value": "Yes",
+"result": "Yes"
+},
+{
+"field": "key",
+"value": "Y",
+"result": "Y"
+},
+{
+"field": "key",
+"value": "off",
+"result": "off"
+},
+{
+"field": "key",
+"value": "no",
+"result": "no"
+},
+{
+"field": "key",
+"value": "",
+"result": ""
+},
+{
+"field": "key",
+"value": "  ",
+"result": "  "
+},
+{
+"field": "key",
+"value": "nan",
+"result": "nan"
+},
+{
+"field": "key",
+"value": "inf",
+"result": "inf"
+},
+{
+"field": "key",
+"value": "-Infinity",
+"result": "-Infinity"
+},
+{
+"field": "key",
+"value": "abc",
+"result": "abc"
+},
+{
+"field": "key",
+"value": null,
+"result": "None"
+},
+{
+"field": "key",
+"value": [],
+"result": "[]"
+},
+{
+"field": "key",
+"value": [
+1
+],
+"result": "[1]"
+},
+{
+"field": "key",
+"value": {},
+"result": "{}"
+},
+{
+"field": "key",
+"value": {
+"a": 1
+},
+"result": "{'a': 1}"
+},
+{
+"field": "key",
+"value": "auto",
+"result": "auto"
+},
+{
+"field": "key",
+"value": "key",
+"result": "key"
+},
+{
+"field": "key",
+"value": "iris+ocr",
+"result": "iris+ocr"
+},
+{
+"field": "key",
+"value": "IRIS",
+"result": "IRIS"
+},
+{
+"field": "key",
+"value": "f9",
+"result": "f9"
+},
+{
+"field": "key",
+"value": "1200x600",
+"result": "1200x600"
+},
+{
+"field": "chat_region",
+"value": true,
+"result": "True"
+},
+{
+"field": "chat_region",
+"value": false,
+"result": "False"
+},
+{
+"field": "chat_region",
+"value": 0,
+"result": "0"
+},
+{
+"field": "chat_region",
+"value": 1,
+"result": "1"
+},
+{
+"field": "chat_region",
+"value": -1,
+"result": "-1"
+},
+{
+"field": "chat_region",
+"value": 2,
+"result": "2"
+},
+{
+"field": "chat_region",
+"value": 2.5,
+"result": "2.5"
+},
+{
+"field": "chat_region",
+"value": 3.5,
+"result": "3.5"
+},
+{
+"field": "chat_region",
+"value": -0.5,
+"result": "-0.5"
+},
+{
+"field": "chat_region",
+"value": 0.49,
+"result": "0.49"
+},
+{
+"field": "chat_region",
+"value": 1e+300,
+"result": "1e+300"
+},
+{
+"field": "chat_region",
+"value": -1e+300,
+"result": "-1e+300"
+},
+{
+"field": "chat_region",
+"value": 1000000000000000000000000000000,
+"result": "1000000000000000000000000000000"
+},
+{
+"field": "chat_region",
+"value": "4",
+"result": "4"
+},
+{
+"field": "chat_region",
+"value": " 4 ",
+"result": " 4 "
+},
+{
+"field": "chat_region",
+"value": "2.5",
+"result": "2.5"
+},
+{
+"field": "chat_region",
+"value": "1e3",
+"result": "1e3"
+},
+{
+"field": "chat_region",
+"value": "1_000",
+"result": "1_000"
+},
+{
+"field": "chat_region",
+"value": "_1",
+"result": "_1"
+},
+{
+"field": "chat_region",
+"value": "1__0",
+"result": "1__0"
+},
+{
+"field": "chat_region",
+"value": "+3",
+"result": "+3"
+},
+{
+"field": "chat_region",
+"value": "-0",
+"result": "-0"
+},
+{
+"field": "chat_region",
+"value": ".5",
+"result": ".5"
+},
+{
+"field": "chat_region",
+"value": "5.",
+"result": "5."
+},
+{
+"field": "chat_region",
+"value": "on",
+"result": "on"
+},
+{
+"field": "chat_region",
+"value": "Yes",
+"result": "Yes"
+},
+{
+"field": "chat_region",
+"value": "Y",
+"result": "Y"
+},
+{
+"field": "chat_region",
+"value": "off",
+"result": "off"
+},
+{
+"field": "chat_region",
+"value": "no",
+"result": "no"
+},
+{
+"field": "chat_region",
+"value": "",
+"result": ""
+},
+{
+"field": "chat_region",
+"value": "  ",
+"result": "  "
+},
+{
+"field": "chat_region",
+"value": "nan",
+"result": "nan"
+},
+{
+"field": "chat_region",
+"value": "inf",
+"result": "inf"
+},
+{
+"field": "chat_region",
+"value": "-Infinity",
+"result": "-Infinity"
+},
+{
+"field": "chat_region",
+"value": "abc",
+"result": "abc"
+},
+{
+"field": "chat_region",
+"value": null,
+"result": "None"
+},
+{
+"field": "chat_region",
+"value": [],
+"result": "[]"
+},
+{
+"field": "chat_region",
+"value": [
+1
+],
+"result": "[1]"
+},
+{
+"field": "chat_region",
+"value": {},
+"result": "{}"
+},
+{
+"field": "chat_region",
+"value": {
+"a": 1
+},
+"result": "{'a': 1}"
+},
+{
+"field": "chat_region",
+"value": "auto",
+"result": "auto"
+},
+{
+"field": "chat_region",
+"value": "key",
+"result": "key"
+},
+{
+"field": "chat_region",
+"value": "iris+ocr",
+"result": "iris+ocr"
+},
+{
+"field": "chat_region",
+"value": "IRIS",
+"result": "IRIS"
+},
+{
+"field": "chat_region",
+"value": "f9",
+"result": "f9"
+},
+{
+"field": "chat_region",
+"value": "1200x600",
+"result": "1200x600"
+}
+],
+"loads": [
+{
+"label": "missing",
+"text": null,
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "empty",
+"text": "{}",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "bom",
+"text": "\ufeff{\"burst\": 5, \"trigger\": \"auto\"}",
+"result": {
+"trigger": "auto",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 5,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "unknown keys",
+"text": "{\"nope\": 1, \"burst\": 4, \"focus_always\": true}",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 4,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "old defaults",
+"text": "{\"chat_region\": \" 0.15,0.30,0.35,0.45 \", \"focus_size\": \"1200x600\"}",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "typed old default",
+"text": "{\"chat_region\": \"0.15,0.30,0.35,0.46\", \"focus_size\": 1200}",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "0.15,0.30,0.35,0.46",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "1200",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "nan and infinity",
+"text": "{\"burst_spacing\": NaN, \"volume\": Infinity, \"burst\": -Infinity}",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "a list",
+"text": "[1, 2, 3]",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "broken",
+"text": "{nope",
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"label": "all junk",
+"text": "{\"trigger\": \"junk\", \"key\": \"junk\", \"focus_key\": \"junk\", \"chat_key\": \"junk\", \"chat_region\": \"junk\", \"dual_key\": \"junk\", \"dual_on_read\": \"junk\", \"focus_size\": \"junk\", \"focus_mask\": \"junk\", \"burst\": \"junk\", \"burst_spacing\": \"junk\", \"ping_delay\": \"junk\", \"auto_read_delay\": \"junk\", \"monitor\": \"junk\", \"hdr_capture\": \"junk\", \"hz\": \"junk\", \"queue_max\": \"junk\", \"reader\": \"junk\", \"scan_area\": \"junk\", \"auto_scan_area\": \"junk\", \"opencv_threads\": \"junk\", \"min_votes\": \"junk\", \"gate\": \"junk\", \"dim_range_retry\": \"junk\", \"haze\": \"junk\", \"cooldown\": \"junk\", \"radius\": \"junk\", \"expire\": \"junk\", \"audio_mode\": \"junk\", \"volume\": \"junk\", \"rate\": \"junk\", \"speak_handles\": \"junk\", \"max_spoken_per_burst\": \"junk\", \"summarise_above\": \"junk\", \"rsi_enabled\": \"junk\", \"rsi_source\": \"junk\", \"rsi_min_votes\": \"junk\", \"rsi_mode\": \"junk\", \"watchlist_enabled\": \"junk\", \"watchlist_variants\": \"junk\", \"debug_log\": \"junk\", \"audit_enabled\": \"junk\", \"audit_max_age_days\": \"junk\", \"audit_keep_frame\": \"junk\", \"audit_frame_quality\": \"junk\", \"debug_frames\": \"junk\", \"housekeeping_enabled\": \"junk\", \"housekeeping_on_start\": \"junk\", \"housekeeping_every_min\": \"junk\", \"max_age_hours\": \"junk\", \"keep_newest\": \"junk\", \"max_files_per_dir\": \"junk\", \"port\": \"junk\", \"open_browser\": \"junk\", \"max_contacts\": \"junk\", \"tile_size\": \"junk\", \"tile_square\": \"junk\", \"show_advanced\": \"junk\"}",
+"result": {
+"trigger": "key",
+"key": "junk",
+"focus_key": "junk",
+"chat_key": "junk",
+"chat_region": "junk",
+"dual_key": "junk",
+"dual_on_read": false,
+"focus_size": "junk",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.9,
+"rate": 175,
+"speak_handles": false,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": false,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": false,
+"watchlist_variants": false,
+"debug_log": false,
+"audit_enabled": false,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": false,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": false,
+"housekeeping_on_start": false,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": false,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": false,
+"show_advanced": false
+}
+},
+{
+"label": "everything set",
+"text": "{\"trigger\": \"key\", \"key\": \"f9\", \"focus_key\": \"9\", \"chat_key\": \"off\", \"chat_region\": \"auto\", \"dual_key\": \"off\", \"dual_on_read\": false, \"focus_size\": \"auto\", \"focus_mask\": false, \"burst\": 7, \"burst_spacing\": 0.1, \"ping_delay\": 0.0, \"auto_read_delay\": 0.5, \"monitor\": 2, \"hdr_capture\": \"auto\", \"hz\": 5.0, \"queue_max\": 3, \"reader\": \"ocr\", \"scan_area\": \"whole\", \"auto_scan_area\": \"narrow\", \"opencv_threads\": 2, \"min_votes\": 1, \"gate\": false, \"dim_range_retry\": false, \"haze\": false, \"cooldown\": 300.0, \"radius\": 180.0, \"expire\": 20.0, \"audio_mode\": \"both\", \"volume\": 0.25, \"rate\": 175, \"speak_handles\": true, \"max_spoken_per_burst\": 2, \"summarise_above\": 3, \"rsi_enabled\": true, \"rsi_source\": \"sentry\", \"rsi_min_votes\": 2, \"rsi_mode\": \"auto\", \"watchlist_enabled\": true, \"watchlist_variants\": true, \"debug_log\": true, \"audit_enabled\": true, \"audit_max_age_days\": 7.0, \"audit_keep_frame\": true, \"audit_frame_quality\": 90, \"debug_frames\": false, \"housekeeping_enabled\": true, \"housekeeping_on_start\": true, \"housekeeping_every_min\": 30.0, \"max_age_hours\": 24.0, \"keep_newest\": 20, \"max_files_per_dir\": 0, \"port\": 80, \"open_browser\": true, \"max_contacts\": 120, \"tile_size\": 380, \"tile_square\": true, \"show_advanced\": false}",
+"result": {
+"trigger": "key",
+"key": "f9",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 7,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 2,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "ocr",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.25,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 1024,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+}
+],
+"saves": [
+{
+"values": {
+"burst": "6",
+"volume": 2,
+"nope": 1
+},
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"values": {
+"trigger": "auto",
+"key": " f10 "
+},
+"result": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"values": {},
+"result": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"values": {
+"chat_region": "0.15,0.30,0.35,0.45"
+},
+"result": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "0.15,0.30,0.35,0.45",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "0.15,0.30,0.35,0.45",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 6,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+},
+{
+"values": {
+"burst": null,
+"port": "8000"
+},
+"result": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8000,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "auto",
+"key": " f10 ",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 1.0,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8000,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+}
+],
+"save_over": {
+"start": {
+"focus_size": "1200x600",
+"burst": "x",
+"nope": 2
+},
+"result": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.5,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+},
+"file": {
+"trigger": "key",
+"key": "0",
+"focus_key": "9",
+"chat_key": "off",
+"chat_region": "auto",
+"dual_key": "off",
+"dual_on_read": false,
+"focus_size": "auto",
+"focus_mask": false,
+"burst": 3,
+"burst_spacing": 0.1,
+"ping_delay": 0.0,
+"auto_read_delay": 0.5,
+"monitor": 1,
+"hdr_capture": "auto",
+"hz": 5.0,
+"queue_max": 3,
+"reader": "iris",
+"scan_area": "whole",
+"auto_scan_area": "narrow",
+"opencv_threads": 2,
+"min_votes": 1,
+"gate": false,
+"dim_range_retry": false,
+"haze": false,
+"cooldown": 300.0,
+"radius": 180.0,
+"expire": 20.0,
+"audio_mode": "both",
+"volume": 0.5,
+"rate": 175,
+"speak_handles": true,
+"max_spoken_per_burst": 2,
+"summarise_above": 3,
+"rsi_enabled": true,
+"rsi_source": "sentry",
+"rsi_min_votes": 2,
+"rsi_mode": "auto",
+"watchlist_enabled": true,
+"watchlist_variants": true,
+"debug_log": true,
+"audit_enabled": true,
+"audit_max_age_days": 7.0,
+"audit_keep_frame": true,
+"audit_frame_quality": 90,
+"debug_frames": false,
+"housekeeping_enabled": true,
+"housekeeping_on_start": true,
+"housekeeping_every_min": 30.0,
+"max_age_hours": 24.0,
+"keep_newest": 20,
+"max_files_per_dir": 0,
+"port": 8731,
+"open_browser": true,
+"max_contacts": 120,
+"tile_size": 380,
+"tile_square": true,
+"show_advanced": false
+}
+}
+}
