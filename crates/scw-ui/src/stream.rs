@@ -13,6 +13,11 @@ use crate::Ui;
 
 pub const POLL: f64 = 0.4;
 pub const KEEPALIVE: f64 = 15.0;
+/// With in-process changes: how often the files are looked at for writers
+/// outside this process.
+pub const OUTSIDE: f64 = 2.0;
+/// After a wake: lets the commit that woke it land before it is read.
+pub const SETTLE_MS: u64 = 50;
 
 /// A number that changes whenever anyone commits to one SQLite file.
 /// Read-only, opened lazily, never creating the file.
@@ -71,6 +76,8 @@ impl Ui {
         };
         let (mut last, mut last_beat) = (None, 0.0);
         while keep_going() {
+            // Read before the stamp, so a commit in between is not missed.
+            let seen = self.changes.as_ref().map(|c| c.seen());
             let now = self.now();
             let cur = stamp();
             let wrote = if last != Some(cur) {
@@ -90,7 +97,16 @@ impl Ui {
             if wrote.is_err() {
                 return; // tab closed or reloaded
             }
-            self.clock.sleep(POLL);
+            match (&self.changes, seen) {
+                // In one process the watcher's commits wake the stream at
+                // once; the files are still looked at now and then, for
+                // anything writing from outside.
+                (Some(ch), Some(s)) => {
+                    ch.wait_past(s, std::time::Duration::from_secs_f64(OUTSIDE));
+                    std::thread::sleep(std::time::Duration::from_millis(SETTLE_MS));
+                }
+                _ => self.clock.sleep(POLL),
+            }
         }
     }
 }

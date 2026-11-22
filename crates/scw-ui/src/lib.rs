@@ -11,6 +11,7 @@
 //! the whole server on a script.
 
 pub mod collect;
+pub mod desktop;
 pub mod http;
 pub mod jobs;
 pub mod routes;
@@ -26,7 +27,8 @@ use regex::Regex;
 use serde_json::{Map, Value, json};
 
 use scw_input::InputState;
-use scw_rsi::{Cache, Client, Clock, Options, RequestLog, Transport};
+use scw_rsi::{Client, ClientHub, Clock, Transport};
+use scw_store::db::Changes;
 use scw_store::flags::Flags;
 use scw_store::json::{py_repr_str, py_str, py_strip};
 use scw_store::paths::Roots;
@@ -45,7 +47,19 @@ pub type Revealer = Box<dyn Fn(&Path) -> Result<(), String> + Send + Sync>;
 /// Says a line; Err is why it cannot.
 pub type Speaker = Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 /// Reads the environment.
-pub type Env = Box<dyn Fn(&str) -> Option<String> + Send + Sync>;
+pub type Env = Arc<dyn Fn(&str) -> Option<String> + Send + Sync>;
+
+/// What the one-process program plugs in: the watcher in the same process
+/// restarts on a word rather than a flag file, and hears about settings.
+pub struct Links {
+    /// Asks the watcher to restart at its next idle moment.
+    pub restart_watcher: Box<dyn Fn() + Send + Sync>,
+    /// Told after settings are saved: (before, after).
+    pub settings_saved: SettingsSaved,
+}
+
+/// Told after settings are saved: (before, after).
+pub type SettingsSaved = Box<dyn Fn(&Map<String, Value>, &Map<String, Value>) + Send + Sync>;
 
 /// Everything outside the server.
 pub struct Hooks {
@@ -135,16 +149,18 @@ pub struct State {
     pub wl_tried: Option<bool>,
 }
 
-type ClientKey = (String, String, Option<String>, PathBuf);
-
 pub struct Ui {
     pub roots: Roots,
     pub clock: Arc<dyn Clock>,
-    pub transport: Arc<dyn Transport>,
+    /// The lookup client, shared with the watcher in one process.
+    pub hub: Arc<ClientHub>,
     pub hooks: Hooks,
     pub shutting_down: AtomicBool,
+    /// Commits in this process, so the stream redraws at once (None: it
+    /// looks every 0.4 s, as the Python's).
+    pub changes: Option<Arc<Changes>>,
+    pub links: Option<Links>,
     state: Mutex<State>,
-    client: Mutex<Option<(ClientKey, Arc<Client>)>>,
 }
 
 /// Python's truthiness of a JSON value.
@@ -285,14 +301,33 @@ impl Ui {
         transport: Arc<dyn Transport>,
         hooks: Hooks,
     ) -> Self {
+        let hub = Arc::new(ClientHub::new(
+            roots.data.clone(),
+            clock.clone(),
+            transport,
+            "page",
+            hooks.utc,
+            hooks.env.clone(),
+        ));
+        Self::with_hub(roots, clock, hub, hooks)
+    }
+
+    /// A page sharing a lookup client with the rest of the program.
+    pub fn with_hub(
+        roots: Roots,
+        clock: Arc<dyn Clock>,
+        hub: Arc<ClientHub>,
+        hooks: Hooks,
+    ) -> Self {
         Ui {
             roots,
             clock,
-            transport,
+            hub,
             hooks,
             shutting_down: AtomicBool::new(false),
+            changes: None,
+            links: None,
             state: Mutex::new(State::default()),
-            client: Mutex::new(None),
         }
     }
 
@@ -328,51 +363,10 @@ impl Ui {
         Flags::load(&self.roots.data.join("flags.json"))
     }
 
-    fn api_key(&self) -> Option<String> {
-        scw_rsi::find_api_key((self.hooks.env)("SC_API_KEY").as_deref(), &self.key_file())
-    }
-
-    /// The page's one lookup client, rebuilt only when what it was built
-    /// from changes (mode, source, key): the pacing and the outage breaker
-    /// live on it.
+    /// The program's one lookup client (from the hub, which rebuilds it
+    /// only when what it was built from changes).
     pub fn client(&self) -> Result<Arc<Client>, String> {
-        let cfg = self.settings();
-        let text = |k: &str, d: &str| cfg.get(k).and_then(Value::as_str).unwrap_or(d).to_string();
-        let key: ClientKey = (
-            text("rsi_mode", "auto"),
-            text("rsi_source", "sentry"),
-            self.api_key(),
-            self.cache_path(),
-        );
-        let mut g = self.client.lock().unwrap_or_else(|e| e.into_inner());
-        if let Some((k, c)) = g.as_ref()
-            && *k == key
-        {
-            return Ok(c.clone());
-        }
-        let cache = Cache::open(&self.roots.data(&["rsi_cache.db"]), self.clock.clone())
-            .map_err(|e| e.to_string())?;
-        let (a, b) = scw_rsi::SENTRY_LOG;
-        let opts = Options {
-            api_key: key.2.clone(),
-            mode: key.0.clone(),
-            sentry: key.1 != "sci",
-            log: Some(Arc::new(RequestLog {
-                // The folder is made when the first line is written.
-                path: self.roots.data.join(a).join(b),
-                process: "page".into(),
-                utc: self.hooks.utc,
-            })),
-            ..Options::default()
-        };
-        let c = Arc::new(Client::new(
-            Arc::new(cache),
-            self.transport.clone(),
-            self.clock.clone(),
-            opts,
-        ));
-        *g = Some((key, c.clone()));
-        Ok(c)
+        self.hub.get()
     }
 
     /// Is the watchlist feature on? (watchlist.enabled: a broken settings
@@ -427,6 +421,9 @@ impl Ui {
     pub fn open_db(&self) -> Result<Database, String> {
         let mut db =
             Database::open(&self.roots.data(&["sc-watch.db"])).map_err(|e| e.to_string())?;
+        if let Some(ch) = &self.changes {
+            scw_store::db::watch(&mut db.conn, ch.clone());
+        }
         let clock = self.clock.clone();
         db.clock = Box::new(move || clock.time());
         db.utc_dates = self.hooks.utc;

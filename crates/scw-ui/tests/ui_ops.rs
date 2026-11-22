@@ -245,7 +245,7 @@ fn server_matches_ui_server_py() {
                 mask: first.mask,
             })
         }),
-        env: Box::new(|_| None),
+        env: Arc::new(|_| None),
         today: Box::new(move || {
             DateTime::from_timestamp(c2.time() as i64, 0)
                 .unwrap()

@@ -81,7 +81,13 @@ impl Database {
     /// the system clock, no verifier, no watchlist.
     pub fn open(path: &Path) -> rusqlite::Result<Self> {
         let conn = crate::db::open(path)?;
-        migrate(&conn)?;
+        // Once per file per process, as reputation.Database does.
+        if crate::db::migrated_once(path)
+            && let Err(e) = migrate(&conn)
+        {
+            crate::db::forget(Some(path));
+            return Err(e);
+        }
         Ok(Self {
             conn,
             root: path

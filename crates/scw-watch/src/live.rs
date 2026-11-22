@@ -182,6 +182,19 @@ impl AudioSink {
         }
     }
 
+    /// Swaps in a player built from changed settings; the old one finishes
+    /// what it has queued on its own thread.
+    pub fn replace(&self, new: scw_audio::Alerts) {
+        let old = self
+            .alerts
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .replace(new);
+        if let Some(o) = old {
+            std::thread::spawn(move || o.close());
+        }
+    }
+
     fn with(&self, f: impl FnOnce(&scw_audio::Alerts)) {
         if let Some(a) = self
             .alerts

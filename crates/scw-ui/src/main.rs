@@ -1,88 +1,22 @@
 //! sc-watch-ui (ui_server.py's main): serves the page on 127.0.0.1 and opens
 //! a browser at it. Same rule as the watcher: saved settings are the
-//! defaults (`port`, `open_browser`), a flag still wins.
+//! defaults (`port`, `open_browser`), a flag still wins. (`sc-watch` serves
+//! the same page from the watcher's own process.)
 
 use std::net::TcpListener;
+use std::sync::Arc;
 use std::sync::atomic::Ordering;
-use std::sync::{Arc, Mutex};
 
-use chrono::Local;
 use serde_json::Value;
 
 use scw_rsi::{Https, SystemClock};
 use scw_store::paths::Roots;
 use scw_store::settings;
-use scw_ui::jobs::{FOCUS_SWEEP_EVERY, FOCUS_SWEEP_FIRST};
-use scw_ui::{HOST, Hooks, PORT, Ui, http};
+use scw_ui::{HOST, PORT, Ui, desktop, http};
 
 fn usage(msg: &str) -> i32 {
     eprintln!("usage: sc-watch-ui [-h] [--port PORT] [--no-browser]\nsc-watch-ui: error: {msg}");
     2
-}
-
-fn reveal(p: &std::path::Path) -> Result<(), String> {
-    let prog = if cfg!(windows) {
-        "explorer"
-    } else if cfg!(target_os = "macos") {
-        "open"
-    } else {
-        "xdg-open"
-    };
-    std::process::Command::new(prog)
-        .arg(p)
-        .spawn()
-        .map(|_| ())
-        .map_err(|_| "OSError".to_string())
-}
-
-fn open_browser(url: &str) {
-    let _ = if cfg!(windows) {
-        std::process::Command::new("cmd")
-            .args(["/C", "start", "", url])
-            .spawn()
-    } else if cfg!(target_os = "macos") {
-        std::process::Command::new("open").arg(url).spawn()
-    } else {
-        std::process::Command::new("xdg-open").arg(url).spawn()
-    };
-}
-
-/// The "hear it" voice: one alert player for the life of the page.
-fn speaker(roots: Roots) -> impl Fn(&str) -> Result<(), String> + Send + Sync {
-    let voice: Mutex<Option<scw_audio::Alerts>> = Mutex::new(None);
-    move |text: &str| {
-        let mut g = voice.lock().unwrap_or_else(|e| e.into_inner());
-        if g.is_none() {
-            let path = roots.data(&["audio.json"]);
-            let mut cfg = scw_audio::AudioConfig::load(&path);
-            let s = settings::load(&roots.data.join("settings.json"));
-            cfg.mode = "speech".into();
-            if let Some(v) = s.get("volume").and_then(Value::as_f64) {
-                cfg.volume = v;
-            }
-            if let Some(v) = s.get("rate").and_then(Value::as_i64) {
-                cfg.rate = v;
-            }
-            #[cfg(windows)]
-            let a = scw_audio::Alerts::new(
-                cfg,
-                &path,
-                &roots.data_dir(&["tones"]),
-                None,
-                Some(scw_audio::windows::SapiVoice::maker()),
-            );
-            #[cfg(not(windows))]
-            let a = scw_audio::Alerts::new(cfg, &path, &roots.data_dir(&["tones"]), None, None);
-            if !a.health().speech {
-                return Err("no speech engine on this machine".into());
-            }
-            *g = Some(a);
-        }
-        if let Some(a) = g.as_ref() {
-            a.say(text);
-        }
-        Ok(())
-    }
 }
 
 fn main() {
@@ -154,31 +88,11 @@ fn run() -> i32 {
             return 1;
         }
     };
-    let hooks = Hooks {
-        spawn: Box::new(|job| {
-            std::thread::spawn(job);
-        }),
-        reveal: Box::new(reveal),
-        speak: Box::new(speaker(roots.clone())),
-        input: Box::new(|| -> Box<dyn scw_input::InputState> {
-            #[cfg(windows)]
-            {
-                Box::new(scw_input::windows::WindowsInput)
-            }
-            #[cfg(not(windows))]
-            {
-                Box::new(NoInput)
-            }
-        }),
-        env: Box::new(|k| std::env::var(k).ok()),
-        today: Box::new(|| Local::now().date_naive()),
-        utc: false,
-    };
     let ui = Arc::new(Ui::new(
         roots.clone(),
         Arc::new(SystemClock),
         Arc::new(Https::new()),
-        hooks,
+        desktop::hooks(&roots),
     ));
     let url = format!("http://{HOST}:{port}/");
     let rule = "=".repeat(58);
@@ -192,21 +106,10 @@ fn run() -> i32 {
         let u = url.clone();
         std::thread::spawn(move || {
             std::thread::sleep(std::time::Duration::from_millis(600));
-            open_browser(&u);
+            desktop::open_browser(&u);
         });
     }
-    {
-        let ui = ui.clone();
-        std::thread::spawn(move || {
-            std::thread::sleep(std::time::Duration::from_secs_f64(FOCUS_SWEEP_FIRST));
-            while !ui.shutting_down.load(Ordering::Relaxed) {
-                for line in ui.sweep_once() {
-                    println!("{line}");
-                }
-                std::thread::sleep(std::time::Duration::from_secs_f64(FOCUS_SWEEP_EVERY));
-            }
-        });
-    }
+    desktop::start_sweeper(ui.clone());
     {
         let ui = ui.clone();
         let _ = ctrlc::set_handler(move || {
@@ -216,20 +119,4 @@ fn run() -> i32 {
     }
     http::serve(ui, listener);
     0
-}
-
-#[cfg(not(windows))]
-struct NoInput;
-
-#[cfg(not(windows))]
-impl scw_input::InputState for NoInput {
-    fn key_down(&self, _: u32) -> bool {
-        false
-    }
-    fn devices(&self) -> Vec<scw_input::Device> {
-        Vec::new()
-    }
-    fn buttons_down(&self, _: u32) -> u32 {
-        0
-    }
 }

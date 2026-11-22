@@ -634,6 +634,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
+name = "scw-app"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "ctrlc",
+ "rusqlite",
+ "scw-audio",
+ "scw-input",
+ "scw-rsi",
+ "scw-store",
+ "scw-ui",
+ "scw-vision",
+ "scw-watch",
+ "serde_json",
+]
+
+[[package]]
 name = "scw-audio"
 version = "0.1.0"
 dependencies = [

@@ -71,7 +71,7 @@ fn http_as_python_http_server_speaks_it() {
         reveal: Box::new(|_| Ok(())),
         speak: Box::new(|_| Ok(())),
         input: Box::new(|| panic!("no input here")),
-        env: Box::new(|_| None),
+        env: Arc::new(|_| None),
         today: Box::new(|| chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap()),
         utc: true,
     };

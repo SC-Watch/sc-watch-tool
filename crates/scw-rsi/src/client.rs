@@ -134,6 +134,39 @@ pub struct Client {
     clock: Arc<dyn Clock>,
     transport: Arc<dyn Transport>,
     state: Mutex<State>,
+    /// Lookups being answered now, so a second ask waits for the first.
+    flights: Mutex<HashMap<(String, bool, bool), Arc<Flight>>>,
+}
+
+/// One lookup in flight; whoever asks the same meanwhile waits for it.
+#[derive(Default)]
+struct Flight {
+    answer: Mutex<Option<Result<Citizen, LookupError>>>,
+    done: std::sync::Condvar,
+}
+
+/// Lands an answer even if the lookup panicked, so no one waits forever.
+struct Landing<'a> {
+    client: &'a Client,
+    key: (String, bool, bool),
+    flight: Arc<Flight>,
+    answer: Option<Result<Citizen, LookupError>>,
+}
+
+impl Drop for Landing<'_> {
+    fn drop(&mut self) {
+        let answer = self
+            .answer
+            .take()
+            .unwrap_or_else(|| Err(LookupError::other("RuntimeError", "the lookup stopped")));
+        *self.flight.answer.lock().unwrap_or_else(|e| e.into_inner()) = Some(answer);
+        self.flight.done.notify_all();
+        self.client
+            .flights
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .remove(&self.key);
+    }
 }
 
 /// Python's `int(value)` for what an API can send.
@@ -207,6 +240,7 @@ impl Client {
             clock,
             transport,
             state: Mutex::new(State::default()),
+            flights: Mutex::new(HashMap::new()),
         }
     }
 
@@ -544,7 +578,36 @@ impl Client {
         if !fresh && let Some(c) = self.cache.get_citizen(handle, false)? {
             return Ok(c);
         }
-        self.resolve(handle, fresh, true, live)
+        // The same question asked twice at once is answered once: the
+        // second waits for the first rather than asking again.
+        let key = (handle.to_uppercase(), fresh, live);
+        let (flight, leader) = {
+            let mut m = self.flights.lock().unwrap_or_else(|e| e.into_inner());
+            match m.get(&key) {
+                Some(f) => (f.clone(), false),
+                None => {
+                    let f = Arc::new(Flight::default());
+                    m.insert(key.clone(), f.clone());
+                    (f, true)
+                }
+            }
+        };
+        if !leader {
+            let mut g = flight.answer.lock().unwrap_or_else(|e| e.into_inner());
+            while g.is_none() {
+                g = flight.done.wait(g).unwrap_or_else(|e| e.into_inner());
+            }
+            return g.clone().unwrap();
+        }
+        let mut landing = Landing {
+            client: self,
+            key,
+            flight,
+            answer: None,
+        };
+        let r = self.resolve(handle, fresh, true, live);
+        landing.answer = Some(r.clone());
+        r
     }
 
     /// Seen, but nobody here can check it.

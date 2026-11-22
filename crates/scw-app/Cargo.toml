@@ -1,0 +1,28 @@
+[package]
+name = "scw-app"
+description = "sc-watch in one process: the watcher and its page as tasks, sharing one lookup client"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "sc-watch"
+path = "src/main.rs"
+
+[dependencies]
+ctrlc = "3.4.5"
+scw-audio = { path = "../scw-audio" }
+scw-rsi = { path = "../scw-rsi" }
+scw-store = { path = "../scw-store" }
+scw-ui = { path = "../scw-ui" }
+scw-watch = { path = "../scw-watch" }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+
+[dev-dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+rusqlite = { version = "0.43", features = ["bundled", "hooks"] }
+scw-input = { path = "../scw-input" }
+scw-vision = { path = "../scw-vision" }

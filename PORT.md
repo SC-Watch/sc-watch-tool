@@ -12,9 +12,9 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
-| 3 | One process and the page | - |
+| 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
@@ -292,7 +292,7 @@ frame and logs its size, but the OCR pipeline's diagnostics (boxes, pairs,
 the km gate) are not there. Ctrl+C is noticed at the next key poll or loop
 turn (within 30 ms), not at whatever line Python was on.
 
-- **The program** (`sc-watch`, watch.py's main). The command line has
+- **The program** (`sc-watch-watcher`, watch.py's main). The command line has
   the saved settings as its defaults and argparse's rules: abbreviations,
   `--flag=value`, Python's number rules, the same error messages and exit
   codes. Eighty command lines over three settings files match
@@ -361,6 +361,61 @@ Deliberately different in the page's server:
   had an error (HTTP 500)"), not urllib's "HTTP Error 500: <reason>".
 - A share export's zip is this compressor's bytes; what is inside is the
   same.
+
+## One process (phase 3)
+
+`sc-watch` is the watcher and its page in one process (crate `scw-app`). It
+takes the watcher's options, which are watch.py's, and three of its own:
+`--no-page`, `--port N` and `--no-browser`. The two-process programs are
+still built: `sc-watch-watcher` (watch.py) and `sc-watch-ui`
+(ui_server.py), the ones the parity checks run.
+
+What one process changes:
+- **Restart.** The page's restart button tells the watcher directly. The
+  session ends at its next idle moment, as it did on the flag file, and the
+  next one starts with the saved settings. No flag file, no new process.
+- **Settings.** The schema marks what the watcher reads only at start.
+  Saving one of those restarts the session the same way, so there is no
+  button to press. The alert settings rebuild the alert player. Audits,
+  frame saving and housekeeping reach the running session in place.
+- **One lookup client** (`scw_rsi::ClientHub`), shared by the watcher's
+  lookups and the page's buttons: one rate limiter, one outage breaker, one
+  set of remembered answers. It is rebuilt when its settings change. Two
+  asks for the same handle at once send one request; the second waits for
+  the first's answer.
+- **The page hears about commits.** Every connection in the process
+  announces its commits (`scw_store::db::Changes`, a commit hook), and the
+  stream wakes at once instead of polling every 0.4 s. It still looks at the
+  files every 2 s for anything writing from outside.
+- **A watcher that will not start** (a bad binding saved, say) leaves the
+  page up to fix it, and starts again on the next save.
+
+Checked:
+- **Real frames.** `sc-watch --no-page` gives watch.py's session on real
+  frames, identical (announcements, CSV, rows, audit pixels, log events).
+  With the page on, a replay leaves the page answering exactly what
+  watch.py plus ui_server.py answer on the same frames, on two folders.
+- **Tests.** `app_ops` runs real sessions on made-up parts alongside the
+  real page: a burst reaches the stream at once, audits switched off on the
+  page stop the next audit, and the restart button and a restart-marked
+  setting each start a new session. `stream_wake` shows the stream waits on
+  commits, not a timer. `flight` shows two lookups of one handle send one
+  request.
+- **Live.** The restart button and a setting both started new sessions in
+  one running process on the real screen.
+
+Found while doing it, and fixed to match the Python:
+- The port ran its database migrations on every open, where
+  reputation.Database runs them once per file per process
+  (`dbopen.migrated_once`). Each run was a commit, which in one process
+  woke the page for nothing.
+- The watcher's housekeeping read its settings once at the session's start.
+  Python's `Policy.load()` reads them at every sweep, so a retention change
+  on the page applies at the next one.
+
+Not done: the page still receives the whole state on each change rather
+than what changed, because that needs app.js to change, and ui/ is still
+the Python's.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
@@ -451,14 +506,14 @@ crates/scw-input     key and joystick bindings, and the Windows state readers
 crates/scw-store     the JSON config files, report flags, sc-watch.db, watchlist.db,
                      sharing with org mates, frame and audit housekeeping, settings
 crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
-crates/scw-watch     the watcher (watch.py) and the sc-watch program: tracking, announcing, lookups, audits, logs, the session
+crates/scw-watch     the watcher (watch.py) and the sc-watch-watcher program: tracking, announcing, lookups, audits, logs, the session
 crates/scw-ui        the page's server (ui_server.py) and the sc-watch-ui program; the page is ui/, built in
+crates/scw-app       sc-watch: the watcher and the page in one process
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 
-Planned beside it: `scw-mining`, `scw-overlay`, and `sc-watch`, the app that
-joins them.
+Planned beside it: `scw-mining` and `scw-overlay`, joining `sc-watch`.
 
 Licence: GPL-3.0-or-later, as the rest of sc-watch. The IRIS reader and the
 mining overlay are ported from IRIS (github.com/Niteb1rd/IRIS, GPL-3.0).

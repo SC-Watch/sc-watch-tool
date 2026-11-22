@@ -12,7 +12,7 @@ publish.workspace = true
 regex = "1"
 scw-vision = { path = "../scw-vision" }
 serde = { version = "1", features = ["derive"] }
-rusqlite = { version = "0.43", features = ["bundled"] }
+rusqlite = { version = "0.43", features = ["bundled", "hooks"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 zip = { version = "9.7.3", default-features = false, features = ["deflate"] }

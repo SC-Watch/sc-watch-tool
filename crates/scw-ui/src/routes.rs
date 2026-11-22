@@ -422,7 +422,14 @@ impl Ui {
                     .cloned()
                     .unwrap_or(json!({}));
                 let values = values.as_object().cloned().unwrap_or_default();
+                let before = self.settings();
                 let saved = settings::save(&values, &self.roots.data(&["settings.json"]))?;
+                if let Some(l) = &self.links {
+                    (l.settings_saved)(&before, &saved);
+                }
+                if let Some(ch) = &self.changes {
+                    ch.bump();
+                }
                 return Ok(json!({"ok": true, "values": saved}));
             }
             "/api/maintenance" => return self.maintenance(p),
@@ -675,13 +682,18 @@ impl Ui {
 
     /// Leaves the watcher a note to restart itself.
     fn restart_watcher(&self) -> Value {
+        let said = "asked the watcher to restart — it picks this up while idle, within a \
+                    second or two. If nothing happens, no watcher is running.";
+        // In one process: a word to the watcher, no file.
+        if let Some(l) = &self.links {
+            (l.restart_watcher)();
+            return json!({"ok": true, "message": said});
+        }
         let text = scw_store::json::py_repr(&json!(self.now()));
         if let Err(e) = std::fs::write(self.data().join("restart.flag"), text) {
             return json!({"ok": false, "error": format!("could not write the flag: {e}")});
         }
-        json!({"ok": true,
-               "message": "asked the watcher to restart — it picks this up while idle, within a \
-                           second or two. If nothing happens, no watcher is running."})
+        json!({"ok": true, "message": said})
     }
 
     /// Opens one of the app's own folders, named by key - never a path.

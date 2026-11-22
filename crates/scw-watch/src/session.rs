@@ -120,8 +120,25 @@ impl LookupQueue for NoLookups {
 pub trait Restart {
     /// True once per request: the request is used up by asking.
     fn requested(&self) -> bool;
-    /// Starts the program over; returns only if that failed, with why.
-    fn relaunch(&self) -> String;
+    /// Starts the watcher over. Some(why) when that failed; None when the
+    /// session only has to end and the program starts the next one (in
+    /// one process: no new process, nothing to fail).
+    fn relaunch(&self) -> Option<String>;
+}
+
+/// A restart inside one process: the page sets the word, the session
+/// ends at its next idle moment, and the program starts a new one.
+#[derive(Clone, Default)]
+pub struct InProcess(pub Arc<AtomicBool>);
+
+impl Restart for InProcess {
+    fn requested(&self) -> bool {
+        self.0.swap(false, Ordering::Relaxed)
+    }
+
+    fn relaunch(&self) -> Option<String> {
+        None
+    }
 }
 
 /// The UI's request is a file in the data folder (watch._restart_requested):
@@ -139,8 +156,8 @@ impl Restart for FlagFile {
         std::fs::remove_file(&self.path).is_ok() || !self.path.exists()
     }
 
-    fn relaunch(&self) -> String {
-        (self.relaunch)()
+    fn relaunch(&self) -> Option<String> {
+        Some((self.relaunch)())
     }
 }
 
@@ -226,6 +243,11 @@ pub struct Session {
     pub started: f64,
     hk_last: f64,
     debug_warned: bool,
+    /// Ended to be started over in the same process.
+    pub restarted: bool,
+    /// Settings changed while running (one process): taken at idle
+    /// moments, the fields that need no restart.
+    pub live: Option<std::sync::mpsc::Receiver<SessionOptions>>,
 }
 
 fn pad(s: &str, width: usize) -> String {
@@ -247,6 +269,8 @@ impl Session {
             started,
             hk_last: 0.0,
             debug_warned: false,
+            restarted: false,
+            live: None,
         }
     }
 
@@ -268,6 +292,25 @@ impl Session {
 
     fn grab(&mut self) -> Option<Image<u8>> {
         self.p.frames.grab()
+    }
+
+    /// Takes settings changed while running: the ones a session can change
+    /// in place (the rest restart it).
+    pub fn apply_live(&mut self) {
+        let Some(rx) = self.live.as_ref() else {
+            return;
+        };
+        let mut newest = None;
+        while let Ok(o) = rx.try_recv() {
+            newest = Some(o);
+        }
+        if let Some(o) = newest {
+            self.opts.audit = o.audit;
+            self.opts.audit_keep_frame = o.audit_keep_frame;
+            self.opts.audit_frame_quality = o.audit_frame_quality;
+            self.opts.debug = o.debug;
+            self.opts.housekeeping_enabled = o.housekeeping_enabled;
+        }
     }
 
     // -- housekeeping and the database-facing rules -------------------------
@@ -750,6 +793,7 @@ impl Session {
         while deadline.is_none_or(|d| self.p.clock.time() < d) {
             self.poll_keys()?;
             if self.pending.is_empty() {
+                self.apply_live();
                 let idle = self.idle_status();
                 self.con().status(&idle);
                 // Idle is the only safe moment to delete files.
@@ -827,6 +871,7 @@ impl Session {
         let interval = 1.0 / self.opts.hz;
         while deadline.is_none_or(|d| self.p.clock.time() < d) {
             self.check_stop()?;
+            self.apply_live();
             let cycle = self.p.clock.monotonic();
             let Some(frame) = self.grab() else {
                 if self.p.frames.exhausted() {
@@ -898,7 +943,12 @@ impl Session {
             a.close();
         }
         self.p.sightings.close();
-        let why = self.p.restart.relaunch();
+        let Some(why) = self.p.restart.relaunch() else {
+            // In one process: this session ends, the next one starts.
+            self.restarted = true;
+            self.p.log.event("restart", &[]);
+            return 0;
+        };
         self.con().eprint(&format!("! restart failed: {why}"));
         self.con().eprint(
             "  the watcher has to stop - its camera and log were already handed back. \

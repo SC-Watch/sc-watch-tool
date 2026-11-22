@@ -387,6 +387,11 @@ impl Cache {
         tx.commit()
     }
 
+    /// Tells `changes` about every commit to the cache (the page redraws).
+    pub fn watch(&self, changes: Arc<scw_store::db::Changes>) {
+        scw_store::db::watch(&mut self.db(), changes);
+    }
+
     /// Handles whose lookup failed before `before` and that have no
     /// profile since, whole or partial - newest failure first (the page's
     /// background retry).

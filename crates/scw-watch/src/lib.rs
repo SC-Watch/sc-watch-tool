@@ -13,6 +13,7 @@ pub mod console;
 pub mod debuglog;
 pub mod enricher;
 pub mod live;
+pub mod program;
 pub mod session;
 pub mod sightings;
 pub mod sinks;
