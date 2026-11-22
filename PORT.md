@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db and the RSI client with its cache done**; its HTTPS transport, sharing, housekeeping, settings and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, and the RSI client with its cache and HTTPS done**; sharing, housekeeping, settings and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -183,8 +183,19 @@ same JSON. Every cached handle looked up with the network refused, with and
 without a key, gives the same answer and wording (tools/rsi_compare.py).
 Deliberately different: a value of the wrong shape inside an answer (a list
 where an object belongs) is read as empty, where rsi.py fails with
-AttributeError; and stats() measures the cache's own file. The HTTPS
-transport is next.
+AttributeError; and stats() measures the cache's own file.
+
+The network is **`Https`**: ureq with rustls, so Linux needs no system
+OpenSSL. Like urllib, it follows redirects, keeps the headers of any non-2xx
+answer, and reads the body as UTF-8 with bad bytes replaced before parsing
+it as JSON. Against a server on 127.0.0.1 (CI) it sends the right
+User-Agent and Accept, and reads 2xx, 404 and 429 with their headers, bad
+JSON, bad UTF-8, a redirect, a timeout and a refused connection as urllib
+does. Once for real (2026-11-22, examples/sentry_probe.rs), it made one
+database-only SENTRY lookup of a made-up name. SENTRY answered 404
+`not_checked`, read as "nobody", and its rate-limit headers were read; 0.7
+s. Deliberately different: the timeout bounds the whole request, where
+urllib's bounds each socket operation.
 
 **`scw-rsi::upkeep`** is what sc-watch.db needs the client for:
 reputation.py's find_ghosts, purge_ghosts and fetch_roster, and the client

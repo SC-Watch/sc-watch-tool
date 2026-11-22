@@ -15,3 +15,4 @@ rusqlite = { version = "0.43", features = ["bundled"] }
 scw-store = { path = "../scw-store" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+ureq = "3"
