@@ -433,6 +433,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "scw-rsi"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "regex",
+ "rusqlite",
+ "scw-store",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "scw-store"
 version = "0.1.0"
 dependencies = [

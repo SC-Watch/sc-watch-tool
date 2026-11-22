@@ -10,7 +10,7 @@ use std::path::Path;
 
 use serde_json::{Map, Value, json};
 
-use crate::json::{Expect, py_str, read, truthy, update};
+use crate::json::{Expect, py_isspace as is_space, py_str, read, truthy, update};
 
 pub const SLOTS: usize = 12;
 pub const POLARITIES: [&str; 3] = ["negative", "positive", "neutral"];
@@ -89,11 +89,6 @@ pub fn defaults() -> Vec<Flag> {
         Flag::new("friendly", "Friendly", "#4ade80", "positive"),
         Flag::new("note", "Note", "#8fa6bb", "neutral"),
     ]
-}
-
-/// Python's `str.isspace()` for one character.
-fn is_space(c: char) -> bool {
-    c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
 }
 
 fn take(s: &str, n: usize) -> String {

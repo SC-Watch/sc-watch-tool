@@ -605,6 +605,42 @@ pub fn py_str(v: &Value) -> String {
     }
 }
 
+/// Python's `json.dumps(v)` with its defaults: one line, ", " and ": ",
+/// ASCII - how the databases store JSON in a column.
+pub fn dumps_compact(v: &Value) -> Result<String, String> {
+    Ok(match v {
+        Value::Array(a) => format!(
+            "[{}]",
+            a.iter()
+                .map(dumps_compact)
+                .collect::<Result<Vec<_>, _>>()?
+                .join(", ")
+        ),
+        Value::Object(m) => format!(
+            "{{{}}}",
+            m.iter()
+                .map(|(k, x)| Ok(format!(
+                    "{}: {}",
+                    dumps(&Value::String(k.clone()))?,
+                    dumps_compact(x)?
+                )))
+                .collect::<Result<Vec<_>, String>>()?
+                .join(", ")
+        ),
+        other => dumps(other)?,
+    })
+}
+
+/// Python's `str.isspace()` for one character.
+pub fn py_isspace(c: char) -> bool {
+    c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
+}
+
+/// Python's `str.strip()`.
+pub fn py_strip(s: &str) -> &str {
+    s.trim_matches(py_isspace)
+}
+
 /// Python's truthiness.
 pub fn truthy(v: Option<&Value>) -> bool {
     match v {

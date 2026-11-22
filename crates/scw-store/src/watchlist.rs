@@ -17,7 +17,7 @@ use rusqlite::{Connection, OptionalExtension, params};
 use serde::Serialize;
 use serde_json::{Map, Value, json};
 
-use crate::json::{py_str, truthy};
+use crate::json::{py_isspace as is_space, py_str, truthy};
 use crate::reputation::sketch;
 
 /// watchlist.SCHEMA, extracted from the Python verbatim.
@@ -525,11 +525,6 @@ pub fn parse_lines(text: &str) -> Value {
     orgs.sort();
     orgs.dedup();
     json!({"entries": out, "skipped": skipped, "orgs": orgs})
-}
-
-/// Python's `str.isspace()` for one character.
-fn is_space(c: char) -> bool {
-    c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
 }
 
 /// Python's `str.splitlines()`: \n, \r\n, \r and the other line boundaries.

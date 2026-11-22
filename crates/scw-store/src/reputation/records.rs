@@ -101,24 +101,7 @@ fn parse_variants(mut row: Map<String, Value>) -> Map<String, Value> {
 
 /// Python's json.dumps(list(variants)): compact, ", " and ": ", ASCII.
 fn py_compact(v: &Value) -> String {
-    match v {
-        Value::Array(a) => format!(
-            "[{}]",
-            a.iter().map(py_compact).collect::<Vec<_>>().join(", ")
-        ),
-        Value::Object(m) => format!(
-            "{{{}}}",
-            m.iter()
-                .map(|(k, x)| format!(
-                    "{}: {}",
-                    py_compact(&Value::String(k.clone())),
-                    py_compact(x)
-                ))
-                .collect::<Vec<_>>()
-                .join(", ")
-        ),
-        other => crate::json::dumps(other).unwrap_or_default(),
-    }
+    crate::json::dumps_compact(v).unwrap_or_default()
 }
 
 impl Database {

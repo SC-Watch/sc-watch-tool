@@ -12,7 +12,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 |---|---|---|
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
-| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db and watchlist.db done**; the RSI client (with its cache), sharing and the watcher next |
+| 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db and the RSI client with its cache done**; its HTTPS transport, sharing, housekeeping, settings and the watcher next |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | - |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
@@ -162,6 +162,30 @@ and 6 assessments with hits agree (CI). On a copy of this PC's watchlist,
 lookups of all 702 known handles, the sources, orgs, stats and starter
 seeding are identical (tools/watchlist_compare.py).
 
+**`scw-rsi`** is rsi.py: SENTRY first and starcitizen-api.com behind it,
+each with its own pacing and outage breaker; SENTRY's request log; and
+rsi_cache.db - profiles, orgs, roster member lists, failed lookups, partial
+profiles, and the pauses every process must see. With it come the client's
+rules on what each source is trusted for: "no such account" only from a
+source that asked RSI, SENTRY's placeholders and re-reads, its limit on live
+lookups, affiliates kept, partial profiles finished later. The network is a
+`Transport` and time a `Clock`, both given to the client, and what rsi.py
+left on a thread (headers, the lookup state) is returned, so a test runs
+hours of pauses instantly. A script of 110 steps on a scripted network
+(statuses, headers, timeouts, bad JSON) gives rsi.py's answers. It sends the
+same 115 requests at the same moments with the same timeouts, writes the
+same 74 log lines, and leaves the same pauses and rows after every step
+(CI). Twelve deliberate breakages are each caught. SENTRY's timestamps are
+read as CPython 3.13's C `fromisoformat` reads them, corners included (ISO
+week dates are not read). On copies of this PC's three caches (876, 824
+and 443 profiles), every profile and org reads back and writes back the
+same JSON. Every cached handle looked up with the network refused, with and
+without a key, gives the same answer and wording (tools/rsi_compare.py).
+Deliberately different: a value of the wrong shape inside an answer (a list
+where an object belongs) is read as empty, where rsi.py fails with
+AttributeError; and stats() measures the cache's own file. The HTTPS
+transport is next.
+
 ## The replay tool
 
 ```
@@ -244,13 +268,14 @@ crates/scw-vision    image functions (cv); IRIS reader, finder and plate reads (
                      name classifier and burst vote (names); frames to contacts (pipeline)
 crates/scw-capture   frame sources: the Windows desktop (8-bit or HDR float), saved frames
 crates/scw-input     key and joystick bindings, and the Windows state readers
-crates/scw-store     the JSON config files (the databases to follow)
+crates/scw-store     the JSON config files, report flags, sc-watch.db and watchlist.db
+crates/scw-rsi       player and org lookup (SENTRY, starcitizen-api.com) and rsi_cache.db
 crates/scw-audio     what alerts say, the tones, audio.json, and the alert player
 crates/scw-replay    saved frames through the pipeline, as text or JSON
 ```
 
-Planned beside it: `scw-mining`, `scw-capture`, `scw-input`, `scw-audio`,
-`scw-store`, `scw-rsi`, `scw-overlay`, and `sc-watch`, the app that joins them.
+Planned beside it: `scw-mining`, `scw-overlay`, and `sc-watch`, the app that
+joins them.
 
 Licence: GPL-3.0-or-later, as the rest of sc-watch. The IRIS reader and the
 mining overlay are ported from IRIS (github.com/Niteb1rd/IRIS, GPL-3.0).
