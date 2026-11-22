@@ -1,0 +1,9357 @@
+{
+"key": "EXMPLKEY",
+"wall0": 1790000000.0,
+"mono0": 5000.0,
+"steps": [
+{
+"op": "client",
+"args": [
+"A"
+],
+"kwargs": {
+"api_key": "EXMPLKEY",
+"sentry": true
+},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [],
+"reports": [],
+"shares": [],
+"sightings": [],
+"sqlite_sequence": []
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLREAL",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+1
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLGONE",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+2
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLGONE2",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+3
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLGONE2",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 2,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+4
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLREPORTED",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+5
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLAUDITED",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+6
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLBOTH",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+7
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLERR",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+8
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLCACHED",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+9
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLUNSEEN",
+2.0,
+2,
+2
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.add_report",
+"args": [
+"EXMPLREPORTED",
+"griefing",
+"rammed us"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"reports",
+1
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.add_report",
+"args": [
+"EXMPLBOTH",
+"piracy"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"reports",
+2
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.add_audit",
+"args": [
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+[
+"EXMPLAUDITEO"
+]
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+1
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "rep.add_audit",
+"args": [
+"EXMPLBOTH",
+3.0,
+1,
+3,
+[
+"EXMPLB0TH"
+]
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": 2,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "cache.put_gone",
+"args": [
+"EXMPLCACHED"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": []
+}
+}
+},
+{
+"op": "find_ghosts",
+"args": [],
+"kwargs": {},
+"routes": {
+"sentry:/citizens/EXMPLAUDITED?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_found"
+}
+}
+],
+"sentry:/citizens/EXMPLBOTH?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_found"
+}
+}
+],
+"sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {}
+}
+],
+"sci:auto/user/EXMPLERR": [
+{
+"http": 500,
+"headers": {}
+}
+],
+"sentry:/citizens/EXMPLGONE?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_found"
+}
+}
+],
+"sentry:/citizens/EXMPLGONE2?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {}
+}
+],
+"sci:auto/user/EXMPLGONE2": [
+{
+"http": 404,
+"headers": {}
+}
+],
+"sentry:/citizens/EXMPLREAL?max_age=2592000&scrape=false": [
+{
+"json": {
+"profile": {
+"handle": "EXMPLREAL",
+"display_name": "Exmplreal",
+"enlisted": "2015-03-01T10:00:00.000000",
+"citizen_record": 12345,
+"location": " Stanton "
+},
+"metadata": {
+"last_fetched": "2026-09-19T14:13:20"
+},
+"memberships": []
+}
+}
+],
+"sentry:/citizens/EXMPLREPORTED?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_found"
+}
+}
+],
+"sentry:/citizens/EXMPLUNSEEN?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_checked"
+}
+}
+],
+"sci:auto/user/EXMPLUNSEEN": [
+{
+"json": {
+"success": 1,
+"data": {
+"profile": {
+"display": "Unseen",
+"enlisted": "2016-05-01",
+"id": "#777"
+},
+"organization": {
+"stars": 0
+}
+}
+}
+}
+]
+},
+"wall": 1790000000.0,
+"mono": 5000.0,
+"result": {
+"ghosts": [
+{
+"handle": "EXMPLCACHED",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE2",
+"sightings": 2,
+"reports": 0,
+"audits": 0
+}
+],
+"kept": [
+{
+"handle": "EXMPLAUDITED",
+"sightings": 1,
+"reports": 0,
+"audits": 1,
+"why": "waiting on an audit"
+},
+{
+"handle": "EXMPLBOTH",
+"sightings": 1,
+"reports": 1,
+"audits": 1,
+"why": "has a report and waiting on an audit"
+},
+{
+"handle": "EXMPLREPORTED",
+"sightings": 1,
+"reports": 1,
+"audits": 0,
+"why": "has a report"
+}
+],
+"unchecked": [],
+"errors": [
+[
+"EXMPLERR",
+"HTTPError"
+]
+]
+},
+"sent": [
+{
+"url": "sentry:/citizens/EXMPLAUDITED?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000000.0
+},
+{
+"url": "sentry:/citizens/EXMPLBOTH?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000001.0
+},
+{
+"url": "sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000002.0
+},
+{
+"url": "sci:auto/user/EXMPLERR",
+"timeout": 25,
+"at": 1790000002.25
+},
+{
+"url": "sentry:/citizens/EXMPLGONE?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000003.0
+},
+{
+"url": "sentry:/citizens/EXMPLGONE2?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000004.0
+},
+{
+"url": "sci:auto/user/EXMPLGONE2",
+"timeout": 25,
+"at": 1790000004.25
+},
+{
+"url": "sentry:/citizens/EXMPLREAL?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000005.0
+},
+{
+"url": "sentry:/citizens/EXMPLREPORTED?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000006.0
+},
+{
+"url": "sentry:/citizens/EXMPLUNSEEN?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000007.0
+},
+{
+"url": "sci:auto/user/EXMPLUNSEEN",
+"timeout": 25,
+"at": 1790000007.25
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+10
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000007.0
+]
+]
+}
+}
+},
+{
+"op": "find_ghosts",
+"args": [],
+"kwargs": {
+"limit": 1
+},
+"routes": {},
+"wall": 1790000007.5,
+"mono": 5007.5,
+"result": {
+"ghosts": [
+{
+"handle": "EXMPLCACHED",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+}
+],
+"kept": [
+{
+"handle": "EXMPLAUDITED",
+"sightings": 1,
+"reports": 0,
+"audits": 1,
+"why": "waiting on an audit"
+},
+{
+"handle": "EXMPLBOTH",
+"sightings": 1,
+"reports": 1,
+"audits": 1,
+"why": "has a report and waiting on an audit"
+}
+],
+"unchecked": [],
+"errors": []
+},
+"sent": [],
+"dump": null
+},
+{
+"op": "client",
+"args": [
+"B"
+],
+"kwargs": {
+"api_key": null,
+"sentry": true
+},
+"routes": {},
+"wall": 1790000007.5,
+"mono": 5007.5,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "advance",
+"args": [
+120.0
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000007.5,
+"mono": 5007.5,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "rep.record_sighting",
+"args": [
+"EXMPLNEWFACE",
+1.0,
+3,
+3
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000127.5,
+"mono": 5127.5,
+"result": 1,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLNEWFACE",
+null,
+null,
+1790000127.5,
+1790000127.5,
+1,
+"EXMPINEWFACE"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+11,
+"EXMPLNEWFACE",
+1790000127.5,
+1.0,
+3,
+3
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000007.0
+]
+]
+}
+}
+},
+{
+"op": "find_ghosts",
+"args": [],
+"kwargs": {},
+"routes": {
+"sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false": [
+{
+"error": "timeout"
+}
+],
+"sentry:/citizens/EXMPLNEWFACE?max_age=2592000&scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_checked"
+}
+}
+]
+},
+"wall": 1790000127.5,
+"mono": 5127.5,
+"result": {
+"ghosts": [
+{
+"handle": "EXMPLCACHED",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE2",
+"sightings": 2,
+"reports": 0,
+"audits": 0
+}
+],
+"kept": [
+{
+"handle": "EXMPLAUDITED",
+"sightings": 1,
+"reports": 0,
+"audits": 1,
+"why": "waiting on an audit"
+},
+{
+"handle": "EXMPLBOTH",
+"sightings": 1,
+"reports": 1,
+"audits": 1,
+"why": "has a report and waiting on an audit"
+},
+{
+"handle": "EXMPLREPORTED",
+"sightings": 1,
+"reports": 1,
+"audits": 0,
+"why": "has a report"
+}
+],
+"unchecked": [
+"EXMPLNEWFACE"
+],
+"errors": [
+[
+"EXMPLERR",
+"TimeoutError"
+]
+]
+},
+"sent": [
+{
+"url": "sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000127.5
+},
+{
+"url": "sentry:/citizens/EXMPLNEWFACE?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000128.5
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLNEWFACE",
+null,
+null,
+1790000127.5,
+1790000127.5,
+1,
+"EXMPINEWFACE"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+11,
+"EXMPLNEWFACE",
+1790000127.5,
+1.0,
+3,
+3
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000128.5
+]
+]
+}
+}
+},
+{
+"op": "verify",
+"args": [
+"EXMPLREAL"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000128.75,
+"mono": 5128.75,
+"result": true,
+"sent": [],
+"dump": null
+},
+{
+"op": "verify",
+"args": [
+"EXMPLGONE"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000128.75,
+"mono": 5128.75,
+"result": false,
+"sent": [],
+"dump": null
+},
+{
+"op": "verify",
+"args": [
+"EXMPLNOBODY"
+],
+"kwargs": {},
+"routes": {
+"sentry:/citizens/EXMPLNOBODY?scrape=false": [
+{
+"http": 404,
+"headers": {
+"X-Lookup-State": "not_checked"
+}
+}
+]
+},
+"wall": 1790000128.75,
+"mono": 5128.75,
+"result": null,
+"sent": [
+{
+"url": "sentry:/citizens/EXMPLNOBODY?scrape=false",
+"timeout": 1.5,
+"at": 1790000129.5
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLNEWFACE",
+null,
+null,
+1790000127.5,
+1790000127.5,
+1,
+"EXMPINEWFACE"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+11,
+"EXMPLNEWFACE",
+1790000127.5,
+1.0,
+3,
+3
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000129.5
+]
+]
+}
+}
+},
+{
+"op": "use",
+"args": [
+"A"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000129.75,
+"mono": 5129.75,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "purge_ghosts",
+"args": [],
+"kwargs": {},
+"routes": {
+"sci:auto/user/EXMPLNEWFACE": [
+{
+"http": 404,
+"headers": {}
+}
+]
+},
+"wall": 1790000129.75,
+"mono": 5129.75,
+"result": {
+"ghosts": [
+{
+"handle": "EXMPLCACHED",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE2",
+"sightings": 2,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLNEWFACE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+}
+],
+"kept": [
+{
+"handle": "EXMPLAUDITED",
+"sightings": 1,
+"reports": 0,
+"audits": 1,
+"why": "waiting on an audit"
+},
+{
+"handle": "EXMPLBOTH",
+"sightings": 1,
+"reports": 1,
+"audits": 1,
+"why": "has a report and waiting on an audit"
+},
+{
+"handle": "EXMPLREPORTED",
+"sightings": 1,
+"reports": 1,
+"audits": 0,
+"why": "has a report"
+}
+],
+"unchecked": [],
+"errors": [
+[
+"EXMPLERR",
+"HTTPError"
+]
+],
+"applied": false
+},
+"sent": [
+{
+"url": "sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000130.5
+},
+{
+"url": "sci:auto/user/EXMPLERR",
+"timeout": 25,
+"at": 1790000130.75
+},
+{
+"url": "sentry:/citizens/EXMPLNEWFACE?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000131.5
+},
+{
+"url": "sci:auto/user/EXMPLNEWFACE",
+"timeout": 25,
+"at": 1790000131.75
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLCACHED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICACHEO"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLGONE",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPICONE"
+],
+[
+"EXMPLGONE2",
+null,
+null,
+1790000000.0,
+1790000000.0,
+2,
+"EXMPICONEZ"
+],
+[
+"EXMPLNEWFACE",
+null,
+null,
+1790000127.5,
+1790000127.5,
+1,
+"EXMPINEWFACE"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+2,
+"EXMPLGONE",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+3,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+4,
+"EXMPLGONE2",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+9,
+"EXMPLCACHED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+11,
+"EXMPLNEWFACE",
+1790000127.5,
+1.0,
+3,
+3
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000131.5
+]
+]
+}
+}
+},
+{
+"op": "purge_ghosts",
+"args": [],
+"kwargs": {
+"apply": true
+},
+"routes": {},
+"wall": 1790000132.0,
+"mono": 5132.0,
+"result": {
+"ghosts": [
+{
+"handle": "EXMPLCACHED",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLGONE2",
+"sightings": 2,
+"reports": 0,
+"audits": 0
+},
+{
+"handle": "EXMPLNEWFACE",
+"sightings": 1,
+"reports": 0,
+"audits": 0
+}
+],
+"kept": [
+{
+"handle": "EXMPLAUDITED",
+"sightings": 1,
+"reports": 0,
+"audits": 1,
+"why": "waiting on an audit"
+},
+{
+"handle": "EXMPLBOTH",
+"sightings": 1,
+"reports": 1,
+"audits": 1,
+"why": "has a report and waiting on an audit"
+},
+{
+"handle": "EXMPLREPORTED",
+"sightings": 1,
+"reports": 1,
+"audits": 0,
+"why": "has a report"
+}
+],
+"unchecked": [],
+"errors": [
+[
+"EXMPLERR",
+"HTTPError"
+]
+],
+"applied": true
+},
+"sent": [
+{
+"url": "sentry:/citizens/EXMPLERR?max_age=2592000&scrape=false",
+"timeout": 8.0,
+"at": 1790000132.5
+},
+{
+"url": "sci:auto/user/EXMPLERR",
+"timeout": 25,
+"at": 1790000132.75
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "fetch_roster",
+"args": [
+""
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": {
+"ok": false,
+"error": "no org given"
+},
+"sent": [],
+"dump": null
+},
+{
+"op": "fetch_roster",
+"args": [
+"exmplnotflagged"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": {
+"ok": false,
+"error": "EXMPLNOTFLAGGED is not flagged"
+},
+"sent": [],
+"dump": null
+},
+{
+"op": "rep.flag_org",
+"args": [
+"EXMPLCREW",
+"they gank",
+"Crew"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "rep.flag_org",
+"args": [
+"EXMPLEMPTY"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+null,
+0,
+null
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "rep.flag_org",
+"args": [
+"EXMPLBROKE"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+null,
+0,
+null
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "rep.flag_org",
+"args": [
+"EXMPLNOTOTAL"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+null,
+0,
+null
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "rep.flag_org",
+"args": [
+"EXMPLHALF"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+null,
+0,
+null
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [],
+"player_manual": [],
+"player_orgs": [],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000132.5
+]
+]
+}
+}
+},
+{
+"op": "client",
+"args": [
+"L"
+],
+"kwargs": {
+"provider": "link",
+"sentry": true
+},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLCREW"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": {
+"ok": false,
+"sid": "EXMPLCREW",
+"error": "no lookup source is available, so no roster can be fetched"
+},
+"sent": [],
+"dump": null
+},
+{
+"op": "use",
+"args": [
+"A"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "fetch_roster",
+"args": [
+" exmplcrew "
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=1": [
+{
+"json": {
+"memberships": {
+"pages": 2,
+"total": 9,
+"members": [
+{
+"citizen_handle": "EXMPLREAL",
+"display_name": "Exmplreal",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+},
+{
+"citizen_handle": "EXMPLM1",
+"display_name": "Exmplm1",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+},
+{
+"citizen_handle": "[HIDDEN]",
+"display_name": "[Hidden]",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "hidden"
+}
+]
+},
+"metadata": {
+"last_fetched": "2026-09-20T14:15:33"
+}
+}
+}
+],
+"sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=2": [
+{
+"json": {
+"memberships": {
+"pages": 2,
+"total": 9,
+"members": [
+{
+"citizen_handle": "EXMPLM2",
+"display_name": "Exmplm2",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+},
+{
+"citizen_handle": "[REDACTED]",
+"display_name": "[Redacted]",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "redacted"
+}
+]
+},
+"metadata": {
+"last_fetched": "2026-09-20T14:15:33"
+}
+}
+}
+]
+},
+"wall": 1790000133.0,
+"mono": 5133.0,
+"result": {
+"ok": true,
+"sid": "EXMPLCREW",
+"members": 3,
+"joined": [
+"EXMPLREAL",
+"EXMPLM1",
+"EXMPLM2"
+],
+"left": [],
+"back": [],
+"reaches": 1,
+"partial": false,
+"org_members": 9,
+"source": "sentry",
+"switched": true,
+"hidden": 1,
+"redacted": 1
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790000133.5
+},
+{
+"url": "sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=2",
+"timeout": 20.0,
+"at": 1790000134.5
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790000134.75,
+3,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM1",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLM2",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+1790000134.75
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+1790000134.75
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790000134.75
+]
+],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790000134.5
+]
+]
+}
+}
+},
+{
+"op": "advance",
+"args": [
+3600.0
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790000134.75,
+"mono": 5134.75,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLCREW"
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=1": [
+{
+"json": {
+"memberships": {
+"pages": 1,
+"total": 8,
+"members": [
+{
+"citizen_handle": "EXMPLREAL",
+"display_name": "Exmplreal",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+},
+{
+"citizen_handle": "EXMPLM3",
+"display_name": "Exmplm3",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+}
+]
+},
+"metadata": {
+"last_fetched": "2026-09-20T15:15:34.750000"
+}
+}
+}
+]
+},
+"wall": 1790003734.75,
+"mono": 8734.75,
+"result": {
+"ok": true,
+"sid": "EXMPLCREW",
+"members": 2,
+"joined": [
+"EXMPLM3"
+],
+"left": [
+"EXMPLM1",
+"EXMPLM2"
+],
+"back": [],
+"reaches": 1,
+"partial": false,
+"org_members": 8,
+"source": "sentry",
+"switched": false,
+"hidden": 0,
+"redacted": 0
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLCREW/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790003734.75
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790003735.0,
+2,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM3",
+"Exmplm3",
+"Crew",
+2,
+1790003735.0,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM3",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM3",
+1790003735.0
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790003735.0
+]
+],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790003734.75
+]
+]
+}
+}
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLEMPTY"
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLEMPTY/memberships?per_page=100&page=1": [
+{
+"http": 404,
+"headers": {}
+}
+],
+"sci:live/organization_members/EXMPLEMPTY?page=1": [
+{
+"json": {
+"success": 1,
+"data": []
+}
+}
+]
+},
+"wall": 1790003735.0,
+"mono": 8735.0,
+"result": {
+"ok": false,
+"sid": "EXMPLEMPTY",
+"error": "the member list came back empty - keeping the one already stored"
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLEMPTY/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790003735.75
+},
+{
+"url": "sci:live/organization_members/EXMPLEMPTY?page=1",
+"timeout": 25,
+"at": 1790003736.0
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790003735.0,
+2,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM3",
+"Exmplm3",
+"Crew",
+2,
+1790003735.0,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM3",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM3",
+1790003735.0
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790003735.0
+]
+],
+"orgs": [],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790003735.75
+]
+]
+}
+}
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLNOTOTAL"
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLNOTOTAL/memberships?per_page=100&page=1": [
+{
+"json": {
+"memberships": {
+"pages": 1,
+"total": 0,
+"members": [
+{
+"citizen_handle": "EXMPLM4",
+"display_name": "Exmplm4",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+}
+]
+},
+"metadata": {
+"last_fetched": "2026-09-20T15:15:36.250000"
+}
+}
+}
+],
+"sentry:/orgs/EXMPLNOTOTAL/profile": [
+{
+"json": {
+"profile": {
+"name": "No Total",
+"member_count": 33,
+"primary_activity": "Piracy",
+"secondary_activity": null
+}
+}
+}
+],
+"sci:auto/organization/EXMPLNOTOTAL": [
+{
+"json": {
+"success": 1,
+"data": {
+"name": "No Total",
+"members": 33,
+"archetype": "Syndicate",
+"commitment": "",
+"focus": {
+"primary": {},
+"secondary": {}
+}
+}
+}
+}
+]
+},
+"wall": 1790003736.25,
+"mono": 8736.25,
+"result": {
+"ok": true,
+"sid": "EXMPLNOTOTAL",
+"members": 1,
+"joined": [
+"EXMPLM4"
+],
+"left": [],
+"back": [],
+"reaches": 0,
+"partial": false,
+"org_members": 33,
+"source": "sentry",
+"switched": true,
+"hidden": 0,
+"redacted": 0
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLNOTOTAL/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790003736.75
+},
+{
+"url": "sentry:/orgs/EXMPLNOTOTAL/profile",
+"timeout": 8.0,
+"at": 1790003737.75
+},
+{
+"url": "sci:auto/organization/EXMPLNOTOTAL",
+"timeout": 8.0,
+"at": 1790003738.0
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790003735.0,
+2,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+1790003737.0,
+1,
+"sentry"
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM3",
+"Exmplm3",
+"Crew",
+2,
+1790003735.0,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+"Exmplm4",
+"Crew",
+2,
+1790003737.0,
+1790003737.0,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM3",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLM4",
+"EXMPLNOTOTAL",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM3",
+1790003735.0
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790003735.0
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+1790003737.0
+]
+],
+"orgs": [
+[
+"EXMPLNOTOTAL",
+"{\"sid\": \"EXMPLNOTOTAL\", \"name\": \"No Total\", \"members\": 33, \"archetype\": \"Syndicate\", \"commitment\": \"\", \"primary_focus\": \"Piracy\", \"secondary_focus\": \"\", \"is_main\": false, \"rank\": \"\", \"redacted\": false}",
+1790003738.25
+]
+],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790003737.75
+]
+]
+}
+}
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLHALF"
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLHALF/memberships?per_page=100&page=1": [
+{
+"json": {
+"memberships": {
+"pages": 2,
+"total": 12,
+"members": [
+{
+"citizen_handle": "EXMPLM5",
+"display_name": "Exmplm5",
+"member_rank": "Crew",
+"rank_number": 2,
+"visibility": "visible"
+}
+]
+},
+"metadata": {
+"last_fetched": "2026-09-20T15:15:38.250000"
+}
+}
+}
+],
+"sentry:/orgs/EXMPLHALF/memberships?per_page=100&page=2": [
+{
+"http": 404,
+"headers": {}
+}
+]
+},
+"wall": 1790003738.25,
+"mono": 8738.25,
+"result": {
+"ok": true,
+"sid": "EXMPLHALF",
+"members": 1,
+"joined": [
+"EXMPLM5"
+],
+"left": [],
+"back": [],
+"reaches": 0,
+"partial": true,
+"org_members": 12,
+"source": "sentry",
+"switched": true,
+"hidden": 0,
+"redacted": 0
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLHALF/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790003738.75
+},
+{
+"url": "sentry:/orgs/EXMPLHALF/memberships?per_page=100&page=2",
+"timeout": 20.0,
+"at": 1790003739.75
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790003735.0,
+2,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+1790003740.0,
+1,
+"sentry"
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+1790003737.0,
+1,
+"sentry"
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM3",
+"Exmplm3",
+"Crew",
+2,
+1790003735.0,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLHALF",
+"EXMPLM5",
+"Exmplm5",
+"Crew",
+2,
+1790003740.0,
+1790003740.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+"Exmplm4",
+"Crew",
+2,
+1790003737.0,
+1790003737.0,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM3",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLM4",
+"EXMPLNOTOTAL",
+0,
+"roster"
+],
+[
+"EXMPLM5",
+"EXMPLHALF",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM3",
+1790003735.0
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790003735.0
+],
+[
+"EXMPLHALF",
+"EXMPLM5",
+1790003740.0
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+1790003737.0
+]
+],
+"orgs": [
+[
+"EXMPLNOTOTAL",
+"{\"sid\": \"EXMPLNOTOTAL\", \"name\": \"No Total\", \"members\": 33, \"archetype\": \"Syndicate\", \"commitment\": \"\", \"primary_focus\": \"Piracy\", \"secondary_focus\": \"\", \"is_main\": false, \"rank\": \"\", \"redacted\": false}",
+1790003738.25
+]
+],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790003739.75
+]
+]
+}
+}
+},
+{
+"op": "use",
+"args": [
+"B"
+],
+"kwargs": {},
+"routes": {},
+"wall": 1790003740.0,
+"mono": 8740.0,
+"result": null,
+"sent": [],
+"dump": null
+},
+{
+"op": "fetch_roster",
+"args": [
+"EXMPLBROKE"
+],
+"kwargs": {},
+"routes": {
+"sentry:/orgs/EXMPLBROKE/memberships?per_page=100&page=1": [
+{
+"http": 500,
+"headers": {}
+}
+]
+},
+"wall": 1790003740.0,
+"mono": 8740.0,
+"result": {
+"ok": false,
+"sid": "EXMPLBROKE",
+"error": "roster fetch failed - SENTRY had an error (HTTP 500)"
+},
+"sent": [
+{
+"url": "sentry:/orgs/EXMPLBROKE/memberships?per_page=100&page=1",
+"timeout": 20.0,
+"at": 1790003740.75
+}
+],
+"dump": {
+"rep": {
+"audits": [
+[
+1,
+1790000000.0,
+"EXMPLAUDITED",
+3.0,
+1,
+3,
+"[\"EXMPLAUDITEO\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLAUDITED"
+],
+[
+2,
+1790000000.0,
+"EXMPLBOTH",
+3.0,
+1,
+3,
+"[\"EXMPLB0TH\"]",
+"",
+"",
+"",
+"weak_read",
+"EXMPLBOTH"
+]
+],
+"ignored": [],
+"meta": [],
+"org_flags": [
+[
+"EXMPLBROKE",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLCREW",
+"Crew",
+1790000133.0,
+"they gank",
+1790003735.0,
+2,
+"sentry"
+],
+[
+"EXMPLEMPTY",
+"",
+1790000133.0,
+"",
+null,
+0,
+null
+],
+[
+"EXMPLHALF",
+"",
+1790000133.0,
+"",
+1790003740.0,
+1,
+"sentry"
+],
+[
+"EXMPLNOTOTAL",
+"",
+1790000133.0,
+"",
+1790003737.0,
+1,
+"sentry"
+]
+],
+"org_manual": [],
+"org_membership": [
+[
+"EXMPLCREW",
+"EXMPLM1",
+"Exmplm1",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM2",
+"Exmplm2",
+"Crew",
+2,
+1790000134.75,
+1790000134.75,
+1790003735.0,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLM3",
+"Exmplm3",
+"Crew",
+2,
+1790003735.0,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+"Exmplreal",
+"Crew",
+2,
+1790000134.75,
+1790003735.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLHALF",
+"EXMPLM5",
+"Exmplm5",
+"Crew",
+2,
+1790003740.0,
+1790003740.0,
+null,
+"sentry",
+null,
+null,
+null
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+"Exmplm4",
+"Crew",
+2,
+1790003737.0,
+1790003737.0,
+null,
+"sentry",
+null,
+null,
+null
+]
+],
+"player_manual": [],
+"player_orgs": [
+[
+"EXMPLM3",
+"EXMPLCREW",
+0,
+"roster"
+],
+[
+"EXMPLM4",
+"EXMPLNOTOTAL",
+0,
+"roster"
+],
+[
+"EXMPLM5",
+"EXMPLHALF",
+0,
+"roster"
+],
+[
+"EXMPLREAL",
+"EXMPLCREW",
+0,
+"roster"
+]
+],
+"players": [
+[
+"EXMPLAUDITED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIAUOITEO"
+],
+[
+"EXMPLBOTH",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIBOTH"
+],
+[
+"EXMPLERR",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIERR"
+],
+[
+"EXMPLREAL",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREAI"
+],
+[
+"EXMPLREPORTED",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIREPORTEO"
+],
+[
+"EXMPLUNSEEN",
+null,
+null,
+1790000000.0,
+1790000000.0,
+1,
+"EXMPIUNSEEN"
+]
+],
+"reports": [
+[
+1,
+"EXMPLREPORTED",
+1790000000.0,
+"griefing",
+"rammed us",
+"",
+"self",
+null
+],
+[
+2,
+"EXMPLBOTH",
+1790000000.0,
+"piracy",
+"",
+"",
+"self",
+null
+]
+],
+"shares": [],
+"sightings": [
+[
+1,
+"EXMPLREAL",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+5,
+"EXMPLREPORTED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+6,
+"EXMPLAUDITED",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+7,
+"EXMPLBOTH",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+8,
+"EXMPLERR",
+1790000000.0,
+2.0,
+2,
+2
+],
+[
+10,
+"EXMPLUNSEEN",
+1790000000.0,
+2.0,
+2,
+2
+]
+],
+"sqlite_sequence": [
+[
+"audits",
+2
+],
+[
+"reports",
+2
+],
+[
+"sightings",
+11
+]
+]
+},
+"rsi": {
+"citizens": [
+[
+"EXMPLAUDITED",
+"{\"handle\": \"EXMPLAUDITED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.25}",
+1790000000.25
+],
+[
+"EXMPLBOTH",
+"{\"handle\": \"EXMPLBOTH\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000001.25}",
+1790000001.25
+],
+[
+"EXMPLCACHED",
+"{\"handle\": \"EXMPLCACHED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000000.0}",
+1790000000.0
+],
+[
+"EXMPLGONE",
+"{\"handle\": \"EXMPLGONE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000003.25}",
+1790000003.25
+],
+[
+"EXMPLGONE2",
+"{\"handle\": \"EXMPLGONE2\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000004.5}",
+1790000004.5
+],
+[
+"EXMPLNEWFACE",
+"{\"handle\": \"EXMPLNEWFACE\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000132.0}",
+1790000132.0
+],
+[
+"EXMPLREAL",
+"{\"handle\": \"EXMPLREAL\", \"exists\": true, \"moniker\": \"Exmplreal\", \"enlisted\": \"2015-03-01T10:00:00.000000\", \"location\": \"Stanton\", \"record\": \"#12345\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1789827200.0}",
+1789827200.0
+],
+[
+"EXMPLREPORTED",
+"{\"handle\": \"EXMPLREPORTED\", \"exists\": false, \"moniker\": \"\", \"enlisted\": \"\", \"location\": \"\", \"record\": \"\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000006.25}",
+1790000006.25
+],
+[
+"EXMPLUNSEEN",
+"{\"handle\": \"EXMPLUNSEEN\", \"exists\": true, \"moniker\": \"Unseen\", \"enlisted\": \"2016-05-01\", \"location\": \"\", \"record\": \"#777\", \"orgs\": [], \"redacted\": false, \"unverified\": false, \"fetched_at\": 1790000007.5}",
+1790000007.5
+]
+],
+"lookup_failures": [],
+"org_members": [
+[
+"EXMPLCREW",
+"EXMPLM3",
+1790003735.0
+],
+[
+"EXMPLCREW",
+"EXMPLREAL",
+1790003735.0
+],
+[
+"EXMPLHALF",
+"EXMPLM5",
+1790003740.0
+],
+[
+"EXMPLNOTOTAL",
+"EXMPLM4",
+1790003737.0
+]
+],
+"orgs": [
+[
+"EXMPLNOTOTAL",
+"{\"sid\": \"EXMPLNOTOTAL\", \"name\": \"No Total\", \"members\": 33, \"archetype\": \"Syndicate\", \"commitment\": \"\", \"primary_focus\": \"Piracy\", \"secondary_focus\": \"\", \"is_main\": false, \"rank\": \"\", \"redacted\": false}",
+1790003738.25
+]
+],
+"partial_citizens": [],
+"pauses": [
+[
+"sentry_slot",
+1790003740.75
+]
+]
+}
+}
+}
+]
+}

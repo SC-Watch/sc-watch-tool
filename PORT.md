@@ -147,8 +147,8 @@ and the same audit images on disk after every step as reputation.py (CI).
 On copies of this PC's three databases every read agrees for every player -
 585, 541 and 286 of them: assessments, is_listed, audits, flagged orgs and
 members, and 5,604 read-only canonical() checks on misread-style variants
-(tools/read_compare.py). The RSI-dependent find_ghosts and fetch_roster come
-with the RSI client.
+(tools/read_compare.py). The parts that need the lookup client
+(find_ghosts, purge_ghosts, fetch_roster) are in `scw-rsi::upkeep`, below.
 
 **`scw-store::watchlist`** is watchlist.py: sources (enable, forget),
 entries with their confidence and claims, flagged orgs, exact and
@@ -185,6 +185,16 @@ Deliberately different: a value of the wrong shape inside an answer (a list
 where an object belongs) is read as empty, where rsi.py fails with
 AttributeError; and stats() measures the cache's own file. The HTTPS
 transport is next.
+
+**`scw-rsi::upkeep`** is what sc-watch.db needs the client for:
+reputation.py's find_ghosts, purge_ghosts and fetch_roster, and the client
+as the database's identity verifier (`Verifier`). They sit here rather than
+in scw-store, which knows nothing of the network. A 46-step script, with
+reputation.py driving rsi.py on the same scripted network, gives the same
+results, requests, and rows in both databases after every step (CI). Seven
+deliberate breakages are each caught. Deliberately different: find_ghosts
+words a failed lookup with `describe`, where reputation.py printed the
+Python exception.
 
 ## The replay tool
 

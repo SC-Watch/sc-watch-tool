@@ -19,6 +19,7 @@ pub mod model;
 mod paced;
 pub mod sentry;
 pub mod transport;
+pub mod upkeep;
 
 use std::cell::RefCell;
 use std::marker::PhantomData;
@@ -32,6 +33,7 @@ pub use log::RequestLog;
 pub use model::{Citizen, Note, Org, Source};
 pub use sentry::{Answer, Sentry};
 pub use transport::{FetchError, Headers, Reply, Transport};
+pub use upkeep::{Ghosts, Pull, Verifier, fetch_roster, find_ghosts, purge_ghosts};
 
 pub const API_HOST: &str = "https://api.starcitizen-api.com";
 pub const USER_AGENT: &str = "sc-watch/0.2 (personal Star Citizen contact tool)";
