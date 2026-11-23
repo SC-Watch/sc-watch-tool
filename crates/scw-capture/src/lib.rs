@@ -3,12 +3,15 @@
 //! converted to what the game drew) or saved frames. Every source gives BGR
 //! 8-bit images ([`scw_vision::Image`]) through one interface, [`Source`].
 //!
-//! Linux (the screen-sharing portal over PipeWire) is phase 4 of PORT.md.
+//! On Linux, [`x11::X11Source`] reads the game's X11 window (or a monitor);
+//! the screen-cast portal for native Wayland windows is still to come.
 
 pub mod hdr;
 pub mod replay;
 #[cfg(windows)]
 pub mod windows;
+#[cfg(target_os = "linux")]
+pub mod x11;
 
 use std::fmt;
 

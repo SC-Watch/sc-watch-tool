@@ -69,7 +69,15 @@ pub fn speaker(roots: Roots) -> impl Fn(&str) -> Result<(), String> + Send + Syn
                 None,
                 Some(scw_audio::windows::SapiVoice::maker()),
             );
-            #[cfg(not(windows))]
+            #[cfg(target_os = "linux")]
+            let a = scw_audio::Alerts::new(
+                cfg,
+                &path,
+                &roots.data_dir(&["tones"]),
+                None,
+                Some(scw_audio::linux::SpdVoice::maker()),
+            );
+            #[cfg(not(any(windows, target_os = "linux")))]
             let a = scw_audio::Alerts::new(cfg, &path, &roots.data_dir(&["tones"]), None, None);
             if !a.health().speech {
                 return Err("no speech engine on this machine".into());
@@ -111,7 +119,11 @@ pub fn hooks(roots: &Roots) -> Hooks {
             {
                 Box::new(scw_input::windows::WindowsInput)
             }
-            #[cfg(not(windows))]
+            #[cfg(target_os = "linux")]
+            {
+                Box::new(scw_input::linux::LinuxInput::new())
+            }
+            #[cfg(not(any(windows, target_os = "linux")))]
             {
                 Box::new(NoInput)
             }

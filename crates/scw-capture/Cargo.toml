@@ -24,5 +24,8 @@ windows = { version = "0.62", features = [
     "Win32_UI_HiDpi",
 ] }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = { version = "0.14", features = ["composite", "randr"] }
+
 [dev-dependencies]
 serde_json = { version = "1", features = ["float_roundtrip"] }

@@ -2,10 +2,12 @@
 //! they fire (inputs.py). The state is read through [`InputState`], so the
 //! logic is the same whatever reads it: on Windows [`windows::WindowsInput`]
 //! polls GetAsyncKeyState and joyGetPosEx, which install nothing, intercept
-//! nothing and swallow nothing (the press still reaches the game). Linux
-//! (evdev) is phase 4 of PORT.md.
+//! nothing and swallow nothing (the press still reaches the game); on Linux
+//! [`linux::LinuxInput`] asks evdev for the same state, the same way.
 
 pub mod binding;
+#[cfg(target_os = "linux")]
+pub mod linux;
 #[cfg(windows)]
 pub mod windows;
 

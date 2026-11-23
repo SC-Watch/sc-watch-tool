@@ -84,9 +84,19 @@ fn open_screen(monitor: i64, hdr: HdrCapture) -> Result<Opened, String> {
     Ok((Box::new(src), what, state))
 }
 
-#[cfg(not(windows))]
+/// Linux: the game's X11 window (Proton and Wine make one, under XWayland
+/// on a Wayland desktop), else the monitor. No HDR conversion here yet.
+#[cfg(target_os = "linux")]
+fn open_screen(monitor: i64, _hdr: HdrCapture) -> Result<Opened, String> {
+    use scw_capture::x11::{GAME_WINDOW, X11Source};
+    let src = X11Source::open(monitor.max(0) as usize, &GAME_WINDOW).map_err(|e| e.to_string())?;
+    let what = src.describe();
+    Ok((Box::new(src), what, None))
+}
+
+#[cfg(not(any(windows, target_os = "linux")))]
 fn open_screen(_monitor: i64, _hdr: HdrCapture) -> Result<Opened, String> {
-    Err("live capture is Windows-only in this version - use --replay".into())
+    Err("live capture is not built for this system yet - use --replay".into())
 }
 
 pub fn key_help(roots: &Roots) -> String {
@@ -264,7 +274,16 @@ pub fn make_player(
         Some(Box::new(scw_audio::windows::WinTones)),
         Some(scw_audio::windows::SapiVoice::maker()),
     );
-    #[cfg(not(windows))]
+    #[cfg(target_os = "linux")]
+    let alerts = scw_audio::Alerts::new(
+        cfg,
+        &path,
+        &tones,
+        scw_audio::linux::CmdTones::find()
+            .map(|t| Box::new(t) as Box<dyn scw_audio::TonePlayer + Send>),
+        Some(scw_audio::linux::SpdVoice::maker()),
+    );
+    #[cfg(not(any(windows, target_os = "linux")))]
     let alerts = scw_audio::Alerts::new(cfg, &path, &tones, None, None);
     alerts
 }
@@ -445,6 +464,13 @@ pub fn build_session(
             return Err(1);
         }
     };
+    // Keys need the input group on Linux: said before the session starts.
+    #[cfg(target_os = "linux")]
+    if key_mode {
+        for p in scw_input::linux::LinuxInput::new().problems() {
+            eprintln!("! {p}");
+        }
+    }
     let rows = match row_reader() {
         Ok(r) => r,
         Err(e) => {

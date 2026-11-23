@@ -287,7 +287,11 @@ pub fn input_state() -> Box<dyn InputState> {
     {
         Box::new(scw_input::windows::WindowsInput)
     }
-    #[cfg(not(windows))]
+    #[cfg(target_os = "linux")]
+    {
+        Box::new(scw_input::linux::LinuxInput::new())
+    }
+    #[cfg(not(any(windows, target_os = "linux")))]
     {
         Box::new(NoInput)
     }

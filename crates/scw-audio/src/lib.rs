@@ -6,6 +6,8 @@
 pub mod alerts;
 pub mod config;
 pub mod format;
+#[cfg(target_os = "linux")]
+pub mod linux;
 pub mod phrases;
 pub mod tones;
 #[cfg(windows)]
