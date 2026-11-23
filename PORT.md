@@ -15,7 +15,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
-| 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | - |
+| 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, and capture of the game's X11 window done and tested on CI's Ubuntu; the screen-cast portal, HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
@@ -416,6 +416,46 @@ Found while doing it, and fixed to match the Python:
 Not done: the page still receives the whole state on each change rather
 than what changed, because that needs app.js to change, and ui/ is still
 the Python's.
+
+## Linux (phase 4)
+
+The same programs build on Linux. What differs is behind the same
+interfaces as on Windows:
+
+- **Keys and joysticks** (`scw_input::linux::LinuxInput`): evdev, asked for
+  the state of each key and button (EVIOCGKEY). That is the same polling
+  as GetAsyncKeyState: nothing is grabbed or swallowed, so the game still
+  gets the press. Windows key names map to Linux key codes, so the
+  bindings are the same strings. Joysticks are named by vendor and product
+  as on Windows (`vid231d:0126`), and their buttons are numbered in the
+  stick's own HID order, so a saved `vid231d:0126.b7` is the same button.
+  Joysticks are readable by the logged-in user. Keyboards need the `input`
+  group (reading a keyboard is how a keylogger works), and the watcher says
+  so at start.
+- **Speech and tones** (`scw_audio::linux`): speech-dispatcher (`spd-say`,
+  each line waited for, rate and volume from audio.json); the tone files
+  play through `pw-play`, else `paplay`, else `aplay`.
+- **The data folder**: `$XDG_DATA_HOME/sc-watch`, else
+  `~/.local/share/sc-watch`; `portable.txt` and `SCW_DATA_ROOT` work as on
+  Windows.
+- **Capture** (`scw_capture::x11::X11Source`): the game's own X11 window,
+  found by its title or Wine's WM_CLASS, else a whole monitor (RandR).
+  Proton and Wine make an X11 window, under XWayland on a Wayland desktop
+  such as KDE Plasma, and one X11 client may read another's pixels with no
+  prompt (OBS's window capture does the same). A native Wayland window
+  cannot be read this way; that needs the screen-cast portal over PipeWire,
+  which is next.
+
+Tested on CI's Ubuntu runner, and the run's annotations say whether they
+ran:
+- `linux_uinput` makes a virtual keyboard and joystick with uinput, presses
+  them, and reads them back.
+- `x11_xvfb` makes a window named as Wine names the game's under Xvfb,
+  finds it, and reads its pixels exactly; the monitor otherwise.
+- Unit tests cover the key map, the button order, the speech arguments and
+  the XDG rule.
+
+Not yet tried on the real Linux PC.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
