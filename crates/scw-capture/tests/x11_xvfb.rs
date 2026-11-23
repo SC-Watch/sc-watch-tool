@@ -19,7 +19,7 @@ const BLUE: u32 = 0x0000FF;
 #[test]
 fn reads_the_game_window_and_the_monitor() {
     if std::env::var("DISPLAY").is_err() {
-        eprintln!("skipped: no DISPLAY");
+        println!("::warning title=x11 capture::skipped - no DISPLAY");
         return;
     }
     let (conn, screen) = x11rb::connect(None).unwrap();
@@ -111,4 +111,8 @@ fn reads_the_game_window_and_the_monitor() {
     std::thread::sleep(Duration::from_millis(100));
     let frame = src.grab().unwrap().expect("the monitor again");
     assert_eq!(frame.width, usize::from(scr.width_in_pixels));
+    println!(
+        "::notice title=x11 capture::ran - the game window found and read pixel-exact, monitor {}x{} read",
+        scr.width_in_pixels, scr.height_in_pixels
+    );
 }

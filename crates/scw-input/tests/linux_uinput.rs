@@ -34,7 +34,7 @@ fn reads_a_virtual_keyboard_and_joystick() {
         .open("/dev/uinput")
         .is_err()
     {
-        eprintln!("skipped: /dev/uinput is not writable here");
+        println!("::warning title=linux input::skipped - /dev/uinput is not writable");
         return;
     }
     let keys: AttributeSet<KeyCode> = [
@@ -88,8 +88,12 @@ fn reads_a_virtual_keyboard_and_joystick() {
     assert_eq!(stick_dev.ident(), "vid231d:0126");
     assert_eq!(stick_dev.buttons, 5);
     assert_eq!(stick_dev.axes, 2);
-    if !input.problems().is_empty() {
-        eprintln!("keyboard part skipped: {:?}", input.problems());
+    let keyboard = input.problems().is_empty();
+    if !keyboard {
+        println!(
+            "::warning title=linux input::keyboard part skipped - {:?}",
+            input.problems()
+        );
     } else {
         assert!(!input.key_down(u32::from(b'0')));
         press(&mut kb, KeyCode::KEY_0, true);
@@ -111,4 +115,12 @@ fn reads_a_virtual_keyboard_and_joystick() {
     press(&mut stick, KeyCode::BTN_THUMB2, false);
     press(&mut stick, KeyCode::BTN_TRIGGER_HAPPY1, false);
     assert_eq!(input.buttons_down(i), 0);
+    println!(
+        "::notice title=linux input::ran - virtual stick read (vid231d:0126, 5 buttons){}",
+        if keyboard {
+            ", virtual keyboard read"
+        } else {
+            ""
+        }
+    );
 }

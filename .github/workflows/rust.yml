@@ -52,6 +52,13 @@ jobs:
           else
             cargo test --workspace 2>&1 | tee test.log
           fi
+      # What the Linux device tests actually did - ran, or skipped and why -
+      # as annotations on the run.
+      - name: Linux device tests, said
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a -s "-screen 0 1280x720x24" cargo test -q -p scw-capture --test x11_xvfb -- --nocapture
+          cargo test -q -p scw-input --test linux_uinput -- --nocapture
       # A failing test's first lines, as annotations on the run: they can be
       # read without signing in, which the log cannot. Only committed,
       # made-up fixtures are tested here, so nothing private is in them.
