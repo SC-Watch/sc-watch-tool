@@ -454,6 +454,12 @@ interfaces as on Windows:
   not start. Only plain memory is offered (no DMA-BUF modifiers), and only
   a frame that arrives while a grab waits is converted, so a 60 Hz screen
   costs next to nothing between bursts and no frame is older than its grab.
+  The shared-memory buffers are mapped here, read-only, not by PipeWire:
+  PipeWire maps a buffer with the access its producer declares, the
+  portal's wlroots backend declares none, and that mapping crashed the
+  first read (PipeWire 1.0 mapped it readable regardless). Each buffer's
+  range is also checked against `/proc/self/maps` before it is first read,
+  so a wrongly described buffer is an error, not a crash.
 - **Capture on an X11 desktop** (`scw_capture::x11::X11Source`): the
   game's own X11 window, found by its title or Wine's WM_CLASS, else a
   whole monitor (RandR); one X11 client may read another's pixels with no
