@@ -191,6 +191,8 @@ struct Slot {
     /// Why the last buffer could not be read, once.
     unreadable: Option<String>,
     frames: u64,
+    /// Buffer ranges already found readable.
+    checked: Vec<(usize, usize)>,
 }
 
 /// What the PipeWire thread and the grabbing thread share.
@@ -220,7 +222,7 @@ impl Shared {
         };
         // SAFETY: a dequeued buffer's spa_buffer, data and chunk stay valid
         // until it is queued back, which the caller does after this.
-        let read = unsafe { frame_of(b, f) };
+        let read = unsafe { frame_of(b, f, &mut slot.checked) };
         match read {
             Ok(img) => {
                 slot.frame = Some(img);
@@ -240,16 +242,20 @@ impl Shared {
 
 /// # Safety
 /// As [`Shared::read`].
-unsafe fn frame_of(b: *mut PwBuffer, f: VideoFormat) -> Result<Image<u8>, String> {
+unsafe fn frame_of(
+    b: *mut PwBuffer,
+    f: VideoFormat,
+    checked: &mut Vec<(usize, usize)>,
+) -> Result<Image<u8>, String> {
     let layout =
         Layout::from_id(f.format).ok_or(format!("pixel format {} is not readable", f.format))?;
     // SAFETY: see the caller.
-    let data = unsafe {
+    let (data, n_datas) = unsafe {
         let buf = (*b).buffer;
         if buf.is_null() || (*buf).n_datas == 0 || (*buf).datas.is_null() {
             return Err("an empty buffer".into());
         }
-        &*(*buf).datas
+        (&*(*buf).datas, (*buf).n_datas)
     };
     if data.data.is_null() || data.chunk.is_null() {
         return Err(if data.kind == spa::DATA_DMA_BUF {
@@ -272,10 +278,74 @@ unsafe fn frame_of(b: *mut PwBuffer, f: VideoFormat) -> Result<Image<u8>, String
     } else {
         w * 4
     };
-    // SAFETY: the mapped memory holds maxsize bytes from data.
-    let bytes = unsafe { std::slice::from_raw_parts((data.data as *const u8).add(offset), size) };
+    let start = data.data as usize + offset;
+    if !readable(start, size, checked) {
+        return Err(format!(
+            "a buffer that is not readable memory (kind {}, flags {:#x}, mapoffset {}, \
+             maxsize {}, chunk offset {} size {} stride {}, {} plane(s))",
+            data.kind,
+            data.flags,
+            data.mapoffset,
+            data.maxsize,
+            chunk.offset,
+            chunk.size,
+            chunk.stride,
+            n_datas
+        ));
+    }
+    // SAFETY: the range was found readable in this process's memory map.
+    let bytes = unsafe { std::slice::from_raw_parts(start as *const u8, size) };
     spa::to_bgr(bytes, w, h, stride, layout)
         .ok_or_else(|| format!("{size} bytes is too few for {w}x{h}, {stride} a row"))
+}
+
+/// Is `[start, start + len)` readable memory in this process? Answered
+/// from /proc/self/maps the first time a range is met (a stream cycles
+/// through a few buffers), so a buffer described wrongly is refused with a
+/// message instead of crashing the program.
+fn readable(start: usize, len: usize, checked: &mut Vec<(usize, usize)>) -> bool {
+    if len == 0 || checked.contains(&(start, len)) {
+        return true;
+    }
+    let Ok(maps) = std::fs::read_to_string("/proc/self/maps") else {
+        return false;
+    };
+    let ok = covered(&maps, start, start.saturating_add(len));
+    if ok {
+        checked.push((start, len));
+    }
+    ok
+}
+
+/// Do the readable regions in `maps` (the /proc/pid/maps format) cover
+/// `[from, to)` without a gap?
+pub fn covered(maps: &str, from: usize, to: usize) -> bool {
+    let mut regions: Vec<(usize, usize)> = maps
+        .lines()
+        .filter_map(|l| {
+            let mut f = l.split_whitespace();
+            let (range, perms) = (f.next()?, f.next()?);
+            if !perms.starts_with('r') {
+                return None;
+            }
+            let (a, b) = range.split_once('-')?;
+            Some((
+                usize::from_str_radix(a, 16).ok()?,
+                usize::from_str_radix(b, 16).ok()?,
+            ))
+        })
+        .collect();
+    regions.sort_unstable();
+    let mut at = from;
+    for (a, b) in regions {
+        if a <= at && at < b {
+            at = b;
+            if at >= to {
+                return true;
+            }
+        }
+    }
+    at >= to
 }
 
 unsafe extern "C" fn on_state(data: Opaque, _old: c_int, state: c_int, error: *const c_char) {
@@ -308,7 +378,12 @@ unsafe extern "C" fn on_param(data: Opaque, id: u32, param: *const c_void) {
         std::slice::from_raw_parts(param as *const u8, 8 + size)
     };
     let format = spa::parse_format(bytes);
-    shared.lock().format = format;
+    {
+        // New buffers follow a new format: check their memory afresh.
+        let mut slot = shared.lock();
+        slot.format = format;
+        slot.checked.clear();
+    }
     let stream = shared.stream.load(Ordering::Acquire);
     if format.is_some() && !stream.is_null() {
         let pod = spa::aligned(&spa::buffers());
@@ -600,5 +675,25 @@ impl Drop for PwCapture {
             (api.context_destroy)(self.context);
             (api.loop_destroy)(self.tloop);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::covered;
+
+    #[test]
+    fn a_range_must_lie_in_readable_regions() {
+        let maps = "1000-2000 r--s 00000000 00:01 7 /memfd:a (deleted)\n\
+                    2000-3000 rw-p 00000000 00:00 0\n\
+                    3000-4000 ---p 00000000 00:00 0\n\
+                    5000-6000 r-xp 00000000 08:01 9 /usr/lib/x\n";
+        assert!(covered(maps, 0x1000, 0x2000));
+        assert!(covered(maps, 0x1800, 0x2800), "across two adjacent regions");
+        assert!(!covered(maps, 0x2800, 0x3800), "into a region with no read");
+        assert!(!covered(maps, 0x4000, 0x4001), "unmapped");
+        assert!(!covered(maps, 0x5800, 0x6001), "one byte past the end");
+        assert!(covered(maps, 0x5000, 0x6000));
+        assert!(!covered("", 0x1000, 0x1001));
     }
 }
