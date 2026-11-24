@@ -10,6 +10,13 @@
 //! PipeWire runs the stream on its own thread. Its process callback keeps
 //! only the newest buffer, and turns it into a BGR frame only when a grab
 //! is waiting for one, so a 60 Hz screen costs nothing between bursts.
+//!
+//! Shared-memory buffers are mapped here, read-only, as the stream adds
+//! them - not by PipeWire (PW_STREAM_FLAG_MAP_BUFFERS). PipeWire maps a
+//! buffer with the access its producer declares, and a producer that
+//! declares none (xdg-desktop-portal-wlr does) gets a mapping that cannot
+//! be read: the first frame crashed the program. Every range is also
+//! checked against the process's memory map before it is first read.
 
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 use std::os::fd::{IntoRawFd, OwnedFd};
@@ -29,7 +36,6 @@ const LIBRARY: &str = "libpipewire-0.3.so.0";
 // pipewire/stream.h
 const DIRECTION_INPUT: c_int = 0;
 const FLAG_AUTOCONNECT: c_int = 1 << 0;
-const FLAG_MAP_BUFFERS: c_int = 1 << 2;
 const STATE_ERROR: c_int = -1;
 const STATE_STREAMING: c_int = 3;
 const ID_ANY: u32 = 0xffff_ffff;
@@ -56,8 +62,8 @@ struct StreamEvents {
     control_info: Callback,
     io_changed: Callback,
     param_changed: Option<unsafe extern "C" fn(Opaque, u32, *const c_void)>,
-    add_buffer: Callback,
-    remove_buffer: Callback,
+    add_buffer: Option<unsafe extern "C" fn(Opaque, *mut PwBuffer)>,
+    remove_buffer: Option<unsafe extern "C" fn(Opaque, *mut PwBuffer)>,
     process: Option<unsafe extern "C" fn(Opaque)>,
     drained: Callback,
     command: Callback,
@@ -193,6 +199,89 @@ struct Slot {
     frames: u64,
     /// Buffer ranges already found readable.
     checked: Vec<(usize, usize)>,
+    /// The shared-memory buffers mapped here.
+    mapped: Vec<Mapped>,
+}
+
+/// A buffer's memory, mapped read-only by [`map_buffer`].
+struct Mapped {
+    /// The pw_buffer it belongs to.
+    buffer: usize,
+    /// What mmap returned, and its length, for munmap.
+    base: usize,
+    len: usize,
+    /// Where the buffer's data starts.
+    data: usize,
+}
+
+/// Maps a shared-memory buffer the stream is adding, read-only.
+///
+/// # Safety
+/// `b` is a buffer passed to the add_buffer event.
+unsafe fn map_buffer(b: *mut PwBuffer) -> Option<Mapped> {
+    // SAFETY: an added buffer's spa_buffer and data are valid.
+    let d = unsafe {
+        let buf = (*b).buffer;
+        if buf.is_null() || (*buf).n_datas == 0 || (*buf).datas.is_null() {
+            return None;
+        }
+        &*(*buf).datas
+    };
+    if d.kind != spa::DATA_MEM_FD || d.fd < 0 || d.maxsize == 0 {
+        return None;
+    }
+    // SAFETY: sysconf has no preconditions.
+    let page = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
+        n if n > 0 => n as usize,
+        _ => 4096,
+    };
+    let offset = d.mapoffset as usize;
+    let lead = offset % page;
+    let len = lead + d.maxsize as usize;
+    // SAFETY: a fresh read-only shared mapping of the buffer's file, at a
+    // page-aligned offset; unmapped in on_remove_buffer or on drop.
+    let p = unsafe {
+        libc::mmap(
+            null_mut(),
+            len,
+            libc::PROT_READ,
+            libc::MAP_SHARED,
+            d.fd as c_int,
+            (offset - lead) as libc::off_t,
+        )
+    };
+    if p == libc::MAP_FAILED {
+        return None;
+    }
+    Some(Mapped {
+        buffer: b as usize,
+        base: p as usize,
+        len,
+        data: p as usize + lead,
+    })
+}
+
+fn unmap(m: Mapped) {
+    // SAFETY: base and len are a mapping made by map_buffer, unmapped once.
+    unsafe { libc::munmap(m.base as *mut c_void, m.len) };
+}
+
+unsafe extern "C" fn on_add_buffer(data: Opaque, b: *mut PwBuffer) {
+    // SAFETY: as on_state; b is the buffer being added.
+    let shared = unsafe { &*(data as *const Shared) };
+    if let Some(m) = unsafe { map_buffer(b) } {
+        shared.lock().mapped.push(m);
+    }
+}
+
+unsafe extern "C" fn on_remove_buffer(data: Opaque, b: *mut PwBuffer) {
+    // SAFETY: as on_state.
+    let shared = unsafe { &*(data as *const Shared) };
+    let mut slot = shared.lock();
+    if let Some(i) = slot.mapped.iter().position(|m| m.buffer == b as usize) {
+        unmap(slot.mapped.swap_remove(i));
+    }
+    slot.checked.clear();
 }
 
 /// What the PipeWire thread and the grabbing thread share.
@@ -222,7 +311,8 @@ impl Shared {
         };
         // SAFETY: a dequeued buffer's spa_buffer, data and chunk stay valid
         // until it is queued back, which the caller does after this.
-        let read = unsafe { frame_of(b, f, &mut slot.checked) };
+        let s = &mut *slot;
+        let read = unsafe { frame_of(b, f, &s.mapped, &mut s.checked) };
         match read {
             Ok(img) => {
                 slot.frame = Some(img);
@@ -245,6 +335,7 @@ impl Shared {
 unsafe fn frame_of(
     b: *mut PwBuffer,
     f: VideoFormat,
+    mapped: &[Mapped],
     checked: &mut Vec<(usize, usize)>,
 ) -> Result<Image<u8>, String> {
     let layout =
@@ -257,12 +348,20 @@ unsafe fn frame_of(
         }
         (&*(*buf).datas, (*buf).n_datas)
     };
-    if data.data.is_null() || data.chunk.is_null() {
-        return Err(if data.kind == spa::DATA_DMA_BUF {
-            "the screen came as GPU memory (DMA-BUF), which this version cannot read".into()
-        } else {
-            format!("a buffer of kind {} that is not mapped", data.kind)
-        });
+    // Shared memory as mapped here; plain memory as PipeWire gives it.
+    let base = match mapped.iter().find(|m| m.buffer == b as usize) {
+        Some(m) => m.data,
+        None if !data.data.is_null() && data.kind == spa::DATA_MEM_PTR => data.data as usize,
+        None => {
+            return Err(if data.kind == spa::DATA_DMA_BUF {
+                "the screen came as GPU memory (DMA-BUF), which this version cannot read".into()
+            } else {
+                format!("a buffer of kind {} that could not be mapped", data.kind)
+            });
+        }
+    };
+    if data.chunk.is_null() {
+        return Err("a buffer with no chunk".into());
     }
     // SAFETY: a buffer's chunk is valid with it.
     let chunk = unsafe { &*data.chunk };
@@ -278,7 +377,7 @@ unsafe fn frame_of(
     } else {
         w * 4
     };
-    let start = data.data as usize + offset;
+    let start = base + offset;
     if !readable(start, size, checked) {
         return Err(format!(
             "a buffer that is not readable memory (kind {}, flags {:#x}, mapoffset {}, \
@@ -464,8 +563,8 @@ impl PwCapture {
             control_info: None,
             io_changed: None,
             param_changed: Some(on_param),
-            add_buffer: None,
-            remove_buffer: None,
+            add_buffer: Some(on_add_buffer),
+            remove_buffer: Some(on_remove_buffer),
             process: Some(on_process),
             drained: None,
             command: None,
@@ -562,7 +661,7 @@ impl PwCapture {
                 stream,
                 DIRECTION_INPUT,
                 target_id,
-                FLAG_AUTOCONNECT | FLAG_MAP_BUFFERS,
+                FLAG_AUTOCONNECT,
                 params.as_ptr(),
                 1,
             );
@@ -674,6 +773,10 @@ impl Drop for PwCapture {
             (api.loop_stop)(self.tloop);
             (api.context_destroy)(self.context);
             (api.loop_destroy)(self.tloop);
+        }
+        // Buffers the stream did not remove before it went.
+        for m in std::mem::take(&mut self.shared.lock().mapped) {
+            unmap(m);
         }
     }
 }

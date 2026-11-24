@@ -1040,6 +1040,7 @@ dependencies = [
 name = "scw-capture"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "libloading",
  "png",
  "scw-vision",
