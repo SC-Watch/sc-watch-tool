@@ -20,22 +20,27 @@ fn shares_and_reads_the_screen_through_the_portal() {
     let bgr = [rgb as u8, (rgb >> 8) as u8, (rgb >> 16) as u8];
     let token = std::env::temp_dir().join(format!("scw-portal-token-{}", std::process::id()));
     let said = std::sync::Mutex::new(Vec::new());
+    println!("step: asking the portal");
     let mut src = ScreenCastSource::open(Some(token.clone()), &|s: &str| {
+        println!("step: said {s:?}");
         said.lock().unwrap().push(s.to_string())
     })
     .expect("the portal shares the screen");
     let what = src.describe();
+    println!("step: opened - {what}");
     assert!(what.starts_with("the shared screen, "), "{what}");
     assert_eq!(said.lock().unwrap().len(), 1, "told before the dialog");
 
     let mut frame = None;
-    for _ in 0..40 {
+    for i in 0..40 {
+        println!("step: grab {i}");
         if let Some(img) = src.grab().unwrap() {
             frame = Some(img);
             break;
         }
     }
     let img = frame.expect("a frame of the screen within 10 s");
+    println!("step: a frame {}x{}", img.width, img.height);
     let centre = ((img.height / 2) * img.width + img.width / 2) * 3;
     assert_eq!(&img.data[centre..centre + 3], &bgr, "the output's colour");
     let kept = token.exists();

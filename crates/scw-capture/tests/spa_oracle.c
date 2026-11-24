@@ -7,6 +7,7 @@
  */
 #include <stdio.h>
 
+#include <spa/buffer/buffer.h>
 #include <spa/param/buffers.h>
 #include <spa/param/video/format-utils.h>
 #include <spa/pod/builder.h>

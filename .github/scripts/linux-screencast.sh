@@ -22,13 +22,13 @@ note() { echo "::warning title=screen-cast setup::$*"; }
 # A file's last lines as one annotation.
 show() { # title, file, level
   [ -s "$2" ] || return 0
-  echo "::${3:-warning} title=$1::$(tail -n 25 "$2" | cut -c1-200 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')"
+  echo "::${3:-warning} title=$1::$(tail -n 45 "$2" | cut -c1-240 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')"
 }
 
 sudo apt-get install -y -qq \
   pkg-config libspa-0.2-dev pipewire wireplumber \
   gstreamer1.0-pipewire gstreamer1.0-plugins-base gstreamer1.0-tools \
-  sway swaybg xdg-desktop-portal xdg-desktop-portal-wlr >/dev/null \
+  sway swaybg xdg-desktop-portal xdg-desktop-portal-wlr gdb >/dev/null \
   || note "some packages did not install"
 
 logs="$RUNNER_TEMP/screencast-logs"
@@ -92,7 +92,7 @@ kill $gst 2>/dev/null
 
 # 3. A headless Wayland desktop and the portal.
 colour=3070b0
-printf 'output * bg #%s solid_color\n' "$colour" >"$RUNNER_TEMP/sway.conf"
+printf 'xwayland disable\noutput * bg #%s solid_color\n' "$colour" >"$RUNNER_TEMP/sway.conf"
 mkdir -p "$XDG_CONFIG_HOME/xdg-desktop-portal-wlr" "$XDG_CONFIG_HOME/xdg-desktop-portal"
 printf '[screencast]\nchooser_type=none\noutput_name=HEADLESS-1\n' \
   >"$XDG_CONFIG_HOME/xdg-desktop-portal-wlr/config"
@@ -114,6 +114,14 @@ if [ -n "$socket" ] && kill -0 $sway 2>/dev/null; then
   /usr/libexec/xdg-desktop-portal -r >"$logs/xdp.log" 2>&1 &
   sleep 2
   if ! run_test portal_sway SCW_PORTAL_TEST=$colour; then
+    # A crash: the test again under gdb, for where.
+    bin=$(grep -o "process didn't exit successfully: .[^ ]*" "$logs/test-portal_sway.out" | sed 's/.*`//')
+    if [ -n "$bin" ] && command -v gdb >/dev/null; then
+      SCW_PORTAL_TEST=$colour timeout 120 gdb -q -batch -ex run -ex bt -ex "thread apply all bt 8" \
+        --args "$bin" --nocapture >"$logs/gdb.log" 2>&1
+      grep -A 45 "received signal" "$logs/gdb.log" | head -n 45 >"$logs/gdb-crash.log"
+      show "portal_sway under gdb" "$logs/gdb-crash.log"
+    fi
     show "sway" "$logs/sway.log"
     show "xdg-desktop-portal-wlr" "$logs/xdpw.log"
     show "xdg-desktop-portal" "$logs/xdp.log"
