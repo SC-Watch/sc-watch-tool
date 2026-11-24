@@ -150,6 +150,41 @@ fn http_as_python_http_server_speaks_it() {
         "the flag above, on the stream"
     );
 
+    // The page's "text only, no screenshots" button: a bundle, said whole.
+    std::fs::create_dir_all(base.join("data/debug_bursts")).unwrap();
+    std::fs::write(
+        base.join("data/debug_bursts/session_20261122_100000.log"),
+        "a log\n",
+    )
+    .unwrap();
+    std::fs::write(base.join("data/debug_bursts/burst_100000_0.png"), "x").unwrap();
+    let json = r#"{"frames": false}"#;
+    let (st, _, body) = ask(
+        port,
+        &format!(
+            "POST /api/support-bundle HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Type: application/json\r\n\
+             Content-Length: {}\r\n\r\n{json}",
+            json.len()
+        ),
+    );
+    assert_eq!(st, "HTTP/1.0 200 OK");
+    let v: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(v["ok"], true, "{v}");
+    assert_eq!(
+        (v["logs"].as_u64(), v["images"].as_u64()),
+        (Some(1), Some(0))
+    );
+    assert_eq!(v["with_frames"], false);
+    assert!(
+        v["manifest"]
+            .as_str()
+            .unwrap()
+            .contains("screenshots      NONE - built with --no-frames")
+    );
+    let zip = PathBuf::from(v["file"].as_str().unwrap());
+    assert!(zip.starts_with(base.join("data").join("debug_bursts")) && zip.is_file());
+    assert!(v["mb"].is_number());
+
     ui.shutting_down.store(true, Ordering::Relaxed);
     let _ = std::fs::remove_dir_all(&base);
 }

@@ -389,8 +389,23 @@ pub fn utilities(args: &Args, roots: &Roots) -> Option<i32> {
         return Some(0);
     }
     if args.support_bundle {
-        eprintln!("--support-bundle is not in this version yet: the Python build makes one");
-        return Some(1);
+        use scw_store::bundle::{self, Options};
+        let settings = scw_store::settings::load(&roots.data.join("settings.json"));
+        let flags = Flags::load(&roots.data.join("flags.json"));
+        let opts = Options {
+            with_frames: args.bundle_frames,
+            ..Options::default()
+        };
+        let info = bundle::build(
+            &roots.data,
+            &settings,
+            &flags,
+            Local::now().naive_local(),
+            &opts,
+        );
+        let (text, ok) = bundle::report(&info, opts.budget_mb);
+        println!("{text}");
+        return Some(if ok { 0 } else { 1 });
     }
     if args.check_resolution.is_some() {
         eprintln!("--check-resolution is not in this version yet: the Python build has it");

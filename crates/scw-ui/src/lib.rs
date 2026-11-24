@@ -347,6 +347,19 @@ impl Ui {
         settings::load(&self.roots.data.join("settings.json"))
     }
 
+    /// The clock's time as a wall-clock date and time (local, or UTC in
+    /// tests that ask for it).
+    pub fn local_now(&self) -> chrono::NaiveDateTime {
+        let t = self.now();
+        let at = chrono::DateTime::from_timestamp(t.floor() as i64, ((t - t.floor()) * 1e9) as u32)
+            .unwrap_or_default();
+        if self.hooks.utc {
+            at.naive_utc()
+        } else {
+            at.with_timezone(&chrono::Local).naive_local()
+        }
+    }
+
     pub fn key_file(&self) -> PathBuf {
         self.roots.data.join("sc_api_key.txt")
     }

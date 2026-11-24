@@ -14,7 +14,7 @@ use scw_vision::{Image, Rect};
 use serde_json::{Value, json};
 
 use crate::enricher::{EnricherThread, Pending};
-use crate::session::{Detector, Frames, Keys, LookupQueue, Mode, Stop};
+use crate::session::{Detector, Frames, Keys, LookupQueue, Mode, ReadStats, Stop};
 use crate::sinks::{AlertSink, AudioHealth, Console, Spoken};
 
 /// IRIS's letter model (models/iris-letters-model.bin, GPL-3.0), built in.
@@ -35,6 +35,7 @@ pub fn row_reader() -> Result<Arc<RowReader>, String> {
 pub struct IrisDetector {
     full: FrameReader,
     auto: FrameReader,
+    last: Option<ReadStats>,
 }
 
 impl IrisDetector {
@@ -42,13 +43,28 @@ impl IrisDetector {
         IrisDetector {
             full: FrameReader::new(rows.clone(), full, DetectorSettings::default()),
             auto: FrameReader::new(rows, auto, DetectorSettings::default()),
+            last: None,
         }
     }
 }
 
 impl Detector for IrisDetector {
     fn detect(&mut self, frame: &Image<u8>, _mode: Mode) -> Vec<Contact> {
-        self.full.read(frame).contacts
+        let read = self.full.read(frame);
+        self.last = Some(ReadStats {
+            lines: read.lines,
+            named: read.contacts.len(),
+            refused: read
+                .refused
+                .iter()
+                .map(|(r, n)| (r.to_string(), *n))
+                .collect(),
+        });
+        read.contacts
+    }
+
+    fn last_read(&self) -> Option<ReadStats> {
+        self.last.clone()
     }
 
     fn scan(&mut self, frame: &Image<u8>) -> Vec<Rect> {

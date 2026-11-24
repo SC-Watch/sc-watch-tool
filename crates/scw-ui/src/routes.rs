@@ -448,8 +448,19 @@ impl Ui {
             "/api/audio/phrases" | "/api/audio/preview" => return Ok(self.speech(path, p)),
             "/api/flags" => return Ok(self.save_flags(p)),
             "/api/support-bundle" => {
-                return Ok(json!({"ok": false,
-                    "error": "the support bundle is not in this version yet - the Python build makes one"}));
+                use scw_store::bundle::{self, Options};
+                let opts = Options {
+                    with_frames: p.get("frames") != Some(&Value::Bool(false)),
+                    ..Options::default()
+                };
+                let info = bundle::build(
+                    &self.roots.data,
+                    &self.settings(),
+                    &self.flags(),
+                    self.local_now(),
+                    &opts,
+                );
+                return Ok(Value::Object(info));
             }
             "/api/open-folder" => return Ok(self.open_folder(p)),
             _ => {}

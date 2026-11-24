@@ -76,12 +76,28 @@ pub trait Frames {
     fn release(&mut self) {}
 }
 
+/// What the reader made of the last frame it read, for --debug.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct ReadStats {
+    /// Distance lines the scan kept.
+    pub lines: usize,
+    /// Plates read as a name.
+    pub named: usize,
+    /// Plates it would not read, by its reason, in the order first met.
+    pub refused: Vec<(String, usize)>,
+}
+
 /// The reader.
 pub trait Detector {
     /// Every plate in the frame, read; `mode` is what the trigger asked for.
     fn detect(&mut self, frame: &Image<u8>, mode: Mode) -> Vec<Contact>;
     /// The always-on scan: where the distance lines are, without reading.
     fn scan(&mut self, frame: &Image<u8>) -> Vec<Rect>;
+    /// What the last `detect` found, stage by stage, when the reader can
+    /// say.
+    fn last_read(&self) -> Option<ReadStats> {
+        None
+    }
 }
 
 /// The trigger bindings, in the order they are polled.
@@ -463,6 +479,9 @@ impl Session {
                     "  [debug] frame {idx}: detect returned [{}]",
                     parts.join(", ")
                 ));
+                if let Some(st) = self.p.detector.last_read() {
+                    self.debug_read(&st, &frame_file, idx);
+                }
             }
             let discarded = if b.tally.discarded.is_empty() {
                 Value::Null
@@ -542,8 +561,45 @@ impl Session {
         Ok(captured)
     }
 
-    /// --debug: the frame saved, and its size. (The OCR pipeline's own
-    /// diagnostics - boxes, pairs, the km gate - are not in this version.)
+    /// --debug: what IRIS made of the frame - the distance lines its scan
+    /// kept, the plates it read as names, and the ones it refused, by its
+    /// reason. (The Python's --debug reports the OCR pipeline's stages
+    /// instead: boxes, pairs, the km gate.)
+    fn debug_read(&mut self, st: &ReadStats, frame_file: &str, idx: usize) {
+        let refused: usize = st.refused.iter().map(|(_, n)| n).sum();
+        let why = if st.refused.is_empty() {
+            String::new()
+        } else {
+            let parts: Vec<String> = st
+                .refused
+                .iter()
+                .map(|(r, n)| format!("{r} x{n}"))
+                .collect();
+            format!(" ({})", parts.join(", "))
+        };
+        self.con().say(&format!(
+            "  [debug] frame {idx}: iris lines={} read={} refused={refused}{why}",
+            st.lines, st.named
+        ));
+        let by_reason: Map<String, Value> = st
+            .refused
+            .iter()
+            .map(|(r, n)| (r.clone(), json!(n)))
+            .collect();
+        self.p.log.event(
+            "iris",
+            &[
+                ("file", json!(frame_file)),
+                ("idx", json!(idx)),
+                ("lines", json!(st.lines)),
+                ("read", json!(st.named)),
+                ("refused", Value::Object(by_reason)),
+            ],
+        );
+    }
+
+    /// --debug: the frame saved, and its size; what the reader made of it
+    /// follows (debug_read).
     fn debug_frame(&mut self, frame: &Image<u8>, idx: usize) -> String {
         let dir = self.p.data_root.join("debug_bursts");
         let _ = std::fs::create_dir_all(&dir);

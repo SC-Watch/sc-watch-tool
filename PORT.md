@@ -288,9 +288,13 @@ far:
 
 Deliberately different in the session. Reading chat needs OCR, which this
 version lacks: the chat key says so instead of reading. `--debug` saves each
-frame and logs its size, but the OCR pipeline's diagnostics (boxes, pairs,
-the km gate) are not there. Ctrl+C is noticed at the next key poll or loop
-turn (within 30 ms), not at whatever line Python was on.
+frame and logs its size, and then says what IRIS made of it - the distance
+lines its scan kept, the plates read as names, and the ones refused by
+IRIS's reason (`lowconf`, `short`, ...) - on the console and as an `iris`
+event in the session log. The Python's `--debug` reports the OCR
+pipeline's stages instead (boxes, pairs, the km gate), which this version
+does not have. Ctrl+C is noticed at the next key poll or loop turn (within
+30 ms), not at whatever line Python was on.
 
 - **The program** (`sc-watch-watcher`, watch.py's main). The command line has
   the saved settings as its defaults and argparse's rules: abbreviations,
@@ -318,8 +322,16 @@ Deliberately different in the program:
 - `SCW_DATA_ROOT` names the data folder outright, for development and
   tests.
 - A saved `ocr` or `iris+ocr` reader is warned about and read as `iris`.
-- `--support-bundle` and `--check-resolution` say they are not in this
-  version yet.
+- `--check-resolution` says it is not in this version yet.
+- `--support-bundle` (and the page's button) is debuglog.build_bundle
+  (`scw_store::bundle`): the same entries in the same order, the same
+  manifest, logs, settings and flags, the same budget choices and the same
+  old bundles pruned, on a made-up data folder in four scenarios
+  (tests/bundle_ops.rs, from make_bundle_ops.py; seven of eight deliberate
+  breakages caught - the eighth changes nothing here). Full frames are
+  re-encoded by jpeg-encoder, not OpenCV, so those JPEG bytes differ; the
+  test holds them to being a JPEG of the frame's size. The manifest names
+  this program's command for a text-only bundle, not watch.py's.
 - A second Ctrl+C leaves at once.
 - A restart starts a new process and leaves, as os.execv does on Windows.
 - A capture that fails says so once per reason.
@@ -356,7 +368,8 @@ and storage panels) and gave identical answers. The comparison prints paths,
 never values, and deletes the copies.
 
 Deliberately different in the page's server:
-- The support bundle says it is not in this version yet.
+- The support bundle's full frames are jpeg-encoder's JPEG (see the
+  watcher's notes above).
 - A ghost check's HTTP failure reads as every other lookup error ("SENTRY
   had an error (HTTP 500)"), not urllib's "HTTP Error 500: <reason>".
 - A share export's zip is this compressor's bytes; what is inside is the

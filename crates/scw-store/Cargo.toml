@@ -17,6 +17,10 @@ chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 zip = { version = "9.7.3", default-features = false, features = ["deflate"] }
 getrandom = "0.4.3"
+png = "0.17"
+jpeg-encoder = "0.7.1"
 
 [dev-dependencies]
 filetime = "0.2.30"
+sha1_smol = "1"
+base64 = "0.23"

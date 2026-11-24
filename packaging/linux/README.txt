@@ -71,7 +71,24 @@ NOT IN THIS VERSION YET
     focus and dual keys all do a full IRIS read.
   - HDR: frames are read as the desktop shares them. With HDR on in KDE,
     say how the names read.
-  - --support-bundle and --check-resolution.
+  - --check-resolution.
+
+LOGS, FRAMES AND A SUPPORT BUNDLE
+
+  Every session writes a log to data/debug_bursts/ (the newest 12 are
+  kept). With --debug, every burst frame is saved there too, with a line
+  per frame saying what IRIS found in it. Housekeeping clears old frames
+  and audits by itself (Settings on the page).
+
+  To send them in one go: "make a support bundle" on the page's Settings,
+  or
+
+      ./sc-watch --support-bundle
+
+  It writes one zip under 24 MB into data/debug_bursts/ and prints what is
+  in it. A full frame is your whole screen - "text only, no screenshots"
+  (or --support-bundle --no-frames) leaves them out. Your databases and API
+  key are never in it.
 
 WHAT TO SEND BACK
 

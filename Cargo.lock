@@ -1085,14 +1085,18 @@ dependencies = [
 name = "scw-store"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "chrono",
  "filetime",
  "getrandom 0.4.3",
+ "jpeg-encoder",
+ "png",
  "regex",
  "rusqlite",
  "scw-vision",
  "serde",
  "serde_json",
+ "sha1_smol",
  "zip",
 ]
 

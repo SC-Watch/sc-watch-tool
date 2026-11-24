@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
+use std::sync::Mutex;
 
 use chrono::NaiveDateTime;
 use regex::Regex;
@@ -21,14 +21,8 @@ use serde_json::{Map, Value};
 
 use scw_store::json::{dumps_compact, py_str};
 
-pub const DEBUG_DIR: &str = "debug_bursts";
-/// How many session logs are kept.
-pub const KEEP_SESSIONS: usize = 12;
-
-fn secret_re() -> &'static Regex {
-    static R: OnceLock<Regex> = OnceLock::new();
-    R.get_or_init(|| Regex::new(r"(?i)(api[_-]?key|token|secret|password)\s*[:=]\s*\S+").unwrap())
-}
+// One copy of these, shared with the support bundle (scw_store::bundle).
+pub use scw_store::bundle::{DEBUG_DIR, KEEP_SESSIONS, safe_settings, secret_re};
 
 /// What is taken out of every line: the home folder and the user name.
 #[derive(Clone, Debug, Default)]
@@ -66,30 +60,6 @@ impl Scrub {
             .replace_all(&out, "${1}=<redacted>")
             .into_owned()
     }
-}
-
-/// The settings as the log shows them: anything secret replaced. The read
-/// key is called `key`, which the rule cannot tell from an API key.
-pub fn safe_settings(settings: &Map<String, Value>) -> Map<String, Value> {
-    settings
-        .iter()
-        .map(|(k, v)| {
-            let lk = k.to_lowercase();
-            // re.match: a match that starts at the first character.
-            let secret = secret_re()
-                .find(&format!("{k}=x"))
-                .is_some_and(|m| m.start() == 0)
-                || (lk.contains("key") && !lk.contains("_key"));
-            (
-                k.clone(),
-                if secret {
-                    Value::String("<redacted>".into())
-                } else {
-                    v.clone()
-                },
-            )
-        })
-        .collect()
 }
 
 struct Inner {
