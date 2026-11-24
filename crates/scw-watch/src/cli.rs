@@ -139,7 +139,8 @@ const OPTS: &[Opt] = &[
         "support_bundle",
         Kind::True,
         &[],
-        "zip the logs and settings for support, then exit (not in this version yet)",
+        "zip the session logs, your settings and your debug screenshots into one file to send \
+         for support, then exit. Never includes your databases or API key",
     ),
     opt(
         "--no-frames",
