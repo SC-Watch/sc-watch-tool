@@ -3,11 +3,19 @@
 //! converted to what the game drew) or saved frames. Every source gives BGR
 //! 8-bit images ([`scw_vision::Image`]) through one interface, [`Source`].
 //!
-//! On Linux, [`x11::X11Source`] reads the game's X11 window (or a monitor);
-//! the screen-cast portal for native Wayland windows is still to come.
+//! On Linux, [`x11::X11Source`] reads the game's X11 window (or a monitor)
+//! on an X11 desktop, and [`screencast::ScreenCastSource`] the screen a
+//! Wayland desktop shares through its screen-cast portal, over PipeWire.
 
 pub mod hdr;
+#[cfg(target_os = "linux")]
+pub mod pipewire;
+#[cfg(target_os = "linux")]
+pub mod portal;
 pub mod replay;
+#[cfg(target_os = "linux")]
+pub mod screencast;
+pub mod spa;
 #[cfg(windows)]
 pub mod windows;
 #[cfg(target_os = "linux")]
@@ -50,6 +58,36 @@ impl fmt::Display for CaptureError {
 
 impl std::error::Error for CaptureError {}
 
+/// How Linux is captured: decided by the desktop, not the build.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LinuxCapture {
+    /// The X server's windows and screens (an X11 desktop).
+    X11,
+    /// The screen-cast portal and PipeWire (a Wayland desktop, where X11
+    /// sees only XWayland's windows - not a game on Wine's Wayland driver).
+    Portal,
+}
+
+impl LinuxCapture {
+    /// `SCW_CAPTURE` (`x11` or `portal`) when set, else the portal on a
+    /// Wayland session (`WAYLAND_DISPLAY`), else X11.
+    pub fn choose(env: &dyn Fn(&str) -> Option<String>) -> LinuxCapture {
+        match env("SCW_CAPTURE")
+            .map(|v| v.trim().to_lowercase())
+            .as_deref()
+        {
+            Some("x11") => return LinuxCapture::X11,
+            Some("portal") => return LinuxCapture::Portal,
+            _ => {}
+        }
+        if env("WAYLAND_DISPLAY").is_some_and(|d| !d.trim().is_empty()) {
+            LinuxCapture::Portal
+        } else {
+            LinuxCapture::X11
+        }
+    }
+}
+
 /// A source of frames.
 pub trait Source {
     /// The next frame, or None when there is nothing new: a live screen that
@@ -68,5 +106,38 @@ pub trait Source {
     /// True once a replay has given its last frame; a screen never runs out.
     fn exhausted(&self) -> bool {
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::LinuxCapture;
+
+    #[test]
+    fn linux_capture_follows_the_desktop() {
+        let with = |pairs: &'static [(&'static str, &'static str)]| {
+            move |k: &str| {
+                pairs
+                    .iter()
+                    .find(|(n, _)| *n == k)
+                    .map(|(_, v)| v.to_string())
+            }
+        };
+        let choose = |pairs| LinuxCapture::choose(&with(pairs));
+        assert_eq!(choose(&[]), LinuxCapture::X11);
+        assert_eq!(
+            choose(&[("WAYLAND_DISPLAY", "wayland-0")]),
+            LinuxCapture::Portal
+        );
+        assert_eq!(choose(&[("WAYLAND_DISPLAY", " ")]), LinuxCapture::X11);
+        assert_eq!(
+            choose(&[("WAYLAND_DISPLAY", "wayland-0"), ("SCW_CAPTURE", "X11")]),
+            LinuxCapture::X11
+        );
+        assert_eq!(choose(&[("SCW_CAPTURE", "portal")]), LinuxCapture::Portal);
+        assert_eq!(
+            choose(&[("SCW_CAPTURE", "other"), ("DISPLAY", ":0")]),
+            LinuxCapture::X11
+        );
     }
 }

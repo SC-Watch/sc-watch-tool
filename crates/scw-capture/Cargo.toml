@@ -1,6 +1,6 @@
 [package]
 name = "scw-capture"
-description = "sc-watch's frame sources: the Windows desktop (Desktop Duplication, 8-bit or HDR float converted), and saved frames"
+description = "sc-watch's frame sources: the Windows desktop (Desktop Duplication, 8-bit or HDR float converted), the Linux desktop (the screen-cast portal over PipeWire, or X11), and saved frames"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -26,6 +26,8 @@ windows = { version = "0.62", features = [
 
 [target.'cfg(target_os = "linux")'.dependencies]
 x11rb = { version = "0.14", features = ["composite", "randr"] }
+zbus = "5.19"
+libloading = "0.9"
 
 [dev-dependencies]
 serde_json = { version = "1", features = ["float_roundtrip"] }

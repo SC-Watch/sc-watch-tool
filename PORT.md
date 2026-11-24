@@ -15,7 +15,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
-| 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, and capture of the game's X11 window done and tested on CI's Ubuntu; the screen-cast portal, HDR and testing on the real PC next |
+| 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
@@ -438,13 +438,27 @@ interfaces as on Windows:
 - **The data folder**: `$XDG_DATA_HOME/sc-watch`, else
   `~/.local/share/sc-watch`; `portable.txt` and `SCW_DATA_ROOT` work as on
   Windows.
-- **Capture** (`scw_capture::x11::X11Source`): the game's own X11 window,
-  found by its title or Wine's WM_CLASS, else a whole monitor (RandR).
-  Proton and Wine make an X11 window, under XWayland on a Wayland desktop
-  such as KDE Plasma, and one X11 client may read another's pixels with no
-  prompt (OBS's window capture does the same). A native Wayland window
-  cannot be read this way; that needs the screen-cast portal over PipeWire,
-  which is next.
+- **Capture on a Wayland desktop** (`scw_capture::screencast`): the
+  screen-cast portal and PipeWire, as OBS and every screen recorder there
+  do. KDE Plasma is Wayland, and the game on Wine's Wayland driver draws a
+  native Wayland window that no X11 client can see - XWayland holds only
+  X11 windows, so even its "whole screen" is not the screen. The portal
+  (`portal.rs`, over D-Bus with zbus) asks the user once which screen to
+  share - KDE shows its own dialog - and its restore token, kept in
+  `data/screencast_token.txt`, shares the same screen again on later
+  starts and restarts without asking. The stream (`pipewire.rs`) is read
+  through libpipewire loaded at run time rather than linked, and its
+  parameters (`spa.rs`) are built by hand from the SPA headers: the build
+  needs no PipeWire headers and no C compiler beyond Rust's own linker, and
+  a system without PipeWire gets a message rather than a program that will
+  not start. Only plain memory is offered (no DMA-BUF modifiers), and only
+  a frame that arrives while a grab waits is converted, so a 60 Hz screen
+  costs next to nothing between bursts and no frame is older than its grab.
+- **Capture on an X11 desktop** (`scw_capture::x11::X11Source`): the
+  game's own X11 window, found by its title or Wine's WM_CLASS, else a
+  whole monitor (RandR); one X11 client may read another's pixels with no
+  prompt. `SCW_CAPTURE=x11` uses this on a Wayland desktop too, for a game
+  on XWayland (Proton's default), with no dialog.
 
 Tested on CI's Ubuntu runner, and the run's annotations say whether they
 ran:
@@ -452,10 +466,24 @@ ran:
   them, and reads them back.
 - `x11_xvfb` makes a window named as Wine names the game's under Xvfb,
   finds it, and reads its pixels exactly; the monitor otherwise.
+- `spa_oracle` compares the hand-built pods with SPA's own builder macros
+  (tests/spa_oracle.c, compiled against the runner's SPA headers).
+- `pipewire_stream` reads GStreamer's videotestsrc through a real PipeWire
+  daemon and WirePlumber, pixel-exact.
+- `portal_sway` runs the whole path: a headless sway desktop, the real
+  xdg-desktop-portal with its wlroots backend told to share the one output
+  without a dialog, and `ScreenCastSource` reading it pixel-exact. KDE's
+  own backend and dialog are only met on the real PC.
 - Unit tests cover the key map, the button order, the speech arguments and
   the XDG rule.
 
-Not yet tried on the real Linux PC.
+CI also makes the Linux test build (`packaging/linux/package.sh`): a
+folder with `portable.txt`, the licences (cargo-about) and a README, as a
+tar.gz on the run's page - unpack and run, nothing installed, as SC
+All-In-One ships. It needs only the C library at run time.
+
+Not yet tried on the real Linux PC. HDR on Linux is not handled: frames
+are read as the desktop shares them.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every

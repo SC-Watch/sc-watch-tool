@@ -59,6 +59,32 @@ jobs:
         run: |
           xvfb-run -a -s "-screen 0 1280x720x24" cargo test -q -p scw-capture --test x11_xvfb -- --nocapture
           cargo test -q -p scw-input --test linux_uinput -- --nocapture
+      # The Wayland capture against real PipeWire, a headless Wayland
+      # desktop and the screen-cast portal (the script says what ran).
+      - name: Linux screen-cast tests
+        if: runner.os == 'Linux'
+        run: bash .github/scripts/linux-screencast.sh
+      # The Linux test build: a folder to unpack and run (portable, its data
+      # beside it), downloadable from the run's page for 30 days.
+      - name: Linux build
+        if: runner.os == 'Linux'
+        run: |
+          cargo build --release --locked -p scw-app -p scw-watch -p scw-ui
+          cargo install cargo-about --locked --features cli
+          cargo about generate --workspace about.hbs -o dist-licenses.html
+          bash packaging/linux/package.sh
+          cd dist/sc-watch
+          SCW_DATA_ROOT="$RUNNER_TEMP/smoke" ./sc-watch --help >/dev/null
+          test -f portable.txt && test -f licenses/third-party.html
+          echo "::notice title=linux build::$(du -sh . | cut -f1); needs: $(ldd ./sc-watch | awk '{print $1}' | paste -sd ' ')"
+      - name: Linux build, uploaded
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: sc-watch-rust-linux-x86_64
+          path: dist/*.tar.gz
+          retention-days: 30
+          if-no-files-found: error
       # A failing test's first lines, as annotations on the run: they can be
       # read without signing in, which the log cannot. Only committed,
       # made-up fixtures are tested here, so nothing private is in them.

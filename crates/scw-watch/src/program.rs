@@ -54,7 +54,7 @@ pub struct HdrState {
 /// The frame source, its banner line and what the HDR check found.
 pub type Opened = (Box<dyn Source>, String, Option<HdrState>);
 
-pub fn open_source(args: &Args) -> Result<Opened, String> {
+pub fn open_source(args: &Args, roots: &Roots) -> Result<Opened, String> {
     if let Some(pattern) = &args.replay {
         let paths = scw_capture::replay::expand(pattern)?;
         if paths.is_empty() {
@@ -66,11 +66,11 @@ pub fn open_source(args: &Args) -> Result<Opened, String> {
         return Ok((Box::new(src), what, None));
     }
     let hdr = HdrCapture::parse(&args.hdr_capture).unwrap_or(HdrCapture::Auto);
-    open_screen(args.monitor, hdr)
+    open_screen(args.monitor, hdr, roots)
 }
 
 #[cfg(windows)]
-fn open_screen(monitor: i64, hdr: HdrCapture) -> Result<Opened, String> {
+fn open_screen(monitor: i64, hdr: HdrCapture, _roots: &Roots) -> Result<Opened, String> {
     use scw_capture::windows::{DesktopSource, state_of};
     let src = DesktopSource::open(monitor.max(0) as usize, hdr).map_err(|e| e.to_string())?;
     let device = src.info().device.clone();
@@ -84,18 +84,34 @@ fn open_screen(monitor: i64, hdr: HdrCapture) -> Result<Opened, String> {
     Ok((Box::new(src), what, state))
 }
 
-/// Linux: the game's X11 window (Proton and Wine make one, under XWayland
-/// on a Wayland desktop), else the monitor. No HDR conversion here yet.
+/// Linux: on a Wayland desktop, the screen it shares through its
+/// screen-cast portal (asked once, then remembered); on an X11 desktop, the
+/// game's window, else the monitor. `SCW_CAPTURE` (x11 or portal) chooses
+/// outright. No HDR conversion here yet.
 #[cfg(target_os = "linux")]
-fn open_screen(monitor: i64, _hdr: HdrCapture) -> Result<Opened, String> {
-    use scw_capture::x11::{GAME_WINDOW, X11Source};
-    let src = X11Source::open(monitor.max(0) as usize, &GAME_WINDOW).map_err(|e| e.to_string())?;
-    let what = src.describe();
-    Ok((Box::new(src), what, None))
+fn open_screen(monitor: i64, _hdr: HdrCapture, roots: &Roots) -> Result<Opened, String> {
+    use scw_capture::LinuxCapture;
+    match LinuxCapture::choose(&env) {
+        LinuxCapture::Portal => {
+            use scw_capture::screencast::ScreenCastSource;
+            let token = roots.data(&["screencast_token.txt"]);
+            let src = ScreenCastSource::open(Some(token), &|s: &str| println!("{s}"))
+                .map_err(|e| format!("screen capture: {e}"))?;
+            let what = src.describe();
+            Ok((Box::new(src), what, None))
+        }
+        LinuxCapture::X11 => {
+            use scw_capture::x11::{GAME_WINDOW, X11Source};
+            let src = X11Source::open(monitor.max(0) as usize, &GAME_WINDOW)
+                .map_err(|e| e.to_string())?;
+            let what = src.describe();
+            Ok((Box::new(src), what, None))
+        }
+    }
 }
 
 #[cfg(not(any(windows, target_os = "linux")))]
-fn open_screen(_monitor: i64, _hdr: HdrCapture) -> Result<Opened, String> {
+fn open_screen(_monitor: i64, _hdr: HdrCapture, _roots: &Roots) -> Result<Opened, String> {
     Err("live capture is not built for this system yet - use --replay".into())
 }
 
@@ -454,7 +470,7 @@ pub fn build_session(
         .map_err(|e| e.0)?;
         config::parse_chat_region(&args.chat_region).map_err(|e| e.0)?;
         config::parse_focus_size(&args.focus_size).map_err(|e| e.0)?;
-        let src = open_source(args)?;
+        let src = open_source(args, roots)?;
         Ok((binds, src))
     })();
     let (binds, (src, capture, hdr)) = match checked {
