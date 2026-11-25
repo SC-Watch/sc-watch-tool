@@ -58,7 +58,21 @@ any number of threads.
 
 **`scw-vision::names`** sorts a raw read into what it is (player, ship serial,
 NPC crew, UNKNOWN, world label, unreadable) and votes a burst of reads into
-contacts, exactly as the Python's classify_name and consensus.py.
+contacts, exactly as the Python's classify_name and consensus.py - with one
+deliberate improvement: a ship serial with the reader's usual damage is a
+serial, not a player. The Python takes only `XX-0000-XX` and reads starting
+`XX-0`, so a serial with a zero read as O, or its first hyphen lost, was
+announced, audited and looked up as a person. On a Linux session (the
+user's support bundle, 2026-11-24) 31 reads, 18 bursts and 14 audits were
+such serials. `damaged_serial` takes the prefix's 0 as O, the letters a
+digit is misread as (O Q D I L Z S G B) as digits in the four-digit block
+with at least two real digits left, and the first hyphen as optional,
+keeping the `-XX` tail and the length: it catches 26 of the 31, and of
+1,596 handles in the user's databases it catches no real player (the 11 it
+does catch are cached by RSI as not existing - damaged serials looked up
+for nothing). Real-frame sessions stay identical to watch.py but for this:
+on the `corpus` set, one hyphen-less serial is now discarded instead of
+counted (`tests/names.rs` holds the rule's cases).
 **`scw-vision::pipeline`** joins it all as the watcher does with
 `--reader iris`: each frame's distance lines read and classified, a burst's
 players tallied and voted. **`scw-replay`** runs saved frames through it.

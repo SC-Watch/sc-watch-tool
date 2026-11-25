@@ -14,6 +14,53 @@ fn s(v: &Value) -> &str {
     v.as_str().unwrap()
 }
 
+/// Deliberately not the Python: a ship serial with the reader's usual damage
+/// is a serial, not a player (names::damaged_serial). Built from the
+/// README's example serial, SP-9695-PW, in the shapes a Linux session's
+/// misreads took.
+#[test]
+fn damaged_serials_are_serials() {
+    for raw in [
+        "SP-O695-PW", // a zero read as O: the commonest
+        "SP-Q695-PW", // ... or as Q
+        "SP-96O5-PW",
+        "SP9695-PW", // the first hyphen lost
+        "SP96O5-PW", // ... and a zero read as O
+        "SPQ695-PW", // ... or the hyphen gone with the first digit read as a letter
+        "SPO6O5-PW",
+        "S0-9695-PW", // the prefix's O read as a zero
+        "S0-96",      // ... and cut short
+        "sp-o695-pw.",
+    ] {
+        let (kind, cleaned) = classify_name(raw);
+        assert_eq!(kind.as_str(), "ship_serial", "{raw}");
+        assert!(cleaned.is_some());
+    }
+    // the exact and truncated forms stay serials, as in the Python
+    for raw in ["SP-9695-PW", "SP-969"] {
+        assert_eq!(classify_name(raw).0.as_str(), "ship_serial", "{raw}");
+    }
+}
+
+/// ...and nothing handle-shaped is caught by it.
+#[test]
+fn handles_are_not_damaged_serials() {
+    for raw in [
+        "AB-SOLO-XY",  // no real digits in the block
+        "AB-SO1O-XY",  // one real digit is not enough
+        "Mike1234-JR", // too long for a serial
+        "AB1234-XYZ",  // a three-letter tail
+        "Kilo-99",     // too short
+        "ABC-DEFG-HI", // letters that are not misread digits
+        "AB12H4-CD",   // H is not a misread digit
+        "A1-2345-CD",  // a 1 in the prefix is not a misread O
+        "EXMPLHANDLE",
+        "EXMPL-SomeName",
+    ] {
+        assert_eq!(classify_name(raw).0.as_str(), "player", "{raw}");
+    }
+}
+
 #[test]
 fn classify() {
     check("classify_name", |c| {

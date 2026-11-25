@@ -35,13 +35,35 @@ impl Scrub {
     /// From USERPROFILE / HOME and USERNAME / USER, as debuglog.py reads them.
     pub fn from_env() -> Self {
         let var = |k: &str| std::env::var(k).ok().filter(|v| !v.is_empty());
-        Scrub {
-            homes: ["USERPROFILE", "HOME"]
+        Scrub::new(
+            ["USERPROFILE", "HOME"]
                 .iter()
                 .filter_map(|k| var(k))
                 .collect(),
-            user: var("USERNAME").or_else(|| var("USER")),
+            var("USERNAME").or_else(|| var("USER")),
+        )
+    }
+
+    /// The homes as given, and each one's real path when it is reached
+    /// through a link - Fedora Atomic systems (Bazzite) set HOME to
+    /// /home/<name>, a link to /var/home/<name>, while the program's own
+    /// paths are the real ones: scrubbing only HOME left "/var~". Longest
+    /// first, so a real path goes before the link inside it. (Not in
+    /// debuglog.py, which has the same gap.)
+    pub fn new(homes: Vec<String>, user: Option<String>) -> Self {
+        let mut all = homes.clone();
+        for h in &homes {
+            if let Ok(real) = std::fs::canonicalize(h) {
+                let real = real.display().to_string();
+                // Windows answers \\?\C:\..., the same folder
+                let real = real.strip_prefix(r"\\?\").unwrap_or(&real).to_string();
+                if !all.contains(&real) {
+                    all.push(real);
+                }
+            }
         }
+        all.sort_by_key(|h| std::cmp::Reverse(h.len()));
+        Scrub { homes: all, user }
     }
 
     pub fn text(&self, text: &str) -> String {
@@ -281,5 +303,39 @@ fn rotate(dir: &Path) {
     logs.sort_by_key(|e| std::cmp::Reverse(e.1));
     for (old, _) in logs.into_iter().skip(KEEP_SESSIONS) {
         let _ = std::fs::remove_file(old);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Scrub;
+
+    #[test]
+    fn the_longest_home_is_scrubbed_first() {
+        let s = Scrub::new(vec!["/home/pilot".into(), "/var/home/pilot".into()], None);
+        assert_eq!(s.text("/var/home/pilot/Downloads"), "~/Downloads");
+        assert_eq!(s.text("/home/pilot/x"), "~/x");
+    }
+
+    /// Bazzite: HOME is a link's path, the program's paths are the real one.
+    #[cfg(unix)]
+    #[test]
+    fn a_home_behind_a_link_is_scrubbed_by_its_real_path_too() {
+        let base = std::env::temp_dir().join(format!("scw-scrub-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(base.join("var/home/pilot")).unwrap();
+        std::os::unix::fs::symlink(base.join("var/home"), base.join("home")).unwrap();
+        let link = base.join("home/pilot").display().to_string();
+        let real = std::fs::canonicalize(base.join("var/home/pilot"))
+            .unwrap()
+            .display()
+            .to_string();
+        let s = Scrub::new(vec![link.clone()], None);
+        assert_eq!(
+            s.text(&format!("{real}/Downloads/sc-watch")),
+            "~/Downloads/sc-watch"
+        );
+        assert_eq!(s.text(&format!("{link}/Downloads")), "~/Downloads");
+        let _ = std::fs::remove_dir_all(&base);
     }
 }

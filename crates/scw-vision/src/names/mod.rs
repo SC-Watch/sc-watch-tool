@@ -99,6 +99,42 @@ fn partial_serial(s: &[u8]) -> bool {
         && s[3].is_ascii_digit()
 }
 
+/// A serial as the HUD reader damages it - not in the Python, which lets
+/// these through as players. Measured on a Linux session's 31 serial reads
+/// that passed as names: a zero read as O or Q (23 and 4 of them), the
+/// prefix's O read as a zero, the first hyphen lost (11 of 29). So: the
+/// prefix's 0 taken as O; in the four-digit block, the letters a digit is
+/// misread as taken as digits, at least two real digits still required;
+/// the first hyphen optional; the `-XX` tail and the length kept. Caught 26
+/// of the 31; across 1,596 handles in the user's databases it caught no
+/// real player (the 11 it did catch were cached by RSI as not existing:
+/// damaged serials, looked up for nothing).
+fn damaged_serial(s: &[u8]) -> bool {
+    let prefix = |p: &[u8]| p.iter().all(|&c| c.is_ascii_uppercase() || c == b'0');
+    // A truncated serial whose prefix O was read as a zero.
+    if s.len() >= 4 && prefix(&s[..2]) && s[2] == b'-' && s[3].is_ascii_digit() {
+        return true;
+    }
+    let n = s.len();
+    if !(9..=10).contains(&n)
+        || s[n - 3] != b'-'
+        || !s[n - 2..]
+            .iter()
+            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+    {
+        return false;
+    }
+    let (head, mut block) = s[..n - 3].split_at(2);
+    if block.first() == Some(&b'-') {
+        block = &block[1..];
+    }
+    let digit_like = |c: &u8| c.is_ascii_digit() || b"OQDILZSGB".contains(c);
+    block.len() == 4
+        && prefix(head)
+        && block.iter().filter(|c| c.is_ascii_digit()).count() >= 2
+        && block.iter().all(digit_like)
+}
+
 /// `^[A-Za-z0-9_-]{3,40}$`.
 fn handle(s: &str) -> bool {
     (3..=40).contains(&s.len())
@@ -128,7 +164,7 @@ pub fn classify_name(raw: &str) -> (NameKind, Option<String>) {
     }
     let upper = s.to_uppercase();
     let s = upper.trim_matches(|c| END_PUNCTUATION.contains(c));
-    if ship_serial(s.as_bytes()) || partial_serial(s.as_bytes()) {
+    if ship_serial(s.as_bytes()) || partial_serial(s.as_bytes()) || damaged_serial(s.as_bytes()) {
         return (NameKind::ShipSerial, Some(s.to_string()));
     }
     if !handle(s) {
