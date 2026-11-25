@@ -76,6 +76,7 @@ jobs:
           cd dist/sc-watch
           SCW_DATA_ROOT="$RUNNER_TEMP/smoke" ./sc-watch --help >/dev/null
           test -f portable.txt && test -f licenses/third-party.html
+          grep -q 'github.com/Niteb1rd/IRIS' licenses/third-party.html
           echo "::notice title=linux build::$(du -sh . | cut -f1); needs: $(ldd ./sc-watch | awk '{print $1}' | paste -sd ' ')"
       - name: Linux build, uploaded
         if: runner.os == 'Linux'

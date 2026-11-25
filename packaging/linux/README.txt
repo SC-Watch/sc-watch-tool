@@ -12,7 +12,8 @@ WHAT IS HERE
   sc-watch-ui       the page alone
   portable.txt      keeps everything it saves in data/ beside the programs
   starter_list.json the starter watchlist
-  licenses/         the licences of the libraries it is built from
+  licenses/         the licences of the libraries it is built from, and the
+                    credit for IRIS, whose name reader it uses (GPL-3.0)
 
 HOW TO RUN
 

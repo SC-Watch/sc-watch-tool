@@ -531,9 +531,14 @@ ran:
 CI also makes the Linux test build (`packaging/linux/package.sh`): a
 folder with `portable.txt`, the licences (cargo-about) and a README, as a
 tar.gz on the run's page - unpack and run, nothing installed, as SC
-All-In-One ships. It needs only the C library at run time.
+All-In-One ships. It needs only the C library at run time. The licence
+page (`about.hbs`) also credits IRIS, the one component that is not a Rust
+library - its finder, reader, letter model and part of the word list, GPL-3.0
+like sc-watch; CI fails the build if that credit is missing.
 
-Not yet tried on the real Linux PC. HDR on Linux is not handled: frames
+First run on the real Linux PC 2026-11-24 (Bazzite, KDE Plasma on Wayland,
+the portal's screen cast at 5120x1440, auto trigger): 142 bursts, no
+errors. HDR on Linux is not handled: frames
 are read as the desktop shares them.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an

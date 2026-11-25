@@ -11,7 +11,24 @@
 </head>
 <body>
 <h1>Third-party licences</h1>
-<p>sc-watch is built from these open-source libraries. Their licences follow.</p>
+<p>sc-watch is built from these open-source libraries. Their licences follow,
+after the one component that is not a Rust library.</p>
+<h2 id="iris">IRIS - nameplate finder, letter reader and letter model</h2>
+<p>From <a href="https://github.com/Niteb1rd/IRIS">IRIS</a> by Niteb1rd, under
+the GNU General Public License v3.0 - the same licence as sc-watch, whose full
+text is <code>LICENSE.txt</code> in the sc-watch folder.</p>
+<ul>
+  <li>Taken from IRIS 2.0.0 (commit aec86f08), with three detection fixes from
+  its pull request #1 (commit 29c3250e95), and the line join (BandJoin) of
+  IRIS 2.1.0.</li>
+  <li>Finding nameplates and reading them, ported from C# to Rust (by way of
+  sc-watch's Python port) in the scw-vision library. None of IRIS's tracking,
+  overlay, network or lookup code was taken.</li>
+  <li>The letter model (iris-letters-model.bin) is IRIS's, unchanged, and is
+  built into the sc-watch and sc-watch-watcher programs.</li>
+  <li>The list of labels that are not players is taken in part from IRIS's
+  exclusion list.</li>
+</ul>
 <h2>Overview</h2>
 <ul>
 {{#each overview}}  <li><a href="#{{id}}">{{name}}</a> ({{count}})</li>
