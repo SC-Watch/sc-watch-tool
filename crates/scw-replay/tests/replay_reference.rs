@@ -6,7 +6,8 @@
 //! every SCW_PARITY_DATA/replay/*.json is reference.py's output for the
 //! frames in SCW_PARITY_DATA/iris-detect/frames.txt, with the settings it
 //! records (scan area, burst, min votes). Without them the test reports that
-//! it skipped and passes.
+//! it skipped and passes. scw-replay runs `--as-python`: the port's
+//! deliberate improvements are off here.
 
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -78,6 +79,9 @@ fn check_one(expected_path: &Path, frames: &Path) -> bool {
         .args(["--scan-area", expected["scan_area"].as_str().unwrap()])
         .args(["--burst", &expected["burst"].to_string()])
         .args(["--min-votes", &expected["min_votes"].to_string()])
+        // the Python has neither IRIS 2.1's line join nor the damaged-serial
+        // rule; each has its own test (iris_detect_golden, names)
+        .arg("--as-python")
         .arg("--json")
         .output()
         .unwrap();

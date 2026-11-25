@@ -1,8 +1,9 @@
 //! IRIS's nameplate reader, ported from IRIS (github.com/Niteb1rd/IRIS,
 //! GPL-3.0) at commit aec86f08 with the reading fixes of IRIS pull request
 //! #1, by way of sc-watch's Python port (iris_reader.py), which matches IRIS's
-//! own readings on the real corpus. The letter model file is IRIS's,
-//! unchanged.
+//! own readings on the real corpus - plus IRIS 2.1.0's line join (BandJoin,
+//! [`DetectorSettings::band_join`]), held to IRIS's own output directly. The
+//! letter model file is IRIS's, unchanged.
 //!
 //! Given an image and the box of ONE text row, read it as a player name or
 //! as a distance line ([`RowReader`]); find the rows and read whole plates

@@ -56,6 +56,18 @@ plate in 2 ms against 4. The Python detector kept each frame's masks on
 itself between calls; here they belong to the call, so one detector can serve
 any number of threads.
 
+One deliberate addition there: IRIS 2.1's line join (`band_join`, on by
+default; IRIS 2.0 and so the Python have none). After the join, text-line
+pieces whose x ranges overlap and whose tops and bottoms are each within
+3 px (at 1440 lines) become one line. It is held to IRIS's own code: 2.1's
+BandJoin, taken from the 2.0-to-2.1 changes, was patched into the bench
+(IRIS 2.0 with the PR #1 fixes) and run on 304 real frames - the 135 above
+plus the cockpit and 16:9 sets - and every stage matches for both scan areas
+(767 and 642 plate reads); with the join off the 135 frames still match 2.0
+exactly. On those frames it lost no name and added 31 name reads: 24 UNKNOWN
+labels, 2 ship serials, 4 players. It does not fix the cockpit misses: all
+18 it added there are UNKNOWN labels.
+
 **`scw-vision::names`** sorts a raw read into what it is (player, ship serial,
 NPC crew, UNKNOWN, world label, unreadable) and votes a burst of reads into
 contacts, exactly as the Python's classify_name and consensus.py - with one
@@ -70,9 +82,8 @@ with at least two real digits left, and the first hyphen as optional,
 keeping the `-XX` tail and the length: it catches 26 of the 31, and of
 1,596 handles in the user's databases it catches no real player (the 11 it
 does catch are cached by RSI as not existing - damaged serials looked up
-for nothing). Real-frame sessions stay identical to watch.py but for this:
-on the `corpus` set, one hyphen-less serial is now discarded instead of
-counted (`tests/names.rs` holds the rule's cases).
+for nothing). `tests/names.rs` holds the rule's cases, and checks
+`classify_name_as_python` (the rule off) against the Python's answers.
 **`scw-vision::pipeline`** joins it all as the watcher does with
 `--reader iris`: each frame's distance lines read and classified, a burst's
 players tallied and voted. **`scw-replay`** runs saved frames through it.
@@ -80,7 +91,14 @@ Against the Python pipeline on the 135 reference frames
 (`crates/scw-replay/reference.py`, run with the Python's own reader) the
 output is identical, field for field, for two configurations: the default
 (whole screen, bursts of 3, 1 vote - 222 contacts, 34 voted) and IRIS's
-scan area with bursts of 5 and 2 votes (184 contacts, 14 voted).
+scan area with bursts of 5 and 2 votes (184 contacts, 14 voted) - with
+`--as-python` (`FrameReader::as_python`), which turns the two deliberate
+improvements off. With them on, as the watcher runs, 10 of the 135 frames
+differ: 6 more UNKNOWN labels and 4 more player reads from the line join,
+2 reads that were players now ship serials. Of the voted contacts, the 2
+damaged serials are gone from the default configuration and 3 players have
+more votes; in the other, one player reaches its 2 votes and is voted, and
+one more has more votes.
 
 **`scw-capture`** gives frames from the Windows desktop through Desktop
 Duplication, as the Python's dxcam and hdr_capture.py: monitors numbered the
@@ -532,7 +550,9 @@ Frames are PNG files, folders, or patterns (`D:/frames/burst_*.png`); bursts
 are consecutive frames, `--burst` at a time (the watcher's trigger is not
 modelled). `--scan-area`, `--min-votes` and `--listed` (handles that count as
 people even when they read as a world label) work as the watcher's own;
-`--json` writes one document for comparing. `--help` lists the rest.
+`--json` writes one document for comparing; `--as-python` reads exactly as
+the Python does, without the port's deliberate improvements (the line join,
+the damaged-serial rule). `--help` lists the rest.
 
 ## Build and test
 
@@ -558,6 +578,7 @@ What the folder holds:
 |---|---|---|
 | `iris-golden/` | IRIS's own readings: the bench harness's `--golden` output, crops as PNG plus `golden.json` | `tests/iris_golden.rs` |
 | `iris-detect/` | `frames.txt` (one PNG frame per line; relative paths from this folder) and `out/` - IRIS's own finder output, the bench harness's `det_{whole,app}_{dump,read}.json` | `tests/iris_detect_golden.rs` |
+| `iris-detect/bandjoin/` | the same two for the bench with IRIS 2.1's BandJoin patched in and on (`IRIS_BANDJOIN=1`), on 304 frames | `tests/iris_detect_golden.rs` (`iris_reference_line_join`) |
 | `replay/` | `*.json`: `reference.py --frames-list iris-detect/frames.txt [options]` output, one file per configuration | `crates/scw-replay/tests/replay_reference.rs` |
 
 ```

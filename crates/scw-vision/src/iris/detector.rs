@@ -76,6 +76,13 @@ pub struct DetectorSettings {
     pub line_min_width: f64,
     pub line_aspect_min: f64,
     pub join_width_px: f64,
+    /// IRIS 2.1's BandJoin: after the join, text-line pieces whose x ranges
+    /// overlap and whose tops and bottoms are each within these pixels
+    /// become one line. Not in sc-watch's Python (IRIS 2.0); off = exactly
+    /// the Python.
+    pub band_join: bool,
+    pub band_join_top_px: f64,
+    pub band_join_bottom_px: f64,
     pub fill_min: f64,
     pub fill_max: f64,
     pub height_tolerance_px: f64,
@@ -149,6 +156,9 @@ impl Default for DetectorSettings {
             line_min_width: 24.0,
             line_aspect_min: 1.5,
             join_width_px: 7.0,
+            band_join: true,
+            band_join_top_px: 3.0,
+            band_join_bottom_px: 3.0,
             fill_min: 0.12,
             fill_max: 0.75,
             height_tolerance_px: 4.0,
@@ -204,6 +214,61 @@ fn union(a: Rect, b: Rect) -> Rect {
         (a.x + a.w).max(b.x + b.w) - left,
         (a.y + a.h).max(b.y + b.h) - top,
     )
+}
+
+/// IRIS 2.1's `BandJoin` (NameplateDetector.Lines): pieces whose x ranges
+/// overlap or touch (by left edge, the next starting no later than this one
+/// ends) and whose tops and bottoms each differ by at most `top` / `bottom`
+/// become one box, transitively; each box sits where its first piece was.
+/// No pair merges -> the pieces as they were.
+fn band_join(pieces: Vec<Rect>, top: i32, bottom: i32) -> Vec<Rect> {
+    let n = pieces.len();
+    let mut by_x: Vec<usize> = (0..n).collect();
+    // The joins do not depend on how equal lefts are ordered (both orders
+    // test the pair), so a stable sort gives IRIS's result.
+    by_x.sort_by_key(|&i| pieces[i].x);
+    let mut parent: Vec<usize> = (0..n).collect();
+    fn find(parent: &mut [usize], mut i: usize) -> usize {
+        while parent[i] != i {
+            parent[i] = parent[parent[i]];
+            i = parent[i];
+        }
+        i
+    }
+    let mut merged = false;
+    for s in 0..n {
+        let a = pieces[by_x[s]];
+        for &t in &by_x[s + 1..] {
+            let c = pieces[t];
+            if c.x > a.x + a.w {
+                break;
+            }
+            if (a.y - c.y).abs() > top || (a.y + a.h - (c.y + c.h)).abs() > bottom {
+                continue;
+            }
+            let (ra, rc) = (find(&mut parent, by_x[s]), find(&mut parent, t));
+            if ra != rc {
+                parent[rc] = ra;
+                merged = true;
+            }
+        }
+    }
+    if !merged {
+        return pieces;
+    }
+    let mut boxes: HashMap<usize, Rect> = HashMap::new();
+    let mut order = Vec::new();
+    for (i, &p) in pieces.iter().enumerate() {
+        let root = find(&mut parent, i);
+        match boxes.get_mut(&root) {
+            Some(b) => *b = union(*b, p),
+            None => {
+                boxes.insert(root, p);
+                order.push(root);
+            }
+        }
+    }
+    order.into_iter().map(|r| boxes[&r]).collect()
 }
 
 fn contains(outer: Rect, inner: Rect) -> bool {
@@ -587,9 +652,21 @@ impl NameplateDetector {
         };
         let joined = cv::dilate(&kept, self.scaled(fh, s.join_width_px) as usize, 1);
         let (_, jstats) = cv::connected_components(&joined, 8);
+        let mut pieces: Vec<Rect> = jstats
+            .iter()
+            .skip(1)
+            .map(|c| Rect::new(c[0], c[1], c[2], c[3]))
+            .filter(|r| min_h <= r.h && r.h <= max_h)
+            .collect();
+        if s.band_join && pieces.len() > 1 {
+            pieces = band_join(
+                pieces,
+                self.scaled(fh, s.band_join_top_px),
+                self.scaled(fh, s.band_join_bottom_px),
+            );
+        }
         let mut boxes = Vec::new();
-        for c in jstats.iter().skip(1) {
-            let r = Rect::new(c[0], c[1], c[2], c[3]);
+        for r in pieces {
             if r.h < min_h || r.h > max_h {
                 continue;
             }
@@ -1129,5 +1206,50 @@ impl NameplateDetector {
             crowd,
             stacks,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Rect, band_join};
+
+    fn r(x: i32, y: i32, w: i32, h: i32) -> Rect {
+        Rect::new(x, y, w, h)
+    }
+
+    #[test]
+    fn overlapping_pieces_on_one_band_become_one_line() {
+        // the second starts inside the first; tops 2 px, bottoms 3 px apart
+        let got = band_join(vec![r(10, 100, 50, 12), r(40, 102, 30, 13)], 3, 3);
+        assert_eq!(got, vec![r(10, 100, 60, 15)]);
+    }
+
+    #[test]
+    fn the_limits_are_inclusive_and_touching_counts() {
+        // starting exactly where the first ends, tops and bottoms 3 px off
+        assert_eq!(
+            band_join(vec![r(0, 0, 10, 10), r(10, 3, 5, 10)], 3, 3),
+            vec![r(0, 0, 15, 13)]
+        );
+        // a one-pixel gap, tops 4 px off, bottoms 4 px off: no join
+        for other in [r(11, 0, 5, 10), r(5, 4, 5, 10), r(5, 0, 5, 14)] {
+            let pieces = vec![r(0, 0, 10, 10), other];
+            assert_eq!(band_join(pieces.clone(), 3, 3), pieces);
+        }
+    }
+
+    #[test]
+    fn joins_are_transitive_and_a_line_sits_where_its_first_piece_was() {
+        // the first and third never meet; the second joins both
+        let pieces = vec![
+            r(100, 50, 5, 5),
+            r(0, 0, 20, 10),
+            r(15, 1, 20, 10),
+            r(30, 2, 20, 10),
+        ];
+        assert_eq!(
+            band_join(pieces, 3, 3),
+            vec![r(100, 50, 5, 5), r(0, 0, 50, 12)]
+        );
     }
 }

@@ -14,6 +14,11 @@
 //! frame per line; relative paths are taken from that folder) and `out/` (the
 //! bench harness's det_{whole,app}_{dump,read}.json). Without it the test
 //! reports that it skipped and passes.
+//!
+//! That set is IRIS 2.0 (with the PR #1 fixes), the Python's reference, so
+//! it runs with IRIS 2.1's line join off. SCW_PARITY_DATA/iris-detect/
+//! bandjoin/ holds the same files for the bench with 2.1's BandJoin patched
+//! in and on, which the default settings are held to.
 
 mod reading;
 
@@ -91,12 +96,42 @@ impl Tally {
     }
 }
 
+/// IRIS 2.0 and the PR #1 fixes - the Python's reference: no line join.
 #[test]
 fn iris_reference_detection() {
     let Some(dir) = detect_dir() else {
         eprintln!("skipped: SCW_PARITY_DATA is not set or holds no iris-detect/frames.txt");
         return;
     };
+    let settings = DetectorSettings {
+        band_join: false,
+        ..DetectorSettings::default()
+    };
+    assert!(
+        check_set(&dir, &settings),
+        "the finder differs from IRIS's output"
+    );
+}
+
+/// IRIS 2.1's line join (BandJoin), on as it is by default, against IRIS's
+/// own output with it on.
+#[test]
+fn iris_reference_line_join() {
+    let Some(dir) = detect_dir()
+        .map(|d| d.join("bandjoin"))
+        .filter(|d| d.join("frames.txt").is_file())
+    else {
+        eprintln!("skipped: SCW_PARITY_DATA holds no iris-detect/bandjoin/frames.txt");
+        return;
+    };
+    assert!(
+        check_set(&dir, &DetectorSettings::default()),
+        "the line join differs from IRIS 2.1's output"
+    );
+}
+
+/// One reference set: `dir`/frames.txt and `dir`/out/, both scan areas.
+fn check_set(dir: &Path, settings: &DetectorSettings) -> bool {
     let frames: Vec<PathBuf> = std::fs::read_to_string(dir.join("frames.txt"))
         .unwrap()
         .lines()
@@ -138,7 +173,7 @@ fn iris_reference_detection() {
                 let geo = ScanGeometry::create(
                     img.width as i32,
                     img.height as i32,
-                    &DetectorSettings::default(),
+                    settings,
                     Some(boundary_from_percents(top, bottom, left, right)),
                 )
                 .unwrap();
@@ -287,5 +322,5 @@ fn iris_reference_detection() {
             }
         }
     }
-    assert!(all_ok, "the finder differs from IRIS's output");
+    all_ok
 }

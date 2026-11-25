@@ -155,6 +155,16 @@ pub fn is_unknown_label(s: &str) -> bool {
 /// An internal space means an NPC crew name - tested BEFORE anything is
 /// stripped, or "JOHN SMITH" would become the handle "JOHNSMITH".
 pub fn classify_name(raw: &str) -> (NameKind, Option<String>) {
+    classify(raw, true)
+}
+
+/// [`classify_name`] exactly as sc_detector.classify_name: without the
+/// damaged-serial rule. For checking the port against the Python.
+pub fn classify_name_as_python(raw: &str) -> (NameKind, Option<String>) {
+    classify(raw, false)
+}
+
+fn classify(raw: &str, damaged_serials: bool) -> (NameKind, Option<String>) {
     let s = raw.trim_matches(is_space);
     if s.is_empty() {
         return (NameKind::Unreadable, None);
@@ -164,7 +174,10 @@ pub fn classify_name(raw: &str) -> (NameKind, Option<String>) {
     }
     let upper = s.to_uppercase();
     let s = upper.trim_matches(|c| END_PUNCTUATION.contains(c));
-    if ship_serial(s.as_bytes()) || partial_serial(s.as_bytes()) || damaged_serial(s.as_bytes()) {
+    if ship_serial(s.as_bytes())
+        || partial_serial(s.as_bytes())
+        || (damaged_serials && damaged_serial(s.as_bytes()))
+    {
         return (NameKind::ShipSerial, Some(s.to_string()));
     }
     if !handle(s) {

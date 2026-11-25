@@ -11,7 +11,7 @@ use std::sync::Arc;
 use crate::iris::ops::boundary_from_percents;
 use crate::iris::{DetectorSettings, ImageOps, ReadClass, RowReader, ScanGeometry};
 use crate::names::vote::{Reading, Resolved, resolve};
-use crate::names::{NameKind, classify_name};
+use crate::names::{NameKind, classify_name, classify_name_as_python};
 use crate::{Image, Rect};
 
 /// How much of the screen the scan looks at: (top, bottom, left, right)
@@ -88,6 +88,7 @@ pub struct FrameReader {
     area: ScanArea,
     settings: DetectorSettings,
     ops: HashMap<(usize, usize), ImageOps>,
+    as_python: bool,
 }
 
 impl FrameReader {
@@ -101,7 +102,18 @@ impl FrameReader {
             area,
             settings,
             ops: HashMap::new(),
+            as_python: false,
         }
+    }
+
+    /// Reads exactly as sc-watch's Python does: without the port's
+    /// deliberate improvements (PORT.md) - IRIS 2.1's line join and the
+    /// damaged-serial rule. For checking the port against the Python.
+    pub fn as_python(mut self) -> Self {
+        self.settings.band_join = false;
+        self.ops.clear();
+        self.as_python = true;
+        self
     }
 
     pub fn area(&self) -> ScanArea {
@@ -137,6 +149,11 @@ impl FrameReader {
     /// without the OCR fallback).
     pub fn read(&mut self, frame: &Image<u8>) -> FrameRead {
         let rows = self.rows.clone();
+        let classify = if self.as_python {
+            classify_name_as_python
+        } else {
+            classify_name
+        };
         let Some(ops) = self.ops_for(frame.width, frame.height) else {
             return FrameRead::default();
         };
@@ -147,7 +164,7 @@ impl FrameReader {
             let r = ops.read_line(frame, line);
             match (&r.class, &r.name, &r.rows) {
                 (ReadClass::Name, Some(name), Some(plate)) if !name.is_empty() => {
-                    let (kind, cleaned) = classify_name(name);
+                    let (kind, cleaned) = classify(name);
                     let x0 = plate.iter().map(|b| b.x).min().unwrap_or(line.x);
                     let y0 = plate.iter().map(|b| b.y).min().unwrap_or(line.y);
                     let x1 = plate.iter().map(|b| b.x + b.w).max().unwrap_or(line.x);

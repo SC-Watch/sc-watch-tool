@@ -7,7 +7,7 @@
 mod common;
 
 use common::check;
-use scw_vision::names::{classify_name, vote};
+use scw_vision::names::{classify_name, classify_name_as_python, vote};
 use serde_json::Value;
 
 fn s(v: &Value) -> &str {
@@ -23,10 +23,9 @@ fn damaged_serials_are_serials() {
     for raw in [
         "SP-O695-PW", // a zero read as O: the commonest
         "SP-Q695-PW", // ... or as Q
-        "SP-96O5-PW",
-        "SP9695-PW", // the first hyphen lost
-        "SP96O5-PW", // ... and a zero read as O
-        "SPQ695-PW", // ... or the hyphen gone with the first digit read as a letter
+        "SP9695-PW",  // the first hyphen lost
+        "SP96O5-PW",  // ... and a zero read as O
+        "SPQ695-PW",  // ... or the hyphen gone with the first digit read as a letter
         "SPO6O5-PW",
         "S0-9695-PW", // the prefix's O read as a zero
         "S0-96",      // ... and cut short
@@ -35,10 +34,18 @@ fn damaged_serials_are_serials() {
         let (kind, cleaned) = classify_name(raw);
         assert_eq!(kind.as_str(), "ship_serial", "{raw}");
         assert!(cleaned.is_some());
+        // ...and players to the Python, which `--as-python` reproduces
+        assert_eq!(classify_name_as_python(raw).0.as_str(), "player", "{raw}");
     }
-    // the exact and truncated forms stay serials, as in the Python
-    for raw in ["SP-9695-PW", "SP-969"] {
+    // the exact and truncated forms, and damage after an intact "XX-9",
+    // were serials to the Python already
+    for raw in ["SP-9695-PW", "SP-969", "SP-96O5-PW"] {
         assert_eq!(classify_name(raw).0.as_str(), "ship_serial", "{raw}");
+        assert_eq!(
+            classify_name_as_python(raw).0.as_str(),
+            "ship_serial",
+            "{raw}"
+        );
     }
 }
 
@@ -61,19 +68,25 @@ fn handles_are_not_damaged_serials() {
     }
 }
 
+/// Exactly the Python's answers without the damaged-serial rule; with it,
+/// the same except where that rule makes a Python 'player' a serial.
 #[test]
 fn classify() {
     check("classify_name", |c| {
         let p = &c["params"];
-        let (kind, cleaned) = classify_name(s(&p["raw"]));
+        let raw = s(&p["raw"]);
         let want = (s(&p["kind"]), p["cleaned"].as_str());
-        (want != (kind.as_str(), cleaned.as_deref())).then(|| {
-            format!(
-                "{:?}: {want:?} vs {:?}",
-                s(&p["raw"]),
+        let (kind, cleaned) = classify_name_as_python(raw);
+        if want != (kind.as_str(), cleaned.as_deref()) {
+            return Some(format!(
+                "{raw:?}: {want:?} vs {:?}",
                 (kind.as_str(), cleaned)
-            )
-        })
+            ));
+        }
+        let (kind, cleaned) = classify_name(raw);
+        let same = want == (kind.as_str(), cleaned.as_deref());
+        let damaged = want.0 == "player" && kind.as_str() == "ship_serial";
+        (!same && !damaged).then(|| format!("{raw:?}: {want:?} vs {:?}", (kind.as_str(), cleaned)))
     });
 }
 

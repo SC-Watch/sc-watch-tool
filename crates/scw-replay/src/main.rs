@@ -37,6 +37,9 @@ usage: scw-replay [options] <frames>...
   --listed F        handles, one per line, that are people even when they
                     read as a world label (your own lists)
   --model F         the IRIS letter model                   (default: built in)
+  --as-python       read exactly as sc-watch's Python does: without the
+                    port's deliberate improvements (IRIS 2.1's line join,
+                    the damaged-serial rule) - for checking the port
   --json            one JSON document on stdout instead of text
   -h, --help        this text
 ";
@@ -49,6 +52,7 @@ struct Options {
     listed: HashSet<String>,
     model: Option<PathBuf>,
     json: bool,
+    as_python: bool,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -60,6 +64,7 @@ fn parse_args() -> Result<Options, String> {
         listed: HashSet::new(),
         model: None,
         json: false,
+        as_python: false,
     };
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
@@ -67,6 +72,7 @@ fn parse_args() -> Result<Options, String> {
         match a.as_str() {
             "-h" | "--help" => return Err(String::new()),
             "--json" => o.json = true,
+            "--as-python" => o.as_python = true,
             "--scan-area" => {
                 let v = value("an area")?;
                 o.area = ScanArea::parse(&v).ok_or(format!("unknown scan area {v:?}"))?;
@@ -145,6 +151,9 @@ fn run(o: Options) -> Result<(), String> {
         o.area,
         DetectorSettings::default(),
     );
+    if o.as_python {
+        reader = reader.as_python();
+    }
     let listed = |n: &str| o.listed.contains(&n.to_uppercase());
     let per_burst = if o.burst == 0 {
         o.frames.len()
