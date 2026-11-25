@@ -1,0 +1,35 @@
+# IRIS mining signals: one line per resource, base signal/name/most multiples
+# A scan signal that equals base x N (N = 1 up to the most multiples) shows "name Nx" under the signal; values shared by several
+# resources show all of them, separated by " / ". Lines starting with # are comments. Delete this file to go back to the data IRIS ships.
+# Source: SCMDB scan signature identifier.
+# IRIS mining data 2026-11-01
+
+3,170/Quantainium/2
+3,185/Stileron/2
+3,200/Savrilium/2
+3,370/Ouratite/3
+3,385/Riccite/3
+3,400/Lindinium/3
+3,540/Beryl/4
+3,555/Taranite/4
+3,570/Borase/4
+3,585/Gold/4
+3,600/Bexalite/4
+3,825/Laranite/5
+3,840/Aslarite/5
+3,855/Titanium/5
+3,870/Tungsten/5
+3,885/Agricium/5
+3,900/Torite/5
+4,180/Hephaestanite/6
+4,195/Tin/6
+4,210/Quartz/6
+4,225/Corundum/6
+4,240/Copper/6
+4,255/Silicon/6
+4,270/Iron/6
+4,285/Aluminium/6
+4,300/Ice/6
+4,000/ROC Mineables/7
+3,000/FPS Mineables/10
+2,000/Salvage/15

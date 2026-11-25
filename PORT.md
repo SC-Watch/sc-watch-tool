@@ -13,7 +13,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
-| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | - |
+| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; step 1 (the reading logic) **done** - identical to IRIS's own C# on every synthetic case |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
@@ -406,6 +406,82 @@ Deliberately different in the page's server:
   had an error (HTTP 500)"), not urllib's "HTTP Error 500: <reason>".
 - A share export's zip is this compressor's bytes; what is inside is the
   same.
+
+## The mining overlay (phase 2a) - the plan
+
+IRIS's mining reader, ported the way its name reader was: its own C# is
+the reference, run in the local bench, and the port is held to it. In IRIS
+(Core/Mining, about 1,900 lines, unchanged in 2.1 but for a size limit on
+the table file):
+
+- **Search** (a few times a second, nothing locked): a band just below the
+  screen's centre (row centre at 472 of 1440 lines, 6 line heights left and
+  11 right of centre) is cleaned to "ink" - per pixel the darkest and the
+  brightest channel, each top-hatted with HUD lines opened away - and the
+  strongest rows are cut into digit cells (Otsu threshold, components,
+  joined pairs split, the condensed red font recut). A row counts when a
+  signal icon sits left of the digits, centred within a line height of where
+  the scanner puts it. A fallback finds the icon by template match.
+- **Read** each cell against stored digit shapes (14x20; a full set, a
+  small one and a mid one), by shifted correlation, a near-tie settled by
+  the pixels the two shapes differ in.
+- **Locked** (12 reads a second around the locked row): a doubtful read is
+  read again from the average of the last 4 frames, then from the per-digit
+  scores of the last 5 reads; a single doubtful digit is snapped to a value
+  the table holds; a new value needs 2 agreeing reads (1 if clearly
+  different), an off-table one 2; the label holds a second after the signal
+  goes; geometry and colours follow the HUD slowly.
+- **Table** (mining.txt, IRIS's game data): base signal / name / most rocks;
+  a signal of base x N reads "name Nx"; above the table, "Multiple" or
+  "Ore/Multiple". Edited copy in the data folder, re-read when it changes.
+- **Overlay**: the label under the signal in the HUD's own text colour, on
+  a half-transparent rounded box of the background's colour (made readable),
+  sized from the digit height; a click-through, always-on-top window.
+
+The steps, each checked before the next:
+
+1. **The reading logic** (`scw-vision::mining`): table, digit shapes and
+   matching, snapping, fusion, the label's state, geometry, colours - pure
+   functions, held to IRIS's own answers to the bit on synthetic cases
+   (the bench runs the C#), as committed fixtures so CI checks them.
+   **Done**: `tests/fixtures/make_mining_units.py` makes 204 cell patches
+   (digit shapes shifted, dimmed and noised, blends of two digits for near
+   ties, noise, a digit's negative), 6 tables (one with eight bad lines),
+   176 reads to snap, 40 fused sequences, 50 label sequences, 30 each of
+   geometry, colours and locks, 122 contrast cases; the bench's
+   `--mining-units` mode answers them with IRIS's own classes
+   (`mining_units_out.json`) and `tests/mining_units.rs` matches every
+   answer, every double to the bit. 13 of 16 deliberate breakages are
+   caught; the other three cannot change an answer on any realistic cell
+   (the -1 floor of the shift search, the order shapes are tried in, which
+   matters only on an exact tie, and the standardising epsilon of the
+   near-tie test). The digit shapes (models/iris-mining-digits.txt) and the
+   table (models/iris-mining.txt) are IRIS's, copied verbatim.
+2. **The reader on images**: the ink, rows, cells, icon and pin search, the
+   frame average. Synthetic frames drawn from the digit shapes (committed,
+   with IRIS's answers), then real frames of the scanner from the game
+   (local only, `SCW_PARITY_DATA/mining`): every read identical, the
+   template-match fallback to the same decisions (OpenCV's matchTemplate is
+   not reproduced bit for bit).
+3. **The live loop**: search, lock, read at 12 Hz, the label - sharing the
+   watcher's capture (one screen share on Linux; Windows allows only one
+   duplication of a screen per process), so the capture moves to one owner
+   thread both read from. Reads and unclear crops go in the session log and
+   debug folder, under housekeeping and in support bundles.
+4. **The overlay window**: Windows - a layered, click-through, topmost tool
+   window; Linux - wlr-layer-shell (KDE Plasma, Hyprland, Sway; not GNOME,
+   not under gamescope), X11 as a fallback. Drawn in Rust (rounded box and
+   text with a bundled open font), so both systems draw the same pixels.
+   Borderless windowed only, as IRIS.
+5. **Settings and the key**: `mining` (off | on, default off): off means
+   nothing of it runs - no search, no capture for it, no window. `mining_key`
+   (default off): with mining on, each press pauses or resumes it, with a
+   spoken cue and the state on the page; while paused nothing is read or
+   drawn. `mining_label_zoom` (IRIS's 150 %). The README's "draws no overlay"
+   becomes "draws no overlay unless you turn the mining overlay on".
+
+Credit: IRIS's mining reader, digit shapes and table go on the licence
+page with its name reader.
 
 ## One process (phase 3)
 

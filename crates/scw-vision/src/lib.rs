@@ -12,6 +12,7 @@
 pub mod cv;
 pub mod image;
 pub mod iris;
+pub mod mining;
 pub mod names;
 pub mod pipeline;
 
