@@ -67,6 +67,15 @@ impl OverlayWindow {
             None => Command::Hide,
         });
     }
+
+    /// The captured screen's size (the window is placed by the monitor's
+    /// origin on Windows: nothing to do).
+    pub fn set_screen(&self, _w: u32, _h: u32) {}
+
+    /// Which window system it draws on.
+    pub fn kind(&self) -> &'static str {
+        "Windows"
+    }
 }
 
 impl Drop for OverlayWindow {

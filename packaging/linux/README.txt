@@ -60,6 +60,18 @@ SPEECH AND TONES
   Alerts are spoken by speech-dispatcher (spd-say). If it is missing, the
   watcher says so at the start, and the tones still play.
 
+THE MINING OVERLAY (off until you turn it on)
+
+  On the page: Settings > Mining overlay > on, and a key to pause it if
+  you like (e.g. f8 or joy0.b12). Scan a rock in game and a label under the
+  signal says what it is, e.g. "Hephaestanite 4x". The game must be in a
+  window or borderless, not exclusive fullscreen.
+
+  On KDE Plasma (and Sway, Hyprland) the label is drawn on the desktop's
+  overlay layer, over the game, and clicks go through it. GNOME has no such
+  layer: there, and wherever no window can open, the labels are written in
+  the terminal instead. The table of rocks is data/mining.txt.
+
 YOUR DATA
 
   This build starts with empty data in data/. Your Windows data folder can

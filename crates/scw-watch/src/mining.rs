@@ -26,6 +26,8 @@ const TABLE_MAX_BYTES: u64 = 1024 * 1024;
 pub trait MiningView: Send {
     /// Shows the label, or nothing.
     fn show(&mut self, label: Option<&MiningLabel>);
+    /// The captured screen's size, once known (which monitor to draw on).
+    fn screen(&mut self, _w: i32, _h: i32) {}
     /// For the banner.
     fn describe(&self) -> String;
 }
@@ -65,9 +67,14 @@ impl MiningView for WindowView {
         self.window.show(drawn);
     }
 
+    fn screen(&mut self, w: i32, h: i32) {
+        self.window.set_screen(w.max(0) as u32, h.max(0) as u32);
+    }
+
     fn describe(&self) -> String {
         format!(
-            "a window over the game, labels at {:.0}% (font {})",
+            "a window over the game ({}), labels at {:.0}% (font {})",
+            self.window.kind(),
             self.scale * 100.0,
             self.painter.font_path.display()
         )
@@ -119,6 +126,8 @@ pub struct MiningRun {
     table_stamp: Option<Option<SystemTime>>,
     table_checked: f64,
     shown: Option<MiningLabel>,
+    /// The screen size the view was told.
+    told_screen: Option<(i32, i32)>,
     /// The pause key, for the banner; None without one.
     pub key: Option<String>,
 }
@@ -143,6 +152,7 @@ impl MiningRun {
             table_stamp: None,
             table_checked: f64::NEG_INFINITY,
             shown: None,
+            told_screen: None,
             key,
         }
     }
@@ -258,6 +268,10 @@ impl MiningRun {
         height: i32,
         now_ms: f64,
     ) -> (MiningEvent, Option<Option<String>>) {
+        if self.told_screen != Some((width, height)) {
+            self.view.screen(width, height);
+            self.told_screen = Some((width, height));
+        }
         let event = self
             .tracker
             .feed(crop, region, width, height, now_ms, now_ms);

@@ -12,6 +12,10 @@ use std::path::PathBuf;
 
 use ab_glyph::{Font, FontVec, PxScale, ScaleFont, point};
 
+#[cfg(target_os = "linux")]
+mod linux;
+#[cfg(target_os = "linux")]
+pub use linux::OverlayWindow;
 #[cfg(windows)]
 mod windows;
 #[cfg(windows)]
@@ -237,10 +241,10 @@ fn rounded_cover(x: f64, y: f64, w: f64, h: f64, r: f64) -> f64 {
 
 /// A window that shows one drawn label at a time, over everything,
 /// passing clicks through - on systems without one yet, nothing.
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub struct OverlayWindow;
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 impl OverlayWindow {
     /// The window for a monitor whose top-left corner is at (left, top) on
     /// the desktop.
@@ -249,6 +253,12 @@ impl OverlayWindow {
     }
 
     pub fn show(&self, _drawn: Option<Drawn>) {}
+
+    pub fn set_screen(&self, _w: u32, _h: u32) {}
+
+    pub fn kind(&self) -> &'static str {
+        "none"
+    }
 }
 
 #[cfg(test)]

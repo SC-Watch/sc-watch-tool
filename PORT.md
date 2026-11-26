@@ -13,7 +13,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
-| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-3 and 5 **done** (the reading logic and the reader identical to IRIS's own C#; the live loop, the settings and the pause key), step 4 on Windows; the Linux overlay window next |
+| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic and the reader identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11) |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
@@ -516,7 +516,7 @@ The steps, each checked before the next:
    fused into the 16,720's reads). Not yet: the worker's own parity against
    IRIS's MiningWorker in the bench, and crops of unclear reads kept for
    debugging.
-4. **The overlay window** - **built on Windows** (`scw-overlay`). The label
+4. **The overlay window** - **built** (`scw-overlay`). The label
    is drawn in Rust as IRIS lays it out (MiningLayout): letters scale x the
    signal's digit height (cap height 0.7 em), padded half a line and a
    quarter, 0.6 lines under the signal and centred on it, the HUD's text
@@ -528,9 +528,27 @@ The steps, each checked before the next:
    of its own, placed by the captured monitor's desktop origin, and kept
    out of screen captures (`WDA_EXCLUDEFROMCAPTURE`), so neither reader
    ever reads the label it drew - unlike IRIS's default. Borderless
-   windowed only, as IRIS. Linux: not yet - wlr-layer-shell (KDE Plasma,
-   Hyprland, Sway; not GNOME, not under gamescope), X11 as a fallback; until
-   then the labels are said in the console.
+   windowed only, as IRIS.
+   Linux (`src/linux/`), on the same channel and thread: on Wayland a
+   wlr-layer-shell surface on the overlay layer - KDE Plasma, Sway,
+   Hyprland; not GNOME, which has no layer shell, and not under gamescope -
+   on the monitor whose current mode is the captured screen's size,
+   anchored at its top-left and placed by margins, with an empty input
+   region (clicks go through) and no keyboard; the label's pixels go in a
+   shared-memory ARGB8888 buffer as drawn (premultiplied BGRA is that
+   format's byte order); on a scaled monitor (xdg-output's logical size
+   against the mode) it is placed in logical units and the buffer, drawn in
+   real pixels, is shown at its logical size through wp_viewporter. Written
+   on wayland-client 0.31 (pure Rust, no libwayland) with the protocols'
+   own crates - no toolkit. On X11 (or `SCW_OVERLAY=x11`): an
+   override-redirect window with a 32-bit visual and an empty input shape.
+   Checked on CI: `tests/overlay_sway.rs` on the headless sway, through
+   grim's screenshots - an opaque label's pixels where it was put and
+   nothing beside it, a half-transparent one blended with the desktop under
+   it, moved, hidden; `tests/overlay_x11.rs` under Xvfb - override-redirect,
+   mapped where it was put, the input shape empty, the label's pixels in
+   it, unmapped when hidden. Where neither opens, the labels are said in
+   the console.
 5. **Settings and the key** - **built**. `mining` (off | on, default off),
    `mining_key` (default off) and `mining_label_size` (IRIS's 150 %) are this
    port's own settings: `settings_schema_rust.json`, after settings.py's

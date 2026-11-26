@@ -9,6 +9,8 @@
 # 3. portal_sway: a headless sway (one output, one colour), the
 #    screen-cast portal with its wlroots backend told to share that output
 #    without a dialog, and the whole ScreenCastSource.
+# 4. overlay_sway: the mining overlay's window (scw-overlay) on that sway,
+#    a layer-shell surface, checked in grim's screenshots of the output.
 #
 # Each test says on the run whether it ran (::notice) or why not
 # (::warning). Setting up is best effort - a part that will not start makes
@@ -28,7 +30,7 @@ show() { # title, file, level
 sudo apt-get install -y -qq \
   pkg-config libspa-0.2-dev pipewire wireplumber \
   gstreamer1.0-pipewire gstreamer1.0-plugins-base gstreamer1.0-tools \
-  sway swaybg xdg-desktop-portal xdg-desktop-portal-wlr gdb >/dev/null \
+  sway swaybg xdg-desktop-portal xdg-desktop-portal-wlr grim gdb >/dev/null \
   || note "some packages did not install"
 
 logs="$RUNNER_TEMP/screencast-logs"
@@ -125,6 +127,19 @@ if [ -n "$socket" ] && kill -0 $sway 2>/dev/null; then
     show "sway" "$logs/sway.log"
     show "xdg-desktop-portal-wlr" "$logs/xdpw.log"
     show "xdg-desktop-portal" "$logs/xdp.log"
+  fi
+  # 4. The overlay window on the same desktop.
+  if command -v grim >/dev/null; then
+    if SCW_OVERLAY_TEST=1 cargo test -q -p scw-overlay --test overlay_sway -- --nocapture 2>&1 \
+        | tee "$logs/test-overlay_sway.out"; then
+      echo "::notice title=overlay_sway::$(grep -c '^step:' "$logs/test-overlay_sway.out") steps checked"
+    else
+      failed=1
+      show "overlay_sway failed" "$logs/test-overlay_sway.out" error
+      show "sway" "$logs/sway.log"
+    fi
+  else
+    note "grim did not install: the overlay window was not checked"
   fi
 else
   show "sway did not start" "$logs/sway.log"

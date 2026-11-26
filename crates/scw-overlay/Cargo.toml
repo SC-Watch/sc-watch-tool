@@ -15,6 +15,15 @@ ab_glyph = "0.2"
 # Only for examples/draw_label.rs: the drawn labels as a picture.
 png = "0.17"
 
+[target.'cfg(target_os = "linux")'.dependencies]
+# Pure-Rust Wayland client (no libwayland): wlr-layer-shell for the window,
+# xdg-output and viewporter for scaled monitors.
+wayland-client = "0.31"
+wayland-protocols = { version = "0.32", features = ["client", "unstable"] }
+wayland-protocols-wlr = { version = "0.3", features = ["client"] }
+x11rb = { version = "0.14", features = ["shape"] }
+libc = "0.2"
+
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.62", features = [
     "Win32_Foundation",

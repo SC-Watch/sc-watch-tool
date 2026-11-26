@@ -58,6 +58,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           xvfb-run -a -s "-screen 0 1280x720x24" cargo test -q -p scw-capture --test x11_xvfb -- --nocapture
+          SCW_OVERLAY_X11_TEST=1 xvfb-run -a -s "-screen 0 1280x720x24" cargo test -q -p scw-overlay --test overlay_x11 -- --nocapture
           cargo test -q -p scw-input --test linux_uinput -- --nocapture
       # The Wayland capture against real PipeWire, a headless Wayland
       # desktop and the screen-cast portal (the script says what ran).
