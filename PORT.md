@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR (chat reads, the IRIS fallback) | - |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **planned** (below): the engine chosen and measured (rten, pure Rust), the first improvement measured |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -742,6 +742,74 @@ are read as the desktop shares them.
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
 backslash is doubled, so such a path went into the log unscrubbed.
+
+## OCR (phase 5) - the plan
+
+What it is for (the user, 2026-11-26): OCR stays for two things only, and
+never touches IRIS's reads.
+
+- **`iris` (the default)**: IRIS finds and reads the name plates; OCR reads
+  the chat window (the chat key), nothing else.
+- **`ocr` (legacy)**: sc-watch's own pipeline from before 0.3.0 reads the
+  plates and the chat - for players who keep the game's own HDR option on,
+  where IRIS reads nothing.
+
+No `iris+ocr`: OCR never stands in for a plate IRIS refused. A saved
+`iris+ocr` runs as `iris`, and says so once.
+
+**The engine: rten, pure Rust.** The same models the Python runs through
+RapidOCR - PaddleOCR's PP-OCRv3 detector and recogniser, Apache-2.0 - run by
+rten. Measured against onnxruntime 1.29 (the Python's) on real crops:
+
+| | largest difference | every character / text pixel the same | per run (all cores) |
+|---|---|---|---|
+| recogniser, 1x3x48x320 | 6.0e-6 | yes | 13.5 ms (onnxruntime 6.3) |
+| detector, 1x3x736x736 | 2.5e-5 | yes | 65.9 ms (onnxruntime 33.1) |
+
+tract 0.21 (also pure Rust) gave the same answers at 60 and 611 ms. No
+native library: the Linux build stays libc-only, and nothing is fetched at
+build time. rten loads ONNX itself from 0.23, which needs Rust 1.89 (0.28:
+1.94) - so the port's minimum Rust goes from 1.88 to 1.94. The threads it
+uses are capped (the game runs beside it).
+
+**The first improvement, measured.** RapidOCR's detector enlarges every
+crop until its short side is 736 px; the crops sc-watch hands it are about
+168x252, so it works on ~19 times the pixels. On test2 (in-game HDR on, 30
+frames, the answer key in test_consensus.py), the legacy pipeline with only
+the OCR step changed:
+
+| OCR step | names read exactly | wrong names | ms per frame |
+|---|---|---|---|
+| detector at 736 (what ships) | 52 | 8 | 3,026-3,697 |
+| detector at the crop's own size | 52 | 9 | 1,263-1,379 |
+| detector enlarged to 480 | 53 | 8 | 2,472 |
+| recogniser alone on our own box (+0.25 h) | 34 | 21 | 633 |
+| the same, only name characters decoded | 26 (at +0.5 h) | 26 | 686 |
+
+(Times with the game running beside it: as a ranking only.) The detector
+earns its place - inside a crop it drops the noise our masks keep, and its
+boxes leave ~0.2 of the text height round the letters - but not at 736 px.
+Decoding only characters a name or range holds changes nothing once the
+detector cuts the line (52 / 9 either way), and keeps CJK glyphs out (one
+crashed a script on a cp1252 console). The rest of the legacy pipeline costs
+~0.6 s a frame before any OCR: the next thing to measure.
+
+**The steps**, each checked before the next:
+
+1. `scw-ocr`: the two models under rten, the detector's DB post-processing
+   (for upright HUD and chat text: threshold, components, box score, the
+   unclip, the crop) and CTC decoding. Checked crop by crop against
+   RapidOCR's own answers on every crop the legacy pipeline reads in the
+   corpora (corpus, nohdr, winhdr, cockpit, 16x9): the same text.
+2. The legacy name pipeline (sc_detector.py: the HUD masks, boxes, pairing,
+   prep, ranges, the focused and dual reads, the gate and haze options), as
+   `watch.py --reader ocr`: the same reads on the corpora.
+3. Chat reads (chat.py: the region beside screen centre, helmet on and off,
+   handles from the lines), as the Python's, on the frames with chat.
+4. The `reader` setting as `iris` | `ocr`; the chat key works in both.
+5. The improvements, each measured on the answer key and the corpora, and
+   kept only where they win: the detector at the crop's size, only name
+   characters decoded, then the 0.6 s before OCR.
 
 ## The replay tool
 
