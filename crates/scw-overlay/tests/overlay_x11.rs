@@ -19,7 +19,7 @@ fn settle() {
 #[test]
 fn a_label_window_on_x11() {
     if std::env::var_os("SCW_OVERLAY_X11_TEST").is_none() || std::env::var_os("DISPLAY").is_none() {
-        eprintln!("skipped: SCW_OVERLAY_X11_TEST or DISPLAY is not set");
+        println!("::warning title=x11 overlay::skipped - SCW_OVERLAY_X11_TEST or DISPLAY not set");
         return;
     }
     // SAFETY: set before any thread of this test reads the environment
@@ -73,4 +73,7 @@ fn a_label_window_on_x11() {
     settle();
     let a = conn.get_window_attributes(window).unwrap().reply().unwrap();
     assert_ne!(a.map_state, MapState::VIEWABLE, "hidden");
+    println!(
+        "::notice title=x11 overlay::ran - an override-redirect window of depth {depth} mapped where the label was put, {gw}x{gh}, its input shape empty, the label's pixels in it, unmapped when hidden"
+    );
 }

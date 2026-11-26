@@ -68,7 +68,7 @@ fn a_label_shows_where_it_is_put_on_a_wayland_desktop() {
         return;
     }
     let Some(before) = grim() else {
-        eprintln!("skipped: no screenshot (grim)");
+        println!("::warning title=wayland overlay::skipped - no screenshot from grim");
         return;
     };
     let (w, h) = (before.0, before.1);
