@@ -15,6 +15,7 @@
 
 pub mod digits;
 pub mod evidence;
+pub mod reader;
 pub mod snap;
 pub mod state;
 pub mod table;

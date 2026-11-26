@@ -13,7 +13,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
-| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; step 1 (the reading logic) **done** - identical to IRIS's own C# on every synthetic case |
+| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1 (the reading logic) and 2 (the reader on images) **done** - identical to IRIS's own C#, on synthetic cases and on 51 real frames of the scanner |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
@@ -463,6 +463,26 @@ The steps, each checked before the next:
    (local only, `SCW_PARITY_DATA/mining`): every read identical, the
    template-match fallback to the same decisions (OpenCV's matchTemplate is
    not reproduced bit for bit).
+   **Done on real frames** (`scw-vision::mining::reader`,
+   `tests/mining_frames.rs`): 51 frames of the scanner from the Windows
+   test build (2026-11-26, 5120x1440: hangar, on foot, flying over snow and
+   sand; signals 10,000, 6,000, 59,000, 16,720 and an off-centre 4,000),
+   read by IRIS's own reader in the bench (`--mining-frames`: the scan's
+   search, then the locked read around the row it found, both crops cut as
+   IRIS's capture cuts them). Every state, text, value, box, row, digit
+   height, offset and colour is IRIS's - including its one misread (16,720
+   as 10,720, which the table snap puts right) and its refusals of an
+   off-centre signal - and the digit scores are within 4.3e-8 of IRIS's.
+   Not to the bit, and they cannot be: IRIS's OpenCV hands INTER_LINEAR on
+   floats (each cell fitted to 14 x 20) to Intel's IPP, whose code, and
+   last bit, depends on the processor; the port uses OpenCV's own code -
+   exactly, `tests/mining_units.rs` against OpenCV with IPP off, within
+   1.1e-6 of IRIS's IPP results - so IRIS's own scores differ between
+   machines by as much. (OpenCV also takes the area path for a linear
+   resize that halves both ways; the port now does too.) The pin's template
+   match runs every template pixel over all positions at once: a search
+   takes about 20 ms a frame against IRIS's 17, a locked read 3 against 10.
+   Still to do: synthetic frames, so CI covers the reader too.
 3. **The live loop**: search, lock, read at 12 Hz, the label - sharing the
    watcher's capture (one screen share on Linux; Windows allows only one
    duplication of a screen per process), so the capture moves to one owner

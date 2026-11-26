@@ -546,6 +546,27 @@ fn area_general_f32(
     out
 }
 
+/// Bilinear resize of a float image, as `cv::resize(src, (dw, dh),
+/// INTER_LINEAR)` on 32-bit floats (a same-size resize is a copy, as in
+/// OpenCV). IRIS's mining reader fits each digit cell to 14 x 20 with it.
+pub fn resize_linear_f32_to(src: &Image<f32>, dw: usize, dh: usize) -> Image<f32> {
+    if (dw, dh) == (src.width, src.height) {
+        return src.clone();
+    }
+    let inv_x = dw as f64 / src.width as f64;
+    let inv_y = dh as f64 / src.height as f64;
+    // cv::resize: "INTER_AREA (fast) is equal to INTER_LINEAR" when halving
+    // both ways exactly, and OpenCV takes the area path then.
+    let (scale_x, scale_y) = (1.0 / inv_x, 1.0 / inv_y);
+    let (ix, iy) = (round_even_f64(scale_x), round_even_f64(scale_y));
+    let fast =
+        (scale_x - ix as f64).abs() < f64::EPSILON && (scale_y - iy as f64).abs() < f64::EPSILON;
+    if fast && ix == 2 && iy == 2 {
+        return resize_area_f32_to(src, dw, dh);
+    }
+    resize_linear_f32(src, dw, dh, inv_x, inv_y, false)
+}
+
 /// OpenCV's float bilinear (`HResizeLinear` / `VResizeLinear` on floats):
 /// float weights, each tap multiplied and added separately.
 fn resize_linear_f32(

@@ -122,12 +122,8 @@ fn report(what: &str, bad: Vec<String>, total: usize) {
     for b in bad.iter().take(4) {
         eprintln!("  {what}: {b}");
     }
-    assert!(
-        bad.is_empty(),
-        "{what}: {} of {total} differ from IRIS",
-        bad.len()
-    );
-    println!("{what}: {total} identical to IRIS");
+    assert!(bad.is_empty(), "{what}: {} of {total} differ", bad.len());
+    println!("{what}: {total} identical");
 }
 
 #[test]
@@ -497,4 +493,75 @@ fn locking_and_confidence() {
         }
     }
     report("clearly different", bad, list.len());
+}
+
+/// The float resizes the reader uses - each digit cell fitted to 14 x 20
+/// (INTER_LINEAR) and the pin template at each height (INTER_AREA)
+/// (tests/fixtures/make_resize_f32.py). Exactly OpenCV's own code (IPP off,
+/// resize_f32_noipp.json); and IRIS's build of OpenCV (resize_f32_out.json,
+/// the bench's `--resize-f32`), which hands INTER_LINEAR on floats to
+/// Intel's IPP: exactly for the area resizes, within 2e-6 for the linear
+/// ones - IPP's last bit depends on the processor it runs on, so IRIS's
+/// own digit scores do too.
+#[test]
+fn float_resizes_as_opencv() {
+    let input = load("resize_f32_in.json");
+    let iris = load("resize_f32_out.json");
+    let own = load("resize_f32_noipp.json");
+    let f32s = |b64: &str| -> Vec<f32> {
+        base64_decode(b64)
+            .unwrap()
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|b| f32::from_le_bytes(*b))
+            .collect()
+    };
+    let (mut bad_own, mut bad_iris, mut worst) = (Vec::new(), Vec::new(), 0f32);
+    let list = input.as_array().unwrap();
+    for (i, c) in list.iter().enumerate() {
+        let n = |k: &str| c[k].as_u64().unwrap() as usize;
+        let linear = c["mode"].as_str().unwrap() == "linear";
+        let src = scw_vision::Image::from_vec(n("w"), n("h"), 1, f32s(c["data"].as_str().unwrap()));
+        let got = if linear {
+            scw_vision::cv::resize_linear_f32_to(&src, n("dw"), n("dh"))
+        } else {
+            scw_vision::cv::resize_area_f32_to(&src, n("dw"), n("dh"))
+        };
+        let exact = f32s(own[i].as_str().unwrap());
+        if got
+            .data
+            .iter()
+            .zip(&exact)
+            .any(|(a, b)| a.to_bits() != b.to_bits())
+        {
+            bad_own.push(format!("case {i} ({} {}x{})", c["mode"], n("w"), n("h")));
+        }
+        let theirs = f32s(iris[i].as_str().unwrap());
+        let diff = got
+            .data
+            .iter()
+            .zip(&theirs)
+            .map(|(a, b)| (a - b).abs())
+            .fold(0f32, f32::max);
+        worst = worst.max(diff);
+        let ok = if linear {
+            diff <= 2e-6
+        } else {
+            got.data
+                .iter()
+                .zip(&theirs)
+                .all(|(a, b)| a.to_bits() == b.to_bits())
+        };
+        if !ok {
+            bad_iris.push(format!("case {i}: {diff}"));
+        }
+    }
+    report(
+        "float resizes against OpenCV's own code",
+        bad_own,
+        list.len(),
+    );
+    println!("largest difference from IRIS's OpenCV (IPP): {worst:e}");
+    report("float resizes against IRIS's OpenCV", bad_iris, list.len());
 }
