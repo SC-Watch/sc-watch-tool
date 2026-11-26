@@ -91,9 +91,12 @@ impl CaptureFrames {
     }
 }
 
-impl Frames for CaptureFrames {
-    fn grab(&mut self) -> Option<Image<u8>> {
-        match self.src.as_mut()?.grab() {
+impl CaptureFrames {
+    fn checked(
+        &mut self,
+        got: Result<Option<Image<u8>>, scw_capture::CaptureError>,
+    ) -> Option<Image<u8>> {
+        match got {
             Ok(f) => f,
             Err(e) => {
                 let why = e.to_string();
@@ -104,6 +107,32 @@ impl Frames for CaptureFrames {
                 None
             }
         }
+    }
+}
+
+impl Frames for CaptureFrames {
+    fn grab(&mut self) -> Option<Image<u8>> {
+        let got = self.src.as_mut()?.grab();
+        self.checked(got)
+    }
+
+    fn grab_region(&mut self, r: Rect) -> Option<Image<u8>> {
+        if r.x < 0 || r.y < 0 || r.w <= 0 || r.h <= 0 {
+            return None;
+        }
+        let got =
+            self.src
+                .as_mut()?
+                .grab_region(r.x as usize, r.y as usize, r.w as usize, r.h as usize);
+        self.checked(got)
+    }
+
+    fn size(&self) -> Option<(usize, usize)> {
+        self.src.as_ref()?.size()
+    }
+
+    fn origin(&self) -> (i32, i32) {
+        self.src.as_ref().map_or((0, 0), |s| s.origin())
     }
 
     fn exhausted(&self) -> bool {
@@ -121,6 +150,8 @@ pub struct BoundKeys {
     modes: Vec<Mode>,
     state: Box<dyn InputState>,
     stop: Arc<AtomicBool>,
+    /// The mining overlay's pause key.
+    toggle: Option<Binding>,
 }
 
 impl BoundKeys {
@@ -138,7 +169,15 @@ impl BoundKeys {
             modes,
             state,
             stop,
+            toggle: None,
         }
+    }
+
+    /// With the mining overlay's key; presses before now are forgotten.
+    pub fn with_toggle(mut self, mut b: Binding) -> Self {
+        b.drain(&*self.state);
+        self.toggle = Some(b);
+        self
     }
 }
 
@@ -166,6 +205,13 @@ impl Keys for BoundKeys {
 
     fn waiting_label(&self) -> String {
         crate::config::waiting_label(&self.binds)
+    }
+
+    fn toggle_pressed(&mut self) -> bool {
+        match self.toggle.as_mut() {
+            Some(b) => b.pressed(&*self.state),
+            None => false,
+        }
     }
 }
 
@@ -237,6 +283,10 @@ impl AlertSink for AudioSink {
     fn burst_result(&self, contacts: &[Spoken]) {
         let facts: Vec<Facts> = contacts.iter().map(spoken_facts).collect();
         self.with(|a| a.burst_result(&facts));
+    }
+
+    fn say(&self, text: &str) {
+        self.with(|a| a.say(text));
     }
 
     /// Plays what is queued, then stops the player.

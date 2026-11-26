@@ -132,6 +132,9 @@ impl AlertSink for KeepOpen {
     fn burst_result(&self, contacts: &[Spoken]) {
         self.0.burst_result(contacts);
     }
+    fn say(&self, text: &str) {
+        self.0.say(text);
+    }
     fn close(&self) {}
     fn health(&self) -> AudioHealth {
         self.0.health()

@@ -468,7 +468,18 @@ pub fn build_session(
     make: impl FnOnce(&Args) -> Shared,
 ) -> Result<Session, i32> {
     let key_mode = args.trigger == "key" && args.replay.is_none();
-    let state: Box<dyn scw_input::InputState> = if key_mode {
+    // The mining overlay (this port only): live capture only - a replay's
+    // frames are the bursts'.
+    let mining_on =
+        cur.get("mining").and_then(Value::as_str) == Some("on") && args.replay.is_none();
+    let mining_key = cur
+        .get("mining_key")
+        .and_then(Value::as_str)
+        .unwrap_or("off")
+        .trim()
+        .to_string();
+    let mining_key_on = mining_on && !mining_key.is_empty() && mining_key != "off";
+    let state: Box<dyn scw_input::InputState> = if key_mode || mining_key_on {
         input_state()
     } else {
         Box::new(NoInput)
@@ -495,6 +506,22 @@ pub fn build_session(
             return Err(1);
         }
     };
+    let origin = src.origin();
+    let toggle = if mining_key_on {
+        match scw_input::Binding::new(&mining_key, &*state) {
+            Ok(b) if !b.is_empty() => Some(b),
+            Ok(_) => None,
+            Err(e) => {
+                eprintln!(
+                    "! mining overlay key {mining_key:?}: {e} - the overlay runs without one"
+                );
+                None
+            }
+        }
+    } else {
+        None
+    };
+    let toggle_label = toggle.as_ref().map(|_| mining_key.clone());
     // Keys need the input group on Linux: said before the session starts.
     #[cfg(target_os = "linux")]
     if key_mode {
@@ -599,6 +626,38 @@ pub fn build_session(
         key_mode,
     );
 
+    let mining = if mining_on {
+        let scale = cur
+            .get("mining_label_size")
+            .and_then(Value::as_f64)
+            .unwrap_or(150.0)
+            / 100.0;
+        let view: Box<dyn crate::mining::MiningView> =
+            match crate::mining::window_view(origin, scale) {
+                Ok(v) => Box::new(v),
+                Err(e) => {
+                    println!("! mining overlay window: {e}");
+                    Box::new(crate::mining::ConsoleView::new(con.clone()))
+                }
+            };
+        let run = crate::mining::MiningRun::new(view, roots.data(&["mining.txt"]), toggle_label);
+        println!(
+            "mining overlay     on - labels in {}; {}",
+            run.describe(),
+            match &run.key {
+                Some(k) => format!("{k} pauses it"),
+                None => "no pause key".to_string(),
+            }
+        );
+        Some(run)
+    } else {
+        None
+    };
+    let mut keys = BoundKeys::new(binds, state, stop.clone());
+    if let Some(t) = toggle {
+        keys = keys.with_toggle(t);
+    }
+
     let opts = session_options(args, cur, key_mode);
     let hk_roots = roots.clone();
     let parts = Parts {
@@ -608,7 +667,7 @@ pub fn build_session(
             scan_area(&args.scan_area),
             scan_area(&args.auto_scan_area),
         )),
-        keys: Box::new(BoundKeys::new(binds, state, stop.clone())),
+        keys: Box::new(keys),
         console: con.clone(),
         alerts,
         log: dbg.clone(),
@@ -636,6 +695,7 @@ pub fn build_session(
         stop,
     };
     let mut session = Session::new(opts, parts);
+    session.mining = mining;
     // Startup is the right moment for retention: last session's frames
     // have had their chance to be looked at.
     if cur

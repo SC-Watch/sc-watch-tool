@@ -147,11 +147,19 @@ fn bundles_as_debuglog_does() {
             f.read_to_end(&mut data).unwrap();
             assert_eq!(ename, e["name"].as_str().unwrap(), "{name}: entry {j}");
             if let Some(t) = e.get("text") {
-                assert_eq!(
-                    String::from_utf8(data).unwrap(),
-                    t.as_str().unwrap(),
-                    "{name}: {ename}"
-                );
+                let text = String::from_utf8(data).unwrap();
+                if ename == "settings.json" {
+                    // without the settings only the port has (the mining
+                    // overlay), which settings.py does not know
+                    let mut ours: Value = serde_json::from_str(&text).unwrap();
+                    for k in scw_store::settings::RUST_ONLY {
+                        ours.as_object_mut().unwrap().shift_remove(*k);
+                    }
+                    let theirs: Value = serde_json::from_str(t.as_str().unwrap()).unwrap();
+                    assert_eq!(ours, theirs, "{name}: {ename}");
+                } else {
+                    assert_eq!(text, t.as_str().unwrap(), "{name}: {ename}");
+                }
             } else if let Some(s) = e.get("sha1") {
                 assert_eq!(
                     sha1_smol::Sha1::from(&data).digest().to_string(),

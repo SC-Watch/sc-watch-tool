@@ -1,13 +1,29 @@
 //! Settings against settings.py itself (tests/fixtures/make_settings_ops.py):
 //! the same schema, the same clamping of every kind of field against awkward
 //! values, the same load of crafted files and the same merges on save - and
-//! the typed view covers exactly the schema.
+//! the typed view covers exactly the schema. The settings only the port
+//! has (the mining overlay, `settings::RUST_ONLY`) are left out of every
+//! comparison and checked on their own.
 
 use std::path::PathBuf;
 
 use scw_store::json::py_str;
 use scw_store::settings::{self, Settings};
 use serde_json::{Map, Value, json};
+
+/// The port's settings as settings.py has them: without the ones only the
+/// port has.
+fn as_python(v: Value) -> Value {
+    match v {
+        Value::Object(mut m) => {
+            for k in settings::RUST_ONLY {
+                m.shift_remove(*k);
+            }
+            Value::Object(m)
+        }
+        other => other,
+    }
+}
 
 fn same(a: &Value, b: &Value) -> bool {
     match (a, b) {
@@ -37,7 +53,7 @@ fn settings_match_settings_py() {
     let mut bad = Vec::new();
 
     // The defaults, in schema order (same() compares key order too).
-    let defaults = Value::Object(settings::defaults());
+    let defaults = as_python(Value::Object(settings::defaults()));
     if !same(&defaults, &fx["defaults"]) {
         bad.push(format!(
             "defaults:\n    python {}\n    rust   {defaults}",
@@ -81,22 +97,25 @@ fn settings_match_settings_py() {
         if let Some(t) = l["text"].as_str() {
             std::fs::write(&p, t).unwrap();
         }
-        let got = Value::Object(settings::load(&p));
+        let full = settings::load(&p);
+        let got = as_python(Value::Object(full.clone()));
         if !same(&got, &l["result"]) {
             bad.push(format!(
                 "load {}:\n    python {}\n    rust   {got}",
                 l["label"], l["result"]
             ));
         }
-        if let Err(e) = Settings::from_map(got.as_object().unwrap()) {
+        if let Err(e) = Settings::from_map(&full) {
             bad.push(format!("load {}: not a Settings: {e}", l["label"]));
         }
     }
 
     let sp = dir.join("saved.json");
     for s in fx["saves"].as_array().unwrap() {
-        let got = Value::Object(settings::save(s["values"].as_object().unwrap(), &sp).unwrap());
-        let file: Value = serde_json::from_slice(&std::fs::read(&sp).unwrap()).unwrap();
+        let got = as_python(Value::Object(
+            settings::save(s["values"].as_object().unwrap(), &sp).unwrap(),
+        ));
+        let file = as_python(serde_json::from_slice(&std::fs::read(&sp).unwrap()).unwrap());
         if !same(&got, &s["result"]) || !same(&file, &s["file"]) {
             bad.push(format!(
                 "save {}:\n    python {} / {}\n    rust   {got} / {file}",
@@ -109,8 +128,8 @@ fn settings_match_settings_py() {
     std::fs::write(&sp2, over["start"].to_string()).unwrap();
     let mut values = Map::new();
     values.insert("volume".into(), json!(0.5));
-    let got = Value::Object(settings::save(&values, &sp2).unwrap());
-    let file: Value = serde_json::from_slice(&std::fs::read(&sp2).unwrap()).unwrap();
+    let got = as_python(Value::Object(settings::save(&values, &sp2).unwrap()));
+    let file = as_python(serde_json::from_slice(&std::fs::read(&sp2).unwrap()).unwrap());
     if !same(&got, &over["result"]) || !same(&file, &over["file"]) {
         bad.push(format!(
             "save over an old file:\n    python {}\n    rust   {got}",
@@ -133,6 +152,18 @@ fn settings_match_settings_py() {
         && (s.burst != 3 || s.reader != settings::Reader::Iris || s.port != 8731)
     {
         bad.push(format!("typed defaults: {s:?}"));
+    }
+    // The port's own settings: last, in their own category, off by default.
+    let cats = settings::describe();
+    let last = cats.as_array().unwrap().last().unwrap();
+    if last["key"] != "mining" || settings::defaults()["mining"] != "off" {
+        bad.push("the mining overlay's settings are not the last category, off".into());
+    }
+    if settings::RUST_ONLY
+        .iter()
+        .any(|k| settings::field(k).is_none())
+    {
+        bad.push("a RUST_ONLY key is not in the schema".into());
     }
     let _ = std::fs::remove_dir_all(&dir);
     assert!(bad.is_empty(), "{} differ\n{}", bad.len(), bad.join("\n"));

@@ -21,6 +21,14 @@ use crate::json::{Expect, py_float_text, py_str, py_strip, read, truthy, update}
 
 const SCHEMA_JSON: &str = include_str!("settings_schema.json");
 
+/// The settings only this port has (settings_schema_rust.json), after
+/// settings.py's own: the mining overlay. Everything that holds the port to
+/// the Python leaves them out ([`RUST_ONLY`]).
+const SCHEMA_RUST_JSON: &str = include_str!("settings_schema_rust.json");
+
+/// The keys of the settings only this port has.
+pub const RUST_ONLY: &[&str] = &["mining", "mining_key", "mining_label_size"];
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Kind {
@@ -63,7 +71,18 @@ struct Schema {
 fn schema() -> &'static Schema {
     static S: OnceLock<Schema> = OnceLock::new();
     S.get_or_init(|| {
-        let described: Value = serde_json::from_str(SCHEMA_JSON).expect("settings_schema.json");
+        let mut described: Value = serde_json::from_str(SCHEMA_JSON).expect("settings_schema.json");
+        let rust: Value =
+            serde_json::from_str(SCHEMA_RUST_JSON).expect("settings_schema_rust.json");
+        described
+            .as_array_mut()
+            .expect("a list of categories")
+            .extend(
+                rust.as_array()
+                    .expect("a list of categories")
+                    .iter()
+                    .cloned(),
+            );
         let cats: Vec<Category> =
             serde_json::from_value(described.clone()).expect("settings_schema.json");
         Schema {
@@ -257,6 +276,13 @@ pub enum AudioMode {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
+pub enum Mining {
+    Off,
+    On,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum RsiSource {
     Sentry,
     Sci,
@@ -342,6 +368,10 @@ pub struct Settings {
     pub tile_size: i64,
     pub tile_square: bool,
     pub show_advanced: bool,
+    // the mining overlay (this port only)
+    pub mining: Mining,
+    pub mining_key: String,
+    pub mining_label_size: i64,
 }
 
 impl Settings {

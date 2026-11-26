@@ -250,3 +250,54 @@ fn iris_reads_the_scanner_the_same() {
         records.len()
     );
 }
+
+/// The tracker over the frames in order, as a session would feed them
+/// (each burst's frames 0.1 s apart): what it locks on and what label the
+/// overlay would show. Checks that the scanner's signals end up named.
+#[test]
+fn the_tracker_names_the_signals() {
+    use scw_vision::mining::MiningSettings;
+    use scw_vision::mining::tracker::{MiningEvent, MiningTracker};
+    let Some(dir) = data() else {
+        eprintln!("skipped: SCW_PARITY_DATA holds no mining/iris_frames.json");
+        return;
+    };
+    let mut names: Vec<String> = std::fs::read_dir(dir.join("frames"))
+        .unwrap()
+        .filter_map(|e| e.ok().map(|e| e.file_name().to_string_lossy().into_owned()))
+        .filter(|n| n.ends_with(".png"))
+        .collect();
+    names.sort();
+    let mut tracker = MiningTracker::new(MiningSettings::default(), MiningTable::embedded());
+    let mut shown = std::collections::BTreeSet::new();
+    for name in &names {
+        // burst_HHMMSS_i.png: the time of day, plus 0.1 s a frame
+        let hms = &name[6..12];
+        let idx: f64 = name[13..14].parse().unwrap();
+        let secs = hms[0..2].parse::<f64>().unwrap() * 3600.0
+            + hms[2..4].parse::<f64>().unwrap() * 60.0
+            + hms[4..6].parse::<f64>().unwrap();
+        let ms = (secs + idx * 0.1) * 1000.0;
+        let img = read_bgr(&dir.join("frames").join(name));
+        let (w, h) = (img.width as i32, img.height as i32);
+        let region = tracker.wanted(w, h);
+        let event = tracker.feed(&crop(&img, region), region, w, h, ms, ms);
+        let label = tracker.label().map(|l| l.text);
+        println!(
+            "   {name}: {} -> {}",
+            match &event {
+                MiningEvent::Searching => "searching".to_string(),
+                MiningEvent::Locked(r, _) => format!("locked {}", r.text),
+                MiningEvent::Read { read, source, .. } =>
+                    format!("read {} {} ({source})", read.state.as_str(), read.text),
+                MiningEvent::Ended => "ended".to_string(),
+            },
+            label.as_deref().unwrap_or("-")
+        );
+        shown.extend(label);
+    }
+    println!("   labels shown: {shown:?}");
+    for want in ["Salvage 5x", "Hephaestanite 4x"] {
+        assert!(shown.iter().any(|s| s == want), "{want} never shown");
+    }
+}

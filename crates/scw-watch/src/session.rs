@@ -74,6 +74,20 @@ pub trait Frames {
     }
     /// Hands the capture device back.
     fn release(&mut self) {}
+    /// Only a part (x, y, width, height) of the next frame - the mining
+    /// overlay's band; None when there is nothing new or it is not inside.
+    fn grab_region(&mut self, r: Rect) -> Option<Image<u8>> {
+        let f = self.grab()?;
+        scw_capture::crop(&f, r.x as usize, r.y as usize, r.w as usize, r.h as usize)
+    }
+    /// The frames' size, when known without grabbing one.
+    fn size(&self) -> Option<(usize, usize)> {
+        None
+    }
+    /// Where the captured screen sits on the desktop.
+    fn origin(&self) -> (i32, i32) {
+        (0, 0)
+    }
 }
 
 /// What the reader made of the last frame it read, for --debug.
@@ -111,6 +125,10 @@ pub trait Keys {
     fn partial(&mut self, i: usize) -> (usize, usize, Vec<String>);
     /// "waiting for ..." in the idle line.
     fn waiting_label(&self) -> String;
+    /// Was the mining overlay's key pressed since it was last asked?
+    fn toggle_pressed(&mut self) -> bool {
+        false
+    }
 }
 
 /// The lookup queue (watch.RsiEnricher, as the session uses it).
@@ -264,6 +282,8 @@ pub struct Session {
     /// Settings changed while running (one process): taken at idle
     /// moments, the fields that need no restart.
     pub live: Option<std::sync::mpsc::Receiver<SessionOptions>>,
+    /// The mining overlay, when its setting is on.
+    pub mining: Option<crate::mining::MiningRun>,
 }
 
 fn pad(s: &str, width: usize) -> String {
@@ -287,6 +307,105 @@ impl Session {
             debug_warned: false,
             restarted: false,
             live: None,
+            mining: None,
+        }
+    }
+
+    /// The mining overlay's turn: its key, then - when a read is due - the
+    /// band it wants, read. `frame` is a whole frame the session already
+    /// has (the always-on loop's); without one, only the band is captured.
+    fn mining_tick(&mut self, frame: Option<&Image<u8>>) {
+        let Some(mut m) = self.mining.take() else {
+            return;
+        };
+        if self.p.keys.toggle_pressed() {
+            let on = m.toggle();
+            let word = if on { "mining on" } else { "mining off" };
+            if let Some(a) = self.p.alerts.as_ref() {
+                a.say(word);
+            }
+            self.con().say(&format!("  {word}"));
+            self.p.log.event(
+                "mining",
+                &[("event", json!(if on { "resumed" } else { "paused" }))],
+            );
+        }
+        let now = self.p.clock.monotonic();
+        if m.due(now) {
+            m.schedule(now);
+            if let Some(msg) = m.reload_table(now) {
+                self.con().say(&format!("  {msg}"));
+                self.p
+                    .log
+                    .event("mining", &[("event", json!("table")), ("text", json!(msg))]);
+            }
+            let got = match frame {
+                Some(f) => {
+                    let (w, h) = (f.width as i32, f.height as i32);
+                    let r = m.wanted(w, h);
+                    scw_capture::crop(f, r.x as usize, r.y as usize, r.w as usize, r.h as usize)
+                        .map(|c| (c, r, w, h))
+                }
+                None => {
+                    let size = m
+                        .size
+                        .or_else(|| self.p.frames.size().map(|(w, h)| (w as i32, h as i32)));
+                    match size {
+                        Some((w, h)) => {
+                            m.size = Some((w, h));
+                            let r = m.wanted(w, h);
+                            self.p.frames.grab_region(r).map(|c| (c, r, w, h))
+                        }
+                        // the size from one whole frame
+                        None => self.grab().and_then(|f| {
+                            let (w, h) = (f.width as i32, f.height as i32);
+                            m.size = Some((w, h));
+                            let r = m.wanted(w, h);
+                            scw_capture::crop(
+                                &f,
+                                r.x as usize,
+                                r.y as usize,
+                                r.w as usize,
+                                r.h as usize,
+                            )
+                            .map(|c| (c, r, w, h))
+                        }),
+                    }
+                }
+            };
+            if let Some((crop, region, w, h)) = got {
+                let (event, label) = m.feed(&crop, region, w, h, now * 1000.0);
+                self.mining_report(&event, label);
+            }
+        }
+        self.mining = Some(m);
+    }
+
+    /// What a mining read did, for the log: locks, endings, and each new
+    /// label text.
+    fn mining_report(
+        &mut self,
+        event: &scw_vision::mining::tracker::MiningEvent,
+        label: Option<Option<String>>,
+    ) {
+        use scw_vision::mining::tracker::MiningEvent;
+        match event {
+            MiningEvent::Locked(read, _) => self.p.log.event(
+                "mining",
+                &[
+                    ("event", json!("locked")),
+                    ("signal", json!(read.text)),
+                    ("value", json!(read.value)),
+                ],
+            ),
+            MiningEvent::Ended => self.p.log.event("mining", &[("event", json!("ended"))]),
+            _ => {}
+        }
+        if let Some(text) = label {
+            self.p.log.event(
+                "mining",
+                &[("event", json!("label")), ("label", json!(text))],
+            );
         }
     }
 
@@ -857,6 +976,7 @@ impl Session {
                 if self.p.restart.requested() {
                     return Ok(self.restart());
                 }
+                self.mining_tick(None);
                 self.p.clock.sleep(0.03);
                 continue;
             }
@@ -914,8 +1034,12 @@ impl Session {
                 break;
             }
         }
+        let mining = self
+            .mining
+            .as_ref()
+            .map_or_else(String::new, |m| format!(" | {}", m.status()));
         format!(
-            "  idle | {} pings | {} announced{part} | waiting for {}",
+            "  idle | {} pings | {} announced{part} | waiting for {}{mining}",
             self.triggers,
             self.announced,
             self.p.keys.waiting_label()
@@ -952,8 +1076,13 @@ impl Session {
                 self.p.clock.time()
             };
             let n_new = self.tracker.update(&positions, now);
+            self.mining_tick(Some(&frame));
+            let mining = self
+                .mining
+                .as_ref()
+                .map_or_else(String::new, |m| format!(" | {}", m.status()));
             let text = format!(
-                "  watching | {} frames | {} contact(s) on screen | {} tracked | {} announced",
+                "  watching | {} frames | {} contact(s) on screen | {} tracked | {} announced{mining}",
                 self.frames,
                 positions.len(),
                 self.tracker.tracks.len(),

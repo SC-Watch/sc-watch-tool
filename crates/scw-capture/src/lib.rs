@@ -107,6 +107,44 @@ pub trait Source {
     fn exhausted(&self) -> bool {
         false
     }
+
+    /// The frames' size, when it is known without grabbing one.
+    fn size(&self) -> Option<(usize, usize)> {
+        None
+    }
+
+    /// Where the captured screen's top-left corner is on the desktop (what
+    /// an overlay window over it is placed by).
+    fn origin(&self) -> (i32, i32) {
+        (0, 0)
+    }
+
+    /// Only the part (x, y, width, height) of the next frame - the mining
+    /// overlay reads a small band many times a second. By default the whole
+    /// frame, cut down; None too when the part is not inside it.
+    fn grab_region(
+        &mut self,
+        x: usize,
+        y: usize,
+        w: usize,
+        h: usize,
+    ) -> Result<Option<Image<u8>>, CaptureError> {
+        Ok(self.grab()?.and_then(|f| crop(&f, x, y, w, h)))
+    }
+}
+
+/// The part (x, y, width, height) of an image, when it lies inside it.
+pub fn crop(img: &Image<u8>, x: usize, y: usize, w: usize, h: usize) -> Option<Image<u8>> {
+    if w == 0 || h == 0 || x + w > img.width || y + h > img.height {
+        return None;
+    }
+    let cn = img.channels;
+    let mut out = Image::new(w, h, cn);
+    for r in 0..h {
+        let src = img.row(y + r);
+        out.data[r * w * cn..(r + 1) * w * cn].copy_from_slice(&src[x * cn..(x + w) * cn]);
+    }
+    Some(out)
 }
 
 #[cfg(test)]

@@ -548,6 +548,19 @@ fn server_matches_ui_server_py() {
                 ));
             }
         }
+        as_python(&mut got);
+        // settings.json on disk as data on both sides, so the keys only
+        // the port writes can be left out of ours
+        for (v, strip) in [(&mut want, false), (&mut got, true)] {
+            if let Some(f) = v.pointer_mut("/files/settings.json")
+                && let Some(mut parsed) = f.as_str().and_then(|t| serde_json::from_str(t).ok())
+            {
+                if strip {
+                    as_python(&mut parsed);
+                }
+                *f = parsed;
+            }
+        }
         if !same(&want, &got) {
             let label = want.get("step").map_or_else(
                 || want["op"].to_string(),
@@ -566,6 +579,32 @@ fn server_matches_ui_server_py() {
         bad.len(),
         bad.join("\n")
     );
+}
+
+/// The port's answer as ui_server.py would give it: without the settings
+/// only the port has (the mining overlay) - out of every settings map, and
+/// their category out of every schema.
+fn as_python(v: &mut Value) {
+    let rust_only = scw_store::settings::RUST_ONLY;
+    match v {
+        Value::Object(m) => {
+            if rust_only.iter().all(|k| m.contains_key(*k)) {
+                for k in rust_only {
+                    m.shift_remove(*k);
+                }
+            }
+            for (_, x) in m.iter_mut() {
+                as_python(x);
+            }
+        }
+        Value::Array(a) => {
+            a.retain(|c| !(c.get("fields").is_some() && c.get("key") == Some(&json!("mining"))));
+            for x in a.iter_mut() {
+                as_python(x);
+            }
+        }
+        _ => {}
+    }
 }
 
 /// Where two values first differ, as a path and the two sides.

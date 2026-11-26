@@ -65,6 +65,8 @@ pub trait AlertSink: Send + Sync {
     /// "trigger", "contact", "nothing", "flagged", ...
     fn event(&self, kind: &str, handle: Option<&str>, flags: &[String], range_km: Option<f64>);
     fn burst_result(&self, contacts: &[Spoken]);
+    /// Speaks a line as it is (the mining overlay's "mining on" / "off").
+    fn say(&self, _text: &str) {}
     fn close(&self) {}
     fn health(&self) -> AudioHealth {
         AudioHealth::default()

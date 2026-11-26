@@ -165,6 +165,9 @@ pub struct OutputInfo {
     pub width: i32,
     pub height: i32,
     pub rotated: bool,
+    /// The monitor's top-left corner on the desktop.
+    pub left: i32,
+    pub top: i32,
 }
 
 /// The first adapter that has outputs, and its outputs in order -
@@ -216,6 +219,8 @@ fn info_of(monitor: usize, output: &IDXGIOutput) -> Result<OutputInfo, CaptureEr
         height: r.bottom - r.top,
         rotated: d.Rotation != DXGI_MODE_ROTATION_IDENTITY
             && d.Rotation != DXGI_MODE_ROTATION_UNSPECIFIED,
+        left: r.left,
+        top: r.top,
     })
 }
 
@@ -429,8 +434,15 @@ impl DesktopSource {
     }
 }
 
-impl Source for DesktopSource {
-    fn grab(&mut self) -> Result<Option<Image<u8>>, CaptureError> {
+impl DesktopSource {
+    /// The next frame, whole or only `part` (x, y, width, height): the
+    /// whole texture is copied on the GPU either way, but only the part is
+    /// read back and converted - for the mining overlay's band, a few
+    /// hundredths of the work of a 5120x1440 frame (an HDR one most of all).
+    fn take(
+        &mut self,
+        part: Option<(usize, usize, usize, usize)>,
+    ) -> Result<Option<Image<u8>>, CaptureError> {
         if self.dup.is_none() {
             self.reopen();
         }
@@ -477,13 +489,34 @@ impl Source for DesktopSource {
                 .map_err(|e| sys("Map", e))?;
         }
         let pitch = mapped.RowPitch as usize;
+        // The part, inside the frame, or the whole frame.
+        let (px, py, pw, ph) = match part {
+            Some((x, y, pw, ph)) if pw > 0 && ph > 0 && x + pw <= w && y + ph <= h => {
+                (x, y, pw, ph)
+            }
+            Some(_) => {
+                unsafe { self.context.Unmap(&staging, 0) };
+                return Ok(None);
+            }
+            None => (0, 0, w, h),
+        };
+        let whole = (px, py, pw, ph) == (0, 0, w, h);
         let img = if desc.Format == DXGI_FORMAT_R16G16B16A16_FLOAT {
             let t = Instant::now();
             // One straight copy out of the mapped memory first: scattered
             // table reads are far slower there than from ordinary memory.
-            let raw: Vec<u16> =
-                unsafe { std::slice::from_raw_parts(mapped.pData as *const u16, pitch / 2 * h) }
-                    .to_vec();
+            let all =
+                unsafe { std::slice::from_raw_parts(mapped.pData as *const u16, pitch / 2 * h) };
+            let (raw, w, h, pitch): (Vec<u16>, usize, usize, usize) = if whole {
+                (all.to_vec(), w, h, pitch)
+            } else {
+                let mut out = Vec::with_capacity(pw * 4 * ph);
+                for r in py..py + ph {
+                    let start = r * (pitch / 2) + px * 4;
+                    out.extend_from_slice(&all[start..start + pw * 4]);
+                }
+                (out, pw, ph, pw * 8)
+            };
             // A float frame when 8-bit was asked for (only the blank first
             // frame has been seen to, and it is passed over): converted at 80
             // nits, which is what Windows' own 8-bit copy of an HDR desktop
@@ -500,12 +533,47 @@ impl Source for DesktopSource {
             img
         } else {
             let raw = unsafe { std::slice::from_raw_parts(mapped.pData as *const u8, pitch * h) };
-            bgra_to_bgr(raw, w, h, pitch)
+            if whole {
+                bgra_to_bgr(raw, w, h, pitch)
+            } else {
+                let mut out = Vec::with_capacity(pw * 4 * ph);
+                for r in py..py + ph {
+                    let start = r * pitch + px * 4;
+                    out.extend_from_slice(&raw[start..start + pw * 4]);
+                }
+                bgra_to_bgr(&out, pw, ph, pw * 4)
+            }
         };
         unsafe { self.context.Unmap(&staging, 0) };
         self.format = Some(desc.Format);
         self.frames += 1;
         Ok(Some(img))
+    }
+}
+
+impl Source for DesktopSource {
+    fn grab(&mut self) -> Result<Option<Image<u8>>, CaptureError> {
+        self.take(None)
+    }
+
+    fn grab_region(
+        &mut self,
+        x: usize,
+        y: usize,
+        w: usize,
+        h: usize,
+    ) -> Result<Option<Image<u8>>, CaptureError> {
+        self.take(Some((x, y, w, h)))
+    }
+
+    /// Unrotated monitors only: a rotated one's frames are learnt by
+    /// grabbing one.
+    fn size(&self) -> Option<(usize, usize)> {
+        (!self.info.rotated).then_some((self.info.width as usize, self.info.height as usize))
+    }
+
+    fn origin(&self) -> (i32, i32) {
+        (self.info.left, self.info.top)
     }
 
     fn describe(&self) -> String {

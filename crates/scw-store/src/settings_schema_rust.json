@@ -1,0 +1,51 @@
+[
+ {
+  "key": "mining",
+  "label": "Mining overlay",
+  "blurb": "What a scanned rock is, drawn under the scanner's signal. Off by default: while off, none of it runs.",
+  "fields": [
+   {
+    "key": "mining",
+    "label": "Mining overlay",
+    "type": "choice",
+    "default": "off",
+    "help": "Reads the mining scanner's signal - the number above the compass - and draws what it is just under it: the rock and how many, from IRIS's table of signals (your copy: mining.txt in the data folder). A click-through window over the game, which needs borderless windowed. 'off' runs none of it: nothing read, nothing captured for it, no window.",
+    "choices": [
+     "off",
+     "on"
+    ],
+    "lo": null,
+    "hi": null,
+    "unit": "",
+    "restart": "watcher",
+    "advanced": false
+   },
+   {
+    "key": "mining_key",
+    "label": "Mining overlay key",
+    "type": "str",
+    "default": "off",
+    "help": "With the overlay on: each press pauses it or carries on, and says 'mining off' or 'mining on'. While paused nothing is read or drawn. A single character, a name like f8, or a joystick button like joy0.b12. 'off' means no key: it runs all the time.",
+    "choices": [],
+    "lo": null,
+    "hi": null,
+    "unit": "",
+    "restart": "watcher",
+    "advanced": false
+   },
+   {
+    "key": "mining_label_size",
+    "label": "Mining label size",
+    "type": "int",
+    "default": 150,
+    "help": "The label's letters, as a share of the signal's own digit height. IRIS's default is 150.",
+    "choices": [],
+    "lo": 50,
+    "hi": 400,
+    "unit": "%",
+    "restart": "watcher",
+    "advanced": false
+   }
+  ]
+ }
+]

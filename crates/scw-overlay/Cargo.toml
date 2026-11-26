@@ -1,0 +1,25 @@
+[package]
+name = "scw-overlay"
+description = "sc-watch's mining overlay: the label drawn in Rust, shown in a click-through window over the game"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+ab_glyph = "0.2"
+
+[dev-dependencies]
+# Only for examples/draw_label.rs: the drawn labels as a picture.
+png = "0.17"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_HiDpi",
+    "Win32_System_LibraryLoader",
+] }
