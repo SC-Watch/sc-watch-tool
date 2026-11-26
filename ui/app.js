@@ -1802,7 +1802,25 @@ function renderSettings(){
   }
   setPanel.innerHTML=`<h2>${esc(cat.label)}</h2>
     <div class="blurb">${esc(cat.blurb||'')}</div>${body}`;
+  if(data.stats.one_program) oneProgramNeeds(setPanel); // rust-only
 }
+// rust-only {
+// In sc-watch the watcher and the page are one program (stats.one_program,
+// and one_program in a save's answer): saving a watcher setting restarts
+// the watcher by itself, and the page's own two (port, browser) apply when
+// sc-watch next starts. The Python's words ask you to restart them.
+function oneProgramNote(f){
+  if(!f||!f.restart) return '';
+  return f.restart==='watcher' ? ' — the watcher restarts with it'
+       : ' — applies when sc-watch next starts';
+}
+function oneProgramNeeds(panel){
+  for(const el of panel.querySelectorAll('.needs')){
+    el.textContent = el.textContent.includes('watcher') ? 'restarts the watcher'
+                   : 'applies when sc-watch next starts';
+  }
+}
+// } rust-only
 
 setNav.addEventListener('click', ev=>{
   const b=ev.target.closest('button[data-cat]');
@@ -1829,6 +1847,7 @@ setPanel.addEventListener('change', async ev=>{
     const shown=j.values[key];
     say(`saved ${f?f.label.toLowerCase():key} = ${shown}`+
         (f&&f.restart?` — restart the ${f.restart} to apply`:''));
+    if(j.one_program) say(`saved ${f?f.label.toLowerCase():key} = ${shown}`+oneProgramNote(f)); // rust-only
     // Re-render only when the change alters what the form shows.
     applyTileSize();
     if(key==='show_advanced'){ renderSettings(); }
@@ -2151,6 +2170,7 @@ setPanel.addEventListener('click', async ev=>{
       data.stats.settings=j.values;
       say(`reset ${f.label.toLowerCase()} to ${f.default}`+
           (f.restart?` — restart the ${f.restart} to apply`:''));
+      if(j.one_program) say(`reset ${f.label.toLowerCase()} to ${f.default}`+oneProgramNote(f)); // rust-only
       renderSettings();
       applyTileSize();
     }catch(e){ say('could not reset: '+e.message); }

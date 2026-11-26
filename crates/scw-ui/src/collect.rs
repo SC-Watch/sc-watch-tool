@@ -815,6 +815,11 @@ impl Ui {
         if let Some((_, Some(v))) = self.board.as_ref().map(|b| b.get()) {
             stats.insert("mining".into(), v);
         }
+        // Not in the Python: the watcher and the page are one program, so
+        // saving a watcher setting restarts it by itself.
+        if self.links.is_some() {
+            stats.insert("one_program".into(), json!(true));
+        }
         Ok(json!({"contacts": contacts, "stats": stats, "now": now}))
     }
 

@@ -345,7 +345,9 @@ fn one_process() {
     wait_until("the second session to idle", 5.0, || {
         probe.polls.load(Ordering::Relaxed) > polls + 3
     });
-    post(&ui, "/api/settings", json!({"values": {"burst": 2}}));
+    let out = post(&ui, "/api/settings", json!({"values": {"burst": 2}}));
+    // ...which the page says happens by itself (not "restart the watcher").
+    assert_eq!(out["one_program"], true);
     wait_until("the third session", 5.0, || sessions() == 3);
 
     // Ctrl+C.

@@ -430,6 +430,11 @@ impl Ui {
                 if let Some(ch) = &self.changes {
                     ch.bump();
                 }
+                // Not in the Python: in one program a watcher setting
+                // restarts the watcher by itself - the page says so.
+                if self.links.is_some() {
+                    return Ok(json!({"ok": true, "values": saved, "one_program": true}));
+                }
                 return Ok(json!({"ok": true, "values": saved}));
             }
             "/api/maintenance" => return self.maintenance(p),
