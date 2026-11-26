@@ -19,9 +19,6 @@ use scw_vision::{Image, Rect};
 
 use crate::sinks::Console;
 
-/// How long the last rock's label stays after the game drops its number.
-const LABEL_HOLD_MS: f64 = 10_000.0;
-
 /// A table file larger than this is not read (IRIS 2.1's limit).
 const TABLE_MAX_BYTES: u64 = 1024 * 1024;
 
@@ -133,6 +130,8 @@ pub struct MiningRun {
     told_screen: Option<(i32, i32)>,
     /// When the tracker last had a label (ms).
     label_seen_ms: f64,
+    /// How long a label stays after the tracker lost it (ms).
+    pub hold_ms: f64,
     /// The pause key, for the banner; None without one.
     pub key: Option<String>,
 }
@@ -159,6 +158,7 @@ impl MiningRun {
             shown: None,
             told_screen: None,
             label_seen_ms: f64::NEG_INFINITY,
+            hold_ms: 10_000.0,
             key,
         }
     }
@@ -282,12 +282,12 @@ impl MiningRun {
             .tracker
             .feed(crop, region, width, height, now_ms, now_ms);
         // The game drops and flashes its own number: the last rock's label
-        // stays up for LABEL_HOLD_MS after it went, unless another replaces
+        // stays up for the hold (setting mining_label_hold) after it went, unless another replaces
         // it (not IRIS, whose label goes with the lock).
         let mut label = self.tracker.label();
         if label.is_some() {
             self.label_seen_ms = now_ms;
-        } else if self.shown.is_some() && now_ms - self.label_seen_ms < LABEL_HOLD_MS {
+        } else if self.shown.is_some() && now_ms - self.label_seen_ms < self.hold_ms {
             label = self.shown.clone();
         }
         let text_changed = label.as_ref().map(|l| &l.text) != self.shown.as_ref().map(|l| &l.text);

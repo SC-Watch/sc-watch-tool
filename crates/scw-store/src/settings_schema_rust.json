@@ -34,6 +34,19 @@
     "advanced": false
    },
    {
+    "key": "mining_label_hold",
+    "label": "Keep the last label",
+    "type": "float",
+    "default": 10.0,
+    "help": "The game drops and flashes its own signal number; the label stays up this long after it went, unless another rock's label replaces it. 0 takes it down with the number, as IRIS does.",
+    "choices": [],
+    "lo": 0.0,
+    "hi": 60.0,
+    "unit": "s",
+    "restart": "watcher",
+    "advanced": false
+   },
+   {
     "key": "mining_label_size",
     "label": "Mining label size",
     "type": "int",

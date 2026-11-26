@@ -27,7 +27,12 @@ const SCHEMA_JSON: &str = include_str!("settings_schema.json");
 const SCHEMA_RUST_JSON: &str = include_str!("settings_schema_rust.json");
 
 /// The keys of the settings only this port has.
-pub const RUST_ONLY: &[&str] = &["mining", "mining_key", "mining_label_size"];
+pub const RUST_ONLY: &[&str] = &[
+    "mining",
+    "mining_key",
+    "mining_label_hold",
+    "mining_label_size",
+];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -371,6 +376,7 @@ pub struct Settings {
     // the mining overlay (this port only)
     pub mining: Mining,
     pub mining_key: String,
+    pub mining_label_hold: f64,
     pub mining_label_size: i64,
 }
 

@@ -640,7 +640,14 @@ pub fn build_session(
                     Box::new(crate::mining::ConsoleView::new(con.clone()))
                 }
             };
-        let run = crate::mining::MiningRun::new(view, roots.data(&["mining.txt"]), toggle_label);
+        let mut run =
+            crate::mining::MiningRun::new(view, roots.data(&["mining.txt"]), toggle_label);
+        run.hold_ms = cur
+            .get("mining_label_hold")
+            .and_then(Value::as_f64)
+            .unwrap_or(10.0)
+            .max(0.0)
+            * 1000.0;
         println!(
             "mining overlay     on - labels in {}; {}",
             run.describe(),

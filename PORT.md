@@ -550,7 +550,8 @@ The steps, each checked before the next:
    it, unmapped when hidden. Where neither opens, the labels are said in
    the console.
 5. **Settings and the key** - **built**. `mining` (off | on, default off),
-   `mining_key` (default off) and `mining_label_size` (IRIS's 150 %) are this
+   `mining_key` (default off), `mining_label_hold` and `mining_label_size`
+   (IRIS's 150 %) are this
    port's own settings: `settings_schema_rust.json`, after settings.py's
    schema, its own "Mining overlay" category on the page. Every comparison
    with the Python leaves them out (`settings::RUST_ONLY`: settings_ops,
@@ -564,6 +565,13 @@ The steps, each checked before the next:
    time so it can be edited, read again within a second of a change (as
    IRIS's MiningTableSource; IRIS 2.1's 1 MB limit; an older edited copy
    is named as such). Not yet: the page showing the overlay's state.
+   Deliberately not IRIS: the game drops and flashes its own signal number,
+   and the label went with it; the last rock's label stays up for
+   `mining_label_hold` seconds (10 by default; 0 = IRIS's way) after the
+   tracker lost it, unless another rock's label replaces it. Signals that
+   are no single rock's multiple (mixed clusters: 23,140 and 24,270 in the
+   user's frames have hundreds of rock combinations each) get no label, as
+   in IRIS.
 
 Credit: IRIS's mining reader, digit shapes and table are on the licence
 page (`about.hbs`) with its name reader.
