@@ -159,6 +159,10 @@ pub struct Ui {
     /// Commits in this process, so the stream redraws at once (None: it
     /// looks every 0.4 s, as the Python's).
     pub changes: Option<Arc<Changes>>,
+    /// What the watcher in the same process is doing that no database
+    /// holds (the mining overlay): `stats.mining` while it has something,
+    /// absent otherwise - and always without one, as the Python's page.
+    pub board: Option<Arc<scw_store::board::Board>>,
     pub links: Option<Links>,
     state: Mutex<State>,
 }
@@ -326,6 +330,7 @@ impl Ui {
             hooks,
             shutting_down: AtomicBool::new(false),
             changes: None,
+            board: None,
             links: None,
             state: Mutex::new(State::default()),
         }

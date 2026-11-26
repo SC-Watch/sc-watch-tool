@@ -48,6 +48,7 @@ fn run() -> i32 {
             }),
             stop,
             changes: None,
+            board: None,
         }
     });
     match built {

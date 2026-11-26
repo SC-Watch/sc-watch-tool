@@ -290,7 +290,7 @@ fn the_tracker_names_the_signals() {
                 MiningEvent::Locked(r, _) => format!("locked {}", r.text),
                 MiningEvent::Read { read, source, .. } =>
                     format!("read {} {} ({source})", read.state.as_str(), read.text),
-                MiningEvent::Ended => "ended".to_string(),
+                MiningEvent::Ended { .. } => "ended".to_string(),
             },
             label.as_deref().unwrap_or("-")
         );
@@ -300,4 +300,197 @@ fn the_tracker_names_the_signals() {
     for want in ["Salvage 5x", "Hephaestanite 4x"] {
         assert!(shown.iter().any(|s| s == want), "{want} never shown");
     }
+}
+
+/// The lock as the harness writes it (`--mining-track`).
+fn state_json(s: Option<&scw_vision::mining::state::MiningState>) -> Value {
+    let Some(s) = s else {
+        return Value::Null;
+    };
+    let b = s.signal_box;
+    serde_json::json!({
+        "locked_ms": s.locked_ms.to_bits(), "row_top": s.row_top.to_bits(),
+        "box": [b.x.to_bits(), b.y.to_bits(), b.w.to_bits(), b.h.to_bits()],
+        "dh": s.digit_height.to_bits(),
+        "tc": [s.text_colour.b, s.text_colour.g, s.text_colour.r],
+        "bc": [s.back_colour.b, s.back_colour.g, s.back_colour.r],
+        "value": s.value, "label": s.label,
+    })
+}
+
+/// The tracker - search, lock, the locked reads with their average and
+/// fused scores, the table snap, the label's agreement and hold, the HUD's
+/// colours and geometry, the end - against IRIS's own `MiningWorker` (and
+/// `ScanWorker.SearchMining`) on scripted runs of the real frames:
+/// SCW_PARITY_DATA/mining/track/<name>.txt (one step a line, "<ms> <frame
+/// path under mining/>"; track/moved/ holds frames shifted a few pixels,
+/// for the HUD moving under a lock) and <name>.iris.json, the bench's
+/// `--mining-track` answer. After every
+/// step: what was done (search or locked read), the read's state, text and
+/// source, whether the lock changed, and the whole lock to the bit.
+#[test]
+fn the_tracker_follows_iris() {
+    use scw_vision::mining::MiningSettings;
+    use scw_vision::mining::tracker::{MiningEvent, MiningTracker};
+    let Some(dir) = data() else {
+        eprintln!("skipped: SCW_PARITY_DATA holds no mining/iris_frames.json");
+        return;
+    };
+    let track = dir.join("track");
+    let mut scenarios: Vec<String> = std::fs::read_dir(&track)
+        .map(|d| {
+            d.filter_map(|e| e.ok().map(|e| e.file_name().to_string_lossy().into_owned()))
+                .filter_map(|n| n.strip_suffix(".iris.json").map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    scenarios.sort();
+    if scenarios.is_empty() {
+        eprintln!("skipped: no mining/track/*.iris.json");
+        return;
+    }
+    let mut images: std::collections::HashMap<String, Image<u8>> = Default::default();
+    let mut failures = Vec::new();
+    for name in &scenarios {
+        let steps = std::fs::read_to_string(track.join(format!("{name}.txt"))).unwrap();
+        let want: Vec<Value> = serde_json::from_str(
+            &std::fs::read_to_string(track.join(format!("{name}.iris.json"))).unwrap(),
+        )
+        .unwrap();
+        // "#confident_margin=X" (as the harness): sure reads from a lower
+        // margin, so the lock's geometry and colours follow on this HUD.
+        let mut settings = MiningSettings::default();
+        for l in steps.lines() {
+            if let Some(x) = l.strip_prefix("#confident_margin=") {
+                settings.confident_margin = x.trim().parse().unwrap();
+            }
+        }
+        let mut tracker = MiningTracker::new(settings, MiningTable::embedded());
+        let (mut locks, mut reads, mut ends, mut bad) = (0, 0, 0, 0);
+        let mut labels: Vec<String> = Vec::new();
+        let mut places = std::collections::BTreeSet::new();
+        let lines: Vec<&str> = steps
+            .lines()
+            .filter(|l| !l.trim().is_empty() && !l.starts_with('#'))
+            .collect();
+        assert_eq!(lines.len(), want.len(), "{name}: steps vs answers");
+        for (i, (line, want)) in lines.iter().zip(&want).enumerate() {
+            let (ms, frame) = line.trim().split_once(' ').unwrap();
+            let ms: f64 = ms.parse().unwrap();
+            assert_eq!(want["frame"], frame, "{name} step {i}");
+            assert_eq!(
+                double(&want["ms"]).to_bits(),
+                ms.to_bits(),
+                "{name} step {i}"
+            );
+            let img = images
+                .entry(frame.to_string())
+                .or_insert_with(|| read_bgr(&dir.join(frame)));
+            let (w, h) = (img.width as i32, img.height as i32);
+            let region = tracker.wanted(w, h);
+            let cut = crop(img, region);
+            let mut got = serde_json::Map::new();
+            got.insert("frame".into(), frame.into());
+            got.insert("ms".into(), ms.to_bits().into());
+            if tracker.locked().is_none() {
+                // IRIS's answer has the search's read before the table snap.
+                let read = tracker.reader.search(&cut, region, w, h);
+                got.insert("phase".into(), "search".into());
+                got.insert("state".into(), read.state.as_str().into());
+                got.insert("text".into(), read.text.clone().into());
+            } else {
+                got.insert("phase".into(), "read".into());
+            }
+            match tracker.feed(&cut, region, w, h, ms, ms) {
+                MiningEvent::Searching => {}
+                MiningEvent::Locked(..) => locks += 1,
+                MiningEvent::Read {
+                    read,
+                    source,
+                    changed,
+                } => {
+                    reads += 1;
+                    got.insert("state".into(), read.state.as_str().into());
+                    got.insert("text".into(), read.text.into());
+                    got.insert("src".into(), source.into());
+                    got.insert("sent".into(), changed.into());
+                }
+                MiningEvent::Ended { read, source } => {
+                    reads += 1;
+                    ends += 1;
+                    got.insert("state".into(), read.state.as_str().into());
+                    got.insert("text".into(), read.text.into());
+                    got.insert("src".into(), source.into());
+                    got.insert("sent".into(), true.into());
+                }
+            }
+            got.insert("mining".into(), state_json(tracker.locked()));
+            if !got["mining"].is_null() {
+                let m = &got["mining"];
+                places.insert(format!(
+                    "{} {} {} {}",
+                    m["locked_ms"], m["box"], m["tc"], m["bc"]
+                ));
+            }
+            if let Some(l) = tracker.locked().and_then(|l| l.label.clone())
+                && labels.last() != Some(&l)
+            {
+                labels.push(l);
+            }
+            let got = Value::Object(got);
+            let mut diff: Vec<String> = Vec::new();
+            for k in ["phase", "state", "text", "src", "sent"] {
+                if got[k] != want[k] {
+                    diff.push(format!("{k} {} vs {}", want[k], got[k]));
+                }
+            }
+            match (&got["mining"], &want["mining"]) {
+                (Value::Null, Value::Null) => {}
+                (Value::Null, _) | (_, Value::Null) => diff.push(format!(
+                    "lock {} vs {}",
+                    if want["mining"].is_null() {
+                        "none"
+                    } else {
+                        "held"
+                    },
+                    if got["mining"].is_null() {
+                        "none"
+                    } else {
+                        "held"
+                    }
+                )),
+                (g, wv) => {
+                    for k in ["box", "tc", "bc", "value", "label"] {
+                        if g[k] != wv[k] {
+                            diff.push(match k {
+                                "value" | "label" => format!("{k} {} vs {}", wv[k], g[k]),
+                                _ => k.to_string(),
+                            });
+                        }
+                    }
+                    for k in ["locked_ms", "row_top", "dh"] {
+                        if !same_double(&g[k], &wv[k]) {
+                            diff.push(k.to_string());
+                        }
+                    }
+                }
+            }
+            if !diff.is_empty() {
+                bad += 1;
+                if failures.len() < 20 {
+                    failures.push(format!("{name} step {i} ({frame}): {}", diff.join(", ")));
+                }
+            }
+        }
+        println!(
+            "   {name}: {} steps, {locks} locks, {reads} locked reads, {ends} ends, {} places/colourings, {bad} differ; labels in turn: {labels:?}",
+            lines.len(),
+            places.len()
+        );
+    }
+    assert!(
+        failures.is_empty(),
+        "differs from IRIS:\n{}",
+        failures.join("\n")
+    );
 }

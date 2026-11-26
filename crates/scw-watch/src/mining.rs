@@ -12,6 +12,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::SystemTime;
 
+use scw_store::board::Board;
 use scw_vision::mining::MiningSettings;
 use scw_vision::mining::table::{EMBEDDED_TEXT, MiningTable};
 use scw_vision::mining::tracker::{MiningEvent, MiningLabel, MiningTracker};
@@ -134,6 +135,8 @@ pub struct MiningRun {
     pub hold_ms: f64,
     /// The pause key, for the banner; None without one.
     pub key: Option<String>,
+    /// Where the page in the same process reads what it is doing.
+    board: Option<Arc<Board>>,
 }
 
 impl MiningRun {
@@ -160,11 +163,51 @@ impl MiningRun {
             label_seen_ms: f64::NEG_INFINITY,
             hold_ms: 10_000.0,
             key,
+            board: None,
         }
     }
 
     pub fn describe(&self) -> String {
         self.view.describe()
+    }
+
+    /// Says what it is doing on `board` from now on (the page in the same
+    /// process); with the hold set first, as the page shows it.
+    pub fn set_board(&mut self, board: Option<Arc<Board>>) {
+        self.board = board;
+        self.publish();
+    }
+
+    /// What the page shows (`stats.mining`): `state` is paused, looking (no
+    /// signal locked), reading (a signal locked, nothing in the table for
+    /// it - a mix of rocks, or not read for sure yet) or showing; `label`
+    /// the text over the game; `held` when the game dropped its number and
+    /// the label is kept for the hold.
+    pub fn page_state(&self) -> serde_json::Value {
+        let held = self.shown.is_some() && self.tracker.label().is_none();
+        let state = if !self.active {
+            "paused"
+        } else if self.shown.is_some() {
+            "showing"
+        } else if self.tracker.locked().is_some() {
+            "reading"
+        } else {
+            "looking"
+        };
+        serde_json::json!({
+            "state": state,
+            "label": self.shown.as_ref().map(|l| l.text.clone()),
+            "held": held,
+            "key": self.key,
+            "hold_s": self.hold_ms / 1000.0,
+        })
+    }
+
+    /// Tells the board; an unchanged state wakes no one.
+    fn publish(&self) {
+        if let Some(b) = &self.board {
+            b.set(Some(self.page_state()));
+        }
     }
 
     /// The idle line's part.
@@ -198,6 +241,7 @@ impl MiningRun {
             self.tracker.reset();
             self.set_shown(None);
         }
+        self.publish();
         self.active
     }
 
@@ -295,6 +339,7 @@ impl MiningRun {
         if changed {
             self.set_shown(label.clone());
         }
+        self.publish();
         (event, text_changed.then(|| label.map(|l| l.text)))
     }
 
@@ -307,5 +352,54 @@ impl MiningRun {
 impl Drop for MiningRun {
     fn drop(&mut self) {
         self.view.show(None);
+        // Off, or the session ended: the page shows nothing for it.
+        if let Some(b) = &self.board {
+            b.set(None);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    struct Nowhere;
+
+    impl MiningView for Nowhere {
+        fn show(&mut self, _: Option<&MiningLabel>) {}
+        fn describe(&self) -> String {
+            "nowhere".into()
+        }
+    }
+
+    #[test]
+    fn the_page_is_told_what_it_does() {
+        let dir = std::env::temp_dir().join(format!("scw-mining-board-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let board = Arc::new(Board::new(None));
+        let state = || {
+            board
+                .get()
+                .1
+                .map(|v| (v["state"].clone(), v["key"].clone(), v["hold_s"].clone()))
+        };
+        let mut run = MiningRun::new(Box::new(Nowhere), dir.join("mining.txt"), Some("f8".into()));
+        run.hold_ms = 4_000.0;
+        assert_eq!(
+            board.get(),
+            (0, None),
+            "nothing before it is given the board"
+        );
+        run.set_board(Some(board.clone()));
+        assert_eq!(state(), Some((json!("looking"), json!("f8"), json!(4.0))));
+        assert!(!run.toggle());
+        assert_eq!(state(), Some((json!("paused"), json!("f8"), json!(4.0))));
+        assert!(run.toggle());
+        assert_eq!(state(), Some((json!("looking"), json!("f8"), json!(4.0))));
+        assert_eq!(board.get().1.unwrap()["label"], json!(null));
+        drop(run);
+        assert_eq!(board.get().1, None, "gone when the run ends");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

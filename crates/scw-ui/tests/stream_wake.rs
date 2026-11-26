@@ -144,3 +144,106 @@ fn a_commit_wakes_the_stream() {
     stream.join().unwrap();
     let _ = std::fs::remove_dir_all(&base);
 }
+
+/// The mining overlay's state (the board the watcher in the same process
+/// writes): absent from the page until there is one, then on the stream at
+/// once when it changes, and gone again when it is taken down.
+#[test]
+fn the_board_shows_on_the_stream() {
+    let base = std::env::temp_dir().join(format!("scw-ui-board-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&base);
+    std::fs::create_dir_all(base.join("data")).unwrap();
+    drop(Database::open(&base.join("data").join("sc-watch.db")).unwrap());
+    let roots = Roots {
+        mode: Mode::Chosen,
+        program: base.join("program"),
+        data: base.join("data"),
+    };
+    let mut ui = Ui::new(
+        roots,
+        Arc::new(NoSleep),
+        Arc::new(NoNet),
+        Hooks {
+            spawn: Box::new(|job| job()),
+            reveal: Box::new(|_| Ok(())),
+            speak: Box::new(|_| Ok(())),
+            input: Box::new(|| panic!("no keys")),
+            env: Arc::new(|_| None),
+            today: Box::new(|| chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap()),
+            utc: true,
+        },
+    );
+    let changes = Arc::new(Changes::default());
+    let board = Arc::new(scw_store::board::Board::new(Some(changes.clone())));
+    ui.changes = Some(changes.clone());
+    ui.board = Some(board.clone());
+    let ui = Arc::new(ui);
+    let mining = |frame: &str| -> serde_json::Value {
+        let v: serde_json::Value =
+            serde_json::from_str(frame.trim_start_matches("data: ").trim()).unwrap();
+        v["stats"]
+            .get("mining")
+            .cloned()
+            .unwrap_or(serde_json::Value::Null)
+    };
+
+    let frames = Frames::default();
+    let going = Arc::new(AtomicBool::new(true));
+    let stream = {
+        let (ui, frames, going) = (ui.clone(), frames.clone(), going.clone());
+        std::thread::spawn(move || {
+            let mut out = frames;
+            ui.stream(&mut out, None, "", &|| going.load(Ordering::Relaxed));
+        })
+    };
+    let wait = |what: &str, ok: &dyn Fn() -> bool| {
+        let until = Instant::now() + Duration::from_secs(5);
+        while !ok() {
+            assert!(Instant::now() < until, "timed out waiting for {what}");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    };
+    wait("the first frame", &|| !frames.0.lock().unwrap().is_empty());
+    assert!(
+        mining(&frames.0.lock().unwrap()[0].1).is_null(),
+        "no mining state before the watcher gives one"
+    );
+    std::thread::sleep(Duration::from_millis(200));
+
+    let state = serde_json::json!({"state": "showing", "label": "EXMPL Rock 2x", "held": false});
+    let at = Instant::now();
+    board.set(Some(state.clone()));
+    wait("the label on the stream", &|| {
+        frames
+            .0
+            .lock()
+            .unwrap()
+            .iter()
+            .any(|(_, f)| mining(f) == state)
+    });
+    let shown = frames
+        .0
+        .lock()
+        .unwrap()
+        .iter()
+        .find(|(_, f)| mining(f) == state)
+        .map(|(t, _)| *t)
+        .unwrap();
+    assert!(shown.duration_since(at).as_secs_f64() < 0.5, "not at once");
+    // The same state again is no change: no frame.
+    let n = frames.0.lock().unwrap().len();
+    board.set(Some(state.clone()));
+    std::thread::sleep(Duration::from_millis(300));
+    assert_eq!(frames.0.lock().unwrap().len(), n, "a frame for no change");
+    // Taken down (overlay off, session over): gone from the page.
+    board.set(None);
+    wait("the state gone", &|| {
+        frames.0.lock().unwrap().len() > n
+            && mining(&frames.0.lock().unwrap().last().unwrap().1).is_null()
+    });
+
+    going.store(false, Ordering::Relaxed);
+    changes.bump();
+    stream.join().unwrap();
+    let _ = std::fs::remove_dir_all(&base);
+}

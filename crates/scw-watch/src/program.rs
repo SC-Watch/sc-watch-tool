@@ -349,6 +349,9 @@ pub struct Shared {
     pub stop: Arc<AtomicBool>,
     /// Told about every commit (the page in the same process).
     pub changes: Option<Arc<Changes>>,
+    /// Where the mining overlay says what it is doing, for the page in the
+    /// same process.
+    pub board: Option<Arc<scw_store::board::Board>>,
 }
 
 /// The parsed arguments, and argparse's namespace they came from.
@@ -544,6 +547,7 @@ pub fn build_session(
         restart,
         stop,
         changes,
+        board,
     } = make(args);
     let dbg = Arc::new(DebugLog::open(
         &roots.data,
@@ -648,6 +652,7 @@ pub fn build_session(
             .unwrap_or(10.0)
             .max(0.0)
             * 1000.0;
+        run.set_board(board);
         println!(
             "mining overlay     on - labels in {}; {}",
             run.describe(),

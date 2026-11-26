@@ -531,6 +531,9 @@ body.no-square .tile{aspect-ratio:auto}
 .chip.warn{color:var(--amber);border-color:#4a3a1d}
 .chip.bad{color:var(--red);border-color:#4a1d25}
 header .stat:has(#s-orgs),header .stat:has(#s-audits),header .stat:has(#s-reports){cursor:pointer}
+/* rust-only { the mining overlay's state in the header */
+header .stat:has(#s-mining){cursor:pointer}
+/* } rust-only */
 .tile .notmet{color:var(--muted);font-size:.85em;letter-spacing:.04em}
 /* The audit view is a filter on the grid, so the count says it is on. */
 header .stat.on{border-bottom:1px solid var(--cyan);padding-bottom:2px}

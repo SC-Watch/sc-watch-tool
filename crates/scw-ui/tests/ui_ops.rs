@@ -87,6 +87,30 @@ impl InputState for Stick {
     }
 }
 
+/// A page file as the Python serves it: without this port's own lines -
+/// those between a line saying `rust-only {` and one saying `} rust-only`,
+/// and single lines ending in `// rust-only` (the mining overlay's state in
+/// the header). Everything else must still be the Python's to the byte.
+fn python_view(body: &[u8]) -> Vec<u8> {
+    let Ok(text) = std::str::from_utf8(body) else {
+        return body.to_vec();
+    };
+    let mut out = String::with_capacity(text.len());
+    let mut inside = false;
+    for line in text.split_inclusive('\n') {
+        let bare = line.trim_end();
+        if inside {
+            inside = !bare.contains("} rust-only");
+        } else if bare.contains("rust-only {") {
+            inside = true;
+        } else if !bare.ends_with("// rust-only") {
+            out.push_str(line);
+        }
+    }
+    assert!(!inside, "a rust-only block never closed");
+    out.into_bytes()
+}
+
 /// SHA-1, for comparing the files served.
 fn sha1(data: &[u8]) -> String {
     let mut h: [u32; 5] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
@@ -466,6 +490,7 @@ fn server_matches_ui_server_py() {
                             loosen(&mut v);
                             out.insert("json".into(), v);
                         } else {
+                            let body = python_view(&body);
                             out.insert("sha1".into(), json!(sha1(&body)));
                             out.insert("bytes".into(), json!(body.len()));
                         }

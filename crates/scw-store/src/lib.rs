@@ -3,6 +3,7 @@
 //! jsonstore.py keeps them) and the SQLite databases ([`db`] opens them as
 //! dbopen.py does; [`reputation`] is sc-watch.db, [`watchlist`] watchlist.db).
 
+pub mod board;
 pub mod bundle;
 pub mod db;
 pub mod flags;

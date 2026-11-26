@@ -125,8 +125,12 @@ pub enum MiningEvent {
         source: &'static str,
         changed: bool,
     },
-    /// The signal has been gone for the hold time: unlocked.
-    Ended,
+    /// The signal has been gone for the hold time: unlocked. The read that
+    /// ended it, and where it came from (as for `Read`).
+    Ended {
+        read: SignalRead,
+        source: &'static str,
+    },
 }
 
 /// The tracker: search, lock, read, label.
@@ -333,7 +337,7 @@ impl MiningTracker {
             self.locked = None;
             self.state = None;
             self.state_locked_ms = f64::NAN;
-            return MiningEvent::Ended;
+            return MiningEvent::Ended { read, source };
         }
         let state = self.state.as_ref().expect("the label's state");
         let colours = self.colours.as_ref().expect("the label's colours");

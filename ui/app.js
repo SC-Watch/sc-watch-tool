@@ -2447,8 +2447,34 @@ function renderStats(){
   s_reports.parentElement.classList.toggle('on', viewOn('reports'));
   renderKeyBar();
   renderOldBar();
+  renderMining(s.mining); // rust-only
   s_pending.parentElement.style.color=s.pending?'var(--amber)':'';
 }
+// rust-only { - lines marked so are this port's own; without them the page
+// files are the Python's to the byte (scw-ui's tests/ui_ops.rs checks it).
+// The mining overlay's state, sent only while the watcher in the same
+// program runs it (absent: the overlay is off, or the page runs alone).
+function renderMining(m){
+  s_miningWrap.hidden=!m;
+  if(!m) return;
+  const said={paused:'paused', reading:'no match', looking:'looking'};
+  s_mining.textContent=m.state==='showing' ? m.label+(m.held?' (kept)':'') : (said[m.state]||m.state);
+  s_miningWrap.style.color=m.state==='showing'?'var(--cyan)':m.state==='paused'?'var(--amber)':'';
+  const now={
+    paused:'Paused by its key: nothing is read or drawn until you press it again.',
+    reading:'A signal is locked, but the table names nothing for it - most likely '+
+            'a mix of rocks, or a number not read for sure yet.',
+    looking:'Looking for the scanner\'s signal above the compass.',
+    showing:m.held
+      ? 'The game dropped its number; the label stays for '+m.hold_s+' s unless another rock\'s replaces it.'
+      : 'This label is over the game now.',
+  }[m.state]||'';
+  s_miningWrap.title='The mining overlay. '+now+'\n'+
+    (m.key ? m.key+' pauses it and starts it again.' : 'No pause key: it runs all the time.')+
+    '\nClick for its settings.';
+}
+
+// } rust-only
 
 // Leaving a field is the moment a skipped render becomes safe. focusout fires
 // before focus lands anywhere new, so the check is deferred a tick - otherwise
@@ -2463,6 +2489,14 @@ const s_players=document.getElementById('s-players'),
       s_pending=document.getElementById('s-pending'),
       s_audits=document.getElementById('s-audits'),
       updated=document.getElementById('updated');
+// rust-only {
+const s_mining=document.getElementById('s-mining'),
+      s_miningWrap=document.getElementById('s-mining-wrap');
+s_miningWrap.onclick=()=>{
+  settingsCat='mining';
+  if(!settingsOpen) fSettings.onclick(); else renderSettings();
+};
+// } rust-only
 
 async function poll(){
   try{

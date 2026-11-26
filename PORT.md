@@ -13,7 +13,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 0 | Groundwork on the Windows PC: the corpus, the parity tools, IRIS's reference readings | in progress |
 | 1 | `scw-vision`: the image functions, the IRIS letter reader and nameplate finder, a replay tool | **done** - exact on every reference, end to end |
 | 2 | The watcher on Windows: capture (with HDR), keys, store, RSI client, audio | **capture, keys, the JSON config files, audio, report flags, sc-watch.db, watchlist.db, the RSI client with its cache and HTTPS, sharing, housekeeping and settings done**; **the watcher done** (the `sc-watch-watcher` program, IRIS reader only: whole sessions identical to watch.py on 122 real frames); **the page's server done** (`sc-watch-ui`: every route identical to ui_server.py, and on the real data) |
-| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic and the reader identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11) |
+| 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
 | 5 | OCR (chat reads, the IRIS fallback) | - |
@@ -513,9 +513,26 @@ The steps, each checked before the next:
    break, but here a burst or the pause key stops the reads, and the last
    reads say nothing of what is on screen after (fed the 51 frames as they
    were taken, seconds apart, without this rule the 59,000's scores were
-   fused into the 16,720's reads). Not yet: the worker's own parity against
-   IRIS's MiningWorker in the bench, and crops of unclear reads kept for
-   debugging.
+   fused into the 16,720's reads).
+   **The tracker against IRIS's own** (`the_tracker_follows_iris` in
+   `tests/mining_frames.rs`): the bench's `--mining-track` runs IRIS's
+   `MiningWorker` itself (and `ScanWorker.SearchMining`'s code, and the
+   index's rule that an older update is refused) over scripted runs of the
+   real frames, 80 ms a step - each signal steady then gone, one signal
+   straight into the next, the number flashing on and off with refused
+   frames mixed in, every frame in the order taken, and the HUD moving a
+   pixel a step under a lock (frames shifted, then far enough to lose the
+   row). After every one of the 1,439 steps the same: search or locked
+   read, the read's state, text and source (frame / average / fused,
+   +table), whether the lock changed, and the whole lock - value, label,
+   box, row, digit height, colours - to the bit. On this HUD no read
+   clears IRIS's sureness margin (0.08), so IRIS never moves or recolours
+   the label after the lock; two runs with the margin at 0.02 (set the same
+   on both sides) make it do both: 38 places and colourings over 3 locks,
+   16 over 7. Four mutations of the
+   tracker (no frame average, no geometry, no colours, history kept across
+   a new sure value) are each caught. Not yet: crops of unclear reads kept
+   for debugging.
 4. **The overlay window** - **built** (`scw-overlay`). The label
    is drawn in Rust as IRIS lays it out (MiningLayout): letters scale x the
    signal's digit height (cap height 0.7 em), padded half a line and a
@@ -564,7 +581,19 @@ The steps, each checked before the next:
    The table: IRIS's, written to the data folder as mining.txt the first
    time so it can be edited, read again within a second of a change (as
    IRIS's MiningTableSource; IRIS 2.1's 1 MB limit; an older edited copy
-   is named as such). Not yet: the page showing the overlay's state.
+   is named as such).
+   The page shows the overlay's state - in `sc-watch`, where the watcher
+   and the page are one program: the header's "mining" says looking, the
+   label over the game ("(kept)" while the hold keeps it), "no match" (a
+   signal locked that the table names nothing for) or paused, with what
+   that means and the pause key on hover; a click opens its settings. The
+   watcher writes it to a board (`scw_store::board`), the page sends it as
+   `stats.mining` and redraws the moment it changes (the board wakes the
+   live stream as a commit does); without a board - `sc-watch-ui` alone,
+   or the overlay off - `stats.mining` is absent and the page is the
+   Python's. The page files' own lines are marked `rust-only`; without
+   them the files are the Python's to the byte (`tests/ui_ops.rs` strips
+   them and compares).
    Deliberately not IRIS: the game drops and flashes its own signal number,
    and the label went with it; the last rock's label stays up for
    `mining_label_hold` seconds (10 by default; 0 = IRIS's way) after the

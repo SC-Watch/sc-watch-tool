@@ -398,7 +398,7 @@ impl Session {
                     ("value", json!(read.value)),
                 ],
             ),
-            MiningEvent::Ended => self.p.log.event("mining", &[("event", json!("ended"))]),
+            MiningEvent::Ended { .. } => self.p.log.event("mining", &[("event", json!("ended"))]),
             _ => {}
         }
         if let Some(text) = label {

@@ -51,6 +51,7 @@ fn run() -> i32 {
 
     // What the sessions and the page share.
     let changes = Arc::new(Changes::default());
+    let board = Arc::new(scw_store::board::Board::new(Some(changes.clone())));
     let env: scw_rsi::hub::Env = Arc::new(|k| std::env::var(k).ok());
     let mut hub = ClientHub::new(
         roots.data.clone(),
@@ -124,6 +125,7 @@ fn run() -> i32 {
             desktop::hooks(&roots),
         );
         ui.changes = Some(changes.clone());
+        ui.board = Some(board.clone());
         ui.links = Some(app.links());
         let ui = Arc::new(ui);
         let url = format!("http://{HOST}:{port}/");
@@ -159,6 +161,7 @@ fn run() -> i32 {
             restart: Box::new(InProcess(app.restart.clone())),
             stop: app.stop.clone(),
             changes: Some(changes.clone()),
+            board: Some(board.clone()),
         })
     })
 }

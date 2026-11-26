@@ -66,13 +66,16 @@ impl Ui {
             DataVersion::new(self.cache_path()),
         ];
         let settings = self.data().join("settings.json");
+        let board = self.board.clone();
         let mut stamp = || {
             let mtime = std::fs::metadata(&settings)
                 .and_then(|m| m.modified())
                 .ok()
                 .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
                 .map_or(0, |d| d.as_nanos());
-            (watched[0].get(), watched[1].get(), mtime)
+            // The board's change number: the mining overlay's state moved.
+            let shown = board.as_ref().map_or(0, |b| b.get().0);
+            (watched[0].get(), watched[1].get(), mtime, shown)
         };
         let (mut last, mut last_beat) = (None, 0.0);
         while keep_going() {

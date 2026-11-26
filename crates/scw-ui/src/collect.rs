@@ -810,6 +810,11 @@ impl Ui {
             stats.insert("watchlists".into(), json!(src));
             stats.insert("watchlist_orgs".into(), json!(orgs));
         }
+        // Not in the Python: the mining overlay of the watcher in this
+        // process, while it runs.
+        if let Some((_, Some(v))) = self.board.as_ref().map(|b| b.get()) {
+            stats.insert("mining".into(), v);
+        }
         Ok(json!({"contacts": contacts, "stats": stats, "now": now}))
     }
 
