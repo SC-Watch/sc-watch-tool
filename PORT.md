@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust) |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -868,6 +868,60 @@ proven in the test rather than tolerated:
   pixel in the 3,021 crops lands on the other side of the 0.3 threshold
   (0.299968 against 0.300025) and moves a box corner by a pixel. The test
   shows it is that pixel: flipping it gives RapidOCR's boxes exactly.
+
+**Step 2 - built** (`scw_ocr::legacy`). sc_detector.py's reader, as
+`watch.py --reader ocr` runs it: the brightness masks (bright, near-white,
+red; the haze locator with `haze`; saturated red added only where no box
+is), the word boxes (a horizontal dilation, then components with enough
+real ink), each shrunk to the ink of all the masks, duplicates dropped; the
+name / range pairs; past eight pairs, the ranking by range shape (glyph
+count against the crop's own 99th percentile, numpy's interpolation to the
+bit); the km gate (`gate`: km_template.npy, five segmentations, numpy's
+float32 pairwise sums); `prep_for_ocr` (grey, cubic x3, `normalize` as
+OpenCV 5.0's vector convertTo does it - a fused multiply-add in float -
+inverted, a 48 px white margin); the range read first and the name only
+when the range reads (`RANGE_RE` by hand, with Python's `\d` and `\s`: the
+OCR can return fullwidth digits and the ideographic space); the dim-range
+retries (`dim_range_retry`, ranked by the gate); the focused read - the
+centre crop to the OCR's own detector, its lines paired, a truncated range
+re-read from a padded crop, up to three unpaired names near the centre
+retried underneath - or through the masks (`focus_mask`); the dual read's
+merge; and the auto trigger's monitor-rate pass (`watch.cheap_pass`). The
+serial rules now take fullwidth digits as Python's `\d` does (the IRIS
+reader produces none, so its reads are unchanged); the damaged-serial rule
+stays on unless `Options::as_python`.
+
+Checked against sc_detector.py on every frame of the five corpora (298
+frames; `tests/legacy_parity.rs`, data in SCW_PARITY_DATA/legacy, made by
+tests/fixtures/make_legacy_ref.py): before any OCR, the boxes with and
+without the haze locator, the pairs, the range-shape scores, the gate's
+scores and the monitor-rate pass with the gate off and on - 2,001 checks;
+then for the full read (plain, gate, haze, dim-range retry), the focused
+read (direct and through the masks) and the dual read, every crop handed to
+the OCR - byte for byte and in order - and the contacts: 3,874 checks. All
+the same. The test feeds the pipeline RapidOCR's recorded answer for each
+crop, so it holds the pipeline apart from the engine (held on its own in
+step 1); with SCW_LEGACY_E2E the port's own OCR reads instead, and 3,870 of the
+3,874 agree. The 4 are the focused reads of two frames whose crops hold 39
+and 45 lines, where numpy's sort orders equal-shaped lines its own way
+(step 1's first known difference): one line scored 0.553 is kept, one
+text differs. RapidOCR run with a stable sort gives the port's lines
+exactly. (The OCR then costs about a second a frame for a full read,
+with the detector at 736 - step 5's first target.)
+The reader's own work, without OCR: 73 ms a frame for a full read (92 with
+the haze locator), 8 for a focused read through the masks, against about
+600 ms for the Python's.
+
+One step is held to OpenCV's own code rather than to what the Python
+computes on this machine: the opencv-python wheel hands `prep_for_ocr`'s
+cubic enlargement to Intel's IPP, whose last bit depends on the processor
+(here its AVX-512 code moved 101 of 15,075 pixels of one crop by one grey
+level; the port gives OpenCV's own result exactly). The reference turns IPP
+off for that step only. What IPP changes in the Python's reads, measured
+(tests/fixtures/ipp_effect.py): 7 of the 298 full reads differ - 5 names
+read only with it, 3 only without - and 2 of the 298 focused reads, with
+the same names. That is the Python's own noise from one computer to
+another, not a difference the port adds.
 
 ## The replay tool
 

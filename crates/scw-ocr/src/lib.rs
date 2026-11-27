@@ -11,6 +11,7 @@
 pub mod det;
 pub mod fill;
 pub mod geom;
+pub mod legacy;
 pub mod rec;
 
 use std::sync::Arc;

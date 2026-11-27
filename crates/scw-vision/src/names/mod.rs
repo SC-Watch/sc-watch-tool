@@ -77,26 +77,34 @@ fn is_space(c: char) -> bool {
 /// lost, never part of a handle.
 const END_PUNCTUATION: &str = ".,:;'\"`|/\\()[]{}*+=<>?!~^$%&";
 
+/// Python's `\d` on the characters a reader can produce: ASCII digits, and
+/// the fullwidth ones PP-OCRv3's character list holds (its only other
+/// decimal digits; IRIS's letter model has none).
+pub fn py_digit(c: char) -> bool {
+    c.is_ascii_digit() || ('\u{ff10}'..='\u{ff19}').contains(&c)
+}
+
 /// `^[A-Z]{2}-\d{4}-[A-Z0-9]{2}$`: an abandoned ship's serial, SP-9695-PW.
-/// (Digits are ASCII here; Python's \d also takes other scripts' digits,
-/// which no reader of the HUD produces.)
-fn ship_serial(s: &[u8]) -> bool {
-    s.len() == 10
-        && s[..2].iter().all(u8::is_ascii_uppercase)
-        && s[2] == b'-'
-        && s[3..7].iter().all(u8::is_ascii_digit)
-        && s[7] == b'-'
-        && s[8..]
+fn ship_serial(s: &str) -> bool {
+    let c: Vec<char> = s.chars().collect();
+    c.len() == 10
+        && c[..2].iter().all(char::is_ascii_uppercase)
+        && c[2] == '-'
+        && c[3..7].iter().all(|&d| py_digit(d))
+        && c[7] == '-'
+        && c[8..]
             .iter()
-            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+            .all(|&d| d.is_ascii_uppercase() || py_digit(d))
 }
 
 /// `^[A-Z]{2}-\d`: a serial read part-way (readers truncate at the end of a line).
-fn partial_serial(s: &[u8]) -> bool {
-    s.len() >= 4
-        && s[..2].iter().all(u8::is_ascii_uppercase)
-        && s[2] == b'-'
-        && s[3].is_ascii_digit()
+fn partial_serial(s: &str) -> bool {
+    let mut c = s.chars();
+    matches!(
+        (c.next(), c.next(), c.next(), c.next()),
+        (Some(a), Some(b), Some('-'), Some(d))
+            if a.is_ascii_uppercase() && b.is_ascii_uppercase() && py_digit(d)
+    )
 }
 
 /// A serial as the HUD reader damages it - not in the Python, which lets
@@ -174,10 +182,7 @@ fn classify(raw: &str, damaged_serials: bool) -> (NameKind, Option<String>) {
     }
     let upper = s.to_uppercase();
     let s = upper.trim_matches(|c| END_PUNCTUATION.contains(c));
-    if ship_serial(s.as_bytes())
-        || partial_serial(s.as_bytes())
-        || (damaged_serials && damaged_serial(s.as_bytes()))
-    {
+    if ship_serial(s) || partial_serial(s) || (damaged_serials && damaged_serial(s.as_bytes())) {
         return (NameKind::ShipSerial, Some(s.to_string()));
     }
     if !handle(s) {
@@ -190,4 +195,24 @@ fn classify(raw: &str, damaged_serials: bool) -> (NameKind, Option<String>) {
         return (NameKind::WorldLabel, Some(s.to_string()));
     }
     (NameKind::Player, Some(s.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serials_take_the_ocrs_fullwidth_digits_as_python_does() {
+        // re's \d is any decimal digit; PP-OCRv3 can read ０-９
+        let serial = "SP-\u{ff19}\u{ff16}\u{ff19}\u{ff15}-PW";
+        assert_eq!(
+            classify_name_as_python(serial),
+            (NameKind::ShipSerial, Some(serial.to_string()))
+        );
+        assert_eq!(
+            classify_name_as_python("JR-\u{ff18}4").0,
+            NameKind::ShipSerial
+        );
+        assert_eq!(classify_name_as_python("JR-X4").0, NameKind::Player);
+    }
 }
