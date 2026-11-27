@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **planned** (below): the engine chosen and measured (rten, pure Rust), the first improvement measured |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust) |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -810,6 +810,48 @@ crashed a script on a cp1252 console). The rest of the legacy pipeline costs
 5. The improvements, each measured on the answer key and the corpora, and
    kept only where they win: the detector at the crop's size, only name
    characters decoded, then the 0.6 s before OCR.
+
+**Step 1 - built** (`crates/scw-ocr`). The two models are built into the
+program (models/ppocr/, unchanged from RapidOCR's package, with the
+recogniser's character list taken from its own metadata), run by rten on
+the global pool or `Ocr::with_threads(n)`. Around them, RapidOCR 1.2.3's
+own steps, ported to give its answers: the detector's sizing (Python's
+round half to even) and normalisation in float32; DB post-processing - the
+threshold, the 2x2 dilation, `findContours` as OpenCV 5.0's Suzuki scanner
+runs it from Python (outer borders and holes, the trace's own point order
+and OpenCV's output order: the hull starts from it, and with it
+minAreaRect's ties and float rounding - one box in 170 came out a pixel off
+with the same points in another order), `convexHull` (Sklansky),
+`minAreaRect` (rotating calipers), `boxPoints`, the score under
+`fillPoly`'s mask (outline lines and edge fill), the unclip (Clipper 6.4.2's
+round-join offset, pyclipper's truncation of the corners), the scaling back
+(float32 then float64, half to even); the box order (one pass of swaps, as
+1.2.3 has it); the crop - `getPerspectiveTransform` (the 8x8 LU solve),
+the 3x3 inverse and OpenCV 5.0's new generic bicubic warp (float32
+coordinates per row, double per point, the kernel's fused multiply-adds as
+its x86 vector path runs them; RapidOCR's boxes are mostly tilted a pixel
+or more, so this path is the usual one, not the exception); the
+recogniser's batches of six by width / height, resize, normalisation and
+CTC decoding, with the score numpy's pairwise mean of the kept steps and a
+1e-50.
+
+Checked against RapidOCR's own answers (the Python's onnxruntime 1.29) on
+every crop the legacy pipeline reads in the five corpora - 3,021 crops,
+2,921 plate crops, 40 focused-read crops, 60 chat regions; 4,823 boxes
+(`tests/rapidocr_parity.rs`, data in SCW_PARITY_DATA/ocr; the numbers are
+in the commit). Two known differences, neither in the steps ported, each
+proven in the test rather than tolerated:
+- RapidOCR batches the lines in `np.argsort` order of their width /
+  height, and numpy's default sort (vectorised, so CPU-dependent) orders
+  equal ratios its own way once there are more than 16; a line's batch sets
+  its padding, and so its score - in one line of 4,823, its text (two
+  letters, a focused read with 26 lines). The program uses a stable sort;
+  the test feeds numpy's own order (rapidocr_order.json, 19 crops) and then
+  holds those reads exactly.
+- rten and onnxruntime differ in the detector map's last bits (2.5e-5): one
+  pixel in the 3,021 crops lands on the other side of the 0.3 threshold
+  (0.299968 against 0.300025) and moves a box corner by a pixel. The test
+  shows it is that pixel: flipping it gives RapidOCR's boxes exactly.
 
 ## The replay tool
 

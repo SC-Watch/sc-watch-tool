@@ -14,6 +14,10 @@ km_template.npy    binary
 *.npy              binary
 *.png              binary
 *.ico              binary
+*.onnx             binary
+# The OCR models' character list: as extracted, byte for byte.
+models/ppocr/ppocr_keys.txt  -text
+models/ppocr/LICENSE-APACHE  -text
 
 # Windows needs real CRLF in these or they misbehave when double-clicked.
 *.bat              text eol=crlf

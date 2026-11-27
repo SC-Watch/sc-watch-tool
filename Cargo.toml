@@ -12,7 +12,9 @@ members = ["crates/*"]
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.88"
+# 1.94: rten 0.28 (scw-ocr's inference) loads ONNX models itself from 0.23,
+# which needs 1.89; 0.28 needs 1.94. 1.88 was only let-chains' floor.
+rust-version = "1.94"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/SC-Watch/sc-watch-tool"
 publish = false

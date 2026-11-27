@@ -1,0 +1,19 @@
+[package]
+name = "scw-ocr"
+description = "sc-watch's OCR: PP-OCRv3 text detection and recognition under rten (pure Rust), giving RapidOCR's answers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Pure-Rust inference (no native library): the Linux build stays libc-only.
+rten = "0.28"
+rten-tensor = "0.28"
+scw-vision = { path = "../scw-vision" }
+
+[dev-dependencies]
+png = "0.17"
+serde_json = { version = "1", features = ["float_roundtrip"] }
