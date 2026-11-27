@@ -22,6 +22,7 @@ rusqlite = { version = "0.43", features = ["bundled"] }
 scw-audio = { path = "../scw-audio" }
 scw-capture = { path = "../scw-capture" }
 scw-input = { path = "../scw-input" }
+scw-ocr = { path = "../scw-ocr" }
 scw-overlay = { path = "../scw-overlay" }
 scw-rsi = { path = "../scw-rsi" }
 scw-store = { path = "../scw-store" }

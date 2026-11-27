@@ -4,7 +4,8 @@
 //! changes, alerts, log events, lookups, detector calls, sightings.csv,
 //! database rows, audit pictures, summary and exit code - and the clock ends
 //! at the same moment to the last bit, so every wait loop turned the same
-//! number of times.
+//! number of times. Chat reads play the lines scripted for each frame
+//! (chat.read_located faked on both sides).
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -14,6 +15,7 @@ use std::sync::{Arc, Mutex};
 use chrono::{DateTime, NaiveDateTime};
 use rusqlite::Connection;
 use scw_input::{Device, InputState};
+use scw_ocr::chat::{ChatLine, Place};
 use scw_rsi::Clock;
 use scw_store::housekeeping::{Policy, run_now};
 use scw_store::reputation::Database;
@@ -21,7 +23,7 @@ use scw_vision::names::NameKind;
 use scw_vision::pipeline::Contact;
 use scw_vision::{Image, Rect};
 use scw_watch::enricher::Pending;
-use scw_watch::session::{Detector, FlagFile, Frames, Keys, LookupQueue};
+use scw_watch::session::{ChatReader, Detector, FlagFile, Frames, Keys, LookupQueue};
 use scw_watch::sinks::{AlertSink, AudioHealth, Console, EventLog, Spoken};
 use scw_watch::{Mode, Parts, Session, SessionOptions, SightingsLog, Stop};
 use serde_json::{Map, Value, json};
@@ -61,6 +63,7 @@ struct Rec {
     released: usize,
     summary: Option<Value>,
     stop_polls: usize,
+    chats: Vec<Value>,
 }
 
 type R = Arc<Mutex<Rec>>;
@@ -261,6 +264,54 @@ struct Script {
     contacts: Value,
     scan: Value,
     rec: R,
+}
+
+/// chat.read_located, scripted: the frame's lines and place, or a failure.
+struct ChatScript {
+    chat: Value,
+    region: Option<[f64; 4]>,
+    rec: R,
+}
+
+impl ChatReader for ChatScript {
+    fn read(&mut self, frame: &Image<u8>) -> Result<(Vec<ChatLine>, Place), String> {
+        let i = frame.data[0] as usize;
+        self.rec
+            .lock()
+            .unwrap()
+            .chats
+            .push(json!([i, self.region.map(|r| r.to_vec())]));
+        match &self.chat[i.to_string()] {
+            Value::String(s) if s == "error" => Err("RuntimeError: the OCR fell over".into()),
+            Value::Array(a) => {
+                let lines = a[0]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|l| ChatLine {
+                        handle: l[0].as_str().unwrap().into(),
+                        text: l[1].as_str().unwrap().into(),
+                        conf: l[2].as_f64().unwrap(),
+                    })
+                    .collect();
+                let place = match a[1].as_str().unwrap() {
+                    "helmet on" => Place::HelmetOn,
+                    "helmet off" => Place::HelmetOff,
+                    "your region" => Place::Set,
+                    _ => Place::Both,
+                };
+                Ok((lines, place))
+            }
+            _ => Ok((
+                Vec::new(),
+                if self.region.is_some() {
+                    Place::Set
+                } else {
+                    Place::Both
+                },
+            )),
+        }
+    }
 }
 
 impl Detector for Script {
@@ -476,6 +527,7 @@ fn options(a: &Value, cfg: &Value) -> SessionOptions {
         audit_frame_quality: cfg["audit_frame_quality"].as_u64().unwrap() as u8,
         housekeeping_enabled: cfg["housekeeping_enabled"].as_bool().unwrap(),
         housekeeping_every_min: cfg["housekeeping_every_min"].as_f64().unwrap(),
+        chat_region: None,
     }
 }
 
@@ -509,7 +561,9 @@ fn session_matches_watch_py() {
         std::fs::create_dir_all(&root).unwrap();
         let clock = Arc::new(FakeClock(Mutex::new((1_790_000_000.0, 1000.0))));
         let rec: R = Arc::new(Mutex::new(Rec::default()));
-        let opts = options(&s["args"], &s["cfg"]);
+        let mut opts = options(&s["args"], &s["cfg"]);
+        opts.chat_region =
+            scw_watch::parse_chat_region(s["chat_region"].as_str().unwrap_or("auto")).unwrap();
 
         let db_path = root.join("sc-watch.db");
         let db = (!sc["no_db"].as_bool().unwrap_or(false)).then(|| {
@@ -540,7 +594,21 @@ fn session_matches_watch_py() {
         });
 
         let (modes, specs, tokens, label) = if opts.key_mode {
-            let binds = scw_watch::parse_bindings("0", "9", "7", "off", true, &NoDevices).unwrap();
+            // the scenario's chat key: its last --chat-key
+            let argv: Vec<&str> = s["argv"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|v| v.as_str().unwrap())
+                .collect();
+            let chat_key = argv
+                .windows(2)
+                .filter(|w| w[0] == "--chat-key")
+                .map(|w| w[1])
+                .next_back()
+                .unwrap_or("off");
+            let binds =
+                scw_watch::parse_bindings("0", "9", "7", chat_key, true, &NoDevices).unwrap();
             (
                 binds.iter().map(|(m, _)| Mode::parse(m).unwrap()).collect(),
                 binds.iter().map(|(_, b)| b.spec.clone()).collect(),
@@ -592,6 +660,11 @@ fn session_matches_watch_py() {
                 scan: sc.get("scan").cloned().unwrap_or(json!({})),
                 rec: rec.clone(),
             }),
+            chat: Some(Box::new(ChatScript {
+                chat: sc.get("chat").cloned().unwrap_or(json!({})),
+                region: opts.chat_region,
+                rec: rec.clone(),
+            })),
             keys: Box::new(ScriptKeys {
                 modes,
                 specs,
@@ -667,6 +740,7 @@ fn session_matches_watch_py() {
             ("submits", Value::Array(r.submits.clone())),
             ("detects", Value::Array(r.detects.clone())),
             ("grabs", json!(r.grabs)),
+            ("chats", Value::Array(r.chats.clone())),
             ("released", json!(r.released)),
             ("summary", r.summary.clone().unwrap_or(Value::Null)),
             ("counters", counters),

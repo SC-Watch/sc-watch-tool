@@ -632,7 +632,7 @@ fn as_python(v: &mut Value) {
             }
             if m.contains_key("choices")
                 && let Some(k) = m.get("key").and_then(Value::as_str)
-                && scw_store::settings::REWORDED.contains(&k)
+                && scw_store::settings::reworded(k)
             {
                 *v = scw_store::settings::python_field(k).expect("a field of settings.py's");
                 return;

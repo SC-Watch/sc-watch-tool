@@ -21,6 +21,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use chrono::NaiveDateTime;
 use serde_json::{Map, Value, json};
 
+use scw_ocr::chat::{ChatLine, Place};
 use scw_rsi::Clock;
 use scw_store::json::{py_repr, py_repr_str};
 use scw_store::reputation::Database;
@@ -101,6 +102,25 @@ pub struct ReadStats {
     pub refused: Vec<(String, usize)>,
 }
 
+/// What the OCR reader's stages found in a frame, for --debug (the
+/// Python's _debug_frame): boxes in the bright mask, their pairs, the pairs
+/// the monitor pass keeps, the near misses, and the pairs the km gate would
+/// reject - (the name box as WxH@X,Y, the range box's width, the score).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct OcrStages {
+    pub boxes: usize,
+    pub pairs: usize,
+    pub passed_gate: usize,
+    pub near_misses: Vec<String>,
+    pub gate_rejects: Vec<(String, i32, f64)>,
+}
+
+/// The chat window's reader (chat.read_located): the handles it shows and
+/// where they were read, or why it could not.
+pub trait ChatReader {
+    fn read(&mut self, frame: &Image<u8>) -> Result<(Vec<ChatLine>, Place), String>;
+}
+
 /// The reader.
 pub trait Detector {
     /// Every plate in the frame, read; `mode` is what the trigger asked for.
@@ -110,6 +130,11 @@ pub trait Detector {
     /// What the last `detect` found, stage by stage, when the reader can
     /// say.
     fn last_read(&self) -> Option<ReadStats> {
+        None
+    }
+    /// --debug, before a frame is read: the OCR reader's stages (the IRIS
+    /// reader reports through `last_read` instead).
+    fn debug_stages(&mut self, _frame: &Image<u8>) -> Option<OcrStages> {
         None
     }
 }
@@ -224,6 +249,8 @@ pub struct SessionOptions {
     pub audit_frame_quality: u8,
     pub housekeeping_enabled: bool,
     pub housekeeping_every_min: f64,
+    /// The chat window as x, y, w, h fractions; None works it out.
+    pub chat_region: Option<[f64; 4]>,
 }
 
 /// One housekeeping sweep, as a line; given the session's database and the
@@ -234,6 +261,8 @@ pub type Housekeeper = Box<dyn FnMut(Option<&Database>, f64) -> String>;
 pub struct Parts {
     pub frames: Box<dyn Frames>,
     pub detector: Box<dyn Detector>,
+    /// None when no chat key is bound (or the OCR would not load).
+    pub chat: Option<Box<dyn ChatReader>>,
     pub keys: Box<dyn Keys>,
     pub console: Arc<dyn Console>,
     pub alerts: Option<Arc<dyn AlertSink>>,
@@ -264,6 +293,9 @@ struct BurstState {
 }
 
 const RULE: &str = "==============================================================";
+
+/// --debug lines of a kind the session log takes per frame.
+const DEBUG_DETAIL_MAX: usize = 12;
 
 pub struct Session {
     pub opts: SessionOptions,
@@ -531,14 +563,127 @@ impl Session {
 
     // -- chat --------------------------------------------------------------
 
-    /// Reading chat needs OCR, which this watcher does not have yet.
-    fn read_chat(&mut self) {
+    /// Lists everyone the chat window shows (watch.Session.read_chat).
+    /// Better evidence than a HUD read - crisp UI text with its owner's own
+    /// capitals - so each handle is a full-confidence sighting, looked up at
+    /// once; with no range: chat says who is talking, not where.
+    fn read_chat(&mut self, frame: Option<Image<u8>>) {
+        let Some(frame) = frame else {
+            self.con().say("  chat: no frame captured");
+            return;
+        };
+        let got = match self.p.chat.as_mut() {
+            Some(c) => c.read(&frame),
+            None => Err("the OCR models would not load".into()),
+        };
+        let (lines, place) = match got {
+            Ok(v) => v,
+            Err(e) => {
+                self.con().say(&format!("  chat: read failed ({e})"));
+                self.p.log.event("chat", &[("error", json!(e))]);
+                return;
+            }
+        };
+        // str() of the Python's tuple
+        let region = self.opts.chat_region.map_or_else(
+            || "auto".to_string(),
+            |r| {
+                let v: Vec<String> = r.iter().map(|x| py_repr(&json!(x))).collect();
+                format!("({})", v.join(", "))
+            },
+        );
+        let place_text = place.as_str();
+        if lines.is_empty() {
+            // Logged too: a chat key that "did nothing" otherwise looks like
+            // a key never pressed.
+            self.p.log.event(
+                "chat",
+                &[
+                    ("handles", json!([])),
+                    ("region", json!(region)),
+                    ("place", json!(place_text)),
+                ],
+            );
+            let why = if place == Place::Both {
+                "(looked where chat sits with the helmet on and off - is the chat window showing?)"
+            } else {
+                "(check 'chat region' in Settings)"
+            };
+            self.con().say(&format!(
+                "  chat: nothing readable in the chat region {why}"
+            ));
+            if let Some(a) = self.p.alerts.as_ref() {
+                a.event("nothing", None, &[], None);
+            }
+            return;
+        }
+        let lines: Vec<ChatLine> = lines
+            .into_iter()
+            .filter(|c| self.ignored(&c.key()).is_none())
+            .collect();
+        if lines.is_empty() {
+            self.p.log.event(
+                "chat",
+                &[
+                    ("handles", json!([])),
+                    ("region", json!(region)),
+                    ("place", json!(place_text)),
+                    ("ignored", json!(true)),
+                ],
+            );
+            self.con()
+                .say("  chat: everything readable is on the ignore list");
+            return;
+        }
         self.con()
-            .say("  chat: reading chat needs OCR, which this version does not have yet");
+            .say(&format!("  chat: {} handle(s)", lines.len()));
+        let handles: Vec<&str> = lines.iter().map(|c| c.handle.as_str()).collect();
         self.p.log.event(
             "chat",
-            &[("error", json!("not available: reading chat needs OCR"))],
+            &[
+                ("handles", json!(handles)),
+                ("region", json!(region)),
+                ("place", json!(place_text)),
+            ],
         );
+        // Known contacts in chat are spoken, as from a read - with no
+        // range, which the phrase leaves out.
+        let mut spoken = Vec::new();
+        for c in &lines {
+            let key = c.key();
+            let mut note = String::new();
+            if let Some(db) = self.p.db.as_ref()
+                && db.record_sighting(&key, None, 1, 1).is_ok()
+                && let Ok(a) = db.assess(&key, None, false)
+            {
+                let now = db.now();
+                if a.alert(now, &db.flags) {
+                    let said = a.lines(now, &db.flags, db.utc_dates);
+                    note = format!(
+                        "   {}",
+                        said.iter().take(2).cloned().collect::<Vec<_>>().join("; ")
+                    );
+                    spoken.push(Spoken {
+                        handle: key.clone(),
+                        range_km: None,
+                        flags: Vec::new(),
+                        reason: said.first().cloned().unwrap_or_default(),
+                        said: Some(Value::Array(a.spoken_all(&db.flags))),
+                    });
+                }
+            }
+            self.con().say(&format!("    {}{note}", pad(&c.handle, 24)));
+            self.announced += 1;
+            // Always looked up: a chat handle is stronger evidence than the
+            // vote threshold exists to protect against.
+            self.p.lookups.submit(&key, None);
+        }
+        if let Some(a) = self.p.alerts.as_ref() {
+            a.event("contact", None, &[], None);
+            if !spoken.is_empty() {
+                a.burst_result(&spoken);
+            }
+        }
     }
 
     // -- bursts ------------------------------------------------------------
@@ -717,8 +862,9 @@ impl Session {
         );
     }
 
-    /// --debug: the frame saved, and its size; what the reader made of it
-    /// follows (debug_read).
+    /// --debug: the frame saved, and its size; with the OCR reader what each
+    /// of its stages found (the Python's _debug_frame); with IRIS, what it
+    /// made of the frame follows (debug_read).
     fn debug_frame(&mut self, frame: &Image<u8>, idx: usize) -> String {
         let dir = self.p.data_root.join("debug_bursts");
         let _ = std::fs::create_dir_all(&dir);
@@ -730,15 +876,80 @@ impl Session {
                 dir.display()
             ));
         }
-        self.con().say(&format!("  [debug] frame {idx}: -> {name}"));
+        let size = format!("{}x{}", frame.width, frame.height);
+        let Some(st) = self.p.detector.debug_stages(frame) else {
+            self.con().say(&format!("  [debug] frame {idx}: -> {name}"));
+            self.p.log.event(
+                "frame",
+                &[
+                    ("file", json!(name)),
+                    ("idx", json!(idx)),
+                    ("size", json!(size)),
+                ],
+            );
+            return name;
+        };
+        self.con().say(&format!(
+            "  [debug] frame {idx}: boxes={} pairs={} passed_gate={} -> {name}",
+            st.boxes, st.pairs, st.passed_gate
+        ));
         self.p.log.event(
             "frame",
             &[
                 ("file", json!(name)),
                 ("idx", json!(idx)),
-                ("size", json!(format!("{}x{}", frame.width, frame.height))),
+                ("boxes", json!(st.boxes)),
+                ("pairs", json!(st.pairs)),
+                ("passed_gate", json!(st.passed_gate)),
+                ("size", json!(size)),
             ],
         );
+        // Capped in the log: the first few show the pattern.
+        for why in &st.near_misses {
+            self.con().say(&format!("  [debug]   near-miss {why}"));
+        }
+        for why in st.near_misses.iter().take(DEBUG_DETAIL_MAX) {
+            self.p
+                .log
+                .event("near_miss", &[("file", json!(name)), ("why", json!(why))]);
+        }
+        if st.near_misses.len() > DEBUG_DETAIL_MAX {
+            self.p.log.event(
+                "near_miss",
+                &[
+                    ("file", json!(name)),
+                    ("more", json!(st.near_misses.len() - DEBUG_DETAIL_MAX)),
+                ],
+            );
+        }
+        let need = scw_ocr::legacy::KM_GATE_THRESHOLD;
+        for (i, (b, range_w, s)) in st.gate_rejects.iter().enumerate() {
+            self.con().say(&format!(
+                "  [debug]   gate rejected {b} range {range_w}px score={s:.3} (need {})",
+                py_repr(&json!(need))
+            ));
+            if i < DEBUG_DETAIL_MAX {
+                let rounded: f64 = format!("{s:.3}").parse().unwrap_or(*s);
+                self.p.log.event(
+                    "gate_reject",
+                    &[
+                        ("file", json!(name)),
+                        ("box", json!(b)),
+                        ("score", json!(rounded)),
+                        ("need", json!(need)),
+                    ],
+                );
+            }
+        }
+        if st.gate_rejects.len() > DEBUG_DETAIL_MAX {
+            self.p.log.event(
+                "gate_reject",
+                &[
+                    ("file", json!(name)),
+                    ("more", json!(st.gate_rejects.len() - DEBUG_DETAIL_MAX)),
+                ],
+            );
+        }
         name
     }
 
@@ -1002,8 +1213,8 @@ impl Session {
             let queued = self.queued();
             if mode == Mode::Chat {
                 self.con().status(&format!("  reading chat...{queued}"));
-                let _ = self.grab();
-                self.read_chat();
+                let frame = self.grab();
+                self.read_chat(frame);
             } else {
                 let label = match mode {
                     Mode::Focus => "reading centre",

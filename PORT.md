@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads; step 3 **done** - chat reads (`scw_ocr::chat`), chat.py's |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads; step 3 **done** - chat reads (`scw_ocr::chat`), chat.py's; step 4 **done** - in the watcher: reader `iris` or `ocr`, the chat key with either |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -318,14 +318,20 @@ far:
   the same moment to the last bit, so every wait loop turned as often.
   Twenty deliberate breakages are each caught.
 
-Deliberately different in the session. Reading chat needs OCR, which this
-version lacks: the chat key says so instead of reading. `--debug` saves each
-frame and logs its size, and then says what IRIS made of it - the distance
-lines its scan kept, the plates read as names, and the ones refused by
-IRIS's reason (`lowconf`, `short`, ...) - on the console and as an `iris`
-event in the session log. The Python's `--debug` reports the OCR
-pipeline's stages instead (boxes, pairs, the km gate), which this version
-does not have. Ctrl+C is noticed at the next key poll or loop turn (within
+The chat key reads the chat window as watch.Session.read_chat does (the
+scenarios `chat`, `chat-region` and `chat-no-db`, with chat.read_located
+scripted on both sides: handles listed, known ones spoken, ignored ones
+dropped, an empty read's helmet hint, a failed read, a region set by hand,
+no database).
+
+Deliberately different in the session. With the IRIS reader, `--debug`
+saves each frame and logs its size, and then says what IRIS made of it -
+the distance lines its scan kept, the plates read as names, and the ones
+refused by IRIS's reason (`lowconf`, `short`, ...) - on the console and as
+an `iris` event in the session log; the Python reports the OCR pipeline's
+stages whatever the reader. With the `ocr` reader those stages are what it
+reports, as the Python does (boxes, pairs, the gate, near misses, gate
+rejections). Ctrl+C is noticed at the next key poll or loop turn (within
 30 ms), not at whatever line Python was on.
 
 - **The program** (`sc-watch-watcher`, watch.py's main). The command line has
@@ -353,7 +359,8 @@ does not have. Ctrl+C is noticed at the next key poll or loop turn (within
 Deliberately different in the program:
 - `SCW_DATA_ROOT` names the data folder outright, for development and
   tests.
-- A saved `ocr` or `iris+ocr` reader is warned about and read as `iris`.
+- A saved `iris+ocr` reader is said once and read as `iris`: OCR never
+  stands in for a plate IRIS refused ("OCR (phase 5)" below).
 - `--check-resolution` says it is not in this version yet.
 - `--support-bundle` (and the page's button) is debuglog.build_bundle
   (`scw_store::bundle`): the same entries in the same order, the same
@@ -951,6 +958,27 @@ same handles, lines, scores and place. With the port's own OCR
 a crop on all cores. None of the corpora shows the chat helmet off: the
 helmet-off place is checked on the frames where the helmet-on one found
 nobody (its crop and its read), not on a frame where it finds someone.
+
+**Step 4 - built** (the watcher). `--reader ocr` reads the plates with the
+legacy reader (`OcrDetector`): a full read; the focus key reads the centre
+(`focus_size`, through the masks with `focus_mask`); the dual key and
+`dual_on_read` read both and merge; `gate`, `haze` and `dim_range_retry`
+apply; the auto trigger notices contacts with the monitor-rate pass, its
+positions the name boxes, as watch.py's run_auto does without IRIS; and
+`--debug` reports the OCR stages. `--reader iris` is unchanged, and a saved
+`iris+ocr` reads as `iris`, said once a run. The chat key reads the chat
+with either reader (`OcrChat`, the region worked out or `chat_region`).
+The OCR's models load only when the `ocr` reader or a chat key needs them
+(on their own threads - half the processor's, at least two - so the game
+keeps the rest); with `ocr` and models that will not load, the watcher
+stops; with only chat, the chat key says it cannot read. The settings page
+words the reader's choices for this version ("ocr - legacy, for the game's
+own HDR", "iris+ocr - reads as iris") and marks the options only the OCR
+reader uses; the About page credits PaddleOCR, RapidOCR, OpenCV and
+Clipper, with the Apache License's text. Run on the 48 frames of `corpus`
+with `--reader ocr`: 24 reads, 8 contacts announced, about 0.6 s a frame;
+with `--dual-on-read --debug` the dual reads and the OCR stages, as
+designed.
 
 ## The replay tool
 

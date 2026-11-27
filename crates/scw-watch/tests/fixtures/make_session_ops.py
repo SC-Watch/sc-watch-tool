@@ -10,6 +10,8 @@ what it is given faked:
   scan        the always-on scan returns the positions scripted for it
   keys        Binding.pressed fires at the scripted grab counts, and stops
               the session (KeyboardInterrupt, as Ctrl+C) at the last one
+  chat        chat.read_located returns the lines scripted for the frame
+              (or raises, for a failed read)
   clock       fake: sleeping moves it; dates in UTC
   the rest    alerts, console, session log and the lookup queue recorded;
               a real, temporary sc-watch.db and sightings.csv
@@ -40,6 +42,7 @@ sys.path.insert(0, str(HERE.parents[3]))
 import paths  # noqa: E402
 
 paths.DATA_ROOT = Path(tempfile.mkdtemp())       # never the real data folder
+import chat  # noqa: E402
 import dbopen  # noqa: E402
 import housekeeping  # noqa: E402
 import imgio  # noqa: E402
@@ -91,7 +94,7 @@ REC = {}
 def reset():
     REC.clear()
     REC.update(said=[], status=[], alerts=[], events=[], submits=[], detects=[], released=0,
-               summary=None, grabs=0)
+               summary=None, grabs=0, chats=[])
 
 
 class Con:
@@ -230,6 +233,20 @@ def detect(self, f, mode):
 watch.Session._detect = detect
 
 
+def read_located(f, ocr, region=None):
+    """chat.read_located: the lines scripted for this frame, and where."""
+    i = int(f[0, 0, 0])
+    REC["chats"].append([i, None if region is None else list(region)])
+    got = SC.get("chat", {}).get(i)
+    if got == "error":
+        raise RuntimeError("the OCR fell over")
+    lines, place = got if got else ([], chat.PLACE_BOTH if region is None else chat.PLACE_SET)
+    return [chat.ChatLine(handle=h, text=t, conf=c) for h, t, c in lines], place
+
+
+watch.chat.read_located = read_located
+
+
 class Scan:
     def scan(self, f):
         return [tuple(p) for p in SC.get("scan", {}).get(int(f[0, 0, 0]), [])]
@@ -291,6 +308,21 @@ SCENARIOS = [
                           "queued": 40, "health": {"failures": 1}}),
     ("stuck-finish", KEY, {"ids": [10], "loop": True, "press": {"0": [0]}, "stop_at": 3,
                            "queued": 2, "drain_every": 5.0}),
+    ("chat", KEY + ["--chat-key", "8"],
+     {"ids": [11, 12, 13, 14, 1, 6, 7], "loop": True, "press": {"8": [0, 1, 2, 3], "0": [4]},
+      "stop_at": 7,
+      "chat": {11: ([["ExmplOne", "[GLOBAL] ExmplOne: o7", 0.91],
+                     ["ExmplKnown", "[LOCAL] ExmplKnown: hi", 0.875],
+                     ["ExmplIgnore", "[GLOBAL] ExmplIgnore: x", 0.5]], "helmet on"),
+               13: ([["exmplignore", "[PARTY] exmplignore: y", 0.7]], "helmet off"),
+               14: "error"}}),
+    ("chat-region", KEY + ["--chat-key", "8", "--chat-region", "0.1,0.2,0.3,0.4"],
+     {"ids": [15, 11], "loop": True, "press": {"8": [0, 1]}, "stop_at": 2,
+      "chat": {11: ([["ExmplTwo", "(GL0BAL ExmplTwo : o7", 0.66]], "your region")}}),
+    ("chat-no-db", KEY + ["--chat-key", "8", "--no-db"],
+     {"ids": [11], "loop": True, "press": {"8": [0]}, "stop_at": 1, "no_db": True,
+      "no_alerts": True,
+      "chat": {11: ([["ExmplKnown", "[LOCAL] ExmplKnown: hi", 0.875]], "helmet on")}}),
     ("audits", KEY + ["--burst", "3", "--rsi-min-votes", "3"],
      {"ids": [8, 1, 8, 1, 8, 8, 8, 6, 1], "loop": True, "press": {"0": [0, 3, 6]}, "stop_at": 9,
       "cfg": {"audit_frame_quality": 70}, "seen_before": {"EXMPLTWO": 3}}),
@@ -342,7 +374,7 @@ for name, argv, sc in SCENARIOS:
     alerts = None if sc.get("no_alerts") else Alerts(sc.get("health", {}))
     session = watch.Session(args, cfg, src, None, None, alerts, Con(), db, Dbg(),
                             Enricher(sc.get("queued"), sc.get("drain_every", 0.5)), log, binds,
-                            None, (None, None))
+                            watch._parse_chat_region(args.chat_region), (None, None))
     session.iris_scan = Scan()
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
@@ -363,6 +395,7 @@ for name, argv, sc in SCENARIOS:
         "said": REC["said"], "status": REC["status"], "printed": buf.getvalue().splitlines(),
         "alerts": json.loads(json.dumps(REC["alerts"])), "events": json.loads(json.dumps(REC["events"])),
         "submits": REC["submits"], "detects": REC["detects"], "grabs": REC["grabs"],
+        "chats": REC["chats"], "chat_region": args.chat_region,
         "released": REC["released"], "summary": REC["summary"],
         "counters": [session.frames, session.triggers, session.announced],
         "tables": t, "pictures": pictures,

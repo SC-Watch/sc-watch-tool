@@ -1,6 +1,6 @@
 //! The real parts behind the session's interfaces: the screen (or saved
-//! frames), the IRIS reader, the keys, the alert player and the lookup
-//! worker. Each is a thin adapter: the work is in the crates they wrap.
+//! frames), the IRIS reader, the legacy OCR reader, the chat reader, the
+//! keys, the alert player and the lookup worker. Each is a thin adapter: the work is in the crates they wrap.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -13,8 +13,14 @@ use scw_vision::pipeline::{Contact, FrameReader, ScanArea};
 use scw_vision::{Image, Rect};
 use serde_json::{Value, json};
 
+use scw_ocr::Ocr;
+use scw_ocr::chat::{self, ChatLine, Place};
+use scw_ocr::legacy::{self, km_gate};
+
 use crate::enricher::{EnricherThread, Pending};
-use crate::session::{Detector, Frames, Keys, LookupQueue, Mode, ReadStats, Stop};
+use crate::session::{
+    ChatReader, Detector, Frames, Keys, LookupQueue, Mode, OcrStages, ReadStats, Stop,
+};
 use crate::sinks::{AlertSink, AudioHealth, Console, Spoken};
 
 /// IRIS's letter model (models/iris-letters-model.bin, GPL-3.0), built in.
@@ -31,7 +37,7 @@ pub fn row_reader() -> Result<Arc<RowReader>, String> {
 
 /// IRIS alone (`--reader iris`): reads scan `full`, the always-on scan
 /// scans `auto`. A focused or dual read is a full read: focused reads exist
-/// to get past OCR's limits, and there is no OCR.
+/// to get past OCR's limits, and IRIS's plates never go to OCR.
 pub struct IrisDetector {
     full: FrameReader,
     auto: FrameReader,
@@ -69,6 +75,134 @@ impl Detector for IrisDetector {
 
     fn scan(&mut self, frame: &Image<u8>) -> Vec<Rect> {
         self.auto.scan(frame)
+    }
+}
+
+/// The OCR (PP-OCRv3 under rten), built when something needs it - the
+/// `ocr` reader or a chat key. Its own threads, half the processor's (at
+/// least two), so the game keeps the rest.
+pub fn ocr_engine() -> Result<Arc<Ocr>, String> {
+    let n = std::thread::available_parallelism()
+        .map_or(2, |n| n.get() / 2)
+        .max(2);
+    Ok(Arc::new(Ocr::embedded()?.with_threads(n)))
+}
+
+/// The legacy OCR reader (`--reader ocr`, scw_ocr::legacy): full reads
+/// through the brightness masks, focused reads of the centre, dual reads
+/// merged; the always-on scan is the monitor-rate pass (no OCR), its
+/// positions the name boxes.
+pub struct OcrDetector {
+    ocr: Arc<Ocr>,
+    opts: legacy::Options,
+    /// The focused box; None sizes it from the screen.
+    focus: Option<(usize, usize)>,
+    /// Focused reads through the OCR's own detector (not `focus_mask`).
+    direct: bool,
+    /// An OCR failure, said once.
+    failed: bool,
+}
+
+impl OcrDetector {
+    pub fn new(
+        ocr: Arc<Ocr>,
+        opts: legacy::Options,
+        focus: Option<(usize, usize)>,
+        direct: bool,
+    ) -> Self {
+        OcrDetector {
+            ocr,
+            opts,
+            focus,
+            direct,
+            failed: false,
+        }
+    }
+
+    fn read(&self, frame: &Image<u8>, mode: Mode) -> Result<Vec<Contact>, String> {
+        let mut ocr: &Ocr = &self.ocr;
+        let whole = |ocr: &mut &Ocr| {
+            legacy::detect(frame, ocr, frame.height, legacy::MAX_OCR_PAIRS, &self.opts)
+        };
+        let centre = |ocr: &mut &Ocr| {
+            legacy::detect_focused(frame, ocr, self.focus, self.direct, &self.opts)
+        };
+        match mode {
+            Mode::Focus => centre(&mut ocr),
+            Mode::Dual => {
+                let w = whole(&mut ocr)?;
+                Ok(legacy::merge_contacts(w, centre(&mut ocr)?, frame.height))
+            }
+            _ => whole(&mut ocr),
+        }
+    }
+}
+
+impl Detector for OcrDetector {
+    fn detect(&mut self, frame: &Image<u8>, mode: Mode) -> Vec<Contact> {
+        match self.read(frame, mode) {
+            Ok(found) => found,
+            Err(e) => {
+                if !self.failed {
+                    self.failed = true;
+                    eprintln!("! OCR failed: {e}");
+                }
+                Vec::new()
+            }
+        }
+    }
+
+    fn scan(&mut self, frame: &Image<u8>) -> Vec<Rect> {
+        legacy::cheap_pass(frame, self.opts.gate)
+            .into_iter()
+            .map(|(name, _)| name)
+            .collect()
+    }
+
+    fn debug_stages(&mut self, frame: &Image<u8>) -> Option<OcrStages> {
+        let h = frame.height;
+        let boxes = legacy::find_boxes(&legacy::hud_mask(frame), h);
+        let pairs = legacy::pair_boxes(&boxes, h);
+        let gate_rejects = pairs
+            .iter()
+            .filter_map(|&(n, r)| {
+                let s =
+                    km_gate::score(&boxes[r].crop(frame, legacy::CROP_PAD), km_gate::template());
+                let nb = boxes[n];
+                (s < legacy::KM_GATE_THRESHOLD).then(|| {
+                    (
+                        format!("{}x{}@{},{}", nb.w, nb.h, nb.x, nb.y),
+                        boxes[r].w,
+                        s,
+                    )
+                })
+            })
+            .collect();
+        Some(OcrStages {
+            boxes: boxes.len(),
+            pairs: pairs.len(),
+            passed_gate: legacy::cheap_pass(frame, self.opts.gate).len(),
+            near_misses: legacy::pair_diagnostics(&boxes, h, 14),
+            gate_rejects,
+        })
+    }
+}
+
+/// The chat key's reader: chat.read_located through the OCR, the place
+/// worked out from the frame or the region set.
+pub struct OcrChat {
+    pub ocr: Arc<Ocr>,
+    pub region: Option<[f64; 4]>,
+}
+
+impl ChatReader for OcrChat {
+    fn read(&mut self, frame: &Image<u8>) -> Result<(Vec<ChatLine>, Place), String> {
+        let mut ocr: &Ocr = &self.ocr;
+        chat::read_located(
+            frame,
+            &mut ocr,
+            self.region.map(|r| (r[0], r[1], r[2], r[3])),
+        )
     }
 }
 

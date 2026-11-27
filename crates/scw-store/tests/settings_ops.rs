@@ -168,13 +168,13 @@ fn settings_match_settings_py() {
     // The port's words for settings.py's fields: only the words. Every
     // other part of the field is settings.py's, and a choice has one label
     // per stored value.
-    for k in settings::REWORDED {
+    for k in &settings::reworded_keys() {
         let ours = cats
             .as_array()
             .unwrap()
             .iter()
             .flat_map(|c| c["fields"].as_array().unwrap())
-            .find(|f| f["key"] == *k)
+            .find(|f| f["key"] == k.as_str())
             .unwrap();
         let theirs = settings::python_field(k).unwrap();
         for (name, v) in theirs.as_object().unwrap() {
@@ -183,7 +183,8 @@ fn settings_match_settings_py() {
             }
         }
         let labels = ours["choice_labels"].as_array().map_or(0, Vec::len);
-        if labels != theirs["choices"].as_array().unwrap().len() {
+        let choices = theirs["choices"].as_array().unwrap().len();
+        if ours.get("choice_labels").is_some() && labels != choices {
             bad.push(format!("{k}: {labels} labels for its choices"));
         }
     }

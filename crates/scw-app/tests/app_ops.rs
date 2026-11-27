@@ -223,6 +223,7 @@ fn one_process() {
                 let parts = Parts {
                     frames: Box::new(Screen),
                     detector: Box::new(Reader(probe.clone())),
+                    chat: None,
                     keys: Box::new(Key(probe.clone(), app.stop.clone())),
                     console: Arc::new(Con(probe.clone())),
                     alerts: None,

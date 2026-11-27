@@ -5,5 +5,25 @@
    "SENTRY first",
    "starcitizen-api.com only"
   ]
+ },
+ "reader": {
+  "help": "Who finds and reads the name plates. 'iris' (the default) is IRIS's finder and per-letter reader, ported from github.com/Niteb1rd/IRIS (GPL-3.0): about ten times faster than OCR. Focused reads are off with it - they exist to work around OCR's limits - so the focus and dual keys do a full read. 'ocr' is the legacy reader, sc-watch's own pipeline from before 0.3.0, for when IRIS reads nothing: with Star Citizen's own HDR option on, its glow joins the letters IRIS needs apart. Slower - about a second a frame - with focused and wide + centre reads. There is no 'iris+ocr' in this version: OCR never stands in for a plate IRIS refused, and a saved 'iris+ocr' reads as 'iris'. Chat reads use OCR whatever this says.",
+  "choice_labels": [
+   "ocr - legacy, for the game's own HDR",
+   "iris+ocr - reads as iris",
+   "iris"
+  ]
+ },
+ "gate": {
+  "help": "With the 'ocr' reader: require a range line to look like a range before trusting the pair."
+ },
+ "haze": {
+  "help": "With the 'ocr' reader: adds a fourth, brighter locator pass. Helps against a bright planet surface; finds more junk in space."
+ },
+ "dim_range_retry": {
+  "help": "With the 'ocr' reader: turn this on if you can plainly see contact names that are never reported. On some displays the range line under a name renders dimmer than the name, so the name is found and the contact is thrown away for having no range. This re-reads the strip underneath. It costs roughly 1.5s per read and finds nothing at all on a display that does not have the problem, which is why it is off by default."
+ },
+ "focus_mask": {
+  "help": "With the 'ocr' reader: run the brightness mask on focused reads instead of sending the crop straight to OCR. Slower, and only occasionally better."
  }
 }

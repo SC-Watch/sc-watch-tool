@@ -26,8 +26,8 @@ use scw_vision::{Image, Rect};
 use crate::{Line, Ocr};
 use boxes::slice;
 pub use boxes::{
-    LegacyBox, find_all_boxes, find_boxes, hud_mask, hud_masks, pair_boxes, range_shape_score,
-    red_sat_mask,
+    LegacyBox, find_all_boxes, find_boxes, hud_mask, hud_masks, pair_boxes, pair_diagnostics,
+    range_shape_score, red_sat_mask,
 };
 
 // Tuning, measured at 1440 lines (sc_detector.py says where each came from).
@@ -54,7 +54,8 @@ const RED_SAT_DOM: i16 = 150;
 pub const KM_GATE_THRESHOLD: f64 = 0.43;
 const OCR_UPSCALE: f64 = 3.0;
 const OCR_MARGIN_NATIVE: usize = 16;
-const CROP_PAD: i32 = 6;
+/// Pixels of frame kept round a box when it is cut out for reading.
+pub const CROP_PAD: i32 = 6;
 /// Pairs a full read sends to OCR, the best-ranked first.
 pub const MAX_OCR_PAIRS: usize = 8;
 const IDEAL_GLYPHS: i64 = 4;

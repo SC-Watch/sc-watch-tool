@@ -9,8 +9,11 @@
 //! client, how a restart happens, who hears about commits - comes in as
 //! [`Shared`].
 //!
-//! This version reads with IRIS alone: no OCR, so no `ocr`/`iris+ocr`
-//! reader, no focused reads and no chat reads yet.
+//! The name plates are read by IRIS (`iris`, the default) or by the legacy
+//! OCR reader (`ocr`, for players who keep the game's own HDR on); chat is
+//! read by OCR with either. There is no `iris+ocr`: OCR never stands in for
+//! a plate IRIS refused, and a saved `iris+ocr` reads as `iris`. The OCR's
+//! models are loaded only when something needs them.
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -22,10 +25,12 @@ use serde_json::{Map, Value, json};
 use crate::cli::{self, Args};
 use crate::enricher::{EnricherThread, Owned};
 use crate::live::{
-    AudioSink, BoundKeys, CaptureFrames, IrisDetector, NoInput, WorkerQueue, input_state,
-    row_reader,
+    AudioSink, BoundKeys, CaptureFrames, IrisDetector, NoInput, OcrChat, OcrDetector, WorkerQueue,
+    input_state, ocr_engine, row_reader,
 };
-use crate::session::{LookupQueue, NoLookups, Parts, Restart, Session, SessionOptions};
+use crate::session::{
+    ChatReader, Detector, LookupQueue, NoLookups, Parts, Restart, Session, SessionOptions,
+};
 use crate::sinks::{AlertSink, Console, EventLog, Lookups};
 use crate::{DebugLog, Scrub, SightingsLog, config};
 use scw_capture::{HdrCapture, ReplaySource, Source};
@@ -417,13 +422,19 @@ pub fn utilities(args: &Args, roots: &Roots) -> Option<i32> {
     None
 }
 
-/// A saved OCR reader is read as IRIS alone, and said so.
+/// A saved `iris+ocr` reads as `iris`, and says so: in this version OCR
+/// never stands in for a plate IRIS refused.
 pub fn check_reader(args: &mut Args) {
-    if args.reader != "iris" {
-        eprintln!(
-            "! reader '{}' needs OCR, which this version does not have - reading with IRIS alone",
-            args.reader
-        );
+    // Once a run: the one-process program checks again at each restart.
+    static SAID: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    if args.reader != "iris" && args.reader != "ocr" {
+        if !SAID.swap(true, std::sync::atomic::Ordering::Relaxed) {
+            eprintln!(
+                "! reader '{}' is not in this version - OCR never reads a plate IRIS refused. \
+             Reading with IRIS ('ocr' is the legacy reader, for the game's own HDR)",
+                args.reader
+            );
+        }
         args.reader = "iris".into();
     }
 }
@@ -456,6 +467,7 @@ pub fn session_options(args: &Args, cur: &Map<String, Value>, key_mode: bool) ->
         audit_frame_quality: n("audit_frame_quality", 90.0).clamp(1.0, 100.0) as u8,
         housekeeping_enabled: b("housekeeping_enabled", true),
         housekeeping_every_min: n("housekeeping_every_min", 30.0),
+        chat_region: config::parse_chat_region(&args.chat_region).ok().flatten(),
     }
 }
 
@@ -497,12 +509,12 @@ pub fn build_session(
             &*state,
         )
         .map_err(|e| e.0)?;
-        config::parse_chat_region(&args.chat_region).map_err(|e| e.0)?;
-        config::parse_focus_size(&args.focus_size).map_err(|e| e.0)?;
+        let chat_region = config::parse_chat_region(&args.chat_region).map_err(|e| e.0)?;
+        let focus = config::parse_focus_size(&args.focus_size).map_err(|e| e.0)?;
         let src = open_source(args, roots)?;
-        Ok((binds, src))
+        Ok((binds, src, chat_region, focus))
     })();
-    let (binds, (src, capture, hdr)) = match checked {
+    let (binds, (src, capture, hdr), chat_region, focus) = match checked {
         Ok(v) => v,
         Err(e) => {
             eprintln!("{e}");
@@ -532,12 +544,59 @@ pub fn build_session(
             eprintln!("! {p}");
         }
     }
-    let rows = match row_reader() {
-        Ok(r) => r,
-        Err(e) => {
-            eprintln!("! the IRIS letter model will not load: {e}");
-            return Err(1);
+    // The reader, and the OCR - only when the `ocr` reader or a chat key
+    // needs it: its models take time and memory.
+    let ocr_reader = args.reader == "ocr";
+    let chat_bound = binds.iter().any(|(m, _)| m == "chat");
+    let ocr = if ocr_reader || chat_bound {
+        match ocr_engine() {
+            Ok(o) => Some(o),
+            Err(e) => {
+                eprintln!("! the OCR models will not load: {e}");
+                if ocr_reader {
+                    return Err(1);
+                }
+                None
+            }
         }
+    } else {
+        None
+    };
+    let detector: Box<dyn Detector> = match &ocr {
+        Some(o) if ocr_reader => {
+            let opts = scw_ocr::legacy::Options {
+                gate: args.gate,
+                haze: args.haze,
+                dim_range_retry: cur
+                    .get("dim_range_retry")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false),
+                as_python: false,
+            };
+            let size = match focus {
+                (Some(w), Some(h)) if w > 0 && h > 0 => Some((w as usize, h as usize)),
+                _ => None,
+            };
+            Box::new(OcrDetector::new(o.clone(), opts, size, !args.focus_mask))
+        }
+        _ => match row_reader() {
+            Ok(rows) => Box::new(IrisDetector::new(
+                rows,
+                scan_area(&args.scan_area),
+                scan_area(&args.auto_scan_area),
+            )),
+            Err(e) => {
+                eprintln!("! the IRIS letter model will not load: {e}");
+                return Err(1);
+            }
+        },
+    };
+    let chat: Option<Box<dyn ChatReader>> = match &ocr {
+        Some(o) if chat_bound => Some(Box::new(OcrChat {
+            ocr: o.clone(),
+            region: chat_region,
+        })),
+        _ => None,
     };
 
     let Shared {
@@ -628,6 +687,7 @@ pub fn build_session(
         &capture,
         hdr.as_ref(),
         key_mode,
+        ocr.is_some(),
     );
 
     let mining = if mining_on {
@@ -674,11 +734,8 @@ pub fn build_session(
     let hk_roots = roots.clone();
     let parts = Parts {
         frames: Box::new(CaptureFrames::new(src, con.clone())),
-        detector: Box::new(IrisDetector::new(
-            rows,
-            scan_area(&args.scan_area),
-            scan_area(&args.auto_scan_area),
-        )),
+        detector,
+        chat,
         keys: Box::new(keys),
         console: con.clone(),
         alerts,
@@ -732,8 +789,10 @@ pub fn banner(
     capture: &str,
     hdr: Option<&HdrState>,
     key_mode: bool,
+    ocr_loaded: bool,
 ) {
     let rule = "=".repeat(62);
+    let iris = args.reader != "ocr";
     let label = |m: &str| binds.iter().find(|(k, _)| k == m).map(|(_, b)| b.label());
     println!("{rule}");
     println!("  sc-watch");
@@ -744,17 +803,29 @@ pub fn banner(
             args.ping_delay
         );
         if let Some(l) = label("focus") {
-            println!(
-                "  focused: {l} does a full read (focused reads are off with the 'iris' reader)"
-            );
+            if iris {
+                println!(
+                    "  focused: {l} does a full read (focused reads are off with the 'iris' reader)"
+                );
+            } else {
+                println!("  focused: {l} reads the centre {} only", args.focus_size);
+            }
         }
         if let Some(l) = label("dual") {
-            println!("  dual:    {l} does a full read (no OCR in this version)");
+            if iris {
+                println!(
+                    "  dual:    {l} does a full read (focused reads are off with the 'iris' reader)"
+                );
+            } else {
+                println!("  dual:    {l} reads the whole screen and the centre");
+            }
         }
         if let Some(l) = label("chat") {
-            println!(
-                "  chat:    {l} - reading chat needs OCR, which this version does not have yet"
-            );
+            if ocr_loaded {
+                println!("  chat:    {l} lists who is talking");
+            } else {
+                println!("  chat:    {l} - the OCR models would not load, so chat cannot be read");
+            }
         }
     } else {
         println!("  trigger: continuous, {:.0} Hz", args.hz);
@@ -775,12 +846,23 @@ pub fn banner(
         );
         println!("    and start again (README: Upgrading).");
     }
-    println!("  reading with IRIS's letter model (this version has no OCR)");
-    println!(
-        "  full reads: IRIS's finder and reader (scan area {}), OCR never (reader iris)",
-        args.scan_area
-    );
-    if !key_mode {
+    if iris {
+        println!(
+            "  reading with IRIS's letter model{}",
+            if ocr_loaded {
+                "; chat with ch_PP-OCRv3"
+            } else {
+                ""
+            }
+        );
+        println!(
+            "  full reads: IRIS's finder and reader (scan area {}), OCR never (reader iris)",
+            args.scan_area
+        );
+    } else {
+        println!("  reading with ch_PP-OCRv3 (bundled, 6625-class) - the legacy OCR reader");
+    }
+    if iris && !key_mode {
         println!(
             "  always on: IRIS's scan on every frame (scan area {}) notices new contacts",
             args.auto_scan_area
@@ -837,8 +919,23 @@ pub fn banner(
         ("program".into(), roots.program.display().to_string()),
         ("your data".into(), roots.data.display().to_string()),
         (
+            "ocr backend".into(),
+            if ocr_loaded {
+                "ch_PP-OCRv3 (bundled, 6625-class), rten".into()
+            } else {
+                "not loaded".into()
+            },
+        ),
+        (
             "reader".into(),
-            format!("iris, scan area {}, no OCR", args.scan_area),
+            if iris {
+                format!(
+                    "iris, scan area {}, ocr fallback off, focused reads off",
+                    args.scan_area
+                )
+            } else {
+                "ocr".into()
+            },
         ),
         ("monitor".into(), args.monitor.to_string()),
         ("capture hz".into(), format!("{}", args.hz)),

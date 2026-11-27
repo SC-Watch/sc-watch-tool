@@ -39,11 +39,28 @@ pub const RUST_ONLY: &[&str] = &[
 /// text the page shows for each stored choice. Only the words: the key, the
 /// values stored and what they do stay settings.py's. Lookup source stores
 /// `sci` for "starcitizen-api.com only" - a name that reads like SC
-/// Intelligence, which it has nothing to do with.
+/// Intelligence, which it has nothing to do with; the reader says what this
+/// version has, and the OCR reader's own options say so.
 const WORDING_RUST_JSON: &str = include_str!("settings_wording_rust.json");
 
-/// The keys of the fields this port rewords.
-pub const REWORDED: &[&str] = &["rsi_source"];
+/// Does this port reword this field of settings.py's?
+pub fn reworded(key: &str) -> bool {
+    static KEYS: OnceLock<Vec<String>> = OnceLock::new();
+    KEYS.get_or_init(|| {
+        let wording: Map<String, Value> =
+            serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
+        wording.keys().cloned().collect()
+    })
+    .iter()
+    .any(|k| k == key)
+}
+
+/// The fields this port rewords, in settings_wording_rust.json's order.
+pub fn reworded_keys() -> Vec<String> {
+    let wording: Map<String, Value> =
+        serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
+    wording.keys().cloned().collect()
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -126,7 +143,7 @@ pub fn describe() -> Value {
 }
 
 /// settings.py's own description of one of its fields, before this port's
-/// words ([`REWORDED`]) - for the tests that hold the port to the Python.
+/// words ([`reworded`]) - for the tests that hold the port to the Python.
 pub fn python_field(key: &str) -> Option<Value> {
     let described: Value = serde_json::from_str(SCHEMA_JSON).expect("settings_schema.json");
     described

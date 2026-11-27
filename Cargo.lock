@@ -1360,6 +1360,7 @@ dependencies = [
  "scw-audio",
  "scw-capture",
  "scw-input",
+ "scw-ocr",
  "scw-overlay",
  "scw-rsi",
  "scw-store",

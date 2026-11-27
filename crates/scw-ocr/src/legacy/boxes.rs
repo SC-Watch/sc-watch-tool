@@ -348,3 +348,47 @@ pub fn range_shape_score(crop: &Image<u8>) -> f64 {
     }
     1.0 / (1.0 + (glyphs - IDEAL_GLYPHS).abs() as f64)
 }
+
+/// `pair_diagnostics`: why boxes stacked at a plausible gap did not pair -
+/// a range box outside the width window, or centres apart - as --debug's
+/// near-miss lines; at most `limit`.
+pub fn pair_diagnostics(boxes: &[LegacyBox], frame_h: usize, limit: usize) -> Vec<String> {
+    let drift = scaled(PAIR_MAX_CENTRE_DRIFT, frame_h);
+    let (gap_lo, gap_hi) = (scaled(PAIR_MIN_GAP, frame_h), scaled(PAIR_MAX_GAP, frame_h));
+    let (rng_lo, rng_hi) = (scaled(RANGE_MIN_W, frame_h), scaled(RANGE_MAX_W, frame_h));
+    let mut out = Vec::new();
+    for (ni, name) in boxes.iter().enumerate() {
+        for (ri, rng) in boxes.iter().enumerate() {
+            if ri == ni {
+                continue;
+            }
+            let gap = (rng.y - name.bottom()) as i64;
+            if !(gap_lo <= gap && gap <= gap_hi) {
+                continue;
+            }
+            let w = rng.w as i64;
+            let off = (rng.cx() - name.cx()).abs();
+            let why = if !(rng_lo <= w && w <= rng_hi) {
+                Some(format!(
+                    "range box {}px outside {rng_lo}-{rng_hi}{}",
+                    rng.w,
+                    if w > rng_hi { "  <-- TOO WIDE" } else { "" }
+                ))
+            } else if off > drift as f64 {
+                Some(format!("centres off by {off:.0}px > {drift}"))
+            } else {
+                None
+            };
+            if let Some(why) = why {
+                out.push(format!(
+                    "@{},{} {}x{} over {}x{}: {why}",
+                    name.x, name.y, name.w, name.h, rng.w, rng.h
+                ));
+            }
+            if out.len() >= limit {
+                return out;
+            }
+        }
+    }
+    out
+}
