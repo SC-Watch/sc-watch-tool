@@ -34,6 +34,17 @@ pub const RUST_ONLY: &[&str] = &[
     "mining_label_size",
 ];
 
+/// This port's own words for some of settings.py's fields
+/// (settings_wording_rust.json): a new help text, and `choice_labels`, the
+/// text the page shows for each stored choice. Only the words: the key, the
+/// values stored and what they do stay settings.py's. Lookup source stores
+/// `sci` for "starcitizen-api.com only" - a name that reads like SC
+/// Intelligence, which it has nothing to do with.
+const WORDING_RUST_JSON: &str = include_str!("settings_wording_rust.json");
+
+/// The keys of the fields this port rewords.
+pub const REWORDED: &[&str] = &["rsi_source"];
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Kind {
@@ -88,6 +99,18 @@ fn schema() -> &'static Schema {
                     .iter()
                     .cloned(),
             );
+        let wording: Map<String, Value> =
+            serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
+        for cat in described.as_array_mut().expect("a list of categories") {
+            for f in cat["fields"].as_array_mut().expect("a list of fields") {
+                if let Some(Value::Object(words)) = f["key"].as_str().and_then(|k| wording.get(k)) {
+                    let f = f.as_object_mut().expect("a field");
+                    for (k, v) in words {
+                        f.insert(k.clone(), v.clone());
+                    }
+                }
+            }
+        }
         let cats: Vec<Category> =
             serde_json::from_value(described.clone()).expect("settings_schema.json");
         Schema {
@@ -100,6 +123,18 @@ fn schema() -> &'static Schema {
 /// The schema as plain JSON, for the page to render a form from.
 pub fn describe() -> Value {
     schema().described.clone()
+}
+
+/// settings.py's own description of one of its fields, before this port's
+/// words ([`REWORDED`]) - for the tests that hold the port to the Python.
+pub fn python_field(key: &str) -> Option<Value> {
+    let described: Value = serde_json::from_str(SCHEMA_JSON).expect("settings_schema.json");
+    described
+        .as_array()?
+        .iter()
+        .flat_map(|c| c["fields"].as_array().into_iter().flatten())
+        .find(|f| f["key"] == key)
+        .cloned()
 }
 
 /// Every setting, in schema order.

@@ -618,7 +618,8 @@ fn server_matches_ui_server_py() {
 
 /// The port's answer as ui_server.py would give it: without the settings
 /// only the port has (the mining overlay) - out of every settings map, and
-/// their category out of every schema.
+/// their category out of every schema - and with settings.py's own words
+/// for the fields the port rewords.
 fn as_python(v: &mut Value) {
     let rust_only = scw_store::settings::RUST_ONLY;
     match v {
@@ -627,6 +628,13 @@ fn as_python(v: &mut Value) {
                 for k in rust_only {
                     m.shift_remove(*k);
                 }
+            }
+            if m.contains_key("choices")
+                && let Some(k) = m.get("key").and_then(Value::as_str)
+                && scw_store::settings::REWORDED.contains(&k)
+            {
+                *v = scw_store::settings::python_field(k).expect("a field of settings.py's");
+                return;
             }
             for (_, x) in m.iter_mut() {
                 as_python(x);

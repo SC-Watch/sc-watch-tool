@@ -599,7 +599,17 @@ The steps, each checked before the next:
    the lookup window (the user, 2026-11-26: SC Intelligence is its own
    thing and sc-watch keeps no link to it; the contacts still carry
    `lookup_url`, unused). Not to be confused with starcitizen-api.com, the
-   lookup fallback - Lookup source's `sci` - which stays as it is.
+   lookup fallback - Lookup source's `sci` - which stays as it is; only
+   its words change. The port has its own words for some of settings.py's
+   fields (`settings_wording_rust.json`, `settings::REWORDED`): a help
+   text and `choice_labels`, the text the page shows for each stored
+   choice - Lookup source reads "SENTRY first" / "starcitizen-api.com
+   only" while `settings.json` still holds `sentry` / `sci`, so a
+   settings file means the same to both versions. The page tests put
+   settings.py's own field back before comparing (`settings::python_field`),
+   and `settings_ops` checks that nothing but the words changed.
+   JavaScript lines the port replaces sit in a `/* python-only { ... }
+   python-only */` comment, which the same check puts back.
    Deliberately not IRIS: the game drops and flashes its own signal number,
    and the label went with it; the last rock's label stays up for
    `mining_label_hold` seconds (10 by default; 0 = IRIS's way) after the

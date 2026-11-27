@@ -1,0 +1,9 @@
+{
+ "rsi_source": {
+  "help": "'SENTRY first' asks SENTRY first - fast, no key needed, it sees every org a player is in, and it gives each org's focus - then starcitizen-api.com for anything SENTRY cannot answer. 'starcitizen-api.com only' uses only starcitizen-api.com, the way it worked before SENTRY. An account is only taken as NOT existing when RSI was asked - by starcitizen-api.com, or by SENTRY checking it - never because a database has not heard of it.",
+  "choice_labels": [
+   "SENTRY first",
+   "starcitizen-api.com only"
+  ]
+ }
+}

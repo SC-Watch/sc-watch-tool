@@ -165,6 +165,28 @@ fn settings_match_settings_py() {
     {
         bad.push("a RUST_ONLY key is not in the schema".into());
     }
+    // The port's words for settings.py's fields: only the words. Every
+    // other part of the field is settings.py's, and a choice has one label
+    // per stored value.
+    for k in settings::REWORDED {
+        let ours = cats
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|c| c["fields"].as_array().unwrap())
+            .find(|f| f["key"] == *k)
+            .unwrap();
+        let theirs = settings::python_field(k).unwrap();
+        for (name, v) in theirs.as_object().unwrap() {
+            if name != "help" && ours[name] != *v {
+                bad.push(format!("{k}: the port changed {name}, not only words"));
+            }
+        }
+        let labels = ours["choice_labels"].as_array().map_or(0, Vec::len);
+        if labels != theirs["choices"].as_array().unwrap().len() {
+            bad.push(format!("{k}: {labels} labels for its choices"));
+        }
+    }
     let _ = std::fs::remove_dir_all(&dir);
     assert!(bad.is_empty(), "{} differ\n{}", bad.len(), bad.join("\n"));
 }

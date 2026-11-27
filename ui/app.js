@@ -1216,6 +1216,9 @@ function setVal(k){ return (data.stats.settings||{})[k]; }
 // is, so the convention is the rule.
 const isBinding=k=>k==='key'||k.endsWith('_key');
 
+// rust-only { the port's words for a stored choice (choice_labels), else the value itself
+const choiceText=(f,v)=>{const i=f&&f.choice_labels?f.choices.indexOf(v):-1; return i<0?v:f.choice_labels[i];};
+// } rust-only
 function fieldHTML(f,v){
   const id='set_'+f.key;
   let ctl;
@@ -1223,7 +1226,10 @@ function fieldHTML(f,v){
     ctl=`<input type="checkbox" id="${id}" data-key="${f.key}" ${v?'checked':''}>`;
   }else if(f.type==='choice'){
     ctl=`<select id="${id}" data-key="${f.key}">`+
+/* python-only { the Python shows each choice as stored; the port its words for it (choice_labels: 'sci' is starcitizen-api.com)
       f.choices.map(c=>`<option value="${esc(c)}" ${c===v?'selected':''}>${esc(c)}</option>`)
+} python-only */
+      f.choices.map((c,i)=>`<option value="${esc(c)}" ${c===v?'selected':''}>${esc((f.choice_labels||f.choices)[i])}</option>`) // rust-only
       .join('')+`</select>`;
   }else if(f.type==='int'||f.type==='float'){
     const step=f.type==='int'?'1':'any';
@@ -1239,7 +1245,10 @@ function fieldHTML(f,v){
     ctl=`<input type="text" id="${id}" data-key="${f.key}" value="${esc(v)}">`;
   }
   const changed = JSON.stringify(v)!==JSON.stringify(f.default);
+/* python-only { the Python shows a default as stored
   const shown = d=>f.type==='bool' ? (d?'on':'off') : String(d);
+} python-only */
+  const shown = d=>f.type==='bool' ? (d?'on':'off') : String(choiceText(f,d)); // rust-only
   return `<div class="setrow${changed?' changed':''}${f.advanced?' adv':''}">
     <div>
       <label class="lab" for="${id}">${esc(f.label)}</label>
@@ -1853,7 +1862,7 @@ setPanel.addEventListener('change', async ev=>{
     const shown=j.values[key];
     say(`saved ${f?f.label.toLowerCase():key} = ${shown}`+
         (f&&f.restart?` — restart the ${f.restart} to apply`:''));
-    if(j.one_program) say(`saved ${f?f.label.toLowerCase():key} = ${shown}`+oneProgramNote(f)); // rust-only
+    if(j.one_program) say(`saved ${f?f.label.toLowerCase():key} = ${choiceText(f,shown)}`+oneProgramNote(f)); // rust-only
     // Re-render only when the change alters what the form shows.
     applyTileSize();
     if(key==='show_advanced'){ renderSettings(); }
@@ -1871,7 +1880,10 @@ setPanel.addEventListener('change', async ev=>{
         else if(!old){
           const b=document.createElement('button');
           b.className='reset'; b.dataset.reset=key;
+/* python-only { the Python shows a default as stored
           const d=f.type==='bool'?(f.default?'on':'off'):String(f.default);
+} python-only */
+          const d=f.type==='bool'?(f.default?'on':'off'):String(choiceText(f,f.default)); // rust-only
           b.textContent=`reset · default ${d}`;
           row.firstElementChild.appendChild(b);
         }
@@ -2176,7 +2188,7 @@ setPanel.addEventListener('click', async ev=>{
       data.stats.settings=j.values;
       say(`reset ${f.label.toLowerCase()} to ${f.default}`+
           (f.restart?` — restart the ${f.restart} to apply`:''));
-      if(j.one_program) say(`reset ${f.label.toLowerCase()} to ${f.default}`+oneProgramNote(f)); // rust-only
+      if(j.one_program) say(`reset ${f.label.toLowerCase()} to ${choiceText(f,f.default)}`+oneProgramNote(f)); // rust-only
       renderSettings();
       applyTileSize();
     }catch(e){ say('could not reset: '+e.message); }
