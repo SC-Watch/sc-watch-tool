@@ -76,7 +76,6 @@ pub const MISS_TTL: f64 = 365.0 * 86400.0;
 pub const MIN_INTERVAL: f64 = 1.0;
 pub const DEFAULT_MODE: &str = "auto";
 
-pub const LOOKUP_URL: &str = "https://sc-intelligence.net/search?q=";
 pub const PROFILE_URL: &str = "https://robertsspaceindustries.com/citizens/";
 pub const ORG_URL: &str = "https://robertsspaceindustries.com/orgs/";
 
@@ -92,11 +91,6 @@ pub fn quote(s: &str) -> String {
         }
     }
     out
-}
-
-/// A third-party lookup page, for a person to open.
-pub fn lookup_url(handle: &str) -> String {
-    format!("{LOOKUP_URL}{}", quote(handle))
 }
 
 /// The player's own RSI page.

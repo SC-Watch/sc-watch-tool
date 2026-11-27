@@ -213,13 +213,14 @@ fn loosen(v: &mut Value) {
 #[test]
 #[allow(clippy::too_many_lines)]
 fn server_matches_ui_server_py() {
-    let fx: Value = serde_json::from_slice(
+    let mut fx: Value = serde_json::from_slice(
         &std::fs::read(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ui_ops.json"),
         )
         .unwrap(),
     )
     .unwrap();
+    without_lookup_url(&mut fx);
     let base = std::env::temp_dir().join(format!("scw-ui-ops-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&base);
     let (data, program) = (base.join("data"), base.join("program"));
@@ -646,6 +647,25 @@ fn as_python(v: &mut Value) {
                 as_python(x);
             }
         }
+        _ => {}
+    }
+}
+
+/// ui_server.py's answers without the field this port leaves out: each
+/// contact's `lookup_url`, an sc-intelligence.net link (sc-watch points at
+/// no third-party lookup site).
+fn without_lookup_url(v: &mut Value) {
+    match v {
+        Value::Object(m) => {
+            if m.get("lookup_url")
+                .and_then(Value::as_str)
+                .is_some_and(|u| u.starts_with("https://sc-intelligence.net/"))
+            {
+                m.shift_remove("lookup_url");
+            }
+            m.values_mut().for_each(without_lookup_url);
+        }
+        Value::Array(a) => a.iter_mut().for_each(without_lookup_url),
         _ => {}
     }
 }

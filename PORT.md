@@ -597,8 +597,12 @@ The steps, each checked before the next:
    HTML comment marked `python-only`, which the same check puts back: the
    sc-intelligence.net "SCI lookup" button on tiles, the profile window and
    the lookup window (the user, 2026-11-26: SC Intelligence is its own
-   thing and sc-watch keeps no link to it; the contacts still carry
-   `lookup_url`, unused). Not to be confused with starcitizen-api.com, the
+   thing and sc-watch keeps no link to it). Nor does the port send the
+   Python's other two pointers to it: each contact's `lookup_url` (the
+   tests drop it from ui_server.py's answers) and the link after "not
+   checked" in a lookup's summary (rsi.py's "not checked - <link>" is
+   "not checked" here; the console, the lookup window and the background
+   lookups show it). Not to be confused with starcitizen-api.com, the
    lookup fallback - Lookup source's `sci` - which stays as it is; only
    its words change. The port has its own words for some of settings.py's
    fields (`settings_wording_rust.json`, `settings::REWORDED`): a help

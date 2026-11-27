@@ -626,7 +626,7 @@ impl Ui {
             "ok": true, "handle": h, "exists": c.exists, "fresh": fresh,
             "unverified": c.unverified, "moniker": c.moniker, "enlisted": c.enlisted,
             "enlisted_days": c.enlisted_days(now, utc), "redacted": c.redacted,
-            "profile_url": scw_rsi::profile_url(&h), "lookup_url": scw_rsi::lookup_url(&h),
+            "profile_url": scw_rsi::profile_url(&h),
             "source": c.note.source.map(|s| s.as_str()),
             "observed_days": (c.fetched_at != 0.0).then(|| ((now - c.fetched_at) / 86400.0) as i64),
             "stale": c.note.stale_reason,

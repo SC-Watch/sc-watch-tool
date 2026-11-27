@@ -7,8 +7,6 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::lookup_url;
-
 pub const PIRACY_FOCUS: &[&str] = &["piracy"];
 pub const ADJACENT_FOCUS: &[&str] = &["smuggling", "infiltration"];
 pub const PIRACY_ARCHETYPE: &[&str] = &["syndicate"];
@@ -170,7 +168,9 @@ impl Citizen {
 
     pub fn summary(&self, now: f64, utc: bool) -> String {
         if self.unverified {
-            return format!("not checked - {}", lookup_url(&self.handle));
+            // The Python adds an sc-intelligence.net link for the handle:
+            // sc-watch points at no third-party lookup site (PORT.md).
+            return "not checked".into();
         }
         if !self.exists {
             return "no profile (NPC or bad read)".into();

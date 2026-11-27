@@ -9,7 +9,7 @@ use rusqlite::{Connection, OpenFlags, params_from_iter};
 use serde_json::{Map, Value, json};
 
 use scw_rsi::model::{ADJACENT_FOCUS, FOCUSES, PIRACY_ARCHETYPE, PIRACY_FOCUS};
-use scw_rsi::{CITIZEN_TTL, Citizen, MISS_TTL, lookup_url, org_url, profile_url};
+use scw_rsi::{CITIZEN_TTL, Citizen, MISS_TTL, org_url, profile_url};
 use scw_store::housekeeping::MANAGED;
 use scw_store::reputation::{Database, PENDING, former_line, manual_line};
 use scw_store::settings;
@@ -670,7 +670,6 @@ impl Ui {
             c.insert("flags".into(), json!(flags));
             c.insert("state".into(), json!(state));
             c.insert("profile_url".into(), json!(profile_url(handle)));
-            c.insert("lookup_url".into(), json!(lookup_url(handle)));
             contacts.push(Value::Object(c));
         }
 

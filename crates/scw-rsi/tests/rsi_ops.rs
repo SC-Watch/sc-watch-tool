@@ -15,7 +15,7 @@ use scw_rsi::model::{enlisted_epoch, parse_utc};
 use scw_rsi::sentry::rate_left;
 use scw_rsi::{
     Cache, Citizen, Client, Clock, LookupError, MEMBER_PAGE_CAP, Options, Org, Provider,
-    RequestLog, Roster, lookup_url, org_url, profile_url, why,
+    RequestLog, Roster, org_url, profile_url, why,
 };
 use serde_json::{Map, Value, json};
 
@@ -88,13 +88,29 @@ fn state(c: Option<&Client>) -> Value {
 }
 
 fn fixture() -> Value {
-    serde_json::from_slice(
+    let mut fx = serde_json::from_slice(
         &std::fs::read(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/rsi_ops.json"),
         )
         .unwrap(),
     )
-    .unwrap()
+    .unwrap();
+    without_sci(&mut fx);
+    fx
+}
+
+/// rsi.py's answers with this port's words: a handle not checked is "not
+/// checked", without the sc-intelligence.net link the Python adds (sc-watch
+/// points at no third-party lookup site).
+fn without_sci(v: &mut Value) {
+    match v {
+        Value::String(s) if s.starts_with("not checked - https://sc-intelligence.net/") => {
+            *s = "not checked".into();
+        }
+        Value::Array(a) => a.iter_mut().for_each(without_sci),
+        Value::Object(m) => m.values_mut().for_each(without_sci),
+        _ => {}
+    }
 }
 
 #[test]
@@ -335,8 +351,9 @@ fn lookups_match_rsi_py() {
     }
     for c in fx["urls"].as_array().unwrap() {
         let h = c[0].as_str().unwrap();
-        let got = json!([h, lookup_url(h), profile_url(h), org_url(h)]);
-        if got != *c {
+        // [handle, the Python's sc-intelligence.net link, profile, org]
+        let got = json!([h, profile_url(h), org_url(h)]);
+        if got != json!([c[0], c[2], c[3]]) {
             bad.push(format!("urls: python {c} rust {got}"));
         }
     }
