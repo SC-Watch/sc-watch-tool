@@ -78,10 +78,19 @@ YOUR DATA
   be copied into data/ if you want your reports here too (the files are the
   same on both systems); close sc-watch first.
 
+CHAT, AND THE OCR READER
+
+  The chat key (Settings > Capture > Chat read key) reads the chat window
+  and lists who is talking. Like the other keys it needs Settings >
+  Capture > Trigger on 'key'.
+
+  Settings > Detection > Name reader: 'iris' (the default), or 'ocr', the
+  legacy reader, for when the game's own HDR option is on and IRIS reads
+  nothing; with it the focus key reads the centre of the screen and the
+  dual key reads both. There is no 'iris+ocr': it reads as 'iris'.
+
 NOT IN THIS VERSION YET
 
-  - OCR: reading chat, focused reads and the "iris+ocr" reader. The read,
-    focus and dual keys all do a full IRIS read.
   - HDR: frames are read as the desktop shares them. With HDR on in KDE,
     say how the names read.
   - --check-resolution.
