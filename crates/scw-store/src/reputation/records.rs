@@ -116,17 +116,31 @@ impl Database {
     ) -> rusqlite::Result<i64> {
         let (h, _) = self.canonical(handle, true)?;
         let now = self.now();
-        self.conn.execute(
-            "INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
-               VALUES (?,?,?,1,?)
-               ON CONFLICT(handle) DO UPDATE SET
-                 last_seen=excluded.last_seen, sightings=sightings+1",
-            params![h, now, now, sketch(&h)],
-        )?;
-        self.conn.execute(
-            "INSERT INTO sightings (handle, ts, range_km, votes, total) VALUES (?,?,?,?,?)",
-            params![h, now, range_km, votes, total],
-        )?;
+        // One commit for the player and the sighting, as the Python's: two
+        // would show the page the player without the sighting for a moment
+        // (and wake its live view twice). A savepoint, so it nests inside a
+        // caller's transaction.
+        self.conn.execute_batch("SAVEPOINT record_sighting")?;
+        let wrote = (|| {
+            self.conn.execute(
+                "INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
+                   VALUES (?,?,?,1,?)
+                   ON CONFLICT(handle) DO UPDATE SET
+                     last_seen=excluded.last_seen, sightings=sightings+1",
+                params![h, now, now, sketch(&h)],
+            )?;
+            self.conn.execute(
+                "INSERT INTO sightings (handle, ts, range_km, votes, total) VALUES (?,?,?,?,?)",
+                params![h, now, range_km, votes, total],
+            )
+        })();
+        if let Err(e) = wrote {
+            let _ = self
+                .conn
+                .execute_batch("ROLLBACK TO record_sighting; RELEASE record_sighting");
+            return Err(e);
+        }
+        self.conn.execute_batch("RELEASE record_sighting")?;
         let seen: i64 = self
             .conn
             .query_row("SELECT sightings FROM players WHERE handle=?", [&h], |r| {
