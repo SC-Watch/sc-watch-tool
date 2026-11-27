@@ -8,6 +8,7 @@
 //! Used for chat reads, and by the legacy OCR reader for players who keep
 //! the game's HDR on (PORT.md, "OCR (phase 5)"). Never on IRIS's plates.
 
+pub mod chat;
 pub mod det;
 pub mod fill;
 pub mod geom;

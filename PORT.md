@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads; step 3 **done** - chat reads (`scw_ocr::chat`), chat.py's |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -926,6 +926,31 @@ off for that step only. What IPP changes in the Python's reads, measured
 read only with it, 3 only without - and 2 of the 298 focused reads, with
 the same names. That is the Python's own noise from one computer to
 another, not a difference the port adds.
+
+**Step 3 - built** (`scw_ocr::chat`). chat.py: the chat window's place, a
+fixed distance left of screen centre scaled by the height (helmet on; with
+the helmet off further left, read only when the helmet-on place finds
+nobody - one place's answer, never both), or the region set by hand; the
+crop read by the OCR as it is (colour, no preparation); each line's handle
+between a known channel tag (with OCR's O/0 and A/4) and the first colon,
+`LINE_RE.search` by hand with re's backtracking - the optional closing
+bracket tried taken and then not, since it is often read as I, J, 1 or l
+and a handle may start with one - and Python's `\s`; channel words and
+all-digit handles refused; one line per handle, upper-cased to compare.
+Checked against chat.py (`tests/chat_parity.rs`): `handles_in` on 4,013
+generated lines (placeholder handles: every tag and its OCR spellings, the
+bracket's misreads, Unicode spaces, long and short handles, several tags in
+a line) and the place and crop on 12 screen sizes helmet on and off
+(fixtures/chat_ops.json, committed) - all the same (swapping the bracket's
+two tries makes 167 lines differ); and on every frame of the five corpora
+(298, the place worked out from the frame; every tenth also with a region
+set by hand - 328 reads, 1,285 handles; data in SCW_PARITY_DATA/chat):
+each crop handed to the OCR byte for byte, and fed RapidOCR's lines, the
+same handles, lines, scores and place. With the port's own OCR
+(SCW_CHAT_E2E) the same handles and lines, scores within 1e-4; about 0.4 s
+a crop on all cores. None of the corpora shows the chat helmet off: the
+helmet-off place is checked on the frames where the helmet-on one found
+nobody (its crop and its read), not on a frame where it finds someone.
 
 ## The replay tool
 
