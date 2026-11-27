@@ -168,12 +168,15 @@ impl Watchlist {
             [source_id],
             |r| r.get(0),
         )?;
-        self.conn
-            .execute("DELETE FROM entries WHERE source_id=?", [source_id])?;
-        self.conn
-            .execute("DELETE FROM orgs WHERE source_id=?", [source_id])?;
-        self.conn
-            .execute("DELETE FROM sources WHERE id=?", [source_id])?;
+        // One commit, as the Python's: never a source half forgotten.
+        crate::db::one_commit(&self.conn, "forget_source", || {
+            self.conn
+                .execute("DELETE FROM entries WHERE source_id=?", [source_id])?;
+            self.conn
+                .execute("DELETE FROM orgs WHERE source_id=?", [source_id])?;
+            self.conn
+                .execute("DELETE FROM sources WHERE id=?", [source_id])
+        })?;
         Ok(n)
     }
 

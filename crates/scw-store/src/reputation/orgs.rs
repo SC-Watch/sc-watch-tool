@@ -13,6 +13,7 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 
 use super::database::Database;
+use crate::db::one_commit;
 
 /// One member as a roster lists them.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -137,31 +138,38 @@ impl Database {
     /// profile rows survive.
     pub fn unflag_org(&self, sid: &str) -> rusqlite::Result<()> {
         let sid = sid.to_uppercase();
-        self.conn.execute(
-            "DELETE FROM player_orgs WHERE sid=? AND source='roster'",
-            [&sid],
-        )?;
-        self.conn
-            .execute("DELETE FROM org_membership WHERE sid=?", [&sid])?;
-        self.conn
-            .execute("DELETE FROM org_flags WHERE sid=?", [&sid])?;
-        Ok(())
+        // One commit, as the Python's.
+        one_commit(&self.conn, "unflag_org", || {
+            self.conn.execute(
+                "DELETE FROM player_orgs WHERE sid=? AND source='roster'",
+                [&sid],
+            )?;
+            self.conn
+                .execute("DELETE FROM org_membership WHERE sid=?", [&sid])?;
+            self.conn
+                .execute("DELETE FROM org_flags WHERE sid=?", [&sid])?;
+            Ok(())
+        })
     }
 
     /// What a player's PROFILE says about their orgs; roster rows survive.
     pub fn set_orgs(&self, handle: &str, orgs: &[ProfileOrg]) -> rusqlite::Result<()> {
         let h = handle.to_uppercase();
-        self.conn.execute(
-            "DELETE FROM player_orgs WHERE handle=? AND COALESCE(source,'profile')='profile'",
-            [&h],
-        )?;
-        for o in orgs {
+        // One commit, as the Python's: between the DELETE and the INSERTs
+        // the player would read as in no org at all.
+        one_commit(&self.conn, "set_orgs", || {
             self.conn.execute(
-                "INSERT OR REPLACE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,?, 'profile')",
-                params![h, o.sid.to_uppercase(), o.is_main as i64],
+                "DELETE FROM player_orgs WHERE handle=? AND COALESCE(source,'profile')='profile'",
+                [&h],
             )?;
-        }
-        Ok(())
+            for o in orgs {
+                self.conn.execute(
+                    "INSERT OR REPLACE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,?, 'profile')",
+                    params![h, o.sid.to_uppercase(), o.is_main as i64],
+                )?;
+            }
+            Ok(())
+        })
     }
 
     /// Current membership from a roster; `replace` false for a truncated one.
@@ -172,37 +180,42 @@ impl Database {
         replace: bool,
     ) -> rusqlite::Result<usize> {
         let sid = sid.to_uppercase();
-        if replace {
-            self.conn.execute(
-                "DELETE FROM player_orgs WHERE sid=? AND source='roster'",
-                [&sid],
-            )?;
-        }
-        let mut n = 0;
-        for handle in handles {
-            let h = handle.trim().to_uppercase();
-            if h.is_empty() {
-                continue;
+        // One commit, as the Python's: replacing a roster row by row would
+        // show the page the org's flag gone from its members part-way, and
+        // a roster is hundreds of rows - one commit each was also slow.
+        one_commit(&self.conn, "add_org_members", || {
+            if replace {
+                self.conn.execute(
+                    "DELETE FROM player_orgs WHERE sid=? AND source='roster'",
+                    [&sid],
+                )?;
             }
-            self.conn.execute(
-                "INSERT OR IGNORE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,0,'roster')",
-                params![h, sid],
-            )?;
-            n += 1;
-        }
-        let now = self.now();
-        if replace {
-            self.conn.execute(
-                "UPDATE org_flags SET roster_ts=?, roster_n=? WHERE sid=?",
-                params![now, n as i64, sid],
-            )?;
-        } else {
-            self.conn.execute(
-                "UPDATE org_flags SET roster_ts=? WHERE sid=?",
-                params![now, sid],
-            )?;
-        }
-        Ok(n)
+            let mut n = 0;
+            for handle in handles {
+                let h = handle.trim().to_uppercase();
+                if h.is_empty() {
+                    continue;
+                }
+                self.conn.execute(
+                    "INSERT OR IGNORE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,0,'roster')",
+                    params![h, sid],
+                )?;
+                n += 1;
+            }
+            let now = self.now();
+            if replace {
+                self.conn.execute(
+                    "UPDATE org_flags SET roster_ts=?, roster_n=? WHERE sid=?",
+                    params![now, n as i64, sid],
+                )?;
+            } else {
+                self.conn.execute(
+                    "UPDATE org_flags SET roster_ts=? WHERE sid=?",
+                    params![now, sid],
+                )?;
+            }
+            Ok(n)
+        })
     }
 
     /// Stores a freshly pulled roster: current membership and its history.
@@ -287,42 +300,51 @@ impl Database {
             })
             .map(|b| b.handle.clone())
             .collect();
-        for h in &order {
-            let m = listed[h];
+        // ONE commit, where the Python makes three - the history, then
+        // add_org_members()'s own, then roster_n - for no reason of its own:
+        // nothing between them leaves this process or needs the earlier rows
+        // committed, and the end state is the same. Between the Python's
+        // commits a reader sees the history without the current membership
+        // it implies, then a roster_n that counts the members only you
+        // listed. And a roster is hundreds of rows: one commit each was slow.
+        one_commit(&self.conn, "record_roster", || {
+            for h in &order {
+                let m = listed[h];
+                self.conn.execute(
+                    "INSERT INTO org_membership
+                         (sid, handle, display, rank, stars, first_seen, last_seen,
+                          gone_since, src)
+                       VALUES (?,?,?,?,?,?,?,NULL,?)
+                       ON CONFLICT(sid, handle) DO UPDATE SET
+                         display=excluded.display, rank=excluded.rank,
+                         stars=excluded.stars, last_seen=excluded.last_seen,
+                         gone_since=NULL, src=excluded.src",
+                    params![sid, h, m.display, m.rank, m.stars, now, now, this_src],
+                )?;
+            }
+            for h in &left {
+                self.conn.execute(
+                    "UPDATE org_membership SET gone_since=? WHERE sid=? AND handle=?",
+                    params![now, sid, h],
+                )?;
+            }
             self.conn.execute(
-                "INSERT INTO org_membership
-                     (sid, handle, display, rank, stars, first_seen, last_seen,
-                      gone_since, src)
-                   VALUES (?,?,?,?,?,?,?,NULL,?)
-                   ON CONFLICT(sid, handle) DO UPDATE SET
-                     display=excluded.display, rank=excluded.rank,
-                     stars=excluded.stars, last_seen=excluded.last_seen,
-                     gone_since=NULL, src=excluded.src",
-                params![sid, h, m.display, m.rank, m.stars, now, now, this_src],
+                "UPDATE org_flags SET roster_src=? WHERE sid=?",
+                params![this_src, sid],
             )?;
-        }
-        for h in &left {
+            let current = self.strings(
+                "SELECT handle FROM org_membership WHERE sid=? AND gone_since IS NULL",
+                [&sid],
+            )?;
+            self.add_org_members(&sid, &current, true)?; // nests: part of this commit
             self.conn.execute(
-                "UPDATE org_membership SET gone_since=? WHERE sid=? AND handle=?",
-                params![now, sid, h],
-            )?;
-        }
-        self.conn.execute(
-            "UPDATE org_flags SET roster_src=? WHERE sid=?",
-            params![this_src, sid],
-        )?;
-        let current = self.strings(
-            "SELECT handle FROM org_membership WHERE sid=? AND gone_since IS NULL",
-            [&sid],
-        )?;
-        self.add_org_members(&sid, &current, true)?;
-        self.conn.execute(
-            "UPDATE org_flags SET roster_n=(
-                 SELECT COUNT(*) FROM org_membership WHERE sid=?
-                 AND gone_since IS NULL AND COALESCE(src,'sci')!='manual')
-               WHERE sid=?",
-            params![sid, sid],
-        )?;
+                "UPDATE org_flags SET roster_n=(
+                     SELECT COUNT(*) FROM org_membership WHERE sid=?
+                     AND gone_since IS NULL AND COALESCE(src,'sci')!='manual')
+                   WHERE sid=?",
+                params![sid, sid],
+            )
+        })?;
         Ok(RosterChanges {
             members: listed.len(),
             joined,
@@ -409,37 +431,42 @@ impl Database {
                 |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
             )
             .optional()?;
-        let state = match row {
-            None => {
-                self.conn.execute(
-                    "INSERT INTO org_membership
-                     (sid, handle, display, rank, stars, first_seen, last_seen,
-                      gone_since, src, manual_ts, note)
-                   VALUES (?,?,'','',0,?,?,NULL,'manual',?,?)",
-                    params![sid, h, now, now, now, note],
-                )?;
-                "added"
-            }
-            Some((gone, manual, _)) => {
-                self.conn.execute(
-                    "UPDATE org_membership SET gone_since=NULL,
-                     manual_ts=COALESCE(manual_ts, ?), note=?, manual_src=NULL
-                   WHERE sid=? AND handle=?",
-                    params![now, note, sid, h],
-                )?;
-                if manual.is_some_and(|m| m != 0.0) {
-                    "updated"
-                } else if gone.is_some_and(|g| g != 0.0) {
-                    "back"
-                } else {
-                    "listed"
+        // One commit, as the Python's: the membership and the row that
+        // carries the org's flag to the player land together.
+        let state = one_commit(&self.conn, "add_member_manually", || {
+            let state = match row {
+                None => {
+                    self.conn.execute(
+                        "INSERT INTO org_membership
+                         (sid, handle, display, rank, stars, first_seen, last_seen,
+                          gone_since, src, manual_ts, note)
+                       VALUES (?,?,'','',0,?,?,NULL,'manual',?,?)",
+                        params![sid, h, now, now, now, note],
+                    )?;
+                    "added"
                 }
-            }
-        };
-        self.conn.execute(
-            "INSERT OR IGNORE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,0,'roster')",
-            params![h, sid],
-        )?;
+                Some((gone, manual, _)) => {
+                    self.conn.execute(
+                        "UPDATE org_membership SET gone_since=NULL,
+                         manual_ts=COALESCE(manual_ts, ?), note=?, manual_src=NULL
+                       WHERE sid=? AND handle=?",
+                        params![now, note, sid, h],
+                    )?;
+                    if manual.is_some_and(|m| m != 0.0) {
+                        "updated"
+                    } else if gone.is_some_and(|g| g != 0.0) {
+                        "back"
+                    } else {
+                        "listed"
+                    }
+                }
+            };
+            self.conn.execute(
+                "INSERT OR IGNORE INTO player_orgs (handle, sid, is_main, source) VALUES (?,?,0,'roster')",
+                params![h, sid],
+            )?;
+            Ok(state)
+        })?;
         let known = self.exists("SELECT 1 FROM players WHERE handle=?", [&h])?;
         Ok(MemberChange {
             ok: true,
@@ -466,14 +493,17 @@ impl Database {
             return Ok(refused(format!("{h} was not added to {sid} by you")));
         };
         let state = if src.as_deref().filter(|s| !s.is_empty()).unwrap_or("sci") == "manual" {
-            self.conn.execute(
-                "DELETE FROM org_membership WHERE sid=? AND handle=?",
-                params![sid, h],
-            )?;
-            self.conn.execute(
-                "DELETE FROM player_orgs WHERE sid=? AND handle=? AND source='roster'",
-                params![sid, h],
-            )?;
+            // One commit, as the Python's.
+            one_commit(&self.conn, "remove_manual_member", || {
+                self.conn.execute(
+                    "DELETE FROM org_membership WHERE sid=? AND handle=?",
+                    params![sid, h],
+                )?;
+                self.conn.execute(
+                    "DELETE FROM player_orgs WHERE sid=? AND handle=? AND source='roster'",
+                    params![sid, h],
+                )
+            })?;
             "removed"
         } else {
             self.conn.execute(

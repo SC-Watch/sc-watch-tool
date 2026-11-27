@@ -302,33 +302,39 @@ impl Database {
         let Some(src) = get(old)? else {
             return Ok(false);
         };
-        let tx = self.conn.unchecked_transaction()?;
-        match target {
-            None => {
-                tx.execute(
-                    "UPDATE players SET handle=?, sketch=? WHERE handle=?",
-                    params![new, sketch(new), old],
-                )?;
+        // One commit, as the Python's - a savepoint, not BEGIN, so a caller
+        // that resolves a spelling inside its own transaction is not refused
+        // ("cannot start a transaction within a transaction").
+        crate::db::one_commit(&self.conn, "rename", || {
+            match target {
+                None => {
+                    self.conn.execute(
+                        "UPDATE players SET handle=?, sketch=? WHERE handle=?",
+                        params![new, sketch(new), old],
+                    )?;
+                }
+                Some(t) => {
+                    self.conn.execute(
+                        "UPDATE players SET
+                         sightings = sightings + ?,
+                         first_seen = MIN(first_seen, ?)
+                       WHERE handle=?",
+                        params![src.0.unwrap_or(0), src.1.or(t.1), new],
+                    )?;
+                    self.conn
+                        .execute("DELETE FROM players WHERE handle=?", [old])?;
+                }
             }
-            Some(t) => {
-                tx.execute(
-                    "UPDATE players SET
-                     sightings = sightings + ?,
-                     first_seen = MIN(first_seen, ?)
-                   WHERE handle=?",
-                    params![src.0.unwrap_or(0), src.1.or(t.1), new],
+            for table in ["sightings", "reports", "player_orgs", "player_manual"] {
+                self.conn.execute(
+                    &format!("UPDATE OR IGNORE {table} SET handle=? WHERE handle=?"),
+                    params![new, old],
                 )?;
-                tx.execute("DELETE FROM players WHERE handle=?", [old])?;
+                self.conn
+                    .execute(&format!("DELETE FROM {table} WHERE handle=?"), [old])?;
             }
-        }
-        for table in ["sightings", "reports", "player_orgs", "player_manual"] {
-            tx.execute(
-                &format!("UPDATE OR IGNORE {table} SET handle=? WHERE handle=?"),
-                params![new, old],
-            )?;
-            tx.execute(&format!("DELETE FROM {table} WHERE handle=?"), [old])?;
-        }
-        tx.commit()?;
+            Ok(())
+        })?;
         Ok(true)
     }
 

@@ -9,6 +9,7 @@ use serde_json::{Map, Value};
 
 use super::database::Database;
 use super::{PENDING, sketch};
+use crate::db::one_commit;
 
 /// What forget() removed, per table.
 #[derive(Clone, Debug, Default, PartialEq, Serialize)]
@@ -118,10 +119,8 @@ impl Database {
         let now = self.now();
         // One commit for the player and the sighting, as the Python's: two
         // would show the page the player without the sighting for a moment
-        // (and wake its live view twice). A savepoint, so it nests inside a
-        // caller's transaction.
-        self.conn.execute_batch("SAVEPOINT record_sighting")?;
-        let wrote = (|| {
+        // (and wake its live view twice).
+        one_commit(&self.conn, "record_sighting", || {
             self.conn.execute(
                 "INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
                    VALUES (?,?,?,1,?)
@@ -133,14 +132,7 @@ impl Database {
                 "INSERT INTO sightings (handle, ts, range_km, votes, total) VALUES (?,?,?,?,?)",
                 params![h, now, range_km, votes, total],
             )
-        })();
-        if let Err(e) = wrote {
-            let _ = self
-                .conn
-                .execute_batch("ROLLBACK TO record_sighting; RELEASE record_sighting");
-            return Err(e);
-        }
-        self.conn.execute_batch("RELEASE record_sighting")?;
+        })?;
         let seen: i64 = self
             .conn
             .query_row("SELECT sightings FROM players WHERE handle=?", [&h], |r| {
@@ -255,21 +247,28 @@ impl Database {
         exact: bool,
     ) -> rusqlite::Result<()> {
         let now = self.now();
+        // Resolving the spelling first, outside: it may ask the verifier (RSI,
+        // over the network) and commit a rename of its own, as the Python's
+        // canonical() does. The player row and the report are then one
+        // commit, as the Python's one commit() after both.
         let h = if exact {
             handle.trim().to_uppercase()
         } else {
-            let (h, _) = self.canonical(handle, true)?;
-            self.conn.execute(
-                "INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
-                   VALUES (?,?,?,0,?) ON CONFLICT(handle) DO NOTHING",
-                params![h, now, now, sketch(&h)],
-            )?;
-            h
+            self.canonical(handle, true)?.0
         };
-        self.conn.execute(
-            "INSERT INTO reports (handle, ts, category, note, evidence, source) VALUES (?,?,?,?,?,?)",
-            params![h, now, category, note, evidence, source],
-        )?;
+        one_commit(&self.conn, "add_report", || {
+            if !exact {
+                self.conn.execute(
+                    "INSERT INTO players (handle, first_seen, last_seen, sightings, sketch)
+                       VALUES (?,?,?,0,?) ON CONFLICT(handle) DO NOTHING",
+                    params![h, now, now, sketch(&h)],
+                )?;
+            }
+            self.conn.execute(
+                "INSERT INTO reports (handle, ts, category, note, evidence, source) VALUES (?,?,?,?,?,?)",
+                params![h, now, category, note, evidence, source],
+            )
+        })?;
         Ok(())
     }
 
@@ -547,12 +546,21 @@ impl Database {
                 adopted = true;
             }
         }
+        // Several commits, as the Python: the rename, or the sighting that
+        // adopts the correction, commits on its own first (each is one), and
+        // the audit's own two writes are one more, as the Python's commit()
+        // at the end. Not one transaction around the lot: adopting resolves
+        // the new spelling, which may ask RSI over the network, and a write
+        // transaction held open across that would stall the watcher's writes.
         self.drop_audit_files(&row);
-        self.conn.execute("DELETE FROM audits WHERE id=?", [id])?;
-        self.conn.execute(
-            "UPDATE audits SET handle=? WHERE handle=?",
-            params![new, old],
-        )?;
+        one_commit(&self.conn, "confirm_audit", || {
+            self.conn.execute("DELETE FROM audits WHERE id=?", [id])?;
+            // Other open audits of the old spelling follow it to the new.
+            self.conn.execute(
+                "UPDATE audits SET handle=? WHERE handle=?",
+                params![new, old],
+            )
+        })?;
         Ok(Confirmed {
             ok: true,
             old: Some(old),
@@ -663,14 +671,19 @@ impl Database {
         for r in self.maps("SELECT * FROM audits WHERE handle=?", [&h])? {
             self.drop_audit_files(&r);
         }
-        self.conn.execute(
-            "DELETE FROM player_orgs WHERE handle=? AND source!='roster'",
-            [&h],
-        )?;
-        for table in ["sightings", "reports", "audits", "players", "player_manual"] {
-            self.conn
-                .execute(&format!("DELETE FROM {table} WHERE handle=?"), [&h])?;
-        }
+        // One commit, as the Python's: a page must never show a contact
+        // with half its record gone.
+        one_commit(&self.conn, "forget", || {
+            self.conn.execute(
+                "DELETE FROM player_orgs WHERE handle=? AND source!='roster'",
+                [&h],
+            )?;
+            for table in ["sightings", "reports", "audits", "players", "player_manual"] {
+                self.conn
+                    .execute(&format!("DELETE FROM {table} WHERE handle=?"), [&h])?;
+            }
+            Ok(())
+        })?;
         Ok(removed)
     }
 

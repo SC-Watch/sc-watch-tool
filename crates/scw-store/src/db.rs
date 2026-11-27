@@ -86,6 +86,40 @@ pub fn watch(conn: &mut Connection, changes: std::sync::Arc<Changes>) {
     }));
 }
 
+/// Runs `f`'s writes as one commit: `SAVEPOINT name` ... `RELEASE name`,
+/// all undone when `f` or the release fails.
+///
+/// The Python's sqlite3 opens a transaction before the first write and its
+/// functions commit() once at the end; on its own every statement here is
+/// its own commit, so a reader (the page's live view, woken per commit by
+/// [`watch`]) could see a function half done, and be woken once per row.
+/// A savepoint rather than BEGIN, so it nests inside a caller's transaction
+/// and becomes part of that one. Start it at the first WRITE, not before
+/// the reads that precede it, as the Python's implicit transaction does: in
+/// WAL a transaction that read first cannot take the write lock once
+/// another connection has committed since (SQLITE_BUSY, not waited out).
+pub fn one_commit<T>(
+    conn: &Connection,
+    name: &str,
+    f: impl FnOnce() -> rusqlite::Result<T>,
+) -> rusqlite::Result<T> {
+    let outermost = conn.is_autocommit();
+    conn.execute_batch(&format!("SAVEPOINT {name}"))?;
+    let done = f().and_then(|v| conn.execute_batch(&format!("RELEASE {name}")).map(|_| v));
+    if done.is_err() {
+        // Never leave the connection inside a transaction nobody will end.
+        // The savepoint that began the transaction ends it with ROLLBACK:
+        // ROLLBACK TO then RELEASE would COMMIT it, empty, and wake the page
+        // for nothing. A nested one undoes only its own part.
+        let _ = conn.execute_batch(&if outermost {
+            "ROLLBACK".to_string()
+        } else {
+            format!("ROLLBACK TO {name}; RELEASE {name}")
+        });
+    }
+    done
+}
+
 fn migrated() -> &'static std::sync::Mutex<std::collections::HashSet<String>> {
     static M: std::sync::OnceLock<std::sync::Mutex<std::collections::HashSet<String>>> =
         std::sync::OnceLock::new();
