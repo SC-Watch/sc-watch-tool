@@ -593,7 +593,13 @@ The steps, each checked before the next:
    or the overlay off - `stats.mining` is absent and the page is the
    Python's. The page files' own lines are marked `rust-only`; without
    them the files are the Python's to the byte (`tests/ui_ops.rs` strips
-   them and compares).
+   them and compares). The Python's lines this port leaves out sit in an
+   HTML comment marked `python-only`, which the same check puts back: the
+   sc-intelligence.net "SCI lookup" button on tiles, the profile window and
+   the lookup window (the user, 2026-11-26: SC Intelligence is its own
+   thing and sc-watch keeps no link to it; the contacts still carry
+   `lookup_url`, unused). Not to be confused with starcitizen-api.com, the
+   lookup fallback - Lookup source's `sci` - which stays as it is.
    Deliberately not IRIS: the game drops and flashes its own signal number,
    and the label went with it; the last rock's label stays up for
    `mining_label_hold` seconds (10 by default; 0 = IRIS's way) after the

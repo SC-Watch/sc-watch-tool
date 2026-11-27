@@ -90,17 +90,26 @@ impl InputState for Stick {
 /// A page file as the Python serves it: without this port's own lines -
 /// those between a line saying `rust-only {` and one saying `} rust-only`,
 /// and single lines ending in `// rust-only` (the mining overlay's state in
-/// the header). Everything else must still be the Python's to the byte.
+/// the header) - and with the Python's lines this port leaves out: those
+/// between `python-only {` and `} python-only` (an HTML comment in this
+/// port: the sc-intelligence.net buttons) are kept, the two marker lines
+/// dropped. Everything else must still be the Python's to the byte.
 fn python_view(body: &[u8]) -> Vec<u8> {
     let Ok(text) = std::str::from_utf8(body) else {
         return body.to_vec();
     };
     let mut out = String::with_capacity(text.len());
-    let mut inside = false;
+    let (mut inside, mut python) = (false, false);
     for line in text.split_inclusive('\n') {
         let bare = line.trim_end();
         if inside {
             inside = !bare.contains("} rust-only");
+        } else if python && bare.contains("} python-only") {
+            python = false;
+        } else if !python && bare.contains("python-only {") {
+            python = true;
+        } else if python {
+            out.push_str(line);
         } else if bare.contains("rust-only {") {
             inside = true;
         } else if !bare.ends_with("// rust-only") {
@@ -108,6 +117,7 @@ fn python_view(body: &[u8]) -> Vec<u8> {
         }
     }
     assert!(!inside, "a rust-only block never closed");
+    assert!(!python, "a python-only block never closed");
     out.into_bytes()
 }
 

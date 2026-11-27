@@ -420,7 +420,9 @@ function tile(c){
     ${watchHTML(c)}
     <div class="links">
       <a href="${esc(c.profile_url)}" target="_blank" rel="noopener">RSI profile</a>
+      <!-- python-only { the Python's sc-intelligence.net button: this port keeps none
       <a href="${esc(c.lookup_url)}" target="_blank" rel="noopener">SCI lookup</a>
+      } python-only -->
     </div>
     ${c.pending?`<div class="pending-note">
       <div class="why">flagged ${c.pending}x — no reason recorded yet</div>
@@ -681,7 +683,9 @@ function renderModal(){
       <div class="rep">
         <span class="links">
           <a href="${esc(c.profile_url)}" target="_blank" rel="noopener">RSI profile</a>
+          <!-- python-only { the Python's sc-intelligence.net button: this port keeps none
           <a href="${esc(c.lookup_url)}" target="_blank" rel="noopener">SCI lookup</a>
+          } python-only -->
         </span>
         <span style="flex:1"></span>
         ${c.met===false?'':`<button class="del forget-all ${armedDel==='forget'?'armed':''}"
@@ -760,7 +764,9 @@ function renderLookup(){
           ? `<div class="noorg hidden-org">plus orgs this player hides</div>`:''}
         <div class="links">
           <a href="${esc(r.profile_url)}" target="_blank" rel="noopener">RSI profile</a>
+          <!-- python-only { the Python's sc-intelligence.net button: this port keeps none
           <a href="${esc(r.lookup_url)}" target="_blank" rel="noopener">SCI lookup</a>
+          } python-only -->
         </div>
         <div class="lk-actions">
           ${r.stored
