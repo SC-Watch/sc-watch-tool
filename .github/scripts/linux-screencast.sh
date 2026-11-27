@@ -21,6 +21,33 @@ set -uo pipefail
 
 note() { echo "::warning title=screen-cast setup::$*"; }
 
+# Up to 10 s for a check to pass; a warning when it does not.
+wait_for() { # what, then the check
+  local what=$1
+  shift
+  for _ in $(seq 50); do
+    "$@" && return 0
+    sleep 0.2
+  done
+  note "$what did not come up in 10 s"
+  return 1
+}
+
+# Does someone own this name on the session bus? (Asking the bus itself
+# starts nothing; asking a name it can activate would.)
+has_name() {
+  dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+    org.freedesktop.DBus.ListNames 2>/dev/null | grep -q "\"$1\""
+}
+
+# Does the running portal offer screen casting?
+has_screencast() {
+  has_name org.freedesktop.portal.Desktop \
+    && dbus-send --session --print-reply --dest=org.freedesktop.portal.Desktop \
+      /org/freedesktop/portal/desktop org.freedesktop.DBus.Introspectable.Introspect 2>/dev/null \
+    | grep -q 'org.freedesktop.portal.ScreenCast'
+}
+
 # A file's last lines as one annotation.
 show() { # title, file, level
   [ -s "$2" ] || return 0
@@ -112,10 +139,25 @@ if [ -n "$socket" ] && kill -0 $sway 2>/dev/null; then
   export WAYLAND_DISPLAY=$socket XDG_CURRENT_DESKTOP=sway
   sleep 1
   /usr/libexec/xdg-desktop-portal-wlr >"$logs/xdpw.log" 2>&1 &
-  sleep 1
-  /usr/libexec/xdg-desktop-portal -r >"$logs/xdp.log" 2>&1 &
-  sleep 2
-  if ! run_test portal_sway SCW_PORTAL_TEST=$colour; then
+  # Waited for, not slept on: the portal looks for its backends when it
+  # starts, so a backend that registers late leaves it without a screen-cast
+  # interface for good (seen once on CI: "No such interface ...ScreenCast").
+  portal_up=1
+  if command -v dbus-send >/dev/null; then
+    wait_for "the wlroots portal backend" has_name org.freedesktop.impl.portal.desktop.wlr \
+      || portal_up=0
+    /usr/libexec/xdg-desktop-portal -r >"$logs/xdp.log" 2>&1 &
+    wait_for "the screen-cast portal" has_screencast || portal_up=0
+  else
+    sleep 1
+    /usr/libexec/xdg-desktop-portal -r >"$logs/xdp.log" 2>&1 &
+    sleep 2
+  fi
+  if [ $portal_up = 0 ]; then
+    show "xdg-desktop-portal-wlr" "$logs/xdpw.log"
+    show "xdg-desktop-portal" "$logs/xdp.log"
+    run_test portal_sway
+  elif ! run_test portal_sway SCW_PORTAL_TEST=$colour; then
     # A crash: the test again under gdb, for where.
     bin=$(grep -o "process didn't exit successfully: .[^ ]*" "$logs/test-portal_sway.out" | sed 's/.*`//')
     if [ -n "$bin" ] && command -v gdb >/dev/null; then
