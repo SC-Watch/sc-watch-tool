@@ -331,8 +331,11 @@ refused by IRIS's reason (`lowconf`, `short`, ...) - on the console and as
 an `iris` event in the session log; the Python reports the OCR pipeline's
 stages whatever the reader. With the `ocr` reader those stages are what it
 reports, as the Python does (boxes, pairs, the gate, near misses, gate
-rejections). Ctrl+C is noticed at the next key poll or loop turn (within
-30 ms), not at whatever line Python was on.
+rejections). With the auto trigger the chat key still reads the chat, on
+the frame just grabbed (the user, 2026-11-27: the Python's auto loop
+listens to no key, so a chat key there did nothing); the other keys do
+nothing with that trigger, as before. Ctrl+C is noticed at the next key
+poll or loop turn (within 30 ms), not at whatever line Python was on.
 
 - **The program** (`sc-watch-watcher`, watch.py's main). The command line has
   the saved settings as its defaults and argparse's rules: abbreviations,

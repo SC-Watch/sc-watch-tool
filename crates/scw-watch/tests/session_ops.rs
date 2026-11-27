@@ -776,3 +776,125 @@ fn session_matches_watch_py() {
         bad.join("\n")
     );
 }
+
+/// This port only (the Python's auto loop listens to no key): with the auto
+/// trigger the chat key still reads the chat, on the frame just grabbed,
+/// counted as a trigger - and the always-on scan carries on.
+#[test]
+fn the_chat_key_reads_with_the_auto_trigger() {
+    let root = std::env::temp_dir().join(format!("scw-watch-autochat-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(&root).unwrap();
+    let clock = Arc::new(FakeClock(Mutex::new((1_790_000_000.0, 1000.0))));
+    let rec: R = Arc::new(Mutex::new(Rec::default()));
+    let opts = SessionOptions {
+        key_mode: false,
+        replay: true,
+        burst: 1,
+        burst_spacing: 0.05,
+        ping_delay: 0.0,
+        queue_max: 2,
+        min_votes: 1,
+        rsi_min_votes: 2,
+        verbose: false,
+        debug: false,
+        audit: false,
+        dual_on_read: false,
+        focus_always: false,
+        hz: 5.0,
+        auto_read_delay: 0.0,
+        seconds: 0.0,
+        radius: 40.0,
+        expire: 5.0,
+        cooldown: 300.0,
+        audit_keep_frame: true,
+        audit_frame_quality: 90,
+        housekeeping_enabled: false,
+        housekeeping_every_min: 30.0,
+        chat_region: None,
+    };
+    let c2 = clock.clone();
+    let parts = Parts {
+        frames: Box::new(Src {
+            ids: vec![11, 12, 13],
+            looping: false,
+            i: 0,
+            done: false,
+            rec: rec.clone(),
+            restart_at: None,
+            flag: root.join("restart.flag"),
+            size: (64, 40),
+        }),
+        detector: Box::new(Script {
+            contacts: json!({}),
+            scan: json!({}),
+            rec: rec.clone(),
+        }),
+        chat: Some(Box::new(ChatScript {
+            chat: json!({"12": [[["ExmplOne", "[GLOBAL] ExmplOne: o7", 0.9]], "helmet on"]}),
+            region: None,
+            rec: rec.clone(),
+        })),
+        // pressed when the second frame has been grabbed
+        keys: Box::new(ScriptKeys {
+            modes: vec![Mode::Chat],
+            specs: vec!["8".into()],
+            tokens: vec![1],
+            press: json!({"8": [2]}),
+            fired: HashSet::new(),
+            stop_at: None,
+            linger: 0,
+            label: "8".into(),
+            rec: rec.clone(),
+        }),
+        console: Arc::new(Con(rec.clone())),
+        alerts: Some(Arc::new(Alerts(
+            rec.clone(),
+            AudioHealth {
+                available: json!({"tones": true, "speech": true}),
+                ..AudioHealth::default()
+            },
+        ))),
+        log: Arc::new(Log(rec.clone())),
+        db: None,
+        lookups: Box::new(Queue {
+            rec: rec.clone(),
+            queued: None,
+            every: 0.5,
+            t0: Mutex::new(None),
+            clock: clock.clone(),
+        }),
+        sightings: SightingsLog::open(&root.join("sightings.csv")).unwrap(),
+        clock: clock.clone(),
+        local_now: Box::new(move || utc(c2.time())),
+        data_root: root.clone(),
+        restart: Box::new(FlagFile {
+            path: root.join("restart.flag"),
+            relaunch: Box::new(|| "no relaunch here".into()),
+        }),
+        housekeeper: Box::new(|_, _| String::new()),
+        stop: Arc::new(AtomicBool::new(false)),
+    };
+    let mut session = Session::new(opts, parts);
+    assert_eq!(session.run(), 0);
+    let triggers = session.triggers;
+    drop(session);
+    let r = rec.lock().unwrap();
+    assert_eq!(
+        r.chats,
+        vec![json!([12, null])],
+        "one chat read, of the frame grabbed"
+    );
+    assert!(
+        r.said.contains(&"  chat: 1 handle(s)".to_string()),
+        "{:?}",
+        r.said
+    );
+    assert_eq!(r.submits, vec![json!(["EXMPLONE", null, null, 0, 0, []])]);
+    assert_eq!(triggers, 1);
+    let kinds: Vec<&str> = r.alerts.iter().filter_map(|a| a[0].as_str()).collect();
+    assert!(kinds.starts_with(&["trigger", "contact"]), "{kinds:?}");
+    assert_eq!(r.grabs, 3, "the scan went on over every frame");
+    drop(r);
+    let _ = std::fs::remove_dir_all(&root);
+}

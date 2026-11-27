@@ -1258,8 +1258,15 @@ impl Session {
     }
 
     /// Continuous: the always-on scan notices new contacts, which are read.
+    /// The chat key works here too, on the frame just grabbed (this port
+    /// only: the Python's auto loop listens to no key); the other keys do
+    /// nothing with this trigger.
     fn run_auto(&mut self, deadline: Option<f64>) -> Result<i32, Stop> {
         let interval = 1.0 / self.opts.hz;
+        let chat_key = self.p.keys.modes().iter().position(|m| *m == Mode::Chat);
+        if chat_key.is_some() {
+            self.p.keys.drain();
+        }
         while deadline.is_none_or(|d| self.p.clock.time() < d) {
             self.check_stop()?;
             self.apply_live();
@@ -1287,6 +1294,16 @@ impl Session {
                 self.p.clock.time()
             };
             let n_new = self.tracker.update(&positions, now);
+            if let Some(i) = chat_key
+                && self.p.keys.pressed(i)?
+            {
+                self.triggers += 1;
+                if let Some(a) = self.p.alerts.as_ref() {
+                    a.event("trigger", None, &[], None);
+                }
+                self.con().status("  reading chat...");
+                self.read_chat(Some(frame.clone()));
+            }
             self.mining_tick(Some(&frame));
             let mining = self
                 .mining

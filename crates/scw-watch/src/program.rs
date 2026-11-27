@@ -494,7 +494,10 @@ pub fn build_session(
         .trim()
         .to_string();
     let mining_key_on = mining_on && !mining_key.is_empty() && mining_key != "off";
-    let state: Box<dyn scw_input::InputState> = if key_mode || mining_key_on {
+    // The chat key with the auto trigger (this port only), live capture only.
+    let chat_key = scw_store::json::py_strip(&args.chat_key).to_lowercase();
+    let auto_chat = !key_mode && args.replay.is_none() && !chat_key.is_empty() && chat_key != "off";
+    let state: Box<dyn scw_input::InputState> = if key_mode || mining_key_on || auto_chat {
         input_state()
     } else {
         Box::new(NoInput)
@@ -539,7 +542,7 @@ pub fn build_session(
     let toggle_label = toggle.as_ref().map(|_| mining_key.clone());
     // Keys need the input group on Linux: said before the session starts.
     #[cfg(target_os = "linux")]
-    if key_mode {
+    if key_mode || auto_chat {
         for p in scw_input::linux::LinuxInput::new().problems() {
             eprintln!("! {p}");
         }
@@ -547,7 +550,8 @@ pub fn build_session(
     // The reader, and the OCR - only when the `ocr` reader or a chat key
     // needs it: its models take time and memory.
     let ocr_reader = args.reader == "ocr";
-    let chat_bound = binds.iter().any(|(m, _)| m == "chat");
+    // With the auto trigger only the chat key is listened to, and only live.
+    let chat_bound = binds.iter().any(|(m, _)| m == "chat") && (key_mode || auto_chat);
     let ocr = if ocr_reader || chat_bound {
         match ocr_engine() {
             Ok(o) => Some(o),
@@ -829,6 +833,13 @@ pub fn banner(
         }
     } else {
         println!("  trigger: continuous, {:.0} Hz", args.hz);
+        if let (Some(l), false) = (label("chat"), args.replay.is_some()) {
+            if ocr_loaded {
+                println!("  chat:    {l} lists who is talking (with the auto trigger too)");
+            } else {
+                println!("  chat:    {l} - the OCR models would not load, so chat cannot be read");
+            }
+        }
     }
     println!(
         "  {}-frame bursts, {:.0}s repeat cooldown",
@@ -948,7 +959,10 @@ pub fn banner(
             if key_mode {
                 config::waiting_label(binds)
             } else {
-                "n/a".into()
+                match (label("chat"), args.replay.is_some()) {
+                    (Some(l), false) => format!("chat {l} (auto trigger)"),
+                    _ => "n/a".into(),
+                }
             },
         ),
         (
