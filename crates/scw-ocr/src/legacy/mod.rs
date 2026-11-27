@@ -23,7 +23,7 @@ use scw_vision::names::{NameKind, classify_name, classify_name_as_python, py_dig
 use scw_vision::pipeline::Contact;
 use scw_vision::{Image, Rect};
 
-use crate::{Line, Ocr};
+use crate::{DetSettings, Limit, Line, Ocr};
 use boxes::slice;
 pub use boxes::{
     LegacyBox, find_all_boxes, find_boxes, hud_mask, hud_masks, pair_boxes, pair_diagnostics,
@@ -159,6 +159,60 @@ pub trait Recognise {
     fn text(&mut self, img: &Image<u8>) -> Result<String, String>;
     /// `ocr.lines(img)`: the lines with their boxes.
     fn lines(&mut self, img: &Image<u8>) -> Result<Vec<OcrLine>, String>;
+}
+
+/// The detector's sizing for a plate crop in this port: the crop's own size
+/// (at most 960 px a side), not enlarged until its short side is 736 as
+/// RapidOCR does. Measured on the 298 corpus frames (PORT.md, OCR step 5):
+/// the same reads of handles seen in three or more frames, fewer handles
+/// read only once (39 against 44), about five times faster (0.20 s a frame
+/// against 1.04); on test2's answer key one more correct read.
+pub const PLATE_LIMIT: Limit = Limit::Max(960);
+
+/// The OCR as this port's legacy reader uses it: plate crops (`text`) with
+/// the detector at [`PLATE_LIMIT`], the OCR's own lines (`lines`, the
+/// focused read) at `lines`. `&Ocr` alone is RapidOCR's sizing throughout,
+/// which the tests hold to the Python.
+pub struct Tuned<'a> {
+    pub ocr: &'a Ocr,
+    plates: DetSettings,
+    lines: DetSettings,
+}
+
+impl<'a> Tuned<'a> {
+    pub fn new(ocr: &'a Ocr, lines: Limit) -> Self {
+        Tuned {
+            ocr,
+            plates: DetSettings {
+                limit: PLATE_LIMIT,
+                ..ocr.det_settings.clone()
+            },
+            lines: DetSettings {
+                limit: lines,
+                ..ocr.det_settings.clone()
+            },
+        }
+    }
+}
+
+impl Recognise for Tuned<'_> {
+    fn text(&mut self, img: &Image<u8>) -> Result<String, String> {
+        Ok(self
+            .ocr
+            .read_with(img, &self.plates)?
+            .into_iter()
+            .map(|l| l.text)
+            .collect())
+    }
+
+    fn lines(&mut self, img: &Image<u8>) -> Result<Vec<OcrLine>, String> {
+        Ok(self
+            .ocr
+            .read_with(img, &self.lines)?
+            .iter()
+            .map(OcrLine::from_line)
+            .collect())
+    }
 }
 
 impl Recognise for &Ocr {

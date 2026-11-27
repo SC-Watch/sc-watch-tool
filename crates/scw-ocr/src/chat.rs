@@ -21,6 +21,16 @@ const WIDTH_BARE: f64 = 1220.0;
 const HEIGHT: f64 = 520.0;
 const BOTTOM: f64 = 0.590;
 
+/// The detector's sizing for the chat crop in this port: enlarged until it
+/// is 520 px tall - the crop's own height at 1440 lines, so on a 1440 or
+/// taller screen it is read at its own size, and on a smaller one its text
+/// is brought up to the size measured. RapidOCR enlarges it to 736.
+/// Measured on the 298 corpus frames (PORT.md, OCR step 5): 1,194 handle
+/// reads against 1,164, 1,138 of them of handles read in three or more
+/// frames against 1,114, handles read only once 34 against 36, and about a
+/// quarter faster.
+pub const CHAT_LIMIT: crate::Limit = crate::Limit::Min(520);
+
 /// Words where a handle would be that are not people.
 const NOT_HANDLES: [&str; 16] = [
     "GLOBAL", "LOCAL", "PARTY", "ORG", "SYSTEM", "TEAM", "GUILD", "SQUAD", "ADMIN", "SERVER",

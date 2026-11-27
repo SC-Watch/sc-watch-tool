@@ -73,6 +73,21 @@ fn np_sum(a: &[f64]) -> f64 {
 /// CTC decoding of one crop's `steps` x `classes` probabilities: the text
 /// and RapidOCR's score. `chars[i]` is class i's text (class 0 the blank).
 pub fn decode(probs: &[f32], classes: usize, chars: &[String]) -> (String, f64) {
+    decode_only(probs, classes, chars, None)
+}
+
+/// [`decode`], answering only with the classes `keep` allows: the others'
+/// probabilities count as 0.
+pub fn decode_only(
+    probs: &[f32],
+    classes: usize,
+    chars: &[String],
+    keep: Option<&[bool]>,
+) -> (String, f64) {
+    let allowed = |i: usize, v: f32| match keep {
+        Some(k) if !k[i] => 0.0,
+        _ => v,
+    };
     let steps = probs.len() / classes;
     let mut text = String::new();
     let mut conf: Vec<f64> = Vec::new();
@@ -80,8 +95,9 @@ pub fn decode(probs: &[f32], classes: usize, chars: &[String]) -> (String, f64) 
     for t in 0..steps {
         let p = &probs[t * classes..(t + 1) * classes];
         // argmax: the first of equal maxima
-        let (mut best, mut bv) = (0usize, p[0]);
+        let (mut best, mut bv) = (0usize, allowed(0, p[0]));
         for (i, &v) in p.iter().enumerate().skip(1) {
+            let v = allowed(i, v);
             if v > bv {
                 best = i;
                 bv = v;

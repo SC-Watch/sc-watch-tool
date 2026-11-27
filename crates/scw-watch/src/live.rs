@@ -120,11 +120,13 @@ impl OcrDetector {
     }
 
     fn read(&self, frame: &Image<u8>, mode: Mode) -> Result<Vec<Contact>, String> {
-        let mut ocr: &Ocr = &self.ocr;
-        let whole = |ocr: &mut &Ocr| {
+        // Plate crops with the detector at their own size; the focused
+        // read's lines enlarged to 736, as RapidOCR (PORT.md, OCR step 5).
+        let mut ocr = legacy::Tuned::new(&self.ocr, scw_ocr::Limit::Min(736));
+        let whole = |ocr: &mut legacy::Tuned| {
             legacy::detect(frame, ocr, frame.height, legacy::MAX_OCR_PAIRS, &self.opts)
         };
-        let centre = |ocr: &mut &Ocr| {
+        let centre = |ocr: &mut legacy::Tuned| {
             legacy::detect_focused(frame, ocr, self.focus, self.direct, &self.opts)
         };
         match mode {
@@ -197,7 +199,7 @@ pub struct OcrChat {
 
 impl ChatReader for OcrChat {
     fn read(&mut self, frame: &Image<u8>) -> Result<(Vec<ChatLine>, Place), String> {
-        let mut ocr: &Ocr = &self.ocr;
+        let mut ocr = legacy::Tuned::new(&self.ocr, chat::CHAT_LIMIT);
         chat::read_located(
             frame,
             &mut ocr,

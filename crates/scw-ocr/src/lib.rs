@@ -45,6 +45,9 @@ pub struct Ocr {
     pub det_settings: DetSettings,
     /// RapidOCR's text_score: lines scored under it are dropped.
     pub text_score: f64,
+    /// Which classes the recogniser may answer with (the blank always);
+    /// None: all of them, as RapidOCR.
+    pub classes: Option<Vec<bool>>,
     /// Images this tall or less, or wider than `width_height_ratio` times
     /// their height, are read whole without the detector (RapidOCR's
     /// min_height 30, width_height_ratio 8).
@@ -74,8 +77,22 @@ impl Ocr {
             text_score: 0.5,
             min_height: 30,
             width_height_ratio: 8.0,
+            classes: None,
             pool: None,
         }
+    }
+
+    /// Answers only with characters of `allowed` (and the blank): the
+    /// other classes count as never seen.
+    pub fn only_chars(mut self, allowed: &str) -> Self {
+        self.classes = Some(
+            self.chars
+                .iter()
+                .enumerate()
+                .map(|(i, c)| i == 0 || c.chars().all(|ch| allowed.contains(ch)))
+                .collect(),
+        );
+        self
     }
 
     /// Runs on `n` threads of its own rather than one per core (the game
@@ -107,7 +124,12 @@ impl Ocr {
     /// TextDetector: the text boxes in a BGR image, as RapidOCR lists them
     /// before sorting.
     pub fn detect(&self, img: &Image<u8>) -> Result<Vec<Quad>, String> {
-        let Some(input) = det::prepare(img, self.det_settings.limit) else {
+        self.detect_with(img, &self.det_settings)
+    }
+
+    /// [`Self::detect`] with other detector settings.
+    pub fn detect_with(&self, img: &Image<u8>, s: &DetSettings) -> Result<Vec<Quad>, String> {
+        let Some(input) = det::prepare(img, s.limit) else {
             return Ok(Vec::new());
         };
         let map = self.det_map(&input)?;
@@ -117,7 +139,7 @@ impl Ocr {
             input.height,
             img.width,
             img.height,
-            &self.det_settings,
+            s,
         ))
     }
 
@@ -164,7 +186,12 @@ impl Ocr {
             let per = shape[1] * classes;
             let v = t.to_vec();
             for (k, &i) in batch.iter().enumerate() {
-                out[i] = rec::decode(&v[k * per..(k + 1) * per], classes, &self.chars);
+                out[i] = rec::decode_only(
+                    &v[k * per..(k + 1) * per],
+                    classes,
+                    &self.chars,
+                    self.classes.as_deref(),
+                );
             }
         }
         Ok(out)
@@ -173,6 +200,11 @@ impl Ocr {
     /// `RapidOCR()(img)` without the angle classifier: the lines read, in
     /// reading order, those scored under `text_score` dropped.
     pub fn read(&self, img: &Image<u8>) -> Result<Vec<Line>, String> {
+        self.read_with(img, &self.det_settings)
+    }
+
+    /// [`Self::read`] with other detector settings.
+    pub fn read_with(&self, img: &Image<u8>, s: &DetSettings) -> Result<Vec<Line>, String> {
         let (w, h) = (img.width, img.height);
         if w == 0 || h == 0 {
             return Ok(Vec::new());
@@ -188,7 +220,7 @@ impl Ocr {
             ];
             (vec![q], vec![img.clone()])
         } else {
-            let quads = det::sort_boxes(self.detect(img)?);
+            let quads = det::sort_boxes(self.detect_with(img, s)?);
             if quads.is_empty() {
                 return Ok(Vec::new());
             }

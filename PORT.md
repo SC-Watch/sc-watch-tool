@@ -16,7 +16,7 @@ it - or against OpenCV and IRIS, which it was itself checked against.
 | 2a | The mining overlay (IRIS's), on the phase 1 and 2 pieces | **under way**: plan below; steps 1-5 **done**: the reading logic, the reader and the tracker identical to IRIS's own C#; the live loop, the settings and the pause key; the overlay window on Windows and on Linux (Wayland layer shell, X11); its state on the page |
 | 3 | One process and the page | **done**: `sc-watch` runs the watcher and the page in one process - restarts and settings without files, one lookup client, the page told of every commit; identical to watch.py + ui_server.py on real frames |
 | 4 | Linux on Bazzite (KDE): portal capture, evdev, speech-dispatcher, layer-shell overlay | **under way**: keys and joysticks (evdev), speech and tones, the data folder, capture through the screen-cast portal and PipeWire (Wayland, Wine's Wayland driver) and of X11 windows, and a portable Linux build, tested on CI's Ubuntu; HDR and testing on the real PC next |
-| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads; step 3 **done** - chat reads (`scw_ocr::chat`), chat.py's; step 4 **done** - in the watcher: reader `iris` or `ocr`, the chat key with either |
+| 5 | OCR: chat reads, and the legacy OCR reader for in-game HDR | **under way** (below): step 1 **done** - `scw-ocr`, RapidOCR's answers from the same models under rten (pure Rust); step 2 **done** - the legacy reader (`scw_ocr::legacy`), sc_detector's reads; step 3 **done** - chat reads (`scw_ocr::chat`), chat.py's; step 4 **done** - in the watcher: reader `iris` or `ocr`, the chat key with either; step 5 **done** - the detector sized per use, measured: full reads about five times faster |
 | 6 | SC All-In-One: a Watch page on the same crates | - |
 
 Each phase ends at a gate. Phase 1's - every stage matches the reference
@@ -979,6 +979,46 @@ Clipper, with the Apache License's text. Run on the 48 frames of `corpus`
 with `--reader ocr`: 24 reads, 8 contacts announced, about 0.6 s a frame;
 with `--dual-on-read --debug` the dual reads and the OCR stages, as
 designed.
+
+**Step 5 - measured, and kept where it wins** (`examples/legacy_tune.rs`).
+The detector's sizing, per use: RapidOCR enlarges every image until its
+short side is 736. Scored on test2's answer key (in-game HDR, 30 frames,
+three players, masked) and on all 298 corpus frames - frames whose players
+read exactly as RapidOCR's sizing, player reads of handles that sizing
+reads in three or more frames (likely real), handles read only once
+(likely misreads) - on 8 threads:
+
+| full read, plate crops | key: correct / other | reads | of frequent handles | read once | per frame |
+|---|---|---|---|---|---|
+| enlarged to 736 (RapidOCR) | 51 / 9 | 234 | 178 | 44 | 1.04 s |
+| **own size (at most 960)** | 52 / 9 | 237 | 178 | 39 | **0.20 s** |
+| enlarged to 480 | 53 / 8 | 236 | 178 | 42 | 0.54 s |
+| enlarged to 320 (test2 only) | 50 / 11 | | | | 0.39 s |
+
+| focused read | key | reads | of frequent | read once | per frame |
+|---|---|---|---|---|---|
+| lines at 736 (RapidOCR) | 28 / 1 | 190 | 131 | 41 | 0.40 s |
+| lines at own size | 26 / 3 | 192 | 128 | 48 | 0.21 s |
+| **lines at 736, re-read crops at own size** | 28 / 1 | 190 | 132 | 44 | **0.25 s** |
+
+| chat read | handle reads | of frequent | read once | per frame |
+|---|---|---|---|---|
+| enlarged to 736 (RapidOCR) | 1,164 | 1,114 | 36 | 0.36 s |
+| **enlarged to at least 520 px tall** | 1,194 | 1,138 | 34 | **0.27 s** |
+
+So the watcher's OCR (`legacy::Tuned`) reads plate crops - the full read's,
+and the focused read's re-reads - with the detector at their own size
+(`legacy::PLATE_LIMIT`), the focused read's own lines at 736 as RapidOCR,
+and the chat crop enlarged to at least 520 px tall (`chat::CHAT_LIMIT`):
+its own height at 1440 lines, so read at its own size on a 1440 or taller
+screen (the same answers as no resizing on all 298 frames) and brought up
+to the size measured on a smaller one. Every corpus frame is about 1440
+tall, so smaller screens are reasoned, not measured. On the 48 frames of
+`corpus` the watcher with `--reader ocr` took 8.8 s instead of 28, with
+the same 24 reads and 8 contacts announced. Decoding only the characters a
+name or range holds (`Ocr::only_chars`) changed no read at any size, so
+it is not used. The tests that hold the port to the Python run RapidOCR's
+sizing throughout (`&Ocr`).
 
 ## The replay tool
 
