@@ -299,6 +299,23 @@ fn week(y: i32, w: u32, d: u32) -> Option<NaiveDate> {
 }
 
 impl Ui {
+    /// Not in the Python: does the watcher see the screen through the
+    /// desktop's screen-cast portal - Linux on a Wayland desktop, unless
+    /// SCW_CAPTURE says x11 (scw_capture's LinuxCapture::choose) - where
+    /// the desktop, not the Monitor setting, picks the screen?
+    pub fn shares_screen(&self) -> bool {
+        let env = |k: &str| (self.hooks.env)(k).filter(|v| !v.trim().is_empty());
+        cfg!(target_os = "linux")
+            && match env("SCW_CAPTURE")
+                .map(|v| v.trim().to_lowercase())
+                .as_deref()
+            {
+                Some("x11") => false,
+                Some("portal") => true,
+                _ => env("WAYLAND_DISPLAY").is_some(),
+            }
+    }
+
     pub fn new(
         roots: Roots,
         clock: Arc<dyn Clock>,

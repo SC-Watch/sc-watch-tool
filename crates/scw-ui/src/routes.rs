@@ -1344,6 +1344,33 @@ impl Ui {
                 json!({"ok": true, "job": job, "applied": false, "message": "",
                                  "usage": self.disk_usage(DISK_TTL), "items": [], "kept": [], "errors": []}),
             ),
+            // Not in the Python: where the desktop picks the screen (Linux,
+            // Wayland), forget its choice and restart the watcher, so the
+            // desktop asks again. Nothing is lost: the choice is only a token.
+            "screen" if self.shares_screen() => {
+                if !apply {
+                    return Ok(json!({"ok": true, "job": job, "applied": false, "count": 1,
+                        "message": "the desktop will ask again which screen to share",
+                        "items": [], "kept": [], "errors": []}));
+                }
+                let token = self.data().join(scw_store::paths::SCREENCAST_TOKEN);
+                match std::fs::remove_file(&token) {
+                    Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
+                        return Ok(json!({"ok": false,
+                            "error": format!("could not forget the shared screen: {e}")}));
+                    }
+                    _ => {}
+                }
+                let restarted = self.restart_watcher();
+                if restarted["ok"] != json!(true) {
+                    return Ok(restarted);
+                }
+                Ok(json!({"ok": true, "job": job, "applied": true,
+                    "message": "forgot the shared screen and asked the watcher to restart - your \
+                                desktop now asks which screen to share: pick the one the game is \
+                                on. If nothing happens, no watcher is running.",
+                    "items": [], "kept": [], "errors": []}))
+            }
             _ => Ok(json!({"ok": false, "error": format!("unknown job {}", py_repr_str(&job))})),
         }
     }

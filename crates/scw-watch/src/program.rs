@@ -104,7 +104,7 @@ fn open_screen(monitor: i64, _hdr: HdrCapture, roots: &Roots) -> Result<Opened, 
     match LinuxCapture::choose(&env) {
         LinuxCapture::Portal => {
             use scw_capture::screencast::ScreenCastSource;
-            let token = roots.data(&["screencast_token.txt"]);
+            let token = roots.data(&[scw_store::paths::SCREENCAST_TOKEN]);
             let src = ScreenCastSource::open(Some(token), &|s: &str| println!("{s}"))
                 .map_err(|e| format!("screen capture: {e}"))?;
             let what = src.describe();

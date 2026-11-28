@@ -29,6 +29,12 @@ impl Mode {
     }
 }
 
+/// In the data folder, on Linux on a Wayland desktop: the desktop's token
+/// for sharing the same screen again without asking (scw_capture's
+/// screen-cast source keeps it; the page's "Share a different screen"
+/// removes it).
+pub const SCREENCAST_TOKEN: &str = "screencast_token.txt";
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Roots {
     pub mode: Mode,

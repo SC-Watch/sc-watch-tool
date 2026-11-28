@@ -1202,6 +1202,19 @@ const JOBS=[
         'along with any image no audit row points at.',
    verb:'delete them'},
 ];
+// rust-only { where the desktop picks the screen (Linux on a Wayland desktop: stats.screen_share), a job to have it ask again
+const SCREEN_JOB={id:'screen', title:'Share a different screen',
+  body:'On this desktop the desktop itself decides which screen sc-watch sees: '+
+       'it asked the first time and shares the same one from then on. This '+
+       'forgets that choice and restarts the watcher, so the desktop asks '+
+       'again - pick the screen the game is on.',
+  verb:'ask again', direct:true};
+function syncScreenJob(){
+  const i=JOBS.indexOf(SCREEN_JOB), want=!!(data.stats&&data.stats.screen_share);
+  if(want&&i<0) JOBS.splice(JOBS.findIndex(j=>j.id==='restart'),0,SCREEN_JOB);
+  if(!want&&i>=0) JOBS.splice(i,1);
+}
+// } rust-only
 
 function setVal(k){ return (data.stats.settings||{})[k]; }
 
@@ -1794,6 +1807,7 @@ function renderSettings(){
   }else if(cat.key==='flags'){
     body=flagsHTML();
   }else if(cat.key==='maintenance'){
+    syncScreenJob(); // rust-only
     body=diskHTML()+ignoredHTML()+JOBS.map(j=>`
       <div class="job" data-job="${j.id}">
         <h3>${esc(j.title)}</h3>

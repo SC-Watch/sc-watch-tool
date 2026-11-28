@@ -819,6 +819,11 @@ impl Ui {
         if self.links.is_some() {
             stats.insert("one_program".into(), json!(true));
         }
+        // Not in the Python: the desktop picks the screen (Linux, Wayland),
+        // so Maintenance offers to have it ask again.
+        if self.shares_screen() {
+            stats.insert("screen_share".into(), json!(true));
+        }
         Ok(json!({"contacts": contacts, "stats": stats, "now": now}))
     }
 
