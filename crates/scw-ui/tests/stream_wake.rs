@@ -83,6 +83,13 @@ fn a_commit_wakes_the_stream() {
     let changes = Arc::new(Changes::default());
     ui.changes = Some(changes.clone());
     let ui = Arc::new(ui);
+    // The page's own setup first: its first database open also starts the
+    // lookup client, which creates rsi_cache.db - unannounced here (in the
+    // program the client starts before any page and its cache is watched).
+    // Left to the stream, the cache's first appearance can be its first look
+    // after the commit's wake, before the commit lands; the frame then
+    // carries the commit and the next look sends the same again.
+    drop(ui.open_db().unwrap());
 
     let frames = Frames::default();
     let going = Arc::new(AtomicBool::new(true));
