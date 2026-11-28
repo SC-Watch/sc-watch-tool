@@ -333,8 +333,10 @@ stages whatever the reader. With the `ocr` reader those stages are what it
 reports, as the Python does (boxes, pairs, the gate, near misses, gate
 rejections). With the auto trigger the chat key still reads the chat, on
 the frame just grabbed (the user, 2026-11-27: the Python's auto loop
-listens to no key, so a chat key there did nothing); the other keys do
-nothing with that trigger, as before. Ctrl+C is noticed at the next key
+listens to no key, so a chat key there did nothing), looked at every
+20 ms while the loop waits for its next frame, so a quick tap of a
+combination is not lost between frames; the other keys do nothing with
+that trigger, as before. Ctrl+C is noticed at the next key
 poll or loop turn (within 30 ms), not at whatever line Python was on.
 
 - **The program** (`sc-watch-watcher`, watch.py's main). The command line has

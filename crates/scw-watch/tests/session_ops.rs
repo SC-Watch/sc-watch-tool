@@ -64,6 +64,7 @@ struct Rec {
     summary: Option<Value>,
     stop_polls: usize,
     chats: Vec<Value>,
+    key_polls: usize,
 }
 
 type R = Arc<Mutex<Rec>>;
@@ -364,6 +365,7 @@ impl Keys for ScriptKeys {
     fn pressed(&mut self, i: usize) -> Result<bool, Stop> {
         let n = {
             let mut r = self.rec.lock().unwrap();
+            r.key_polls += 1;
             if let Some(at) = self.stop_at
                 && r.grabs >= at
             {
@@ -777,19 +779,22 @@ fn session_matches_watch_py() {
     );
 }
 
-/// This port only (the Python's auto loop listens to no key): with the auto
-/// trigger the chat key still reads the chat, on the frame just grabbed,
-/// counted as a trigger - and the always-on scan carries on.
-#[test]
-fn the_chat_key_reads_with_the_auto_trigger() {
-    let root = std::env::temp_dir().join(format!("scw-watch-autochat-{}", std::process::id()));
-    let _ = std::fs::remove_dir_all(&root);
-    std::fs::create_dir_all(&root).unwrap();
+/// An auto-trigger session with a chat key bound ("8", pressed when `press_at`
+/// frames have been grabbed) and the chat scripted for frame 12.
+fn auto_chat_session(
+    root: &Path,
+    rec: &R,
+    replay: bool,
+    seconds: f64,
+    ids: Vec<usize>,
+    press_at: usize,
+) -> Session {
+    let _ = std::fs::remove_dir_all(root);
+    std::fs::create_dir_all(root).unwrap();
     let clock = Arc::new(FakeClock(Mutex::new((1_790_000_000.0, 1000.0))));
-    let rec: R = Arc::new(Mutex::new(Rec::default()));
     let opts = SessionOptions {
         key_mode: false,
-        replay: true,
+        replay,
         burst: 1,
         burst_spacing: 0.05,
         ping_delay: 0.0,
@@ -803,7 +808,7 @@ fn the_chat_key_reads_with_the_auto_trigger() {
         focus_always: false,
         hz: 5.0,
         auto_read_delay: 0.0,
-        seconds: 0.0,
+        seconds,
         radius: 40.0,
         expire: 5.0,
         cooldown: 300.0,
@@ -816,8 +821,8 @@ fn the_chat_key_reads_with_the_auto_trigger() {
     let c2 = clock.clone();
     let parts = Parts {
         frames: Box::new(Src {
-            ids: vec![11, 12, 13],
-            looping: false,
+            looping: !replay,
+            ids,
             i: 0,
             done: false,
             rec: rec.clone(),
@@ -835,12 +840,11 @@ fn the_chat_key_reads_with_the_auto_trigger() {
             region: None,
             rec: rec.clone(),
         })),
-        // pressed when the second frame has been grabbed
         keys: Box::new(ScriptKeys {
             modes: vec![Mode::Chat],
             specs: vec!["8".into()],
             tokens: vec![1],
-            press: json!({"8": [2]}),
+            press: json!({"8": [press_at]}),
             fired: HashSet::new(),
             stop_at: None,
             linger: 0,
@@ -867,7 +871,7 @@ fn the_chat_key_reads_with_the_auto_trigger() {
         sightings: SightingsLog::open(&root.join("sightings.csv")).unwrap(),
         clock: clock.clone(),
         local_now: Box::new(move || utc(c2.time())),
-        data_root: root.clone(),
+        data_root: root.to_path_buf(),
         restart: Box::new(FlagFile {
             path: root.join("restart.flag"),
             relaunch: Box::new(|| "no relaunch here".into()),
@@ -875,7 +879,18 @@ fn the_chat_key_reads_with_the_auto_trigger() {
         housekeeper: Box::new(|_, _| String::new()),
         stop: Arc::new(AtomicBool::new(false)),
     };
-    let mut session = Session::new(opts, parts);
+    Session::new(opts, parts)
+}
+
+/// This port only (the Python's auto loop listens to no key): with the auto
+/// trigger the chat key still reads the chat, on the frame just grabbed,
+/// counted as a trigger - and the always-on scan carries on.
+#[test]
+fn the_chat_key_reads_with_the_auto_trigger() {
+    let root = std::env::temp_dir().join(format!("scw-watch-autochat-{}", std::process::id()));
+    let rec: R = Arc::new(Mutex::new(Rec::default()));
+    // pressed when the second frame has been grabbed
+    let mut session = auto_chat_session(&root, &rec, true, 0.0, vec![11, 12, 13], 2);
     assert_eq!(session.run(), 0);
     let triggers = session.triggers;
     drop(session);
@@ -895,6 +910,34 @@ fn the_chat_key_reads_with_the_auto_trigger() {
     let kinds: Vec<&str> = r.alerts.iter().filter_map(|a| a[0].as_str()).collect();
     assert!(kinds.starts_with(&["trigger", "contact"]), "{kinds:?}");
     assert_eq!(r.grabs, 3, "the scan went on over every frame");
+    drop(r);
+    let _ = std::fs::remove_dir_all(&root);
+}
+
+/// Live (not a replay), the chat key is looked at every 20 ms while the
+/// loop waits for its next frame - about ten times in each 0.2 s cycle at
+/// 5 Hz - so a quick tap is not lost between frames; a press caught while
+/// waiting reads the chat on the next frame.
+#[test]
+fn the_auto_loop_listens_for_the_chat_key_while_it_waits() {
+    let root = std::env::temp_dir().join(format!("scw-watch-autopoll-{}", std::process::id()));
+    let rec: R = Arc::new(Mutex::new(Rec::default()));
+    // one second at 5 Hz; pressed once frame 12 (the second) is grabbed
+    let mut session = auto_chat_session(&root, &rec, false, 1.0, vec![11, 12], 2);
+    assert_eq!(session.run(), 0);
+    let frames = session.frames;
+    drop(session);
+    let r = rec.lock().unwrap();
+    assert!(
+        (5..=6).contains(&frames),
+        "{frames} frames in a second at 5 Hz"
+    );
+    assert!(
+        r.key_polls >= 8 * frames,
+        "{} looks at the chat key in {frames} cycles",
+        r.key_polls
+    );
+    assert_eq!(r.chats, vec![json!([12, null])], "{:?}", r.chats);
     drop(r);
     let _ = std::fs::remove_dir_all(&root);
 }

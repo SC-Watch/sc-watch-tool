@@ -297,6 +297,9 @@ const RULE: &str = "============================================================
 /// --debug lines of a kind the session log takes per frame.
 const DEBUG_DETAIL_MAX: usize = 12;
 
+/// How often the auto loop looks at the chat key while it waits (s).
+const CHAT_POLL: f64 = 0.02;
+
 pub struct Session {
     pub opts: SessionOptions,
     pub p: Parts,
@@ -1258,15 +1261,18 @@ impl Session {
     }
 
     /// Continuous: the always-on scan notices new contacts, which are read.
-    /// The chat key works here too, on the frame just grabbed (this port
-    /// only: the Python's auto loop listens to no key); the other keys do
-    /// nothing with this trigger.
+    /// The chat key works here too (this port only: the Python's auto loop
+    /// listens to no key), looked at every 20 ms while the loop waits for
+    /// its next frame, as often as the key loop looks - a press caught then
+    /// reads the chat on the next frame; the other keys do nothing with this
+    /// trigger.
     fn run_auto(&mut self, deadline: Option<f64>) -> Result<i32, Stop> {
         let interval = 1.0 / self.opts.hz;
         let chat_key = self.p.keys.modes().iter().position(|m| *m == Mode::Chat);
         if chat_key.is_some() {
             self.p.keys.drain();
         }
+        let mut chat_pending = false;
         while deadline.is_none_or(|d| self.p.clock.time() < d) {
             self.check_stop()?;
             self.apply_live();
@@ -1295,7 +1301,7 @@ impl Session {
             };
             let n_new = self.tracker.update(&positions, now);
             if let Some(i) = chat_key
-                && self.p.keys.pressed(i)?
+                && (std::mem::take(&mut chat_pending) || self.p.keys.pressed(i)?)
             {
                 self.triggers += 1;
                 if let Some(a) = self.p.alerts.as_ref() {
@@ -1336,9 +1342,26 @@ impl Session {
                 }
             }
             if !self.opts.replay {
-                let slack = interval - (self.p.clock.monotonic() - cycle);
-                if slack > 0.0 {
-                    self.p.clock.sleep(slack);
+                match chat_key {
+                    // The chat key while waiting: a quick tap of a
+                    // combination still counts; a press ends the wait.
+                    Some(i) => loop {
+                        let left = interval - (self.p.clock.monotonic() - cycle);
+                        if left <= 0.0 {
+                            break;
+                        }
+                        if self.p.keys.pressed(i)? {
+                            chat_pending = true;
+                            break;
+                        }
+                        self.p.clock.sleep(left.min(CHAT_POLL));
+                    },
+                    None => {
+                        let slack = interval - (self.p.clock.monotonic() - cycle);
+                        if slack > 0.0 {
+                            self.p.clock.sleep(slack);
+                        }
+                    }
                 }
             }
         }
