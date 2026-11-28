@@ -1470,6 +1470,7 @@ async function startDetect(key, btn){
     try{ j=await fetch('/api/inputs',{cache:'no-store'}).then(r=>r.json()); }
     catch(e){ stopDetect('detect failed: '+e.message); return; }
     if(!j.ok){ stopDetect('detect failed: '+(j.error||'')); return; }
+    if(baseline===null&&(j.problems||[]).length) say(j.problems.join(' · ')); // rust-only
 
     const now=new Set([...(j.mods||[]),
                        ...(j.buttons||[]).map(b=>b.index),

@@ -265,6 +265,10 @@ impl LinuxInput {
 }
 
 impl InputState for LinuxInput {
+    fn problems(&self) -> Vec<String> {
+        LinuxInput::problems(self)
+    }
+
     fn key_down(&self, vk: u32) -> bool {
         let codes = keycodes(vk);
         if codes.is_empty() {

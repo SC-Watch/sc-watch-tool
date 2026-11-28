@@ -23,6 +23,11 @@ pub trait InputState {
     fn devices(&self) -> Vec<Device>;
     /// Bitmask of held buttons (bit 0 = button 1); 0 when the device is gone.
     fn buttons_down(&self, index: u32) -> u32;
+    /// What this system keeps from being read, in words for the user (on
+    /// Linux: keyboards closed to this user). None by default.
+    fn problems(&self) -> Vec<String> {
+        Vec::new()
+    }
 }
 
 /// How often the joystick list is read again (to notice a stick plugged back in).

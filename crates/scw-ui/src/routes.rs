@@ -340,10 +340,18 @@ impl Ui {
                 }
             }
         }
-        json!({"ok": true,
+        let mut out = json!({"ok": true,
                "devices": devs.iter().map(|d| json!({"label": d.describe(), "ident": d.ident(),
                                                     "index": d.index})).collect::<Vec<_>>(),
-               "mods": held, "keys": keys, "buttons": buttons})
+               "mods": held, "keys": keys, "buttons": buttons});
+        // Not in the Python: what this system keeps from being read (Linux:
+        // keyboards closed to this user), so detect can say why a key is
+        // never seen.
+        let problems = state.problems();
+        if !problems.is_empty() {
+            out["problems"] = json!(problems);
+        }
+        out
     }
 
     fn post(self: &Arc<Self>, r: &Request) -> Reply {
