@@ -152,7 +152,7 @@ mod tests {
     #[test]
     fn the_terminal_is_the_desktops_own_first() {
         let exe = "/home/u/sc watch/sc-watch";
-        let only = |names: &'static [&'static str]| move |n: &str| names.iter().any(|m| *m == n);
+        let only = |names: &'static [&'static str]| move |n: &str| names.contains(&n);
         let pick = |desktop: &str, names: &'static [&'static str]| {
             command_for(exe, desktop, &only(names)).map(|(t, a)| (t, a.join("|")))
         };
