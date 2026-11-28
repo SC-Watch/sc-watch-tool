@@ -112,7 +112,7 @@ pub fn matching(
     size: Option<(i32, i32)>,
 ) -> Option<&KdeOutput> {
     let on: Vec<&KdeOutput> = outputs.iter().filter(|o| o.enabled).collect();
-    fn one<'a>(found: Vec<&'a KdeOutput>) -> Option<&'a KdeOutput> {
+    fn one(found: Vec<&KdeOutput>) -> Option<&KdeOutput> {
         match found.as_slice() {
             [o] => Some(*o),
             _ => None,
