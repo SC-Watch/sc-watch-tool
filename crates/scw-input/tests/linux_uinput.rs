@@ -88,6 +88,11 @@ fn reads_a_virtual_keyboard_and_joystick() {
     assert_eq!(stick_dev.ident(), "vid231d:0126");
     assert_eq!(stick_dev.buttons, 5);
     assert_eq!(stick_dev.axes, 2);
+    assert_eq!(
+        input.writable_handles(),
+        0,
+        "every device is held read-only"
+    );
     let keyboard = input.problems().is_empty();
     if !keyboard {
         println!(

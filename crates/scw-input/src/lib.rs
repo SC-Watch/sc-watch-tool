@@ -5,6 +5,7 @@
 //! nothing and swallow nothing (the press still reaches the game); on Linux
 //! [`linux::LinuxInput`] asks evdev for the same state, the same way.
 
+pub mod access;
 pub mod binding;
 #[cfg(target_os = "linux")]
 pub mod linux;
@@ -13,6 +14,7 @@ pub mod windows;
 
 use std::time::{Duration, Instant};
 
+pub use access::KeyAccess;
 pub use binding::{BindError, Device, Token, parse};
 
 /// Reads the current state of keys and joysticks.
@@ -27,6 +29,16 @@ pub trait InputState {
     /// Linux: keyboards closed to this user). None by default.
     fn problems(&self) -> Vec<String> {
         Vec::new()
+    }
+    /// Where keyboard keys stand, on a system where they need setting up
+    /// (Linux: the `input` group). None: there is nothing to set up.
+    fn key_access(&self) -> Option<KeyAccess> {
+        None
+    }
+    /// Sets keyboard keys up (Linux: through the desktop's password
+    /// dialog; it takes effect at the next login).
+    fn grant_key_access(&self) -> Result<(), String> {
+        Err("there is nothing to set up for keyboard keys here".into())
     }
 }
 

@@ -10,7 +10,12 @@
 //!
 //! Joysticks are readable by the logged-in user on most systems. Keyboards
 //! are not, on purpose (reading one is how a keylogger works): reading keys
-//! needs the `input` group, or bind a joystick button instead.
+//! needs the `input` group (the page sets it up: [`crate::access`]), or bind
+//! a joystick button instead.
+//!
+//! Every device is opened read-only - evdev's own enumerate opens read-write
+//! where it may - so sc-watch could not send anything to a keyboard or stick
+//! even by mistake: it only asks.
 
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -155,17 +160,46 @@ fn event_number(p: &std::path::Path) -> u32 {
         .unwrap_or(u32::MAX)
 }
 
+/// The event nodes, each opened read-only, and how many there are.
+fn open_read_only() -> (Vec<(PathBuf, evdev::Device)>, usize) {
+    let mut found = Vec::new();
+    let mut nodes = 0;
+    for e in std::fs::read_dir("/dev/input")
+        .into_iter()
+        .flatten()
+        .flatten()
+    {
+        if !e.file_name().to_string_lossy().starts_with("event") {
+            continue;
+        }
+        nodes += 1;
+        let path = e.path();
+        if let Ok(f) = std::fs::File::open(&path)
+            && let Ok(dev) = evdev::Device::from_fd(f.into())
+        {
+            found.push((path, dev));
+        }
+    }
+    (found, nodes)
+}
+
+/// Was this descriptor opened for writing too? (/proc/self/fdinfo's flags,
+/// the access mode in their low two bits.) Unknown counts as yes.
+fn writable(fd: std::os::fd::RawFd) -> bool {
+    std::fs::read_to_string(format!("/proc/self/fdinfo/{fd}"))
+        .ok()
+        .and_then(|t| {
+            t.lines()
+                .find_map(|l| l.strip_prefix("flags:"))
+                .and_then(|v| u32::from_str_radix(v.trim(), 8).ok())
+        })
+        .is_none_or(|flags| flags & 0o3 != 0)
+}
+
 impl Inner {
     fn scan(&mut self) {
-        let mut found: Vec<(PathBuf, evdev::Device)> = evdev::enumerate().collect();
+        let (mut found, nodes) = open_read_only();
         found.sort_by_key(|(p, _)| event_number(p));
-        let nodes = std::fs::read_dir("/dev/input")
-            .map(|rd| {
-                rd.flatten()
-                    .filter(|e| e.file_name().to_string_lossy().starts_with("event"))
-                    .count()
-            })
-            .unwrap_or(0);
         self.unreadable = nodes.saturating_sub(found.len());
         self.keyboards.clear();
         self.joysticks.clear();
@@ -252,8 +286,8 @@ impl LinuxInput {
             out.push(if g.unreadable > 0 {
                 format!(
                     "no keyboard can be read: {} input device(s) are closed to this user. Keys \
-                     need the 'input' group (sudo usermod -aG input $USER, then log in again) - \
-                     or bind a joystick button instead",
+                     need the 'input' group: on the page, Settings > Maintenance > 'Let \
+                     sc-watch read keyboard keys' sets it up - or bind a joystick button instead",
                     g.unreadable
                 )
             } else {
@@ -264,9 +298,45 @@ impl LinuxInput {
     }
 }
 
+impl LinuxInput {
+    /// How many of the devices held open could be written to: none, as
+    /// each is opened read-only (for the test that says so).
+    pub fn writable_handles(&self) -> usize {
+        use std::os::fd::AsRawFd;
+        let mut g = self.inner();
+        g.scan_if_due();
+        g.keyboards
+            .iter()
+            .map(AsRawFd::as_raw_fd)
+            .chain(g.joysticks.iter().map(|j| j.dev.as_raw_fd()))
+            .filter(|fd| writable(*fd))
+            .count()
+    }
+}
+
 impl InputState for LinuxInput {
     fn problems(&self) -> Vec<String> {
         LinuxInput::problems(self)
+    }
+
+    fn key_access(&self) -> Option<crate::KeyAccess> {
+        let readable = {
+            let mut g = self.inner();
+            g.scan_if_due();
+            !g.keyboards.is_empty() || g.unreadable == 0
+        };
+        let status = std::fs::read_to_string("/proc/self/status").unwrap_or_default();
+        let group = std::fs::read_to_string("/etc/group").unwrap_or_default();
+        Some(crate::access::key_access(
+            readable,
+            crate::access::current_user().as_deref(),
+            &group,
+            &crate::access::gids_in_status(&status),
+        ))
+    }
+
+    fn grant_key_access(&self) -> Result<(), String> {
+        crate::access::grant()
     }
 
     fn key_down(&self, vk: u32) -> bool {

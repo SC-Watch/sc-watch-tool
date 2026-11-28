@@ -1379,6 +1379,49 @@ impl Ui {
                                 on. If nothing happens, no watcher is running.",
                     "items": [], "kept": [], "errors": []}))
             }
+            // Not in the Python: on Linux keyboards are read only by the
+            // input group. The check says where keys stand; doing it runs
+            // the setup through the desktop's own password dialog (the
+            // password never passes through here) and waits for it.
+            "keyboard" => {
+                let input = (self.hooks.input)();
+                let Some(state) = input.key_access() else {
+                    return Ok(json!({"ok": false,
+                        "error": "keyboard keys need no setting up on this system"}));
+                };
+                let said = |count: usize, message: &str| {
+                    json!({"ok": true, "job": job, "applied": apply, "count": count,
+                        "message": message, "items": [], "kept": [], "errors": []})
+                };
+                Ok(match (state, apply) {
+                    (scw_input::KeyAccess::Readable, _) => said(
+                        0,
+                        "sc-watch can already read keyboard keys - nothing to set up",
+                    ),
+                    (scw_input::KeyAccess::AfterLogin, _) => said(
+                        0,
+                        "you are in the 'input' group already: log out of the desktop and back \
+                         in, and keyboard keys work",
+                    ),
+                    (scw_input::KeyAccess::Needed, false) => said(
+                        1,
+                        "sc-watch cannot read keyboard keys: Linux lets only the 'input' group \
+                         read keyboards. Setting it up asks for your password in the desktop's \
+                         own dialog, adds you to the group, and works once you log out and back \
+                         in. Being in the group lets any program you run read keystrokes. \
+                         sc-watch only asks whether a key is down - read-only, never taking a \
+                         key from the game. Joystick buttons need none of this.",
+                    ),
+                    (scw_input::KeyAccess::Needed, true) => match input.grant_key_access() {
+                        Ok(()) => said(
+                            0,
+                            "done - log out of the desktop and back in, and keyboard keys work \
+                             (the detect buttons see them too)",
+                        ),
+                        Err(e) => json!({"ok": false, "error": e}),
+                    },
+                })
+            }
             _ => Ok(json!({"ok": false, "error": format!("unknown job {}", py_repr_str(&job))})),
         }
     }

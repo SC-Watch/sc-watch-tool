@@ -1202,17 +1202,27 @@ const JOBS=[
         'along with any image no audit row points at.',
    verb:'delete them'},
 ];
-// rust-only { where the desktop picks the screen (Linux on a Wayland desktop: stats.screen_share), a job to have it ask again
-const SCREEN_JOB={id:'screen', title:'Share a different screen',
-  body:'On this desktop the desktop itself decides which screen sc-watch sees: '+
-       'it asked the first time and shares the same one from then on. This '+
-       'forgets that choice and restarts the watcher, so the desktop asks '+
-       'again - pick the screen the game is on.',
-  verb:'ask again', direct:true};
-function syncScreenJob(){
-  const i=JOBS.indexOf(SCREEN_JOB), want=!!(data.stats&&data.stats.screen_share);
-  if(want&&i<0) JOBS.splice(JOBS.findIndex(j=>j.id==='restart'),0,SCREEN_JOB);
-  if(!want&&i>=0) JOBS.splice(i,1);
+// rust-only { jobs only some systems have, offered where the stats say: the desktop picks the screen (Linux on a Wayland desktop), keyboards need a group (Linux)
+const SYSTEM_JOBS=[
+  {id:'screen', title:'Share a different screen', when:s=>s.screen_share,
+   body:'On this desktop the desktop itself decides which screen sc-watch sees: '+
+        'it asked the first time and shares the same one from then on. This '+
+        'forgets that choice and restarts the watcher, so the desktop asks '+
+        'again - pick the screen the game is on.',
+   verb:'ask again', direct:true},
+  {id:'keyboard', title:'Let sc-watch read keyboard keys', when:s=>s.key_setup,
+   body:'Linux lets only the input group read keyboards, so keyboard bindings '+
+        'do nothing until you are in it (joystick buttons work as they are). '+
+        'The check says where you stand; setting it up asks for your password '+
+        'in the desktop\'s own dialog and works once you log out and back in.',
+   verb:'set it up'},
+];
+function syncSystemJobs(){
+  for(const j of SYSTEM_JOBS){
+    const i=JOBS.indexOf(j), want=!!(data.stats&&j.when(data.stats));
+    if(want&&i<0) JOBS.splice(JOBS.findIndex(x=>x.id==='restart'),0,j);
+    if(!want&&i>=0) JOBS.splice(i,1);
+  }
 }
 // } rust-only
 
@@ -1808,7 +1818,7 @@ function renderSettings(){
   }else if(cat.key==='flags'){
     body=flagsHTML();
   }else if(cat.key==='maintenance'){
-    syncScreenJob(); // rust-only
+    syncSystemJobs(); // rust-only
     body=diskHTML()+ignoredHTML()+JOBS.map(j=>`
       <div class="job" data-job="${j.id}">
         <h3>${esc(j.title)}</h3>

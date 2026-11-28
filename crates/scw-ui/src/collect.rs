@@ -824,6 +824,11 @@ impl Ui {
         if self.shares_screen() {
             stats.insert("screen_share".into(), json!(true));
         }
+        // Not in the Python: on Linux keyboards are read only by the input
+        // group, so Maintenance offers to set that up.
+        if cfg!(target_os = "linux") {
+            stats.insert("key_setup".into(), json!(true));
+        }
         Ok(json!({"contacts": contacts, "stats": stats, "now": now}))
     }
 
