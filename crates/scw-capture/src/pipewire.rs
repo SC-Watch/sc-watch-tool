@@ -193,6 +193,10 @@ struct Slot {
     error: Option<String>,
     /// A grab is waiting for the next buffer.
     want: bool,
+    /// Only this part (x, y, width, height) of it, when asked.
+    part: Option<(usize, usize, usize, usize)>,
+    /// The asked part was not inside the buffer that arrived.
+    outside: bool,
     frame: Option<Image<u8>>,
     /// Why the last buffer could not be read, once.
     unreadable: Option<String>,
@@ -312,9 +316,14 @@ impl Shared {
         // SAFETY: a dequeued buffer's spa_buffer, data and chunk stay valid
         // until it is queued back, which the caller does after this.
         let s = &mut *slot;
-        let read = unsafe { frame_of(b, f, &s.mapped, &mut s.checked) };
+        let read = unsafe { frame_of(b, f, s.part, &s.mapped, &mut s.checked) };
         match read {
-            Ok(img) => {
+            Ok(None) => {
+                slot.outside = true;
+                slot.want = false;
+                self.arrived.notify_all();
+            }
+            Ok(Some(img)) => {
                 slot.frame = Some(img);
                 slot.want = false;
                 slot.frames += 1;
@@ -330,14 +339,18 @@ impl Shared {
     }
 }
 
+/// The buffer as a picture - only `part` of it when asked, None when that
+/// part is not inside it.
+///
 /// # Safety
 /// As [`Shared::read`].
 unsafe fn frame_of(
     b: *mut PwBuffer,
     f: VideoFormat,
+    part: Option<(usize, usize, usize, usize)>,
     mapped: &[Mapped],
     checked: &mut Vec<(usize, usize)>,
-) -> Result<Image<u8>, String> {
+) -> Result<Option<Image<u8>>, String> {
     let layout =
         Layout::from_id(f.format).ok_or(format!("pixel format {} is not readable", f.format))?;
     // SAFETY: see the caller.
@@ -394,8 +407,20 @@ unsafe fn frame_of(
     }
     // SAFETY: the range was found readable in this process's memory map.
     let bytes = unsafe { std::slice::from_raw_parts(start as *const u8, size) };
-    spa::to_bgr(bytes, w, h, stride, layout)
-        .ok_or_else(|| format!("{size} bytes is too few for {w}x{h}, {stride} a row"))
+    let too_few = || format!("{size} bytes is too few for {w}x{h}, {stride} a row");
+    match part {
+        None => spa::to_bgr(bytes, w, h, stride, layout)
+            .map(Some)
+            .ok_or_else(too_few),
+        Some(p @ (x, y, pw, ph)) => {
+            if pw == 0 || ph == 0 || x + pw > w || y + ph > h {
+                return Ok(None);
+            }
+            spa::to_bgr_part(bytes, (w, h), stride, layout, p)
+                .map(Some)
+                .ok_or_else(too_few)
+        }
+    }
 }
 
 /// Is `[start, start + len)` readable memory in this process? Answered
@@ -704,12 +729,26 @@ impl PwCapture {
     /// that has not changed sends nothing). Only frames that arrive while a
     /// grab waits are read, so none is ever older than the grab.
     pub fn next_frame(&self, wait: Duration) -> Result<Option<Image<u8>>, CaptureError> {
+        self.next_part(wait, None)
+    }
+
+    /// As [`PwCapture::next_frame`], but only `part` (x, y, width, height)
+    /// of the frame is converted - None too when it is not inside it.
+    pub fn next_part(
+        &self,
+        wait: Duration,
+        part: Option<(usize, usize, usize, usize)>,
+    ) -> Result<Option<Image<u8>>, CaptureError> {
         let end = Instant::now() + wait;
         let mut slot = self.shared.lock();
         slot.frame = None;
+        slot.outside = false;
+        slot.part = part;
         slot.want = true;
         let got = self.wait_frame(slot, end);
-        self.shared.lock().want = false;
+        let mut slot = self.shared.lock();
+        slot.want = false;
+        slot.part = None;
         got
     }
 
@@ -726,6 +765,9 @@ impl PwCapture {
             }
             if let Some(f) = slot.frame.take() {
                 return Ok(Some(f));
+            }
+            if std::mem::take(&mut slot.outside) {
+                return Ok(None);
             }
             if let Some(why) = slot.unreadable.take() {
                 return Err(CaptureError::System(why));

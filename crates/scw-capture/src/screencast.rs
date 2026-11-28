@@ -79,6 +79,23 @@ impl Source for ScreenCastSource {
         self.stream.next_frame(WAIT)
     }
 
+    /// Only the part is converted, as Windows' capture copies only the part.
+    fn grab_region(
+        &mut self,
+        x: usize,
+        y: usize,
+        w: usize,
+        h: usize,
+    ) -> Result<Option<Image<u8>>, CaptureError> {
+        self.stream.next_part(WAIT, Some((x, y, w, h)))
+    }
+
+    fn size(&self) -> Option<(usize, usize)> {
+        self.stream
+            .format()
+            .map(|f| (f.width as usize, f.height as usize))
+    }
+
     fn describe(&self) -> String {
         self.what.clone()
     }

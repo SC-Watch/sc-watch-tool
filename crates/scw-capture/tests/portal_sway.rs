@@ -43,6 +43,25 @@ fn shares_and_reads_the_screen_through_the_portal() {
     println!("step: a frame {}x{}", img.width, img.height);
     let centre = ((img.height / 2) * img.width + img.width / 2) * 3;
     assert_eq!(&img.data[centre..centre + 3], &bgr, "the output's colour");
+    // The size is known without a grab, and a part is read alone.
+    assert_eq!(
+        src.size(),
+        Some((img.width, img.height)),
+        "the stream's size"
+    );
+    let mut part = None;
+    for _ in 0..40 {
+        if let Some(p) = src
+            .grab_region(img.width / 2, img.height / 2, 16, 8)
+            .unwrap()
+        {
+            part = Some(p);
+            break;
+        }
+    }
+    let part = part.expect("a part of the screen within 10 s");
+    assert_eq!((part.width, part.height), (16, 8));
+    assert_eq!(&part.data[..3], &bgr, "the part's colour");
     let kept = token.exists();
     let _ = std::fs::remove_file(&token);
     println!(

@@ -37,9 +37,24 @@ fn reads_a_pipewire_video_node() {
     // A second grab is a later frame, not the same one again.
     let again = cap.next_frame(Duration::from_secs(2)).unwrap();
     assert!(again.is_some(), "the next frame arrives");
+    // Only a part, as the mining overlay reads: that part's pixels; a part
+    // not inside the screen is nothing, and no frame read.
+    let part = cap
+        .next_part(Duration::from_secs(2), Some((10, 20, 30, 4)))
+        .unwrap()
+        .expect("the part arrives");
+    assert_eq!((part.width, part.height, part.channels), (30, 4, 3));
+    assert!(
+        part.data.chunks(3).all(|p| p == [0xc0, 0x80, 0x20]),
+        "the part's pixels"
+    );
+    let outside = cap
+        .next_part(Duration::from_secs(2), Some((300, 0, 30, 4)))
+        .unwrap();
+    assert!(outside.is_none(), "a part past the right edge");
     let (streaming, frames) = cap.streaming();
     assert!(streaming);
-    assert_eq!(frames, 2, "only the frames asked for were converted");
+    assert_eq!(frames, 3, "only the frames asked for were converted");
     println!(
         "::notice title=pipewire stream::ran - {}x{} format {} agreed, frames read pixel-exact",
         f.width, f.height, f.format

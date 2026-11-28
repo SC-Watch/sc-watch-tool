@@ -306,9 +306,55 @@ pub fn to_bgr(
     Some(out)
 }
 
+/// Only the part (x, y, width, height) of a `width` x `height` picture, as
+/// [`to_bgr`] gives the whole: None when the part is not inside it. The
+/// mining overlay reads a small band many times a second, and converting
+/// the whole screen for it would cost the CPU what Windows' capture of the
+/// band alone does not.
+pub fn to_bgr_part(
+    data: &[u8],
+    (width, height): (usize, usize),
+    stride: usize,
+    layout: Layout,
+    (x, y, w, h): (usize, usize, usize, usize),
+) -> Option<Image<u8>> {
+    if w == 0 || h == 0 || x + w > width || y + h > height || stride < width * 4 {
+        return None;
+    }
+    to_bgr(data.get(y * stride + x * 4..)?, w, h, stride, layout)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_part_is_the_same_pixels_as_the_whole_cut_down() {
+        // 5x4 pixels, a 24-byte stride (4 bytes of padding a row), each
+        // byte telling where it is
+        let (w, h, stride) = (5, 4, 24);
+        let data: Vec<u8> = (0..stride * h).map(|i| (i % 251) as u8).collect();
+        for layout in [Layout::Bgrx, Layout::Rgba, Layout::Xbgr] {
+            let whole = to_bgr(&data, w, h, stride, layout).unwrap();
+            let part = to_bgr_part(&data, (w, h), stride, layout, (1, 2, 3, 2)).unwrap();
+            assert_eq!((part.width, part.height), (3, 2));
+            assert_eq!(part, crate::crop(&whole, 1, 2, 3, 2).unwrap());
+            // the whole, asked for as a part
+            assert_eq!(
+                to_bgr_part(&data, (w, h), stride, layout, (0, 0, w, h)).unwrap(),
+                whole
+            );
+        }
+        for outside in [(3, 0, 3, 1), (0, 3, 1, 2), (0, 0, 0, 1), (5, 0, 1, 1)] {
+            assert!(
+                to_bgr_part(&data, (w, h), stride, Layout::Bgrx, outside).is_none(),
+                "{outside:?}"
+            );
+        }
+        // the last row may stop at its last pixel
+        let short = &data[..stride * (h - 1) + w * 4];
+        assert!(to_bgr_part(short, (w, h), stride, Layout::Bgrx, (4, 3, 1, 1)).is_some());
+    }
 
     fn words(b: &[u8]) -> Vec<u32> {
         b.chunks(4)
