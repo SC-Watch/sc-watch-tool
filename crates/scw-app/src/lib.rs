@@ -15,6 +15,8 @@
 //! [`App`] holds what is shared and runs the sessions; how a session is
 //! built is handed to [`App::supervise`], so a test can run it on fakes.
 
+pub mod terminal;
+
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};

@@ -25,13 +25,20 @@ use scw_watch::session::InProcess;
 use scw_watch::sinks::{AlertSink, Console};
 
 fn main() {
-    std::process::exit(run());
+    let rc = run();
+    scw_app::terminal::hold_on_error(rc, &|k| std::env::var(k).ok());
+    std::process::exit(rc);
 }
 
 #[allow(clippy::too_many_lines)]
 fn run() -> i32 {
     let roots = Roots::current();
     let all: Vec<String> = std::env::args().skip(1).collect();
+    // Double-clicked: into a terminal window of its own, as on Windows.
+    #[cfg(target_os = "linux")]
+    if let Some(rc) = scw_app::terminal::relaunch(&all) {
+        return rc;
+    }
     let (flags, argv) = match split_flags(&all) {
         Ok(v) => v,
         Err(e) => {
