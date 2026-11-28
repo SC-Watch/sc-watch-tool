@@ -52,9 +52,18 @@ KEYS AND JOYSTICKS
 
   Keyboard keys need your user in the "input" group: Linux only lets
   programs in that group read keyboards (it is how a keylogger would work,
-  so think about whether you want it). The watcher says so when it starts.
-  On Bazzite and other Fedora Atomic systems the group must first be copied
-  into /etc/group:
+  so think about whether you want it - any program you run could then read
+  keystrokes). The watcher says so when it starts, and so does the page's
+  detect button.
+
+  To set it up: on the page, Settings > Maintenance > "Let sc-watch read
+  keyboard keys" - "check first", then "set it up". The desktop asks for
+  your password in its own dialog (sc-watch never sees it); then log out
+  and back in. sc-watch only ever asks whether a key is down: it opens
+  every device read-only and never takes a key from the game.
+
+  Or by hand, in a terminal (on Bazzite and other Fedora Atomic systems the
+  first line copies the group into /etc/group; elsewhere it is not needed):
 
       grep -E '^input:' /usr/lib/group | sudo tee -a /etc/group
       sudo usermod -aG input "$USER"

@@ -800,10 +800,23 @@ What a Windows user has without asking, the Linux build now has too:
 - **The mining band read alone.** Each read of the overlay's band
   converted the whole shared screen and cut it down; Windows copies only
   the band. The PipeWire stream now converts only the part asked for.
+- **Keyboard keys set up on the page.** Windows lets any program ask
+  whether a key is down; Linux lets only the `input` group read a
+  keyboard, which took sudo commands in a terminal (and, on Fedora Atomic,
+  copying the group into /etc/group first). Settings > Maintenance > "Let
+  sc-watch read keyboard keys" (the page's `keyboard` job, through
+  `InputState::key_access` / `grant_key_access`, `scw_input::access`)
+  checks where keys stand - readable, waiting on a new login, or needed -
+  and sets it up with pkexec: the desktop's own password dialog runs a
+  fixed script as root with the user's name as its one argument, then a
+  new login finishes it. Every input device is now opened read-only
+  (evdev's own enumerate opened them read-write where it could), so being
+  in the group never lets sc-watch send anything to a device; CI checks no
+  handle is writable. The page's detect says why a key is never seen.
 
 Still to see on the real PC: KDE's HDR conversion against a no-HDR frame
-of the same scene, the double-click start in Dolphin, and the screen
-dialog asked again from the page.
+of the same scene, the double-click start in Dolphin, the screen dialog
+asked again from the page, and the keyboard setup's password dialog.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
