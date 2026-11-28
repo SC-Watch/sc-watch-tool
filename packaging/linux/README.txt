@@ -17,12 +17,17 @@ WHAT IS HERE
 
 HOW TO RUN
 
-  Start Star Citizen first, then, in a terminal in this folder:
+  Start Star Citizen first, then double-click sc-watch in this folder (if
+  the file manager asks, choose to run it). It opens a terminal window of
+  its own, as sc-watch.exe opens one on Windows: what it says is shown
+  there, and closing that window stops it.
+
+  Or, in a terminal in this folder:
 
       ./sc-watch --verbose
 
-  The page opens in your browser at http://127.0.0.1:8731. Press your read
-  key in game as usual. Ctrl+C in the terminal stops it.
+  and Ctrl+C there stops it. Either way the page opens in your browser at
+  http://127.0.0.1:8731. Press your read key in game as usual.
 
 THE FIRST START: SHARING THE SCREEN
 
@@ -33,7 +38,8 @@ THE FIRST START: SHARING THE SCREEN
   asking. The dialog may name the terminal you started sc-watch from: that
   is the program KDE sees.
 
-  To be asked again, delete data/screencast_token.txt.
+  To share a different screen: on the page, Settings > Maintenance >
+  "Share a different screen". The desktop asks again.
 
   If the game runs as an X11 window (Proton's default, not Wine's Wayland
   driver), this also works without the dialog:
@@ -81,19 +87,21 @@ YOUR DATA
 CHAT, AND THE OCR READER
 
   The chat key (Settings > Capture > Chat read key) reads the chat window
-  and lists who is talking. Like the other keys it needs Settings >
-  Capture > Trigger on 'key'.
+  and lists who is talking, with either trigger ('key' or 'auto').
 
   Settings > Detection > Name reader: 'iris' (the default), or 'ocr', the
   legacy reader, for when the game's own HDR option is on and IRIS reads
   nothing; with it the focus key reads the centre of the screen and the
   dual key reads both. There is no 'iris+ocr': it reads as 'iris'.
 
-NOT IN THIS VERSION YET
+HDR
 
-  - HDR: frames are read as the desktop shares them. With HDR on in KDE,
-    say how the names read.
-  - --check-resolution.
+  Nothing to set. With HDR on, KDE Plasma converts the screen to SDR
+  itself before sharing it - the picture the game drew, at your SDR
+  brightness - which is what sc-watch does for itself on Windows. The
+  lines sc-watch prints at the start say whether KDE has HDR on for the
+  shared screen. Keep Star Citizen's own HDR option off: it makes HUD text
+  bloom (if it is on, Settings > Detection > Name reader 'ocr' reads it).
 
 LOGS, FRAMES AND A SUPPORT BUNDLE
 

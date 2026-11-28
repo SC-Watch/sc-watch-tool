@@ -768,8 +768,42 @@ like sc-watch; CI fails the build if that credit is missing.
 
 First run on the real Linux PC 2026-11-24 (Bazzite, KDE Plasma on Wayland,
 the portal's screen cast at 5120x1440, auto trigger): 142 bursts, no
-errors. HDR on Linux is not handled: frames
-are read as the desktop shares them.
+errors.
+
+### Up to the Windows standard (2026-11-27)
+
+What a Windows user has without asking, the Linux build now has too:
+
+- **Started by a double-click.** sc-watch.exe double-clicked gets a
+  console window: its lines are shown there and closing it stops the
+  program. Started with no options and no terminal on a desktop, the Linux
+  `sc-watch` reopens itself in one (`scw_app::terminal`): the desktop's
+  own choice when it names one (xdg-terminal-exec), else Konsole on KDE,
+  else the first usual terminal installed. In its own window an exit with
+  an error waits for Enter, so the reason is read before it closes.
+- **A screen chosen on the page.** On a Wayland desktop the desktop, not
+  the Monitor setting, picks the screen; changing it meant deleting
+  `screencast_token.txt`. Settings > Maintenance > "Share a different
+  screen" (the page's `screen` job, offered where `stats.screen_share`
+  says the portal is used) forgets the token and restarts the watcher, and
+  the desktop asks again.
+- **HDR said, not converted.** With HDR on, KDE converts the screen to
+  SDR itself before sharing it (since Plasma 6.2.4, relative colorimetric:
+  the SDR brightness as white, SDR content as drawn) - the conversion
+  sc-watch makes for itself on Windows, so frames are read as they come.
+  What KDE reports (`kscreen-doctor -o`: HDR on or off, the SDR
+  brightness) for the shared screen - found by the portal's position and
+  size - goes into the banner, the environment (`desktop hdr`) and a
+  `desktop_hdr_on` event, and the capture line names the pixel format
+  agreed. The Monitor and HDR capture settings say what they mean on Linux
+  (settings_wording_linux.json, over the port's wording on Linux only).
+- **The mining band read alone.** Each read of the overlay's band
+  converted the whole shared screen and cut it down; Windows copies only
+  the band. The PipeWire stream now converts only the part asked for.
+
+Still to see on the real PC: KDE's HDR conversion against a no-HDR frame
+of the same scene, the double-click start in Dolphin, and the screen
+dialog asked again from the page.
 
 Deliberately stricter than debuglog.py: a Windows home folder inside an
 event's values is scrubbed. debuglog.py scrubs the JSON text, where every
