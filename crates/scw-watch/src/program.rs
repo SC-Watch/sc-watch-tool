@@ -54,6 +54,9 @@ pub struct HdrState {
     pub sdr_white_nits: f64,
     /// The float capture was asked for and Windows HDR is on.
     pub capturing: bool,
+    /// Who converts the HDR screen to SDR before sc-watch sees it, when it
+    /// is not sc-watch: on Linux, KDE ("KDE").
+    pub converted_by: Option<String>,
 }
 
 /// The frame source, its banner line and what the HDR check found.
@@ -84,6 +87,7 @@ fn open_screen(monitor: i64, hdr: HdrCapture, _roots: &Roots) -> Result<Opened, 
         on: s.on,
         sdr_white_nits: s.sdr_white_nits,
         capturing: hdr.wanted(Some(s.on)),
+        converted_by: None,
     });
     let what = src.describe();
     Ok((Box::new(src), what, state))
@@ -92,7 +96,8 @@ fn open_screen(monitor: i64, hdr: HdrCapture, _roots: &Roots) -> Result<Opened, 
 /// Linux: on a Wayland desktop, the screen it shares through its
 /// screen-cast portal (asked once, then remembered); on an X11 desktop, the
 /// game's window, else the monitor. `SCW_CAPTURE` (x11 or portal) chooses
-/// outright. No HDR conversion here yet.
+/// outright. No HDR conversion here: KDE converts an HDR screen itself, and
+/// what it reports is said (`kde_hdr`).
 #[cfg(target_os = "linux")]
 fn open_screen(monitor: i64, _hdr: HdrCapture, roots: &Roots) -> Result<Opened, String> {
     use scw_capture::LinuxCapture;
@@ -103,7 +108,8 @@ fn open_screen(monitor: i64, _hdr: HdrCapture, roots: &Roots) -> Result<Opened, 
             let src = ScreenCastSource::open(Some(token), &|s: &str| println!("{s}"))
                 .map_err(|e| format!("screen capture: {e}"))?;
             let what = src.describe();
-            Ok((Box::new(src), what, None))
+            let hdr = kde_hdr(src.desktop_position(), src.desktop_size());
+            Ok((Box::new(src), what, hdr))
         }
         LinuxCapture::X11 => {
             use scw_capture::x11::{GAME_WINDOW, X11Source};
@@ -113,6 +119,39 @@ fn open_screen(monitor: i64, _hdr: HdrCapture, roots: &Roots) -> Result<Opened, 
             Ok((Box::new(src), what, None))
         }
     }
+}
+
+/// What KDE Plasma reports for the shared screen (at `position`, of `size`
+/// on the desktop): whether HDR is on, at what SDR brightness. None off
+/// KDE, or when it cannot be told - said once, with the reason.
+#[cfg(target_os = "linux")]
+fn kde_hdr(position: Option<(i32, i32)>, size: Option<(i32, i32)>) -> Option<HdrState> {
+    let desktop = env("XDG_CURRENT_DESKTOP").unwrap_or_default();
+    if !desktop.split(':').any(|d| d.eq_ignore_ascii_case("kde")) {
+        return None;
+    }
+    let outputs = match scw_capture::kde::query() {
+        Ok(o) => o,
+        Err(e) => {
+            println!("  screen: KDE's HDR setting is not known - {e}");
+            return None;
+        }
+    };
+    let Some(o) = scw_capture::kde::matching(&outputs, position, size) else {
+        println!(
+            "  screen: KDE's HDR setting is not known - which of its {} screens is shared \
+             could not be told",
+            outputs.len()
+        );
+        return None;
+    };
+    Some(HdrState {
+        device: o.name.clone(),
+        on: o.hdr_on(),
+        sdr_white_nits: o.sdr_brightness.unwrap_or(0.0),
+        capturing: false,
+        converted_by: Some("KDE".into()),
+    })
 }
 
 #[cfg(not(any(windows, target_os = "linux")))]
@@ -883,7 +922,18 @@ pub fn banner(
         println!("  DEBUG: saving every frame to debug_bursts/ (~4.7 MB each)");
     }
     if let Some(h) = hdr {
-        if h.capturing {
+        if let Some(by) = &h.converted_by {
+            if h.on {
+                println!(
+                    "  HDR: {by} has HDR on for {} (SDR brightness {:.0} nits) and converts the",
+                    h.device, h.sdr_white_nits
+                );
+                println!(
+                    "    shared screen to SDR itself before sc-watch sees it - nothing to set here."
+                );
+                println!("    Keep Star Citizen's own HDR option off: it makes HUD text bloom.");
+            }
+        } else if h.capturing {
             println!(
                 "  HDR capture: Windows HDR is on for {} - reading the HDR picture and",
                 h.device
@@ -966,12 +1016,24 @@ pub fn banner(
             },
         ),
         (
-            "windows hdr".into(),
+            if cfg!(windows) {
+                "windows hdr"
+            } else {
+                "desktop hdr"
+            }
+            .into(),
             match (args.replay.is_some(), hdr) {
                 (true, _) => "n/a (replay)".into(),
                 (false, None) => "unknown".into(),
-                (false, Some(h)) if h.on => format!("ON, SDR white {:.0} nits", h.sdr_white_nits),
-                (false, Some(_)) => "off".into(),
+                (false, Some(h)) => match (&h.converted_by, h.on) {
+                    (None, true) => format!("ON, SDR white {:.0} nits", h.sdr_white_nits),
+                    (None, false) => "off".into(),
+                    (Some(by), true) => format!(
+                        "ON in {by} for {}, SDR brightness {:.0} nits (converted by {by})",
+                        h.device, h.sdr_white_nits
+                    ),
+                    (Some(by), false) => format!("off in {by} for {}", h.device),
+                },
             },
         ),
         ("capture".into(), capture.to_string()),
@@ -985,13 +1047,23 @@ pub fn banner(
         .collect();
     dbg.header(&environment, cur, &overrides);
     if let Some(h) = hdr.filter(|h| h.on) {
-        dbg.event(
-            "windows_hdr_on",
-            &[
-                ("display", json!(h.device)),
-                ("sdr_white_nits", json!(h.sdr_white_nits.round())),
-            ],
-        );
+        match &h.converted_by {
+            None => dbg.event(
+                "windows_hdr_on",
+                &[
+                    ("display", json!(h.device)),
+                    ("sdr_white_nits", json!(h.sdr_white_nits.round())),
+                ],
+            ),
+            Some(by) => dbg.event(
+                "desktop_hdr_on",
+                &[
+                    ("desktop", json!(by)),
+                    ("output", json!(h.device)),
+                    ("sdr_brightness_nits", json!(h.sdr_white_nits.round())),
+                ],
+            ),
+        }
     }
     if let Some(p) = &dbg.path
         && let Some(name) = p.file_name()

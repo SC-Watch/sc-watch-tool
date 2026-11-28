@@ -57,8 +57,11 @@ impl ScreenCastSource {
             Some(WINDOW) => "the shared window",
             _ => "the shared screen",
         };
+        // The pixel format agreed: 8-bit is all this version takes (and all
+        // KDE sends - an HDR screen is converted to SDR before it is shared).
+        let pixels = crate::spa::Layout::from_id(format.format).map_or("?", |l| l.name());
         let what = format!(
-            "{kind}, {}x{} (desktop screen-cast portal v{}, PipeWire)",
+            "{kind}, {}x{} {pixels} (desktop screen-cast portal v{}, PipeWire)",
             format.width, format.height, grant.version
         );
         Ok(ScreenCastSource {
@@ -71,6 +74,11 @@ impl ScreenCastSource {
     /// The portal's own report of the screen's size on the desktop.
     pub fn desktop_size(&self) -> Option<(i32, i32)> {
         self.grant.size
+    }
+
+    /// The portal's own report of where the screen sits on the desktop.
+    pub fn desktop_position(&self) -> Option<(i32, i32)> {
+        self.grant.position
     }
 }
 

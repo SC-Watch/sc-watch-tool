@@ -40,6 +40,8 @@ pub struct Grant {
     pub node: u32,
     /// Its size on the desktop, when the portal says.
     pub size: Option<(i32, i32)>,
+    /// Where it sits on the desktop, when the portal says.
+    pub position: Option<(i32, i32)>,
     /// What was shared (MONITOR or WINDOW), when the portal says.
     pub source_type: Option<u32>,
     /// The token to share the same screen next time without asking.
@@ -207,9 +209,12 @@ pub fn share_screen(
         .into_iter()
         .next()
         .ok_or("the desktop shared no screen")?;
-    let size = props
-        .get("size")
-        .and_then(|v| <(i32, i32)>::try_from(v.try_clone().ok()?).ok());
+    let pair = |k: &str| {
+        props
+            .get(k)
+            .and_then(|v| <(i32, i32)>::try_from(v.try_clone().ok()?).ok())
+    };
+    let (size, position) = (pair("size"), pair("position"));
     let source_type = props
         .get("source_type")
         .and_then(|v| u32::try_from(v.try_clone().ok()?).ok());
@@ -222,6 +227,7 @@ pub fn share_screen(
         fd: Some(fd.into()),
         node,
         size,
+        position,
         source_type,
         restore_token,
         version,

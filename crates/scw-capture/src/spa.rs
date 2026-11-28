@@ -79,6 +79,21 @@ impl Layout {
         })
     }
 
+    /// SPA's name for it (spa_debug_type_find_short_name's).
+    pub fn name(self) -> &'static str {
+        use Layout::*;
+        match self {
+            Rgbx => "RGBx",
+            Bgrx => "BGRx",
+            Xrgb => "xRGB",
+            Xbgr => "xBGR",
+            Rgba => "RGBA",
+            Bgra => "BGRA",
+            Argb => "ARGB",
+            Abgr => "ABGR",
+        }
+    }
+
     /// Where blue, green and red sit in a pixel's four bytes.
     fn bgr_at(self) -> [usize; 3] {
         use Layout::*;

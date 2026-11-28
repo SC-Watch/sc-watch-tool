@@ -8,6 +8,7 @@
 //! Wayland desktop shares through its screen-cast portal, over PipeWire.
 
 pub mod hdr;
+pub mod kde;
 #[cfg(target_os = "linux")]
 pub mod pipewire;
 #[cfg(target_os = "linux")]
