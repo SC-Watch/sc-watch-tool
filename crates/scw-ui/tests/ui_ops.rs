@@ -619,8 +619,9 @@ fn server_matches_ui_server_py() {
 
 /// The port's answer as ui_server.py would give it: without the settings
 /// only the port has (the mining overlay) - out of every settings map, and
-/// their category out of every schema - and with settings.py's own words
-/// for the fields the port rewords.
+/// their category out of every schema - without the stats that say what
+/// this system offers (Linux: keyboard setup), and with settings.py's own
+/// words for the fields the port rewords.
 fn as_python(v: &mut Value) {
     let rust_only = scw_store::settings::RUST_ONLY;
     match v {
@@ -629,6 +630,11 @@ fn as_python(v: &mut Value) {
                 for k in rust_only {
                     m.shift_remove(*k);
                 }
+            }
+            // The page's stats (they carry the schema): the port's system
+            // flags, offered on Linux only, are none of the Python's.
+            if m.contains_key("settings_schema") && m.get("key_setup") == Some(&json!(true)) {
+                m.shift_remove("key_setup");
             }
             if m.contains_key("choices")
                 && let Some(k) = m.get("key").and_then(Value::as_str)
