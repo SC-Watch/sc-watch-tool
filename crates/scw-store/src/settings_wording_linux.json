@@ -1,0 +1,8 @@
+{
+ "monitor": {
+  "help": "1-based index of the screen the game is on - on Linux only with the X11 capture, for when the game's own window is not found. On a Wayland desktop (KDE Plasma) the desktop itself asks which screen to share the first time and shares the same one from then on; Maintenance > 'Share a different screen' makes it ask again."
+ },
+ "hdr_capture": {
+  "help": "Windows only: Linux needs nothing here. With HDR on, KDE Plasma converts the screen to SDR itself before sharing it - the SDR brightness setting as white, the picture the game drew - which is what 'auto' does on Windows. The watcher's start lines say whether KDE has HDR on for the shared screen. Star Citizen's own HDR option should stay off either way: it makes HUD text bloom in the game itself."
+ }
+}

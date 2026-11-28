@@ -43,23 +43,40 @@ pub const RUST_ONLY: &[&str] = &[
 /// version has, and the OCR reader's own options say so.
 const WORDING_RUST_JSON: &str = include_str!("settings_wording_rust.json");
 
+/// On Linux, the words for what differs there (settings_wording_linux.json,
+/// over the port's): which screen is captured, and that HDR needs nothing.
+const WORDING_LINUX_JSON: &str = include_str!("settings_wording_linux.json");
+
+/// The port's words, with Linux's over them on Linux: a field named in both
+/// takes each of Linux's entries.
+fn wording() -> Map<String, Value> {
+    let mut w: Map<String, Value> =
+        serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
+    if cfg!(target_os = "linux") {
+        let linux: Map<String, Value> =
+            serde_json::from_str(WORDING_LINUX_JSON).expect("settings_wording_linux.json");
+        for (k, v) in linux {
+            match (w.get_mut(&k), v) {
+                (Some(Value::Object(have)), Value::Object(more)) => have.extend(more),
+                (_, v) => {
+                    w.insert(k, v);
+                }
+            }
+        }
+    }
+    w
+}
+
 /// Does this port reword this field of settings.py's?
 pub fn reworded(key: &str) -> bool {
     static KEYS: OnceLock<Vec<String>> = OnceLock::new();
-    KEYS.get_or_init(|| {
-        let wording: Map<String, Value> =
-            serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
-        wording.keys().cloned().collect()
-    })
-    .iter()
-    .any(|k| k == key)
+    KEYS.get_or_init(reworded_keys).iter().any(|k| k == key)
 }
 
-/// The fields this port rewords, in settings_wording_rust.json's order.
+/// The fields this port rewords: settings_wording_rust.json's order, then
+/// Linux's own on Linux.
 pub fn reworded_keys() -> Vec<String> {
-    let wording: Map<String, Value> =
-        serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
-    wording.keys().cloned().collect()
+    wording().keys().cloned().collect()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
@@ -116,8 +133,7 @@ fn schema() -> &'static Schema {
                     .iter()
                     .cloned(),
             );
-        let wording: Map<String, Value> =
-            serde_json::from_str(WORDING_RUST_JSON).expect("settings_wording_rust.json");
+        let wording = wording();
         for cat in described.as_array_mut().expect("a list of categories") {
             for f in cat["fields"].as_array_mut().expect("a list of fields") {
                 if let Some(Value::Object(words)) = f["key"].as_str().and_then(|k| wording.get(k)) {
