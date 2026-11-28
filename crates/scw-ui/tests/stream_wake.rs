@@ -247,3 +247,92 @@ fn the_board_shows_on_the_stream() {
     stream.join().unwrap();
     let _ = std::fs::remove_dir_all(&base);
 }
+
+/// The commit hook announces a commit as SQLite starts it, and on a slow
+/// disk it lands later than the stream's settle (seen on CI: shown 2.63 s
+/// after the commit, at the OUTSIDE look). Announced and not yet in the
+/// file, the stream keeps looking for a while instead of going back to
+/// waiting: here the announcement comes 300 ms before the commit, and the
+/// commit's own connection announces nothing.
+#[test]
+fn a_commit_announced_before_it_lands_is_still_shown_at_once() {
+    let base = std::env::temp_dir().join(format!("scw-ui-late-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&base);
+    std::fs::create_dir_all(base.join("data")).unwrap();
+    let db_path = base.join("data").join("sc-watch.db");
+    // Opened before the stream starts: opening writes, and that is not the
+    // commit this is about. Not watched: its commits announce nothing.
+    let db = Database::open(&db_path).unwrap();
+    let roots = Roots {
+        mode: Mode::Chosen,
+        program: base.join("program"),
+        data: base.join("data"),
+    };
+    let mut ui = Ui::new(
+        roots,
+        Arc::new(NoSleep),
+        Arc::new(NoNet),
+        Hooks {
+            spawn: Box::new(|job| job()),
+            reveal: Box::new(|_| Ok(())),
+            speak: Box::new(|_| Ok(())),
+            input: Box::new(|| panic!("no keys")),
+            env: Arc::new(|_| None),
+            today: Box::new(|| chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap()),
+            utc: true,
+        },
+    );
+    let changes = Arc::new(Changes::default());
+    ui.changes = Some(changes.clone());
+    let ui = Arc::new(ui);
+    let frames = Frames::default();
+    let going = Arc::new(AtomicBool::new(true));
+    let stream = {
+        let (ui, frames, going) = (ui.clone(), frames.clone(), going.clone());
+        std::thread::spawn(move || {
+            let mut out = frames;
+            ui.stream(&mut out, None, "", &|| going.load(Ordering::Relaxed));
+        })
+    };
+    let wait = |what: &str, ok: &dyn Fn() -> bool| {
+        let until = Instant::now() + Duration::from_secs(5);
+        while !ok() {
+            assert!(Instant::now() < until, "timed out waiting for {what}");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    };
+    wait("the first frame", &|| !frames.0.lock().unwrap().is_empty());
+    std::thread::sleep(Duration::from_millis(200));
+
+    changes.bump();
+    std::thread::sleep(Duration::from_millis(300));
+    let at = Instant::now();
+    db.record_sighting("EXMPLLATE", Some(1.0), 2, 2).unwrap();
+    wait("the late commit on the stream", &|| {
+        frames
+            .0
+            .lock()
+            .unwrap()
+            .iter()
+            .any(|(_, f)| f.contains("EXMPLLATE"))
+    });
+    let shown = frames
+        .0
+        .lock()
+        .unwrap()
+        .iter()
+        .find(|(_, f)| f.contains("EXMPLLATE"))
+        .map(|(t, _)| *t)
+        .unwrap();
+    let took = shown.duration_since(at).as_secs_f64();
+    assert!(
+        took < 0.5,
+        "shown {took:.2} s after the commit - it waited for the {} s look",
+        scw_ui::stream::OUTSIDE
+    );
+    going.store(false, Ordering::Relaxed);
+    changes.bump();
+    stream.join().unwrap();
+    drop(db);
+    let _ = std::fs::remove_dir_all(&base);
+}

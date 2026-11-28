@@ -18,6 +18,9 @@ pub const KEEPALIVE: f64 = 15.0;
 pub const OUTSIDE: f64 = 2.0;
 /// After a wake: lets the commit that woke it land before it is read.
 pub const SETTLE_MS: u64 = 50;
+/// After a wake: how many more SETTLE_MS looks before waiting again (a
+/// second in all), for a commit announced before it landed.
+pub const UNSEEN_LOOKS: u32 = 20;
 
 /// A number that changes whenever anyone commits to one SQLite file.
 /// Read-only, opened lazily, never creating the file.
@@ -78,6 +81,12 @@ impl Ui {
             (watched[0].get(), watched[1].get(), mtime, shown)
         };
         let (mut last, mut last_beat) = (None, 0.0);
+        // Looks left after a wake: the commit hook runs as SQLite starts to
+        // commit, and on a slow disk the commit can land later than
+        // SETTLE_MS - so after each wake the files are looked at for a
+        // second (cheap: two PRAGMAs and a stat; a frame only for a change),
+        // whatever else changed meanwhile.
+        let mut unseen = 0u32;
         while keep_going() {
             // Read before the stamp, so a commit in between is not missed.
             let seen = self.changes.as_ref().map(|c| c.seen());
@@ -101,12 +110,21 @@ impl Ui {
                 return; // tab closed or reloaded
             }
             match (&self.changes, seen) {
+                // After a wake: look again shortly, UNSEEN_LOOKS times,
+                // before waiting for the next notice or the OUTSIDE look.
+                (Some(_), Some(_)) if unseen > 0 => {
+                    unseen -= 1;
+                    std::thread::sleep(std::time::Duration::from_millis(SETTLE_MS));
+                }
                 // In one process the watcher's commits wake the stream at
                 // once; the files are still looked at now and then, for
                 // anything writing from outside.
                 (Some(ch), Some(s)) => {
-                    ch.wait_past(s, std::time::Duration::from_secs_f64(OUTSIDE));
+                    let after = ch.wait_past(s, std::time::Duration::from_secs_f64(OUTSIDE));
                     std::thread::sleep(std::time::Duration::from_millis(SETTLE_MS));
+                    if after > s {
+                        unseen = UNSEEN_LOOKS;
+                    }
                 }
                 _ => self.clock.sleep(POLL),
             }
