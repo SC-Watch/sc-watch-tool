@@ -138,6 +138,9 @@ done
 if [ -n "$socket" ] && kill -0 $sway 2>/dev/null; then
   export WAYLAND_DISPLAY=$socket XDG_CURRENT_DESKTOP=sway
   sleep 1
+  # For swaymsg: the test repaints the output to get a new picture.
+  SWAYSOCK=$(ls "$XDG_RUNTIME_DIR"/sway-ipc.*.sock 2>/dev/null | head -n 1)
+  export SWAYSOCK
   /usr/libexec/xdg-desktop-portal-wlr >"$logs/xdpw.log" 2>&1 &
   # Waited for, not slept on: the portal looks for its backends when it
   # starts, so a backend that registers late leaves it without a screen-cast

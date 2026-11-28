@@ -49,19 +49,36 @@ fn shares_and_reads_the_screen_through_the_portal() {
         Some((img.width, img.height)),
         "the stream's size"
     );
+    // A still screen sends no new picture, and a grab takes only a new one:
+    // sway paints its output a second colour, and the part shows it.
+    let second = [bgr[2], bgr[1], bgr[0]];
+    let painted = std::process::Command::new("swaymsg")
+        .args(["output", "*", "bg"])
+        .arg(format!(
+            "#{:02x}{:02x}{:02x}",
+            second[2], second[1], second[0]
+        ))
+        .arg("solid_color")
+        .status()
+        .is_ok_and(|s| s.success());
+    assert!(painted, "swaymsg repaints the output (SWAYSOCK set?)");
     let mut part = None;
     for _ in 0..40 {
         if let Some(p) = src
             .grab_region(img.width / 2, img.height / 2, 16, 8)
             .unwrap()
+            && p.data[..3] == second
         {
             part = Some(p);
             break;
         }
     }
-    let part = part.expect("a part of the screen within 10 s");
+    let part = part.expect("the repainted part of the screen within 10 s");
     assert_eq!((part.width, part.height), (16, 8));
-    assert_eq!(&part.data[..3], &bgr, "the part's colour");
+    assert!(
+        part.data.chunks(3).all(|p| p == second),
+        "the part's colour"
+    );
     let kept = token.exists();
     let _ = std::fs::remove_file(&token);
     println!(
